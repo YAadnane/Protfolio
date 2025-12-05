@@ -412,6 +412,16 @@ app.delete('/api/shapes/:id', authenticateToken, (req, res) => {
     });
 });
 
+// =========================================
+// SERVE FRONTEND (MUST BE LAST)
+// =========================================
+const distPath = path.join(__dirname, '../dist');
+app.use(express.static(distPath));
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 });
