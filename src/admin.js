@@ -96,8 +96,30 @@ const fields = {
 document.addEventListener('DOMContentLoaded', () => {
     loadContent(currentTab);
     setupModal();
+    loadContent(currentTab);
+    setupModal();
     initCursor();
+    updateUnreadCount();
 });
+
+// Update Unread Count
+async function updateUnreadCount() {
+    try {
+        const res = await fetch(`${API_URL}/messages`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const messages = await res.json();
+        const unread = messages.filter(m => !m.is_read || m.is_read == 0).length;
+        const badge = document.getElementById('msg-badge');
+        
+        if (unread > 0) {
+            badge.innerText = unread;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+    } catch (err) { console.error('Error fetching messages count:', err); }
+}
 
 // Tab Switching
 window.switchTab = (tab) => {
@@ -434,6 +456,7 @@ window.markAsRead = async (id) => {
         if (res.ok) {
              // Refresh current tab if it's messages
             if (currentTab === 'messages') loadContent('messages');
+            updateUnreadCount();
         }
     } catch (err) { console.error(err); }
 };
@@ -447,6 +470,7 @@ window.deleteMessage = async (id) => {
         });
         if (res.ok) {
             if (currentTab === 'messages') loadContent('messages');
+            updateUnreadCount();
         }
     } catch (err) { console.error(err); }
 };

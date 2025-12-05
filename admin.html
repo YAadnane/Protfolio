@@ -173,6 +173,17 @@
             height: 40px;
             border: 1px solid var(--accent-color);
         }
+
+        .badge {
+            background-color: #ff0055;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+            display: none;
+            /* Hidden by default */
+        }
     </style>
 </head>
 
@@ -203,8 +214,9 @@
             <button class="tab-btn" onclick="switchTab('skills')">Skills</button>
             <button class="tab-btn" onclick="switchTab('shapes')">Shapes</button>
             <button class="tab-btn" onclick="switchTab('general')">General</button>
-            <button class="tab-btn" onclick="switchTab('messages')">Messages</button>
-         </div>
+            <button class="tab-btn" onclick="switchTab('messages')">Messages <span id="msg-badge"
+                    class="badge"></span></button>
+        </div>
 
         <div id="content-grid" class="admin-grid">
             <!-- Content loaded via JS -->
