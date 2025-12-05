@@ -181,7 +181,8 @@ h4 {
     top: 0;
     width: 100%;
     padding: 1rem 0;
-    z-index: 100;
+    z-index: 10000;
+    /* Ensure header stays above mobile overlay (9990) */
     transition: var(--transition-fast);
     background: rgba(5, 5, 5, 0.8);
     backdrop-filter: blur(10px);
