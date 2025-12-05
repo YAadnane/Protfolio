@@ -1656,6 +1656,12 @@ textarea:focus {
         background: rgba(5, 5, 5, 0.9);
     }
 
+    /* Hide custom cursor on mobile */
+    .cursor-dot,
+    .cursor-outline {
+        display: none !important;
+    }
+
     .hamburger {
         display: none !important;
         /* Hide hamburger completely */
