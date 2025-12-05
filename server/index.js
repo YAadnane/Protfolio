@@ -413,6 +413,16 @@ app.delete('/api/shapes/:id', authenticateToken, (req, res) => {
 });
 
 // --- CONTACT / MESSAGES ---
+import nodemailer from 'nodemailer';
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'yadani.adnane20@gmail.com', // User's email
+        pass: process.env.EMAIL_PASS // App Password from Env
+    }
+});
+
 app.post('/api/contact', sanitizeMiddleware, (req, res) => {
     const { name, email, message } = req.body;
     
@@ -424,6 +434,24 @@ app.post('/api/contact', sanitizeMiddleware, (req, res) => {
         [name, email, message],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
+            
+            // Send Email Notification
+            const mailOptions = {
+                from: 'yadani.adnane20@gmail.com',
+                to: 'yadani.adnane20@gmail.com',
+                subject: `New Portfolio Message from ${name}`,
+                text: `You have a new message from your portfolio:\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.log('Error sending email:', error);
+                    // Don't fail the request if email fails, just log it
+                } else {
+                    console.log('Email sent: ' + info.response);
+                }
+            });
+
             res.json({ message: "Message sent successfully", id: this.lastID });
         }
     );

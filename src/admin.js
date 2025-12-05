@@ -131,10 +131,36 @@ async function loadContent(type) {
                 </div>
             `;
             grid.appendChild(card);
+            grid.appendChild(card);
             return;
         }
 
-
+        if (type === 'messages') {
+            if (data.length === 0) {
+                grid.innerHTML = '<p>No messages yet.</p>';
+                return;
+            }
+            data.forEach(msg => {
+                const card = document.createElement('div');
+                card.className = 'admin-card';
+                card.style.opacity = msg.is_read ? '0.6' : '1';
+                card.style.borderColor = msg.is_read ? 'rgba(255,255,255,0.05)' : 'var(--accent-color)';
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                        <span style="font-weight:bold; color:var(--text-main);">${msg.name}</span>
+                        <span style="font-size:0.8rem; color:var(--text-muted);">${new Date(msg.date).toLocaleString()}</span>
+                    </div>
+                    <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:0.5rem;">${msg.email}</div>
+                    <p style="background:rgba(255,255,255,0.05); padding:0.8rem; border-radius:0.5rem; font-size:0.95rem; margin-bottom:1rem;">${msg.message}</p>
+                    <div class="admin-actions">
+                        ${!msg.is_read ? `<button class="btn-edit" onclick="markAsRead(${msg.id})" style="background:rgba(0,255,157,0.1); color:var(--accent-color); border:none; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer;"><i class="fa-solid fa-check"></i> Mark Read</button>` : '<span style="color:#666; font-size:0.8rem; align-self:center; margin-right:1rem;">Read</span>'}
+                        <button class="btn-delete" onclick="deleteMessage(${msg.id})"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            return;
+        }
 
         data.forEach(item => {
             const card = document.createElement('div');
@@ -392,3 +418,31 @@ function initCursor() {
         }
     });
 }
+
+// Messages Actions
+window.markAsRead = async (id) => {
+    if (!confirm('Mark as read?')) return;
+    try {
+        const res = await fetch(`${API_URL}/messages/${id}/read`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+             // Refresh current tab if it's messages
+            if (currentTab === 'messages') loadContent('messages');
+        }
+    } catch (err) { console.error(err); }
+};
+
+window.deleteMessage = async (id) => {
+    if (!confirm('Are you sure you want to delete this message?')) return;
+    try {
+        const res = await fetch(`${API_URL}/messages/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            if (currentTab === 'messages') loadContent('messages');
+        }
+    } catch (err) { console.error(err); }
+};
