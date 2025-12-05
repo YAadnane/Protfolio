@@ -1648,9 +1648,18 @@ textarea:focus {
 }
 
 @media (max-width: 768px) {
+
+    /* Disable backdrop-filter on header to prevent containing block issues for fixed children */
+    .header {
+        backdrop-filter: none;
+        background: rgba(5, 5, 5, 0.9);
+        /* Opaque background for header bar */
+    }
+
     .hamburger {
         display: block;
-        z-index: 101;
+        z-index: 200;
+        /* Ensure hamburger is above the menu overlay */
     }
 
     .hamburger.active .bar:nth-child(2) {
@@ -1667,17 +1676,20 @@ textarea:focus {
 
     .nav-list {
         position: fixed;
-        left: -100%;
+        left: -100vw;
+        /* Use vw units */
         top: 0;
         flex-direction: column;
-        background-color: rgba(5, 5, 5, 0.98);
-        width: 100%;
+        justify-content: center;
+        background-color: #050505;
+        /* Solid black to ensure visibility */
+        width: 100vw;
         height: 100vh;
         text-align: center;
-        transition: 0.3s;
-        padding-top: 6rem;
-        backdrop-filter: blur(10px);
-        z-index: 99;
+        transition: left 0.3s ease-in-out;
+        padding-top: 0;
+        z-index: 150;
+        /* Above header */
     }
 
     .nav-list.active {
@@ -1685,13 +1697,15 @@ textarea:focus {
     }
 
     .nav-list li {
-        margin: 2rem 0;
+        margin: 1.5rem 0;
     }
-    
+
     .nav-link {
-        font-size: 1.5rem;
+        font-size: 2rem;
+        /* Larger font */
+        display: block;
     }
-    
+
     .header-buttons {
         display: none;
     }
