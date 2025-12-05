@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://yadani-adnane.duckdns.org/sitemap.xml
