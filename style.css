@@ -1657,11 +1657,19 @@ textarea:focus {
     }
 
     .hamburger {
-        display: block;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 30px;
+        height: 20px;
         z-index: 9991;
-        /* Above overlay */
         position: relative;
-        /* Ensure z-index applies */
+        cursor: pointer;
+        background: transparent;
+        border: none;
+        padding: 0;
+        margin-right: 0;
+        /* Alignment fix */
     }
 
     .hamburger.active .bar:nth-child(2) {
