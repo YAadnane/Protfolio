@@ -24,6 +24,10 @@ Il intègre un **Dashboard Administrateur** complet permettant de gérer tout le
 *   **Éléments 3D & Interactifs** : Formes géométriques dynamiques et effets de particules.
 *   **Filtrage Dynamique** : Tri des projets par catégories et tags en temps réel.
 *   **Responsive Design** : Parfaitement adapté aux mobiles, tablettes et desktops.
+*   **Mobile Experience v2.0** : 
+    *   Menu simplifié (Logo + Boutons d'action).
+    *   Typographie adaptative pour une lisibilité optimale.
+    *   Design épuré (suppression du curseur personnalisé sur tactile).
 
 ### ⚙️ Backend & Admin (Gestion de Contenu)
 *   **Dashboard Sécurisé** : Authentification JWT pour l'accès administrateur.
@@ -41,6 +45,20 @@ Il intègre un **Dashboard Administrateur** complet permettant de gérer tout le
 | **Backend** | ![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white) ![Express.js](https://img.shields.io/badge/Express.js-000000?style=flat&logo=express&logoColor=white) |
 | **Base de Données** | ![SQLite](https://img.shields.io/badge/SQLite-003B57?style=flat&logo=sqlite&logoColor=white) |
 | **Outils** | ![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat&logo=vite&logoColor=white) ![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white) |
+
+---
+
+## 🌐 Déploiement & Sécurité
+
+Ce projet est déployé en production sur une infrastructure cloud robuste :
+
+*   **Cloud Provider** : Oracle Cloud Infrastructure (VM Ubuntu AMD).
+*   **Serveur Web** : Nginx (Reverse Proxy).
+*   **Sécurité** : 
+    *   **SSL/HTTPS** : Certificat Let's Encrypt (via Certbot) pour une connexion chiffrée.
+    *   **Firewall** : Configuration stricte (iptables + Security Lists) n'autorisant que les ports 80 et 443.
+*   **Gestion de Processus** : PM2 pour le maintien en ligne et le redémarrage automatique de l'application Node.js.
+*   **Nom de Domaine** : Accessible via `https://yadani-adnane.duckdns.org`.
 
 ---
 
