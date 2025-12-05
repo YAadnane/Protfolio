@@ -1683,6 +1683,31 @@ textarea:focus {
     .header-buttons {
         display: none;
     }
+
+    /* Filter Responsiveness */
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .section-header .line-separator {
+        display: none;
+    }
+
+    .section-header .project-filters {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        /* Stack filters vertically on small screens */
+        gap: 0.8rem;
+    }
+
+    .filter-select {
+        width: 100%;
+        max-width: none;
+        /* Remove any max-width constraints */
+    }
 }
 
 /* =========================================
