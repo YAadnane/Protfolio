@@ -21,7 +21,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Initialize animations AFTER content is loaded
     initAnimations();
+    initMobileMenu();
 });
+
+function initMobileMenu() {
+    const hamburger = document.getElementById('hamburger');
+    const navList = document.querySelector('.nav-list');
+
+    if (hamburger && navList) {
+        hamburger.addEventListener('click', () => {
+            hamburger.classList.toggle('active');
+            navList.classList.toggle('active');
+        });
+
+        document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            navList.classList.remove('active');
+        }));
+    }
+}
 
 async function loadGeneralInfo() {
     try {

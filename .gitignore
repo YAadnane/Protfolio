@@ -33,4 +33,4 @@ dist-ssr
 portfolio.db
 
 # Uploads (Optional: keep if you want to commit uploads, ignore if user generated)
-# uploads/
+uploads/
