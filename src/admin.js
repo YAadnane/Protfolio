@@ -1,6 +1,6 @@
 import { gsap } from "gsap";
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = '/api';
 let currentTab = 'projects';
 let editingId = null;
 

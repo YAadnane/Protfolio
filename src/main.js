@@ -3,7 +3,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = '/api';
 
 // =========================================
 // DYNAMIC CONTENT LOADING
