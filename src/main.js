@@ -48,8 +48,6 @@ function initMobileMenu() {
         });
     }
 }
-    }
-}
 
 async function loadGeneralInfo() {
     try {
