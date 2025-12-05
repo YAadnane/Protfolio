@@ -1,4 +1,9 @@
 # 🚀 Adnane Yadani | Data Scientist & Developer Portfolio
+---
+
+> **"Crafting Intelligent Data Systems."**
+><img width="1365" height="695" alt="image" src="https://github.com/user-attachments/assets/0138c7d3-3963-4b2d-b9f8-316428c8edf8" />
+> Un portfolio moderne et interactif combinant la puissance de la **Data Science** avec l'élégance du **Développement Web**.
 
 ## 🌟 À Propos
 
@@ -83,27 +88,14 @@ npm start
 ## 📸 Aperçu
 
 ### Hero Section
-*(Ajouter une image ici)*
-
-### Admin Dashboard
-*(Ajouter une image ici)*
-
----
-
-## 👤 Auteur
-
-**Adnane Yadani**
-*   Data Scientist & Developer
-*   [LinkedIn](https://www.linkedin.com/)
-*   [GitHub](https://github.com/YAadnane)
-
----
 <img width="1365" height="695" alt="image" src="https://github.com/user-attachments/assets/0138c7d3-3963-4b2d-b9f8-316428c8edf8" />
 <img width="1365" height="698" alt="image" src="https://github.com/user-attachments/assets/5c3995ff-72f7-45ee-9b65-ced1aaf18546" />
 <img width="1365" height="697" alt="image" src="https://github.com/user-attachments/assets/a686119c-80d0-471e-a257-752de0e20fa6" />
 <img width="1365" height="699" alt="image" src="https://github.com/user-attachments/assets/3bfd9c02-0a3e-4942-a17d-1c04291e8d6f" />
 <img width="1365" height="695" alt="image" src="https://github.com/user-attachments/assets/7673d062-0f6b-4974-b80a-b6f8578987ce" />
 <img width="1360" height="700" alt="image" src="https://github.com/user-attachments/assets/f08ecdf1-d03c-4fdf-8c32-1ec474bdb3d1" />
+
+### Admin Dashboard
 <img width="1365" height="700" alt="image" src="https://github.com/user-attachments/assets/2453d742-7f2f-4a70-875c-c2614513ef06" />
 <img width="1365" height="700" alt="image" src="https://github.com/user-attachments/assets/ecf9c0aa-2aaf-4628-a055-8b50d5b08e23" />
 <img width="1365" height="700" alt="image" src="https://github.com/user-attachments/assets/b4a2404f-0055-4d32-ab28-664738ad6fcd" />
@@ -119,9 +111,15 @@ npm start
 <img width="260" height="458" alt="image" src="https://github.com/user-attachments/assets/8fff3dbe-2278-4b0d-b7ff-4b414f1c3246" />
 <img width="264" height="473" alt="image" src="https://github.com/user-attachments/assets/9cc7019d-7ed9-4cd0-a405-5c8b51bc4139" />
 
+---
 
-> **"Crafting Intelligent Data Systems."**
->
-> Un portfolio moderne et interactif combinant la puissance de la **Data Science** avec l'élégance du **Développement Web**.
+## 👤 Auteur
+
+**Adnane Yadani**
+*   Data Scientist & Developer
+*   [LinkedIn](https://www.linkedin.com/)
+*   [GitHub](https://github.com/YAadnane)
+
+
 
 ---
