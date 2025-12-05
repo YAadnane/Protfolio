@@ -113,7 +113,11 @@ async function loadContent(type) {
     grid.innerHTML = '<p>Loading...</p>';
     
     try {
-        const res = await fetch(`${API_URL}/${type}`);
+        const res = await fetch(`${API_URL}/${type}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
         const data = await res.json();
         
         grid.innerHTML = '';
