@@ -81,6 +81,18 @@ db.serialize(() => {
         is_hidden INTEGER DEFAULT 0
     )`, () => addColumnIfNotExists('skills', 'is_hidden', 'INTEGER DEFAULT 0'));
 
+    // Messages Table
+    db.run(`CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        email TEXT,
+        message TEXT,
+        date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        is_read INTEGER DEFAULT 0
+    )`, () => {
+        addColumnIfNotExists('messages', 'is_read', 'INTEGER DEFAULT 0');
+    });
+
     // General Info Table (Single Row)
     db.run(`CREATE TABLE IF NOT EXISTS general_info (
         id INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -22,7 +22,53 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Initialize animations AFTER content is loaded
     initAnimations();
     initMobileMenu();
+    initContactForm();
 });
+
+function initContactForm() {
+    const form = document.querySelector('.contact-form');
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerText;
+        
+        // Collect data
+        const inputs = form.querySelectorAll('input, textarea');
+        const data = {
+            name: inputs[0].value,
+            email: inputs[1].value,
+            message: inputs[2].value
+        };
+
+        try {
+            submitBtn.innerText = 'Sending...';
+            submitBtn.disabled = true;
+
+            const res = await fetch(`${API_URL}/contact`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+
+            const result = await res.json();
+
+            if (res.ok) {
+                alert('Message sent successfully! I will get back to you soon.');
+                form.reset();
+            } else {
+                alert(`Error: ${result.error}`);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Failed to send message. Please try again.');
+        } finally {
+            submitBtn.innerText = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+}
 
 function initMobileMenu() {
     const hamburger = document.getElementById('hamburger');

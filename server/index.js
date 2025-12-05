@@ -412,6 +412,47 @@ app.delete('/api/shapes/:id', authenticateToken, (req, res) => {
     });
 });
 
+// --- CONTACT / MESSAGES ---
+app.post('/api/contact', sanitizeMiddleware, (req, res) => {
+    const { name, email, message } = req.body;
+    
+    if (!name || !email || !message) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    db.run(`INSERT INTO messages (name, email, message) VALUES (?, ?, ?)`,
+        [name, email, message],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "Message sent successfully", id: this.lastID });
+        }
+    );
+});
+
+// Admin: Get Messages
+app.get('/api/messages', authenticateToken, (req, res) => {
+    db.all("SELECT * FROM messages ORDER BY date DESC", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// Admin: Mark as Read
+app.put('/api/messages/:id/read', authenticateToken, (req, res) => {
+    db.run("UPDATE messages SET is_read = 1 WHERE id = ?", req.params.id, function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Marked as read" });
+    });
+});
+
+// Admin: Delete Message
+app.delete('/api/messages/:id', authenticateToken, (req, res) => {
+    db.run("DELETE FROM messages WHERE id = ?", req.params.id, function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Deleted successfully" });
+    });
+});
+
 // =========================================
 // SERVE FRONTEND (MUST BE LAST)
 // =========================================
