@@ -137,4 +137,4 @@ To access the dashboard, visit `/login.html`.
 
 ---
 
-© 2025 Adnane Yadani. Built from scratch with ❤️ and Code.
+© 2025 [Adnane Yadani](https://yadani-adnane.duckdns.org). Built from scratch with ❤️ and Code. 
