@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adnane Yadani | Data Scientist & AI Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Syne for headers, Inter for body, JetBrains Mono for code/data -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+  <!-- Background Canvas for Particles -->
+  <canvas id="data-network"></canvas>
+
+  <div class="cursor-dot" data-cursor-dot></div>
+  <div class="cursor-outline" data-cursor-outline></div>
+
+  <header class="header">
+    <div class="container header-container">
+      <a href="#" class="logo">AY<span class="dot">.</span></a>
+      <nav class="nav">
+        <ul class="nav-list">
+          <li><a href="#about" class="nav-link">About</a></li>
+          <li><a href="#skills" class="nav-link">Skills</a></li>
+          <li><a href="#work" class="nav-link">Work</a></li>
+          <li><a href="#education" class="nav-link">Education</a></li>
+          <li><a href="#contact" class="nav-link">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-buttons">
+        <a href="#" download="" class="btn-cv header-cv" id="cv-link"><i class="fa-solid fa-download"></i> CV</a>
+        <a href="#contact" class="btn-primary">Let's Talk</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO SECTION -->
+    <section class="hero" id="home">
+      <div class="container hero-container">
+        <div class="hero-content">
+          <span class="hero-subtitle" id="hero-subtitle"><i class="fa-solid fa-terminal"></i> Data Scientist &
+            Developer</span>
+          <h1 class="hero-title" id="hero-title">
+            <span class="scramble-text">Crafting</span><br>
+            <span class="scramble-text">Intelligent</span><br>
+            <span class="scramble-text">Data Systems</span>
+          </h1>
+          <p class="hero-description" id="hero-description">
+            I transform raw data into <strong>Actionable Insights</strong> using <strong>Artificial
+              Intelligence</strong> and <strong>Big Data Technologies</strong>.
+          </p>
+          <div class="hero-buttons">
+            <a href="#work" class="btn-primary">View Projects</a>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <!-- 3D Data Cube / Abstract Element -->
+          <div class="data-cube">
+            <div class="cube-face front">AI</div>
+            <div class="cube-face back">ML</div>
+            <div class="cube-face right">DATA</div>
+            <div class="cube-face left">ETL</div>
+            <div class="cube-face top">BI</div>
+            <div class="cube-face bottom">CODE</div>
+          </div>
+        </div>
+      </div>
+      <div class="scroll-indicator">
+        <span>Scroll</span>
+        <div class="line"></div>
+      </div>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section class="about section" id="about">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title scramble-text">Who I Am</h2>
+          <div class="line-separator"></div>
+        </div>
+        <div class="about-grid">
+          <div class="about-text" id="about-text">
+            <h3 class="about-name">Adnane Yadani</h3>
+            <p class="lead">Aspiring Data Scientist focused on Analytics and Artificial Intelligence.</p>
+            <p>With hands-on experience in machine learning and predictive analytics, I develop user-friendly web
+              interfaces and robust databases. I transform complex data into actionable insights.</p>
+
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-number" data-target="3">0</span>
+                <span class="stat-label">Years Exp.</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number" data-target="10">0</span>
+                <span class="stat-label">Projects</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-number" data-target="3">0</span>
+                <span class="stat-label">Companies</span>
+              </div>
+            </div>
+          </div>
+          <!-- Certifications Mini-Grid -->
+          <div class="certifications-preview">
+            <h3><i class="fa-solid fa-certificate"></i> Certifications</h3>
+            <div class="cert-filters">
+              <select id="filter-domain">
+                <option value="">All Domains</option>
+              </select>
+              <select id="filter-issuer">
+                <option value="">All Issuers</option>
+              </select>
+            </div>
+            <div class="cert-list" id="cert-list">
+              <div class="cert-item">
+                <i class="fa-brands fa-python"></i>
+                <span>Data Science Professional</span>
+              </div>
+              <div class="cert-item">
+                <i class="fa-solid fa-database"></i>
+                <span>Big Data Engineering</span>
+              </div>
+              <div class="cert-item">
+                <i class="fa-solid fa-brain"></i>
+                <span>Machine Learning Specialization</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS SECTION (Categorized) -->
+    <section class="skills section" id="skills">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title scramble-text">Tech Stack</h2>
+          <div class="line-separator"></div>
+        </div>
+
+        <div class="skills-grid" id="skills-grid">
+          <!-- Data & AI -->
+          <div class="skill-category">
+            <h3><i class="fa-solid fa-brain"></i> Data & AI</h3>
+            <div class="skill-bars">
+              <div class="skill-bar-item">
+                <div class="skill-info"><span>Machine Learning</span><span>90%</span></div>
+                <div class="progress-bar">
+                  <div class="progress" style="width: 90%"></div>
+                </div>
+              </div>
+              <div class="skill-bar-item">
+                <div class="skill-info"><span>Deep Learning</span><span>85%</span></div>
+                <div class="progress-bar">
+                  <div class="progress" style="width: 85%"></div>
+                </div>
+              </div>
+              <div class="skill-bar-item">
+                <div class="skill-info"><span>NLP & LLM</span><span>85%</span></div>
+                <div class="progress-bar">
+                  <div class="progress" style="width: 85%"></div>
+                </div>
+              </div>
+              <div class="skill-bar-item">
+                <div class="skill-info"><span>Computer Vision</span><span>80%</span></div>
+                <div class="progress-bar">
+                  <div class="progress" style="width: 80%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Big Data & Tools -->
+          <div class="skill-category">
+            <h3><i class="fa-solid fa-server"></i> Big Data & Tools</h3>
+            <div class="skill-tags-cloud">
+              <span class="tech-tag">Kafka</span>
+              <span class="tech-tag">Hadoop</span>
+              <span class="tech-tag">Spark</span>
+              <span class="tech-tag">Flink</span>
+              <span class="tech-tag">SQL</span>
+              <span class="tech-tag">Power BI</span>
+              <span class="tech-tag">Docker</span>
+              <span class="tech-tag">Git</span>
+              <span class="tech-tag">Linux</span>
+            </div>
+          </div>
+
+          <!-- Languages -->
+          <div class="skill-category">
+            <h3><i class="fa-solid fa-code"></i> Languages</h3>
+            <div class="skill-tags-cloud">
+              <span class="tech-tag highlight">Python</span>
+              <span class="tech-tag">R</span>
+              <span class="tech-tag">Java</span>
+              <span class="tech-tag">JavaScript</span>
+              <span class="tech-tag">SQL</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PROJECTS SECTION (BENTO GRID) -->
+    <section class="work section" id="work">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title scramble-text">Selected Work</h2>
+          <div class="line-separator"></div>
+          <div class="project-filters">
+            <select id="filter-project-category" class="filter-select">
+              <option value="">All Categories</option>
+            </select>
+            <select id="filter-project-tag" class="filter-select">
+              <option value="">All Tags</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="bento-grid" id="projects-grid">
+          <!-- Project 1: Large -->
+          <div class="bento-item large" data-tilt>
+            <div class="bento-content">
+              <div class="bento-tags">
+                <span>NLP</span>
+                <span>LLM</span>
+                <span>RAG</span>
+              </div>
+              <h3>Smart Recruitment Assistant</h3>
+              <p>Semantic matching between CVs and job offers using RAG and Vector Databases.</p>
+              <a href="#" class="bento-link"><i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+            <div class="bento-bg bg-1"></div>
+            <div class="bento-overlay"></div>
+          </div>
+
+          <!-- Project 2: Medium -->
+          <div class="bento-item medium" data-tilt>
+            <div class="bento-content">
+              <div class="bento-tags">
+                <span>Kafka</span>
+                <span>Flink</span>
+                <span>Power BI</span>
+              </div>
+              <h3>Real-Time ETL Pipeline</h3>
+              <p>Stream processing & visualization of massive data streams.</p>
+              <a href="#" class="bento-link"><i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+            <div class="bento-bg bg-2"></div>
+          </div>
+
+          <!-- Project 3: Medium -->
+          <div class="bento-item medium" data-tilt>
+            <div class="bento-content">
+              <div class="bento-tags">
+                <span>IoT</span>
+                <span>Predictive Analytics</span>
+              </div>
+              <h3>Intelligent Tank Monitoring</h3>
+              <p>Real-time reservoir prediction dashboard.</p>
+              <a href="#" class="bento-link"><i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+            <div class="bento-bg bg-3"></div>
+          </div>
+
+          <!-- Project 4: Wide -->
+          <div class="bento-item wide" data-tilt>
+            <div class="bento-content">
+              <div class="bento-tags">
+                <span>Computer Vision</span>
+                <span>OpenCV</span>
+                <span>MediaPipe</span>
+              </div>
+              <h3>Drowsiness Detector</h3>
+              <p>Real-time driver safety system using facial landmark detection.</p>
+              <a href="#" class="bento-link"><i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+            <div class="bento-bg bg-4"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EDUCATION & EXPERIENCE SECTION -->
+    <section class="education section" id="education">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title scramble-text">Journey</h2>
+          <div class="line-separator"></div>
+        </div>
+
+        <div class="journey-grid">
+          <!-- Education Column -->
+          <div class="journey-column" id="education-list">
+            <h3 class="column-title"><i class="fa-solid fa-graduation-cap"></i> Education</h3>
+
+            <div class="timeline-card">
+              <span class="timeline-year">2023 - Present</span>
+              <h4>Master's in Data Analytics & AI</h4>
+              <p class="institution">University Ibn Zohr</p>
+            </div>
+
+            <div class="timeline-card">
+              <span class="timeline-year">2022 - 2023</span>
+              <h4>Bachelor's in Data Analytics & AI</h4>
+              <p class="institution">University Ibn Zohr</p>
+            </div>
+
+            <div class="timeline-card">
+              <span class="timeline-year">2021 - 2022</span>
+              <h4>License in Computer Engineering</h4>
+              <p class="institution">University Ibn Zohr</p>
+            </div>
+
+            <div class="timeline-card">
+              <span class="timeline-year">2020 - 2022</span>
+              <h4>DUT in Computer Engineering</h4>
+              <p class="institution">Moulay Ismail University</p>
+            </div>
+          </div>
+
+          <!-- Experience Column -->
+          <div class="journey-column" id="experience-list">
+            <h3 class="column-title"><i class="fa-solid fa-briefcase"></i> Experience</h3>
+
+            <div class="timeline-card">
+              <span class="timeline-year">02/2023 - 04/2023</span>
+              <h4>Full Stack Web Developer</h4>
+              <p class="institution">UNIVERSHIGHTECH - Internship</p>
+              <p class="desc">Led design and deployment of a real estate website.</p>
+            </div>
+
+            <div class="timeline-card">
+              <span class="timeline-year">06/2022 - 07/2022</span>
+              <h4>Full Stack Web Developer</h4>
+              <p class="institution">OSPRO - Internship</p>
+              <p class="desc">Engineered a job application platform.</p>
+            </div>
+
+            <div class="timeline-card">
+              <span class="timeline-year">04/2021 - 05/2021</span>
+              <h4>Front End Web Developer</h4>
+              <p class="institution">JAWDA BOIS - Internship</p>
+              <p class="desc">Designed a showcase website for a construction firm.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT SECTION -->
+    <section class="contact section" id="contact">
+      <div class="container contact-wrapper">
+        <div class="contact-text">
+          <h2 class="scramble-text">Let's Connect</h2>
+          <p>Ready to leverage Data & AI for your next project?</p>
+          <div class="contact-details">
+            <a href="mailto:yadani.adnane20@gmail.com" class="contact-link" id="contact-email"><i
+                class="fa-solid fa-envelope"></i>
+              yadani.adnane20@gmail.com</a>
+            <a href="tel:+212641681499" class="contact-link" id="contact-phone"><i class="fa-solid fa-phone"></i> +212
+              641 681 499</a>
+            <span class="contact-link" id="contact-location"><i class="fa-solid fa-location-dot"></i> Casablanca et
+              Agadir, Morocco</span>
+          </div>
+          <div class="social-links">
+            <a href="https://www.linkedin.com/in/adnane-yadani" target="_blank" id="contact-linkedin"><i
+                class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://github.com/YAadnane" target="_blank" id="contact-github"><i
+                class="fa-brands fa-github"></i></a>
+          </div>
+        </div>
+        <form class="contact-form">
+          <div class="form-group">
+            <input type="text" placeholder="Your Name" required>
+          </div>
+          <div class="form-group">
+            <input type="email" placeholder="Your Email" required>
+          </div>
+          <div class="form-group">
+            <textarea placeholder="Tell me about your project" rows="5" required></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Send Message</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 Adnane Yadani. Crafted with <i class="fa-solid fa-heart"></i> and AI.</p>
+    </div>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+
+</html>
