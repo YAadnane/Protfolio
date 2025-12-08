@@ -1845,7 +1845,7 @@ textarea:focus {
 .mobile-nav-link:hover {
     color: var(--accent-color);
 }
-}
+
 
 /* Admin Select Style */
 .admin-select {
