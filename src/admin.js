@@ -143,7 +143,7 @@ async function loadContent(type) {
     grid.innerHTML = '<p>Loading...</p>';
     
     try {
-        const res = await fetch(`${API_URL}/${type}?lang=${currentAdminLang}`, {
+        const res = await fetch(`${API_URL}/${type}?lang=${currentAdminLang}&t=${Date.now()}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

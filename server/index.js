@@ -332,6 +332,8 @@ app.put('/api/general', upload.single('cvFile'), sanitizeMiddleware, authenticat
         email, phone, location, linkedin_link, github_link,
         cv_file, lang // Added lang
     } = req.body;
+    
+    console.log('PUT /api/general payload:', req.body); // Debug log
 
     const targetLang = lang || 'en';
 
@@ -358,7 +360,9 @@ app.put('/api/general', upload.single('cvFile'), sanitizeMiddleware, authenticat
         ],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Updated successfully" });
+            if (err) return res.status(500).json({ error: err.message });
+            console.log('Update result:', this.changes); // Debug
+            res.json({ message: "Updated successfully", changes: this.changes });
         }
     );
 });
