@@ -1779,7 +1779,8 @@ textarea:focus {
     width: 100%;
     /* Use % to avoid scrollbar width issues */
     height: 100vh;
-    background-color: rgb(5, 5, 5);
+    background-color: var(--nav-bg);
+    backdrop-filter: blur(10px);
     z-index: 9990;
     /* High z-index but below hamburger if hamburger is >9990 */
     display: flex;
