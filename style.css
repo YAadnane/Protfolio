@@ -23,7 +23,8 @@
 }
 
 body.light-mode {
-    --bg-color: #f0f2f5;
+    --bg-color: #e0f7fa;
+    /* Sky Blue Light */
     --card-bg: #ffffff;
     --text-main: #1a1a1a;
     --text-muted: #555555;
@@ -31,8 +32,9 @@ body.light-mode {
     --accent-glow: rgba(0, 191, 125, 0.15);
 
     /* Navbar Vars Light */
-    --nav-bg: rgba(255, 255, 255, 0.85);
-    --nav-border: rgba(0, 0, 0, 0.1);
+    --nav-bg: rgba(224, 247, 250, 0.85);
+    /* Sky Blue Glass */
+    --nav-border: rgba(0, 191, 125, 0.1);
 }
 
 * {
