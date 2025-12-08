@@ -8,28 +8,6 @@
     --text-main: #e0e0e0;
     --text-muted: #888888;
     --accent-color: #00ff9d;
-    /* Neon Green */
-    --accent-secondary: #00b8ff;
-    /* Cyber Blue */
-    --accent-glow: rgba(0, 255, 157, 0.15);
-    --font-heading: 'Syne', sans-serif;
-    --font-body: 'Inter', sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-    --transition-smooth: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-body.light-mode {
-    --bg-color: #f0f2f5;
-    --card-bg: #ffffff;
-    --text-main: #1a1a1a;
-    --text-muted: #555555;
-    --accent-color: #00bf7d;
-    --accent-glow: rgba(0, 191, 125, 0.15);
-}
-
-* {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
 }
 
