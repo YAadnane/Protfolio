@@ -1842,7 +1842,9 @@ textarea:focus {
     display: block;
 }
 
-color: var(--accent-color);
+.mobile-nav-link:hover {
+    color: var(--accent-color);
+}
 }
 
 /* Admin Select Style */
