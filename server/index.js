@@ -37,7 +37,9 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 app.use(cors());
-app.use(bodyParser.json());
+// app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(uploadDir)); // Serve uploaded files statically
 
 // =========================================
@@ -533,6 +535,12 @@ app.use(express.static(distPath));
 
 app.get(/(.*)/, (req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+    console.error('Unhandled Error:', err);
+    res.status(500).json({ error: 'Internal Server Error' });
 });
 
 app.listen(PORT, () => {
