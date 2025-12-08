@@ -10,6 +10,7 @@ const API_URL = '/api';
 // DYNAMIC CONTENT LOADING
 // =========================================
 document.addEventListener('DOMContentLoaded', async () => {
+    initTheme();
     initLanguage(); // Init language first
     await Promise.all([
         loadGeneralInfo(),
@@ -158,7 +159,27 @@ function updatePageLanguage() {
     });
 
     // Update HTML lang attribute
+    // Update HTML lang attribute
     document.documentElement.lang = currentLang;
+}
+
+function initTheme() {
+    const themeBtn = document.getElementById('theme-switch');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        if(themeBtn) themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+    }
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+             document.body.classList.toggle('light-mode');
+             const isLight = document.body.classList.contains('light-mode');
+             localStorage.setItem('theme', isLight ? 'light' : 'dark');
+             themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+        });
+    }
 }
 
 async function loadGeneralInfo() {
@@ -186,9 +207,19 @@ async function loadGeneralInfo() {
         if (data.about_bio) document.querySelector('.about-text p:nth-of-type(2)').innerText = data.about_bio;
 
         // Stats
-        if (data.stat_years) document.querySelector('.stat-number[data-target="3"]').setAttribute('data-target', data.stat_years);
-        if (data.stat_projects) document.querySelector('.stat-number[data-target="10"]').setAttribute('data-target', data.stat_projects);
-        if (data.stat_companies) document.querySelector('.stat-number[data-target="3"]').setAttribute('data-target', data.stat_companies);
+        // Stats
+        if (data.stat_years) {
+             const el = document.getElementById('stat-years');
+             if(el) el.setAttribute('data-target', data.stat_years);
+        }
+        if (data.stat_projects) {
+             const el = document.getElementById('stat-projects');
+             if(el) el.setAttribute('data-target', data.stat_projects);
+        }
+        if (data.stat_companies) {
+             const el = document.getElementById('stat-companies');
+             if(el) el.setAttribute('data-target', data.stat_companies);
+        }
 
 
 

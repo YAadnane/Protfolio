@@ -421,18 +421,25 @@ function setupModal() {
 
         headers['Authorization'] = `Bearer ${token}`;
 
-        try {
-            await fetch(url, {
-                method: method,
-                headers: headers,
-                body: body
-            });
-            closeModal();
-            loadContent(currentTab);
-        } catch (err) {
-            alert('Error saving item');
-        }
-    });
+
+// Theme Logic
+function initThemeAdmin() {
+    const themeBtn = document.getElementById('admin-theme-switch');
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        if(themeBtn) themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+    }
+
+    if (themeBtn) {
+        themeBtn.addEventListener('click', () => {
+             document.body.classList.toggle('light-mode');
+             const isLight = document.body.classList.contains('light-mode');
+             localStorage.setItem('theme', isLight ? 'light' : 'dark');
+             themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+        });
+    }
 }
 
 // Cursor Logic
