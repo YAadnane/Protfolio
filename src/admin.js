@@ -3,6 +3,13 @@ import { gsap } from "gsap";
 const API_URL = '/api';
 let currentTab = 'projects';
 let editingId = null;
+let currentAdminLang = localStorage.getItem('admin_lang') || 'en';
+
+window.updateAdminLang = (lang) => {
+    currentAdminLang = lang;
+    localStorage.setItem('admin_lang', lang);
+    loadContent(currentTab);
+};
 
 // Check for token
 const token = localStorage.getItem('admin_token');
@@ -81,7 +88,7 @@ const fields = {
         { name: 'stat_years', label: 'Years Experience', type: 'number' },
         { name: 'stat_projects', label: 'Projects Count', type: 'number' },
         { name: 'stat_companies', label: 'Companies Count', type: 'number' },
-        { name: 'cv_file', label: 'Current CV Path', type: 'text' }, // Read-only or manual edit
+        { name: 'cv_file', label: 'Current CV Path', type: 'text' },
         { name: 'cvFile', label: 'Upload New CV (PDF)', type: 'file' },
         { name: 'email', label: 'Email', type: 'text' },
         { name: 'phone', label: 'Phone', type: 'text' },
@@ -89,20 +96,21 @@ const fields = {
         { name: 'linkedin_link', label: 'LinkedIn URL', type: 'text' },
         { name: 'github_link', label: 'GitHub URL', type: 'text' }
     ],
-
 };
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    loadContent(currentTab);
-    setupModal();
+    const langSelect = document.getElementById('admin-lang-select');
+    if (langSelect) {
+        langSelect.value = currentAdminLang;
+        langSelect.onchange = (e) => window.updateAdminLang(e.target.value);
+    }
     loadContent(currentTab);
     setupModal();
     initCursor();
     updateUnreadCount();
 });
 
-// Update Unread Count
 async function updateUnreadCount() {
     try {
         const res = await fetch(`${API_URL}/messages`, {
@@ -135,7 +143,7 @@ async function loadContent(type) {
     grid.innerHTML = '<p>Loading...</p>';
     
     try {
-        const res = await fetch(`${API_URL}/${type}`, {
+        const res = await fetch(`${API_URL}/${type}?lang=${currentAdminLang}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -387,6 +395,10 @@ function setupModal() {
         checkboxFields.forEach(cb => {
             formData.set(cb.name, cb.checked ? 1 : 0);
         });
+        
+        // Append current language to form data or json
+        // For FormData, we set it directly.
+        formData.set('lang', currentAdminLang);
 
         let body;
         let headers = {};
@@ -398,6 +410,7 @@ function setupModal() {
         } else {
             // Convert to JSON for other tabs
             const data = Object.fromEntries(formData.entries());
+            data.lang = currentAdminLang; // Explicitly ensure lang is in data object from formData entries (though formData.set above handles it, Object.fromEntries uses it)
             
             // Ensure is_hidden is 0 if not present (safety check)
             if (!editingId && data.is_hidden === undefined) data.is_hidden = 0;

@@ -128,29 +128,12 @@ app.post('/api/login', (req, res) => {
 
 // --- PROJECTS ---
 app.get('/api/projects', (req, res) => {
-    db.all("SELECT * FROM projects", [], (err, rows) => {
+    const lang = req.query.lang || 'en';
+    db.all("SELECT * FROM projects WHERE lang = ?", [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
-});
-
-app.post('/api/projects', upload.single('imageFile'), sanitizeMiddleware, authenticateToken, (req, res) => {
-    const { title, description, tags, link, category, image, is_hidden } = req.body;
-    // Use uploaded file path if exists, otherwise fallback to provided image string (e.g. class name)
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : image;
-
-    db.run(`INSERT INTO projects (title, description, tags, image, link, category, is_hidden) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [title, description, tags, imagePath, link, category, is_hidden || 0],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID });
-        }
-    );
-});
-
-app.put('/api/projects/:id', upload.single('imageFile'), sanitizeMiddleware, authenticateToken, (req, res) => {
-    const { title, description, tags, link, category, image, is_hidden } = req.body;
-    
+});    
     // If a new file is uploaded, use it. Otherwise, keep the old one (passed as 'image' body param or handled via logic)
     // Note: In a real app, we might want to delete the old file.
     let imagePath = image;
@@ -176,18 +159,19 @@ app.delete('/api/projects/:id', authenticateToken, (req, res) => {
 
 // --- CERTIFICATIONS ---
 app.get('/api/certifications', (req, res) => {
-    db.all("SELECT * FROM certifications", [], (err, rows) => {
+    const lang = req.query.lang || 'en';
+    db.all("SELECT * FROM certifications WHERE lang = ?", [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
 app.post('/api/certifications', upload.single('pdfFile'), authenticateToken, (req, res) => {
-    const { name, issuer, icon, year, domain, pdf, is_hidden } = req.body;
+    const { name, issuer, icon, year, domain, pdf, is_hidden, lang } = req.body;
     const pdfPath = req.file ? `/uploads/${req.file.filename}` : pdf;
 
-    db.run(`INSERT INTO certifications (name, issuer, icon, year, domain, pdf, is_hidden) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [name, issuer, icon, year, domain, pdfPath, is_hidden || 0],
+    db.run(`INSERT INTO certifications (name, issuer, icon, year, domain, pdf, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [name, issuer, icon, year, domain, pdfPath, is_hidden || 0, lang || 'en'],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
@@ -221,16 +205,17 @@ app.delete('/api/certifications/:id', authenticateToken, (req, res) => {
 
 // --- EDUCATION ---
 app.get('/api/education', (req, res) => {
-    db.all("SELECT * FROM education", [], (err, rows) => {
+    const lang = req.query.lang || 'en';
+    db.all("SELECT * FROM education WHERE lang = ?", [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
 app.post('/api/education', authenticateToken, (req, res) => {
-    const { degree, institution, year, description, is_hidden } = req.body;
-    db.run(`INSERT INTO education (degree, institution, year, description, is_hidden) VALUES (?, ?, ?, ?, ?)`,
-        [degree, institution, year, description, is_hidden || 0],
+    const { degree, institution, year, description, is_hidden, lang } = req.body;
+    db.run(`INSERT INTO education (degree, institution, year, description, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?)`,
+        [degree, institution, year, description, is_hidden || 0, lang || 'en'],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
@@ -258,16 +243,17 @@ app.delete('/api/education/:id', authenticateToken, (req, res) => {
 
 // --- EXPERIENCE ---
 app.get('/api/experience', (req, res) => {
-    db.all("SELECT * FROM experience", [], (err, rows) => {
+    const lang = req.query.lang || 'en';
+    db.all("SELECT * FROM experience WHERE lang = ?", [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
 app.post('/api/experience', authenticateToken, (req, res) => {
-    const { role, company, year, description, is_hidden } = req.body;
-    db.run(`INSERT INTO experience (role, company, year, description, is_hidden) VALUES (?, ?, ?, ?, ?)`,
-        [role, company, year, description, is_hidden || 0],
+    const { role, company, year, description, is_hidden, lang } = req.body;
+    db.run(`INSERT INTO experience (role, company, year, description, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?)`,
+        [role, company, year, description, is_hidden || 0, lang || 'en'],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
@@ -295,16 +281,17 @@ app.delete('/api/experience/:id', authenticateToken, (req, res) => {
 
 // --- SKILLS ---
 app.get('/api/skills', (req, res) => {
-    db.all("SELECT * FROM skills", [], (err, rows) => {
+    const lang = req.query.lang || 'en';
+    db.all("SELECT * FROM skills WHERE lang = ?", [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
 app.post('/api/skills', authenticateToken, (req, res) => {
-    const { category, name, level, icon, is_hidden } = req.body;
-    db.run(`INSERT INTO skills (category, name, level, icon, is_hidden) VALUES (?, ?, ?, ?, ?)`,
-        [category, name, level, icon, is_hidden || 0],
+    const { category, name, level, icon, is_hidden, lang } = req.body;
+    db.run(`INSERT INTO skills (category, name, level, icon, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?)`,
+        [category, name, level, icon, is_hidden || 0, lang || 'en'],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
@@ -325,7 +312,10 @@ app.put('/api/skills/:id', authenticateToken, (req, res) => {
 
 // --- GENERAL INFO ---
 app.get('/api/general', (req, res) => {
-    db.get("SELECT * FROM general_info WHERE id = 1", [], (err, row) => {
+    const lang = req.query.lang || 'en';
+    // Select by lang. Since default is 'en', if lang is present finding 1 row is enough.
+    // If multiple rows exist (sanity check), valid one is returned.
+    db.get("SELECT * FROM general_info WHERE lang = ? ORDER BY id DESC LIMIT 1", [lang], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(row || {});
     });
@@ -338,27 +328,31 @@ app.put('/api/general', upload.single('cvFile'), sanitizeMiddleware, authenticat
         stat_years, stat_projects, stat_companies,
         cube_front, cube_back, cube_right, cube_left, cube_top, cube_bottom,
         email, phone, location, linkedin_link, github_link,
-        cv_file // Existing file path if not uploading new one
+        cv_file, lang // Added lang
     } = req.body;
+
+    const targetLang = lang || 'en';
 
     let cvPath = cv_file;
     if (req.file) {
         cvPath = `/uploads/${req.file.filename}`;
     }
 
+    // Update based on lang
     db.run(`UPDATE general_info SET 
         hero_subtitle = ?, hero_title = ?, hero_description = ?, 
         about_lead = ?, about_bio = ?, 
         stat_years = ?, stat_projects = ?, stat_companies = ?,
         cube_front = ?, cube_back = ?, cube_right = ?, cube_left = ?, cube_top = ?, cube_bottom = ?,
         cv_file = ?, email = ?, phone = ?, location = ?, linkedin_link = ?, github_link = ?
-        WHERE id = 1`,
+        WHERE lang = ?`,
         [
             hero_subtitle, hero_title, hero_description, 
             about_lead, about_bio, 
             stat_years, stat_projects, stat_companies,
             cube_front, cube_back, cube_right, cube_left, cube_top, cube_bottom,
-            cvPath, email, phone, location, linkedin_link, github_link
+            cvPath, email, phone, location, linkedin_link, github_link,
+            targetLang
         ],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
@@ -378,17 +372,18 @@ app.delete('/api/skills/:id', authenticateToken, (req, res) => {
 
 // --- SHAPES ---
 app.get('/api/shapes', (req, res) => {
-    db.all("SELECT * FROM shapes", [], (err, rows) => {
+    const lang = req.query.lang || 'en';
+    db.all("SELECT * FROM shapes WHERE lang = ?", [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
 app.post('/api/shapes', authenticateToken, (req, res) => {
-    const { type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden } = req.body;
-    db.run(`INSERT INTO shapes (type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [type || 'cube', face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden || 0],
+    const { type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, lang } = req.body;
+    db.run(`INSERT INTO shapes (type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, lang) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [type || 'cube', face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden || 0, lang || 'en'],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });

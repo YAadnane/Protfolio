@@ -111,7 +111,7 @@ function initLanguage() {
     updatePageLanguage();
 }
 
-function toggleLanguage() {
+async function toggleLanguage() {
     currentLang = currentLang === 'en' ? 'fr' : 'en';
     localStorage.setItem('lang', currentLang);
     
@@ -119,7 +119,23 @@ function toggleLanguage() {
     if (langBtn) langBtn.innerText = currentLang === 'en' ? 'FR' : 'EN';
     
     updatePageLanguage();
-    loadShapes(); // Reload shapes to apply translation
+    
+    // Reload all dynamic content from DB with new language
+    await loadAllContent(); 
+}
+
+async function loadAllContent() {
+    await Promise.all([
+        loadGeneralInfo(),
+        loadShapes(),
+        loadProjects(),
+        loadCertifications(),
+        loadEducation(),
+        loadExperience(),
+        loadSkills()
+    ]);
+    // Re-trigger animations if needed, though they might be attached to elements
+    ScrollTrigger.refresh();
 }
 
 function updatePageLanguage() {
@@ -147,19 +163,27 @@ function updatePageLanguage() {
 
 async function loadGeneralInfo() {
     try {
-        const res = await fetch(`${API_URL}/general`);
+        const res = await fetch(`${API_URL}/general?lang=${currentLang}`);
         const data = await res.json();
         
         if (!data) return;
 
         // Hero
         if (data.hero_subtitle) document.querySelector('.hero-subtitle').innerHTML = `<i class="fa-solid fa-terminal"></i> ${data.hero_subtitle}`;
-        // if (data.hero_title) document.querySelector('.hero-title').innerText = data.hero_title; // Keep static for translation & animation structure
+        if (data.hero_title) {
+            // Split title into lines/words to preserve scramble effect style
+            // We assume space separation is good enough for a rough break, or just wrap words.
+            // For better control, user could use <br> in DB, but let's just wrap the whole thing or split by spaces.
+            // Let's just set it as innerHTML to allow user to put <br> in Admin if they want, and wrap in scramble span if plain text.
+            // Actually, best effort:
+            const formatted = data.hero_title.split(' ').map(w => `<span class="scramble-text">${w}</span>`).join('<br>');
+            document.querySelector('.hero-title').innerHTML = formatted;
+        }
         if (data.hero_description) document.querySelector('.hero-description').innerHTML = data.hero_description;
 
         // About
-        if (data.about_lead && currentLang === 'en') document.querySelector('.about-text .lead').innerText = data.about_lead;
-        if (data.about_bio && currentLang === 'en') document.querySelector('.about-text p:nth-of-type(2)').innerText = data.about_bio;
+        if (data.about_lead) document.querySelector('.about-text .lead').innerText = data.about_lead;
+        if (data.about_bio) document.querySelector('.about-text p:nth-of-type(2)').innerText = data.about_bio;
 
         // Stats
         if (data.stat_years) document.querySelector('.stat-number[data-target="3"]').setAttribute('data-target', data.stat_years);
@@ -219,7 +243,7 @@ async function loadGeneralInfo() {
 
 async function loadShapes() {
     try {
-        const res = await fetch(`${API_URL}/shapes`);
+        const res = await fetch(`${API_URL}/shapes?lang=${currentLang}`);
         const shapes = (await res.json()).filter(s => !s.is_hidden);
         const container = document.querySelector('.hero-visual');
         if (!container) return;
@@ -227,13 +251,9 @@ async function loadShapes() {
         container.innerHTML = ''; // Clear existing
 
         shapes.forEach(shape => {
-            const translateShape = (text) => {
-                 if (text === 'AI' && currentLang === 'fr') return 'IA';
-                 // Add more specific mappings if needed or look up in translations
-                 return text;
-            };
+             // No client-side translation needed anymore!
 
-            const wrapper = document.createElement('div');
+             const wrapper = document.createElement('div');
             wrapper.className = 'cube-wrapper'; // Reuse wrapper for positioning
             wrapper.style.left = `${shape.pos_x}%`;
             wrapper.style.top = `${shape.pos_y}%`;
@@ -263,7 +283,7 @@ async function loadShapes() {
                         <div class="sphere-ring"></div>
                         <div class="sphere-ring"></div>
                         <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); color:var(--accent-color); font-family:var(--font-mono); font-weight:bold; text-align: center;">
-                            ${iconHTML ? iconHTML : (translateShape(shape.face_front || 'DATA'))}
+                            ${iconHTML ? iconHTML : (shape.face_front || 'DATA')}
                         </div>
                     </div>
                 `;
@@ -272,12 +292,12 @@ async function loadShapes() {
                 innerHTML = `
                     <div class="data-cube">
                         ${iconHTML}
-                        <div class="cube-face front">${translateShape(shape.face_front || '')}</div>
-                        <div class="cube-face back">${translateShape(shape.face_back || '')}</div>
-                        <div class="cube-face right">${translateShape(shape.face_right || '')}</div>
-                        <div class="cube-face left">${translateShape(shape.face_left || '')}</div>
-                        <div class="cube-face top">${translateShape(shape.face_top || '')}</div>
-                        <div class="cube-face bottom">${translateShape(shape.face_bottom || '')}</div>
+                        <div class="cube-face front">${shape.face_front || ''}</div>
+                        <div class="cube-face back">${shape.face_back || ''}</div>
+                        <div class="cube-face right">${shape.face_right || ''}</div>
+                        <div class="cube-face left">${shape.face_left || ''}</div>
+                        <div class="cube-face top">${shape.face_top || ''}</div>
+                        <div class="cube-face bottom">${shape.face_bottom || ''}</div>
                     </div>
                 `;
             }
@@ -290,7 +310,7 @@ async function loadShapes() {
 
 async function loadProjects() {
     try {
-        const res = await fetch(`${API_URL}/projects`);
+        const res = await fetch(`${API_URL}/projects?lang=${currentLang}`);
         const projects = (await res.json()).filter(p => !p.is_hidden);
         const container = document.getElementById('projects-grid');
         container.innerHTML = ''; 
@@ -435,7 +455,7 @@ window.openVideoModal = (videoUrl) => {
 
 async function loadCertifications() {
     try {
-        const res = await fetch(`${API_URL}/certifications`);
+        const res = await fetch(`${API_URL}/certifications?lang=${currentLang}`);
         const certs = (await res.json()).filter(c => !c.is_hidden);
         const container = document.getElementById('cert-list');
         container.innerHTML = '';
@@ -520,7 +540,7 @@ async function loadCertifications() {
 
 async function loadEducation() {
     try {
-        const res = await fetch(`${API_URL}/education`);
+        const res = await fetch(`${API_URL}/education?lang=${currentLang}`);
         const edu = (await res.json()).filter(e => !e.is_hidden);
         const container = document.getElementById('education-list');
         container.innerHTML = '<h3 class="column-title"><i class="fa-solid fa-graduation-cap"></i> Education</h3>';
@@ -541,7 +561,7 @@ async function loadEducation() {
 
 async function loadExperience() {
     try {
-        const res = await fetch(`${API_URL}/experience`);
+        const res = await fetch(`${API_URL}/experience?lang=${currentLang}`);
         const exp = (await res.json()).filter(e => !e.is_hidden);
         const container = document.getElementById('experience-list');
         container.innerHTML = '<h3 class="column-title"><i class="fa-solid fa-briefcase"></i> Experience</h3>';
@@ -562,7 +582,7 @@ async function loadExperience() {
 
 async function loadSkills() {
     try {
-        const res = await fetch(`${API_URL}/skills`);
+        const res = await fetch(`${API_URL}/skills?lang=${currentLang}`);
         const skills = (await res.json()).filter(s => !s.is_hidden);
         const container = document.getElementById('skills-grid');
         container.innerHTML = '';

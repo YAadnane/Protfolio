@@ -203,7 +203,17 @@
     <div class="admin-container">
         <div class="admin-header">
             <h1>Dashboard</h1>
-            <button class="btn-add" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add New</button>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <div class="lang-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-globe" style="color: #888;"></i>
+                    <select id="admin-lang-select"
+                        style="background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.5rem; border-radius: 0.5rem; outline: none; cursor: pointer;">
+                        <option value="en">English (EN)</option>
+                        <option value="fr">Français (FR)</option>
+                    </select>
+                </div>
+                <button class="btn-add" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add New</button>
+            </div>
         </div>
 
         <div class="tabs">
