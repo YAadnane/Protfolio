@@ -421,6 +421,21 @@ function setupModal() {
 
         headers['Authorization'] = `Bearer ${token}`;
 
+        try {
+            await fetch(url, {
+                method: method,
+                headers: headers,
+                body: body
+            });
+            closeModal();
+            loadContent(currentTab);
+        } catch (err) {
+            console.error(err);
+            alert('Error saving item');
+        }
+    });
+}
+
 
 // Theme Logic
 function initThemeAdmin() {
