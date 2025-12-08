@@ -140,6 +140,15 @@ async function loadContent(type) {
                 'Authorization': `Bearer ${token}`
             }
         });
+
+        if (!res.ok) {
+            if (res.status === 401 || res.status === 403) {
+                 window.location.href = '/login.html';
+                 return;
+            }
+            throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
         const data = await res.json();
         
         grid.innerHTML = '';
