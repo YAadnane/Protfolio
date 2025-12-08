@@ -134,6 +134,8 @@ app.get('/api/projects', (req, res) => {
         res.json(rows);
     });
 });    
+app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
+    const { title, description, tags, category, image, link, is_hidden } = req.body;
     // If a new file is uploaded, use it. Otherwise, keep the old one (passed as 'image' body param or handled via logic)
     // Note: In a real app, we might want to delete the old file.
     let imagePath = image;
