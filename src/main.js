@@ -1,5 +1,6 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { translations } from "./translations.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -9,6 +10,7 @@ const API_URL = '/api';
 // DYNAMIC CONTENT LOADING
 // =========================================
 document.addEventListener('DOMContentLoaded', async () => {
+    initLanguage(); // Init language first
     await Promise.all([
         loadGeneralInfo(),
         loadShapes(),
@@ -93,6 +95,53 @@ function initMobileMenu() {
             });
         });
     }
+}
+
+// =========================================
+// LANGUAGE SUPPORT
+// =========================================
+let currentLang = localStorage.getItem('lang') || 'en';
+
+function initLanguage() {
+    const langBtn = document.getElementById('lang-switch');
+    if (langBtn) {
+        langBtn.innerText = currentLang === 'en' ? 'FR' : 'EN'; // Show opposite language to switch to
+        langBtn.addEventListener('click', toggleLanguage);
+    }
+    updatePageLanguage();
+}
+
+function toggleLanguage() {
+    currentLang = currentLang === 'en' ? 'fr' : 'en';
+    localStorage.setItem('lang', currentLang);
+    
+    const langBtn = document.getElementById('lang-switch');
+    if (langBtn) langBtn.innerText = currentLang === 'en' ? 'FR' : 'EN';
+    
+    updatePageLanguage();
+}
+
+function updatePageLanguage() {
+    const t = translations[currentLang];
+    
+    // Update text content
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) {
+             // Handle HTML content (icons etc)
+             if (t[key].includes('<')) el.innerHTML = t[key];
+             else el.innerText = t[key];
+        }
+    });
+
+    // Update placeholders
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (t[key]) el.placeholder = t[key];
+    });
+
+    // Update HTML lang attribute
+    document.documentElement.lang = currentLang;
 }
 
 async function loadGeneralInfo() {

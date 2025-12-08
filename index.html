@@ -78,16 +78,18 @@
 
       <nav class="nav">
         <ul class="nav-list">
-          <li><a href="#about" class="nav-link">About</a></li>
-          <li><a href="#skills" class="nav-link">Skills</a></li>
-          <li><a href="#work" class="nav-link">Work</a></li>
-          <li><a href="#education" class="nav-link">Education</a></li>
-          <li><a href="#contact" class="nav-link">Contact</a></li>
+          <li><a href="#about" class="nav-link" data-i18n="nav.about">About</a></li>
+          <li><a href="#skills" class="nav-link" data-i18n="nav.skills">Skills</a></li>
+          <li><a href="#work" class="nav-link" data-i18n="nav.work">Work</a></li>
+          <li><a href="#education" class="nav-link" data-i18n="nav.education">Education</a></li>
+          <li><a href="#contact" class="nav-link" data-i18n="nav.contact">Contact</a></li>
         </ul>
       </nav>
       <div class="header-buttons">
-        <a href="#" download="" class="btn-cv header-cv" id="cv-link"><i class="fa-solid fa-download"></i> CV</a>
-        <a href="#contact" class="btn-primary">Let's Talk</a>
+        <button id="lang-switch" class="btn-lang">EN</button>
+        <a href="#" download="" class="btn-cv header-cv" id="cv-link" data-i18n="header.cv"><i
+            class="fa-solid fa-download"></i> CV</a>
+        <a href="#contact" class="btn-primary" data-i18n="header.talk">Let's Talk</a>
       </div>
     </div>
   </header>
@@ -97,19 +99,20 @@
     <section class="hero" id="home">
       <div class="container hero-container">
         <div class="hero-content">
-          <span class="hero-subtitle" id="hero-subtitle"><i class="fa-solid fa-terminal"></i> Data Scientist &
+          <span class="hero-subtitle" id="hero-subtitle" data-i18n="hero.subtitle"><i class="fa-solid fa-terminal"></i>
+            Data Scientist &
             Developer</span>
           <h1 class="hero-title" id="hero-title">
             <span class="scramble-text">Crafting</span><br>
             <span class="scramble-text">Intelligent</span><br>
             <span class="scramble-text">Data Systems</span>
           </h1>
-          <p class="hero-description" id="hero-description">
+          <p class="hero-description" id="hero-description" data-i18n="hero.description">
             I transform raw data into <strong>Actionable Insights</strong> using <strong>Artificial
               Intelligence</strong> and <strong>Big Data Technologies</strong>.
           </p>
           <div class="hero-buttons">
-            <a href="#work" class="btn-primary">View Projects</a>
+            <a href="#work" class="btn-primary" data-i18n="hero.projects">View Projects</a>
           </div>
         </div>
         <div class="hero-visual">
@@ -134,34 +137,36 @@
     <section class="about section" id="about">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title scramble-text">Who I Am</h2>
+          <h2 class="section-title scramble-text" data-i18n="about.title">Who I Am</h2>
           <div class="line-separator"></div>
         </div>
         <div class="about-grid">
           <div class="about-text" id="about-text">
-            <h3 class="about-name">Adnane Yadani</h3>
-            <p class="lead">Aspiring Data Scientist focused on Analytics and Artificial Intelligence.</p>
-            <p>With hands-on experience in machine learning and predictive analytics, I develop user-friendly web
+            <h3 class="about-name" data-i18n="about.role">Adnane Yadani</h3>
+            <p class="lead" data-i18n="about.lead">Aspiring Data Scientist focused on Analytics and Artificial
+              Intelligence.</p>
+            <p data-i18n="about.desc">With hands-on experience in machine learning and predictive analytics, I develop
+              user-friendly web
               interfaces and robust databases. I transform complex data into actionable insights.</p>
 
             <div class="stats-grid">
               <div class="stat-item">
                 <span class="stat-number" data-target="3">0</span>
-                <span class="stat-label">Years Exp.</span>
+                <span class="stat-label" data-i18n="stats.exp">Years Exp.</span>
               </div>
               <div class="stat-item">
                 <span class="stat-number" data-target="10">0</span>
-                <span class="stat-label">Projects</span>
+                <span class="stat-label" data-i18n="stats.projects">Projects</span>
               </div>
               <div class="stat-item">
                 <span class="stat-number" data-target="3">0</span>
-                <span class="stat-label">Companies</span>
+                <span class="stat-label" data-i18n="stats.companies">Companies</span>
               </div>
             </div>
           </div>
           <!-- Certifications Mini-Grid -->
           <div class="certifications-preview">
-            <h3><i class="fa-solid fa-certificate"></i> Certifications</h3>
+            <h3 data-i18n="certs.title"><i class="fa-solid fa-certificate"></i> Certifications</h3>
             <div class="cert-filters">
               <select id="filter-domain">
                 <option value="">All Domains</option>
@@ -193,14 +198,14 @@
     <section class="skills section" id="skills">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title scramble-text">Tech Stack</h2>
+          <h2 class="section-title scramble-text" data-i18n="skills.title">Tech Stack</h2>
           <div class="line-separator"></div>
         </div>
 
         <div class="skills-grid" id="skills-grid">
           <!-- Data & AI -->
           <div class="skill-category">
-            <h3><i class="fa-solid fa-brain"></i> Data & AI</h3>
+            <h3 data-i18n="skills.ai"><i class="fa-solid fa-brain"></i> Data & AI</h3>
             <div class="skill-bars">
               <div class="skill-bar-item">
                 <div class="skill-info"><span>Machine Learning</span><span>90%</span></div>
@@ -231,7 +236,7 @@
 
           <!-- Big Data & Tools -->
           <div class="skill-category">
-            <h3><i class="fa-solid fa-server"></i> Big Data & Tools</h3>
+            <h3 data-i18n="skills.bigdata"><i class="fa-solid fa-server"></i> Big Data & Tools</h3>
             <div class="skill-tags-cloud">
               <span class="tech-tag">Kafka</span>
               <span class="tech-tag">Hadoop</span>
@@ -247,7 +252,7 @@
 
           <!-- Languages -->
           <div class="skill-category">
-            <h3><i class="fa-solid fa-code"></i> Languages</h3>
+            <h3 data-i18n="skills.languages"><i class="fa-solid fa-code"></i> Languages</h3>
             <div class="skill-tags-cloud">
               <span class="tech-tag highlight">Python</span>
               <span class="tech-tag">R</span>
@@ -264,78 +269,20 @@
     <section class="work section" id="work">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title scramble-text">Selected Work</h2>
+          <h2 class="section-title scramble-text" data-i18n="work.title">Selected Work</h2>
           <div class="line-separator"></div>
           <div class="project-filters">
             <select id="filter-project-category" class="filter-select">
-              <option value="">All Categories</option>
+              <option value="" data-i18n="work.filters.cat">All Categories</option>
             </select>
             <select id="filter-project-tag" class="filter-select">
-              <option value="">All Tags</option>
+              <option value="" data-i18n="work.filters.tag">All Tags</option>
             </select>
           </div>
         </div>
 
         <div class="bento-grid" id="projects-grid">
-          <!-- Project 1: Large -->
-          <div class="bento-item large" data-tilt>
-            <div class="bento-content">
-              <div class="bento-tags">
-                <span>NLP</span>
-                <span>LLM</span>
-                <span>RAG</span>
-              </div>
-              <h3>Smart Recruitment Assistant</h3>
-              <p>Semantic matching between CVs and job offers using RAG and Vector Databases.</p>
-              <a href="#" class="bento-link"><i class="fa-solid fa-arrow-right"></i></a>
-            </div>
-            <div class="bento-bg bg-1"></div>
-            <div class="bento-overlay"></div>
-          </div>
-
-          <!-- Project 2: Medium -->
-          <div class="bento-item medium" data-tilt>
-            <div class="bento-content">
-              <div class="bento-tags">
-                <span>Kafka</span>
-                <span>Flink</span>
-                <span>Power BI</span>
-              </div>
-              <h3>Real-Time ETL Pipeline</h3>
-              <p>Stream processing & visualization of massive data streams.</p>
-              <a href="#" class="bento-link"><i class="fa-solid fa-arrow-right"></i></a>
-            </div>
-            <div class="bento-bg bg-2"></div>
-          </div>
-
-          <!-- Project 3: Medium -->
-          <div class="bento-item medium" data-tilt>
-            <div class="bento-content">
-              <div class="bento-tags">
-                <span>IoT</span>
-                <span>Predictive Analytics</span>
-              </div>
-              <h3>Intelligent Tank Monitoring</h3>
-              <p>Real-time reservoir prediction dashboard.</p>
-              <a href="#" class="bento-link"><i class="fa-solid fa-arrow-right"></i></a>
-            </div>
-            <div class="bento-bg bg-3"></div>
-          </div>
-
-          <!-- Project 4: Wide -->
-          <div class="bento-item wide" data-tilt>
-            <div class="bento-content">
-              <div class="bento-tags">
-                <span>Computer Vision</span>
-                <span>OpenCV</span>
-                <span>MediaPipe</span>
-              </div>
-              <h3>Drowsiness Detector</h3>
-              <p>Real-time driver safety system using facial landmark detection.</p>
-              <a href="#" class="bento-link"><i class="fa-solid fa-arrow-right"></i></a>
-            </div>
-            <div class="bento-bg bg-4"></div>
-          </div>
+          <!-- Dynamic Content -->
         </div>
       </div>
     </section>
@@ -344,64 +291,19 @@
     <section class="education section" id="education">
       <div class="container">
         <div class="section-header">
-          <h2 class="section-title scramble-text">Journey</h2>
+          <h2 class="section-title scramble-text" data-i18n="education.title">Journey</h2>
           <div class="line-separator"></div>
         </div>
 
         <div class="journey-grid">
           <!-- Education Column -->
           <div class="journey-column" id="education-list">
-            <h3 class="column-title"><i class="fa-solid fa-graduation-cap"></i> Education</h3>
-
-            <div class="timeline-card">
-              <span class="timeline-year">2023 - Present</span>
-              <h4>Master's in Data Analytics & AI</h4>
-              <p class="institution">University Ibn Zohr</p>
-            </div>
-
-            <div class="timeline-card">
-              <span class="timeline-year">2022 - 2023</span>
-              <h4>Bachelor's in Data Analytics & AI</h4>
-              <p class="institution">University Ibn Zohr</p>
-            </div>
-
-            <div class="timeline-card">
-              <span class="timeline-year">2021 - 2022</span>
-              <h4>License in Computer Engineering</h4>
-              <p class="institution">University Ibn Zohr</p>
-            </div>
-
-            <div class="timeline-card">
-              <span class="timeline-year">2020 - 2022</span>
-              <h4>DUT in Computer Engineering</h4>
-              <p class="institution">Moulay Ismail University</p>
-            </div>
+            <h3 class="column-title" data-i18n="education.edu"><i class="fa-solid fa-graduation-cap"></i> Education</h3>
           </div>
 
           <!-- Experience Column -->
           <div class="journey-column" id="experience-list">
-            <h3 class="column-title"><i class="fa-solid fa-briefcase"></i> Experience</h3>
-
-            <div class="timeline-card">
-              <span class="timeline-year">02/2023 - 04/2023</span>
-              <h4>Full Stack Web Developer</h4>
-              <p class="institution">UNIVERSHIGHTECH - Internship</p>
-              <p class="desc">Led design and deployment of a real estate website.</p>
-            </div>
-
-            <div class="timeline-card">
-              <span class="timeline-year">06/2022 - 07/2022</span>
-              <h4>Full Stack Web Developer</h4>
-              <p class="institution">OSPRO - Internship</p>
-              <p class="desc">Engineered a job application platform.</p>
-            </div>
-
-            <div class="timeline-card">
-              <span class="timeline-year">04/2021 - 05/2021</span>
-              <h4>Front End Web Developer</h4>
-              <p class="institution">JAWDA BOIS - Internship</p>
-              <p class="desc">Designed a showcase website for a construction firm.</p>
-            </div>
+            <h3 class="column-title" data-i18n="education.exp"><i class="fa-solid fa-briefcase"></i> Experience</h3>
           </div>
         </div>
       </div>
@@ -411,8 +313,8 @@
     <section class="contact section" id="contact">
       <div class="container contact-wrapper">
         <div class="contact-text">
-          <h2 class="scramble-text">Let's Connect</h2>
-          <p>Ready to leverage Data & AI for your next project?</p>
+          <h2 class="scramble-text" data-i18n="contact.title">Let's Connect</h2>
+          <p data-i18n="contact.subtitle">Ready to leverage Data & AI for your next project?</p>
           <div class="contact-details">
             <a href="mailto:yadani.adnane20@gmail.com" class="contact-link" id="contact-email"><i
                 class="fa-solid fa-envelope"></i>
@@ -431,15 +333,16 @@
         </div>
         <form class="contact-form">
           <div class="form-group">
-            <input type="text" placeholder="Your Name" required>
+            <input type="text" placeholder="Your Name" required data-i18n-placeholder="form.name">
           </div>
           <div class="form-group">
-            <input type="email" placeholder="Your Email" required>
+            <input type="email" placeholder="Your Email" required data-i18n-placeholder="form.email">
           </div>
           <div class="form-group">
-            <textarea placeholder="Tell me about your project" rows="5" required></textarea>
+            <textarea placeholder="Tell me about your project" rows="5" required
+              data-i18n-placeholder="form.message"></textarea>
           </div>
-          <button type="submit" class="btn-primary">Send Message</button>
+          <button type="submit" class="btn-primary" data-i18n="form.send">Send Message</button>
         </form>
       </div>
     </section>
@@ -447,7 +350,7 @@
 
   <footer class="footer">
     <div class="container">
-      <p>&copy; 2025 Adnane Yadani. Crafted with <i class="fa-solid fa-heart"></i> and AI.</p>
+      <p data-i18n="footer.rights">&copy; 2025 Adnane Yadani. Crafted with <i class="fa-solid fa-heart"></i> and AI.</p>
     </div>
   </footer>
 
