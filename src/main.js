@@ -227,6 +227,12 @@ async function loadShapes() {
         container.innerHTML = ''; // Clear existing
 
         shapes.forEach(shape => {
+            const translateShape = (text) => {
+                 if (text === 'AI' && currentLang === 'fr') return 'IA';
+                 // Add more specific mappings if needed or look up in translations
+                 return text;
+            };
+
             const wrapper = document.createElement('div');
             wrapper.className = 'cube-wrapper'; // Reuse wrapper for positioning
             wrapper.style.left = `${shape.pos_x}%`;
@@ -244,7 +250,6 @@ async function loadShapes() {
                 innerHTML = `
                     <div class="data-pyramid">
                         ${iconHTML}
-                        <div class="pyramid-face front">${shape.face_front || ''}</div>
                         <div class="pyramid-face front">${translateShape(shape.face_front || '')}</div>
                         <div class="pyramid-face back">${translateShape(shape.face_back || '')}</div>
                         <div class="pyramid-face right">${translateShape(shape.face_right || '')}</div>
