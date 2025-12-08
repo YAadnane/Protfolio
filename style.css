@@ -1687,11 +1687,7 @@ textarea:focus {
 
 @media (max-width: 768px) {
 
-    /* Disable backdrop-filter on header to prevent containing block issues */
-    .header {
-        backdrop-filter: none;
-        background: rgba(5, 5, 5, 0.9);
-    }
+    /* .header uses default styles (var(--nav-bg)) for light mode support */
 
     /* Hide custom cursor on mobile */
     .cursor-dot,
