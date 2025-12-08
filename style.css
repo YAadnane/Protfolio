@@ -453,27 +453,79 @@ h4 {
 .profile-img-container {
     width: 180px;
     height: 180px;
+    float: left;
+    margin-right: 2rem;
+    margin-bottom: 1rem;
+    perspective: 1000px;
+    /* Enable 3D perspective */
+}
+
+/* The Flipper Container */
+.profile-flip-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* Bouncy flip */
+    transform-style: preserve-3d;
+}
+
+/* Hover Action */
+.profile-img-container:hover .profile-flip-card {
+    transform: rotateY(180deg);
+}
+
+/* Front and Back Common */
+.profile-front,
+.profile-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
     border-radius: 1.5rem;
     overflow: hidden;
     border: 1px solid rgba(0, 255, 157, 0.3);
     box-shadow: 0 0 30px rgba(0, 255, 157, 0.1);
-    float: left;
-    margin-right: 2rem;
-    margin-bottom: 1rem;
-    position: relative;
-    transition: var(--transition-fast);
 }
 
-.profile-img-container:hover {
-    transform: scale(1.02);
-    border-color: var(--accent-color);
-    box-shadow: 0 0 40px rgba(0, 255, 157, 0.2);
+/* Front Face */
+.profile-front {
+    background-color: var(--card-bg);
 }
 
-.profile-img-container img {
+.profile-front img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+/* Back Face */
+.profile-back {
+    background: var(--card-bg);
+    /* Use theme card bg */
+    color: var(--accent-color);
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 1.2rem;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 40px rgba(0, 255, 157, 0.3);
+}
+
+.profile-back i {
+    font-size: 2rem;
+    margin-bottom: 0.2rem;
+}
+
+.profile-back:hover {
+    background: rgba(0, 255, 157, 0.1);
 }
 
 .about-name {
