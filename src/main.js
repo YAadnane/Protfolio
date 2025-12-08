@@ -119,6 +119,7 @@ function toggleLanguage() {
     if (langBtn) langBtn.innerText = currentLang === 'en' ? 'FR' : 'EN';
     
     updatePageLanguage();
+    loadShapes(); // Reload shapes to apply translation
 }
 
 function updatePageLanguage() {
@@ -153,12 +154,12 @@ async function loadGeneralInfo() {
 
         // Hero
         if (data.hero_subtitle) document.querySelector('.hero-subtitle').innerHTML = `<i class="fa-solid fa-terminal"></i> ${data.hero_subtitle}`;
-        if (data.hero_title) document.querySelector('.hero-title').innerText = data.hero_title;
+        // if (data.hero_title) document.querySelector('.hero-title').innerText = data.hero_title; // Keep static for translation & animation structure
         if (data.hero_description) document.querySelector('.hero-description').innerHTML = data.hero_description;
 
         // About
-        if (data.about_lead) document.querySelector('.about-text .lead').innerText = data.about_lead;
-        if (data.about_bio) document.querySelector('.about-text p:nth-of-type(2)').innerText = data.about_bio;
+        if (data.about_lead && currentLang === 'en') document.querySelector('.about-text .lead').innerText = data.about_lead;
+        if (data.about_bio && currentLang === 'en') document.querySelector('.about-text p:nth-of-type(2)').innerText = data.about_bio;
 
         // Stats
         if (data.stat_years) document.querySelector('.stat-number[data-target="3"]').setAttribute('data-target', data.stat_years);
@@ -244,9 +245,10 @@ async function loadShapes() {
                     <div class="data-pyramid">
                         ${iconHTML}
                         <div class="pyramid-face front">${shape.face_front || ''}</div>
-                        <div class="pyramid-face back">${shape.face_back || ''}</div>
-                        <div class="pyramid-face right">${shape.face_right || ''}</div>
-                        <div class="pyramid-face left">${shape.face_left || ''}</div>
+                        <div class="pyramid-face front">${translateShape(shape.face_front || '')}</div>
+                        <div class="pyramid-face back">${translateShape(shape.face_back || '')}</div>
+                        <div class="pyramid-face right">${translateShape(shape.face_right || '')}</div>
+                        <div class="pyramid-face left">${translateShape(shape.face_left || '')}</div>
                     </div>
                 `;
             } else if (shape.type === 'sphere') {
@@ -256,7 +258,7 @@ async function loadShapes() {
                         <div class="sphere-ring"></div>
                         <div class="sphere-ring"></div>
                         <div style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); color:var(--accent-color); font-family:var(--font-mono); font-weight:bold; text-align: center;">
-                            ${iconHTML ? iconHTML : (shape.face_front || 'DATA')}
+                            ${iconHTML ? iconHTML : (translateShape(shape.face_front || 'DATA'))}
                         </div>
                     </div>
                 `;
@@ -265,12 +267,12 @@ async function loadShapes() {
                 innerHTML = `
                     <div class="data-cube">
                         ${iconHTML}
-                        <div class="cube-face front">${shape.face_front || ''}</div>
-                        <div class="cube-face back">${shape.face_back || ''}</div>
-                        <div class="cube-face right">${shape.face_right || ''}</div>
-                        <div class="cube-face left">${shape.face_left || ''}</div>
-                        <div class="cube-face top">${shape.face_top || ''}</div>
-                        <div class="cube-face bottom">${shape.face_bottom || ''}</div>
+                        <div class="cube-face front">${translateShape(shape.face_front || '')}</div>
+                        <div class="cube-face back">${translateShape(shape.face_back || '')}</div>
+                        <div class="cube-face right">${translateShape(shape.face_right || '')}</div>
+                        <div class="cube-face left">${translateShape(shape.face_left || '')}</div>
+                        <div class="cube-face top">${translateShape(shape.face_top || '')}</div>
+                        <div class="cube-face bottom">${translateShape(shape.face_bottom || '')}</div>
                     </div>
                 `;
             }
