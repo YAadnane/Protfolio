@@ -176,7 +176,7 @@ async function loadGeneralInfo() {
             // For better control, user could use <br> in DB, but let's just wrap the whole thing or split by spaces.
             // Let's just set it as innerHTML to allow user to put <br> in Admin if they want, and wrap in scramble span if plain text.
             // Actually, best effort:
-            const formatted = data.hero_title.split(' ').map(w => `<span class="scramble-text">${w}</span>`).join('<br>');
+            const formatted = data.hero_title.split(' ').map(w => `<span class="scramble-text">${w}</span>`).join(' ');
             document.querySelector('.hero-title').innerHTML = formatted;
         }
         if (data.hero_description) document.querySelector('.hero-description').innerHTML = data.hero_description;
