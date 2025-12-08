@@ -16,6 +16,10 @@
     --font-body: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
     --transition-smooth: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+
+    /* Navbar Vars Default (Dark) */
+    --nav-bg: rgba(5, 5, 5, 0.8);
+    --nav-border: rgba(255, 255, 255, 0.05);
 }
 
 body.light-mode {
@@ -25,6 +29,10 @@ body.light-mode {
     --text-muted: #555555;
     --accent-color: #00bf7d;
     --accent-glow: rgba(0, 191, 125, 0.15);
+
+    /* Navbar Vars Light */
+    --nav-bg: rgba(255, 255, 255, 0.85);
+    --nav-border: rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -210,9 +218,9 @@ h4 {
     z-index: 10000;
     /* Ensure header stays above mobile overlay (9990) */
     transition: var(--transition-fast);
-    background: rgba(5, 5, 5, 0.8);
+    background: var(--nav-bg);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--nav-border);
 }
 
 .header-container {
@@ -1834,6 +1842,19 @@ textarea:focus {
     display: block;
 }
 
-.mobile-nav-link:hover {
-    color: var(--accent-color);
+color: var(--accent-color);
+}
+
+/* Admin Select Style */
+.admin-select {
+    background: var(--card-bg);
+    /* Adapts to theme */
+    color: var(--text-main);
+    /* Adapts to theme */
+    border: 1px solid var(--nav-border);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    outline: none;
+    cursor: pointer;
+    font-family: var(--font-body);
 }
