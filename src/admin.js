@@ -108,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadContent(currentTab);
     setupModal();
     initCursor();
+    initThemeAdmin();
     updateUnreadCount();
 });
 
