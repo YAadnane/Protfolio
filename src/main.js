@@ -171,9 +171,6 @@ function initTheme() {
         document.body.classList.add('light-mode');
         if(themeBtn) themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
     }
-    // Update colors initially
-    // Defer slightly to ensure CSS loaded or immediate
-    setTimeout(updateParticleColor, 0);
 
     if (themeBtn) {
         themeBtn.addEventListener('click', () => {
@@ -181,7 +178,6 @@ function initTheme() {
              const isLight = document.body.classList.contains('light-mode');
              localStorage.setItem('theme', isLight ? 'light' : 'dark');
              themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-             updateParticleColor(); // Update canvas colors
         });
     }
 }
@@ -678,22 +674,13 @@ const canvas = document.getElementById("data-network");
 const ctx = canvas.getContext("2d");
 let width, height;
 let particles = [];
-let particleColor = "0, 255, 157"; // Default
-
-function updateParticleColor() {
-    particleColor = getComputedStyle(document.body).getPropertyValue('--particle-rgb').trim();
-}
 
 function resize() {
     width = canvas.width = window.innerWidth;
     height = canvas.height = window.innerHeight;
 }
-window.addEventListener("resize", () => {
-    resize();
-    updateParticleColor();
-});
+window.addEventListener("resize", resize);
 resize();
-updateParticleColor();
 
 class Particle {
     constructor() {
@@ -715,7 +702,7 @@ class Particle {
     draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${particleColor}, 0.5)`;
+        ctx.fillStyle = "rgba(0, 255, 157, 0.5)";
         ctx.fill();
     }
 }
@@ -742,7 +729,7 @@ function animateParticles() {
 
             if (dist < 150) {
                 ctx.beginPath();
-                ctx.strokeStyle = `rgba(${particleColor}, ${1 - dist / 150})`;
+                ctx.strokeStyle = `rgba(0, 255, 157, ${1 - dist / 150})`;
                 ctx.lineWidth = 0.5;
                 ctx.moveTo(p.x, p.y);
                 ctx.lineTo(p2.x, p2.y);
