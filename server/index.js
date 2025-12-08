@@ -323,14 +323,14 @@ app.get('/api/general', (req, res) => {
     });
 });
 
-app.put('/api/general', upload.single('cvFile'), sanitizeMiddleware, authenticateToken, (req, res) => {
+app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 'profileImage', maxCount: 1 }]), sanitizeMiddleware, authenticateToken, (req, res) => {
     const { 
         hero_subtitle, hero_title, hero_description, 
         about_lead, about_bio, 
         stat_years, stat_projects, stat_companies,
         cube_front, cube_back, cube_right, cube_left, cube_top, cube_bottom,
         email, phone, location, linkedin_link, github_link,
-        cv_file, lang // Added lang
+        cv_file, profile_image, lang // Added lang and profile_image params
     } = req.body;
     
     console.log('PUT /api/general payload:', req.body); // Debug log
@@ -338,8 +338,13 @@ app.put('/api/general', upload.single('cvFile'), sanitizeMiddleware, authenticat
     const targetLang = lang || 'en';
 
     let cvPath = cv_file;
-    if (req.file) {
-        cvPath = `/uploads/${req.file.filename}`;
+    if (req.files && req.files['cvFile']) {
+        cvPath = `/uploads/${req.files['cvFile'][0].filename}`;
+    }
+
+    let imagePath = profile_image;
+    if (req.files && req.files['profileImage']) {
+        imagePath = `/uploads/${req.files['profileImage'][0].filename}`;
     }
 
     // Update based on lang
@@ -348,18 +353,17 @@ app.put('/api/general', upload.single('cvFile'), sanitizeMiddleware, authenticat
         about_lead = ?, about_bio = ?, 
         stat_years = ?, stat_projects = ?, stat_companies = ?,
         cube_front = ?, cube_back = ?, cube_right = ?, cube_left = ?, cube_top = ?, cube_bottom = ?,
-        cv_file = ?, email = ?, phone = ?, location = ?, linkedin_link = ?, github_link = ?
+        cv_file = ?, profile_image = ?, email = ?, phone = ?, location = ?, linkedin_link = ?, github_link = ?
         WHERE lang = ?`,
         [
             hero_subtitle, hero_title, hero_description, 
             about_lead, about_bio, 
             stat_years, stat_projects, stat_companies,
             cube_front, cube_back, cube_right, cube_left, cube_top, cube_bottom,
-            cvPath, email, phone, location, linkedin_link, github_link,
+            cvPath, imagePath, email, phone, location, linkedin_link, github_link,
             targetLang
         ],
         function(err) {
-            if (err) return res.status(500).json({ error: err.message });
             if (err) return res.status(500).json({ error: err.message });
             console.log('Update result:', this.changes); // Debug
             res.json({ message: "Updated successfully", changes: this.changes });

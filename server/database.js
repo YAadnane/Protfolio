@@ -109,9 +109,27 @@ db.serialize(() => {
         cube_right TEXT,
         cube_left TEXT,
         cube_top TEXT,
-        cube_bottom TEXT
+        cube_bottom TEXT,
+        cv_file TEXT,
+        email TEXT,
+        phone TEXT,
+        location TEXT,
+        linkedin_link TEXT,
+        github_link TEXT,
+        lang TEXT DEFAULT 'en',
+        profile_image TEXT
     )`, (err) => {
         if (!err) {
+            // Migration
+            addColumnIfNotExists('general_info', 'cv_file', 'TEXT');
+            addColumnIfNotExists('general_info', 'email', 'TEXT');
+            addColumnIfNotExists('general_info', 'phone', 'TEXT');
+            addColumnIfNotExists('general_info', 'location', 'TEXT');
+            addColumnIfNotExists('general_info', 'linkedin_link', 'TEXT');
+            addColumnIfNotExists('general_info', 'github_link', 'TEXT');
+            addColumnIfNotExists('general_info', 'lang', "TEXT DEFAULT 'en'");
+            addColumnIfNotExists('general_info', 'profile_image', 'TEXT');
+
             // Check if empty, if so seed with default values
             db.get("SELECT count(*) as count FROM general_info", (err, row) => {
                 if (row.count === 0) {

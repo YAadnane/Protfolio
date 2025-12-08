@@ -189,6 +189,12 @@ async function loadGeneralInfo() {
         
         if (!data) return;
 
+        // Profile Image
+        if (data.profile_image) {
+            const imgEl = document.getElementById('about-profile-img');
+            if (imgEl) imgEl.src = data.profile_image;
+        }
+
         // Hero
         if (data.hero_subtitle) document.querySelector('.hero-subtitle').innerHTML = `<i class="fa-solid fa-terminal"></i> ${data.hero_subtitle}`;
         if (data.hero_title) {

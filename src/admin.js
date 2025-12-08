@@ -88,6 +88,8 @@ const fields = {
         { name: 'stat_years', label: 'Years Experience', type: 'number' },
         { name: 'stat_projects', label: 'Projects Count', type: 'number' },
         { name: 'stat_companies', label: 'Companies Count', type: 'number' },
+        { name: 'profile_image', label: 'Current Profile Image Path', type: 'text' },
+        { name: 'profileImage', label: 'Upload Profile Image', type: 'file' },
         { name: 'cv_file', label: 'Current CV Path', type: 'text' },
         { name: 'cvFile', label: 'Upload New CV (PDF)', type: 'file' },
         { name: 'email', label: 'Email', type: 'text' },

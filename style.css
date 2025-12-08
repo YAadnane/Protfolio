@@ -450,6 +450,32 @@ h4 {
     gap: 4rem;
 }
 
+.profile-img-container {
+    width: 180px;
+    height: 180px;
+    border-radius: 1.5rem;
+    overflow: hidden;
+    border: 1px solid rgba(0, 255, 157, 0.3);
+    box-shadow: 0 0 30px rgba(0, 255, 157, 0.1);
+    float: left;
+    margin-right: 2rem;
+    margin-bottom: 1rem;
+    position: relative;
+    transition: var(--transition-fast);
+}
+
+.profile-img-container:hover {
+    transform: scale(1.02);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 40px rgba(0, 255, 157, 0.2);
+}
+
+.profile-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .about-name {
     font-size: 2.5rem;
     font-weight: 700;
