@@ -1,12 +1,8 @@
-import sqlite3 from 'sqlite3';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const sqlite3 = require('sqlite3').verbose();
+const path = require('path');
 
 const dbPath = path.resolve(__dirname, '../portfolio.db');
-const db = new sqlite3.verbose().Database(dbPath);
+const db = new sqlite3.Database(dbPath);
 
 const tables = [
     'general_info',
@@ -44,17 +40,9 @@ db.serialize(() => {
                 console.log(`Added 'lang' column to ${table}.`);
 
                 // 3. Duplicate content for 'fr'
-                // We select all columns except 'id' (and 'lang' which is now 'en')
-                // This is tricky because we need to explicitly list columns to copy excluding ID.
-                // Simpler approach: Select * then Insert manually.
-                
-                // Get list of columns excluding ID and lang
                 const dataCols = columns.map(c => c.name).filter(n => n !== 'id' && n !== 'lang');
                 
                 const colNames = dataCols.join(', ');
-                const colValues = dataCols.map(c => typeof c === 'string' ? `'${c}'` : c).join(', '); // Not quite right for SELECT
-                
-                // Construct query: INSERT INTO table (col1, col2, ..., lang) SELECT col1, col2, ..., 'fr' FROM table WHERE lang='en'
                 const insertSql = `INSERT INTO ${table} (${colNames}, lang) SELECT ${colNames}, 'fr' FROM ${table} WHERE lang='en'`;
                 
                 db.run(insertSql, (err) => {
