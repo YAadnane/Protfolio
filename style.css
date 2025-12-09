@@ -2488,3 +2488,47 @@ textarea:focus {
     }
 }
 
+
+/* Mobile Shape Positioning Fixes */
+.mobile-shape-container .scene {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    transform-style: preserve-3d;
+}
+
+.mobile-shape-container .cube,
+.mobile-shape-container .pyramid,
+.mobile-shape-container .sphere {
+    position: relative; /* Override standard absolute */
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    animation: rotateCube 10s infinite linear; /* Ensure animation runs */
+}
+
+/* Ensure faces are absolute within the relative cube */
+.mobile-shape-container .cube-face {
+    position: absolute; 
+    width: 120px;
+    height: 120px;
+    border: 1px solid var(--accent-color);
+    background: rgba(0, 255, 157, 0.05); /* Ensure visibility */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-main);
+    backface-visibility: visible; /* Ensure we see them */
+}
+
+/* Re-apply transforms for faces since size might be different than desktop def */
+.mobile-shape-container .cube-face.front  { transform: rotateY(0deg) translateZ(60px); }
+.mobile-shape-container .cube-face.back   { transform: rotateY(180deg) translateZ(60px); }
+.mobile-shape-container .cube-face.right  { transform: rotateY(90deg) translateZ(60px); }
+.mobile-shape-container .cube-face.left   { transform: rotateY(-90deg) translateZ(60px); }
+.mobile-shape-container .cube-face.top    { transform: rotateX(90deg) translateZ(60px); }
+.mobile-shape-container .cube-face.bottom { transform: rotateX(-90deg) translateZ(60px); }
+
