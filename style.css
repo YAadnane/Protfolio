@@ -2510,7 +2510,7 @@ textarea:focus {
 .mobile-shape-container {
     display: none;
     /* Hidden by default on desktop */
-    margin-bottom: 2rem;
+    margin: 2rem 0;
     height: 120px;
     align-items: center;
     justify-content: center;
