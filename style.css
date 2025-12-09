@@ -2485,3 +2485,36 @@ textarea:focus {
     animation-delay: -2.5s; /* Stagger */
 }
 
+
+/* =========================================
+   SLIDER DOTS (NAVIGATION)
+   ========================================= */
+.slider-dots {
+    display: none; /* Hidden on desktop */
+}
+
+@media (max-width: 768px) {
+    .slider-dots {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .slider-dot {
+        width: 8px;
+        height: 8px;
+        background: var(--nav-border);
+        border-radius: 50%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .slider-dot.active {
+        background: var(--accent-color);
+        width: 20px; /* Stretch to pill when active */
+        border-radius: 10px;
+    }
+}
+

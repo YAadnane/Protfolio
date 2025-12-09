@@ -1109,8 +1109,9 @@ async function loadArticles() {
 
 
 // =========================================
-// MOBILE SLIDER CONTROLS (ARROWS)
+// MOBILE SLIDER CONTROLS (DOTS)
 // =========================================
+/*
 function initMobileSliderControls() {
     const sliders = [
         { id: 'projects-grid' },
@@ -1122,18 +1123,58 @@ function initMobileSliderControls() {
         const el = document.getElementById(s.id);
         if (!el) return;
 
-        // Check if already initialized to avoid duplicates
         if (el.parentElement.classList.contains('slider-container')) return;
 
-        // Wrap in slider-container
         const wrapper = document.createElement('div');
         wrapper.className = 'slider-container';
-        
-        // Move element into wrapper
         el.parentNode.insertBefore(wrapper, el);
         wrapper.appendChild(el);
 
-        // Create Arrows
+        const dotsContainer = document.createElement('div');
+        dotsContainer.className = 'slider-dots';
+        wrapper.appendChild(dotsContainer);
+
+        const updateDots = () => {
+            dotsContainer.innerHTML = '';
+            const items = Array.from(el.children).filter(c => c.style.display !== 'none');
+            const itemCount = items.length;
+            if (itemCount === 0) return;
+
+            for (let i = 0; i < itemCount; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'slider-dot';
+                if (i === 0) dot.classList.add('active');
+                dot.onclick = () => items[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                dotsContainer.appendChild(dot);
+            }
+        };
+
+        setTimeout(updateDots, 500);
+
+        el.addEventListener('scroll', () => {
+            const centerPos = el.scrollLeft + (el.offsetWidth / 2);
+            const items = Array.from(el.children).filter(c => c.style.display !== 'none');
+            let activeIndex = 0;
+            let minDist = Infinity;
+
+            items.forEach((item, index) => {
+                const itemCenter = item.offsetLeft + (item.offsetWidth / 2);
+                const dist = Math.abs(centerPos - itemCenter);
+                if (dist < minDist) {
+                    minDist = dist;
+                    activeIndex = index;
+                }
+            });
+
+            const dots = dotsContainer.querySelectorAll('.slider-dot');
+            dots.forEach((dot, idx) => {
+                if (idx === activeIndex) dot.classList.add('active');
+                else dot.classList.remove('active');
+            });
+        }, { passive: true });
+    });
+}
+/*
         const prevBtn = document.createElement('button');
         prevBtn.className = 'slider-nav-btn prev';
         prevBtn.innerHTML = '<i class=\a-solid fa-chevron-left\></i>';
@@ -1149,5 +1190,75 @@ function initMobileSliderControls() {
     });
 }
 // Init after short delay to ensure DOM is ready and grid is populated
+window.addEventListener('load', () => setTimeout(initMobileSliderControls, 100));
+*/
+
+
+
+// =========================================
+// MOBILE SLIDER CONTROLS (DOTS)
+// =========================================
+function initMobileSliderControls() {
+    const sliders = [
+        { id: 'projects-grid' },
+        { id: 'articles-grid' },
+        { id: 'skills-grid' }
+    ];
+
+    sliders.forEach(s => {
+        const el = document.getElementById(s.id);
+        if (!el) return;
+
+        if (el.parentElement.classList.contains('slider-container')) return;
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'slider-container';
+        el.parentNode.insertBefore(wrapper, el);
+        wrapper.appendChild(el);
+
+        const dotsContainer = document.createElement('div');
+        dotsContainer.className = 'slider-dots';
+        wrapper.appendChild(dotsContainer);
+
+        const updateDots = () => {
+            dotsContainer.innerHTML = '';
+            const items = Array.from(el.children).filter(c => c.style.display !== 'none');
+            const itemCount = items.length;
+            if (itemCount === 0) return;
+
+            for (let i = 0; i < itemCount; i++) {
+                const dot = document.createElement('div');
+                dot.className = 'slider-dot';
+                if (i === 0) dot.classList.add('active');
+                dot.onclick = () => items[i].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                dotsContainer.appendChild(dot);
+            }
+        };
+
+        setTimeout(updateDots, 500);
+
+        el.addEventListener('scroll', () => {
+            const centerPos = el.scrollLeft + (el.offsetWidth / 2);
+            const items = Array.from(el.children).filter(c => c.style.display !== 'none');
+            let activeIndex = 0;
+            let minDist = Infinity;
+
+            items.forEach((item, index) => {
+                const itemCenter = item.offsetLeft + (item.offsetWidth / 2);
+                const dist = Math.abs(centerPos - itemCenter);
+                if (dist < minDist) {
+                    minDist = dist;
+                    activeIndex = index;
+                }
+            });
+
+            const dots = dotsContainer.querySelectorAll('.slider-dot');
+            dots.forEach((dot, idx) => {
+                if (idx === activeIndex) dot.classList.add('active');
+                else dot.classList.remove('active');
+            });
+        }, { passive: true });
+    });
+}
 window.addEventListener('load', () => setTimeout(initMobileSliderControls, 100));
 
