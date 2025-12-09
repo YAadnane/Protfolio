@@ -224,9 +224,18 @@ db.serialize(() => {
         date DATETIME DEFAULT CURRENT_TIMESTAMP
     )`, (err) => {
         if (!err) {
+            // Migration: Ensure columns exist
+            addColumnIfNotExists('reviews', 'name', 'TEXT');
+            addColumnIfNotExists('reviews', 'role', 'TEXT');
+            addColumnIfNotExists('reviews', 'message', 'TEXT');
+            addColumnIfNotExists('reviews', 'rating', 'INTEGER');
+            addColumnIfNotExists('reviews', 'is_approved', 'INTEGER DEFAULT 1');
+            addColumnIfNotExists('reviews', 'date', 'DATETIME DEFAULT CURRENT_TIMESTAMP');
+
             // Seed if empty
             db.get("SELECT count(*) as count FROM reviews", (err, row) => {
-                if (row.count === 0) {
+                if (err) return console.error(err.message);
+                if (row && row.count === 0) {
                      db.run(`INSERT INTO reviews (name, role, message, rating, is_approved) VALUES 
                         ('Sarah Connor', 'CTO at TechCorp', 'Adnane delivered exceptional results. His AI expertise transformed our workflow.', 5, 1),
                         ('John Doe', 'Project Manager', 'Great communication and high quality code. Highly recommended.', 5, 1)
