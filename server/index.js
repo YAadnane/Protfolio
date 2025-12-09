@@ -133,7 +133,6 @@ app.get('/api/projects', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
-    });
 });
 
 app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, res) => {
