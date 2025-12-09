@@ -50,23 +50,37 @@ window.showConfirm = (title, message) => {
 };
 
 window.showNotification = (message, type = 'info') => {
-    const container = document.getElementById('notification-container');
-    if (!container) return;
+    try {
+        const container = document.getElementById('notification-container');
+        if (!container) {
+            console.error('Notification container not found!');
+            // Fallback to alert if critical
+            if (type === 'error') alert(message);
+            return;
+        }
 
-    const notif = document.createElement('div');
-    notif.className = `notification ${type}`;
-    notif.innerHTML = `
-        <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>
-        <span>${message}</span>
-    `;
+        const notif = document.createElement('div');
+        notif.className = `notification ${type}`;
+        notif.innerHTML = `
+            <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>
+            <span>${message}</span>
+        `;
 
-    container.appendChild(notif);
+        container.appendChild(notif);
 
-    // Auto remove
-    setTimeout(() => {
-        notif.style.animation = 'slideOut 0.3s ease-in forwards';
-        setTimeout(() => notif.remove(), 300);
-    }, 3000);
+        // Auto remove
+        setTimeout(() => {
+            if (notif && notif.parentNode) {
+                notif.style.animation = 'slideOut 0.3s ease-in forwards';
+                setTimeout(() => {
+                    if (notif && notif.parentNode) notif.remove();
+                }, 300);
+            }
+        }, 3000);
+    } catch (e) {
+        console.error('Notification Error:', e);
+        alert(message); // Ultimate fallback
+    }
 };
 
 // --- MEDIA MANAGER FUNCTIONS ---
