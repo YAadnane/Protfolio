@@ -213,7 +213,7 @@ async function loadGeneralInfo() {
             const descriptions = [data.hero_description, data.hero_description_2, data.hero_description_3].filter(d => d); // Filter empty string/null
             
             if (descriptions.length > 0) {
-                let currentIdx = 0;
+                let currentIdx = 1; // Start at 1 since 0 is already shown
                 
                 // Simple Fade Rotator (Smoother than typing for long text)
                 const rotateText = () => {
@@ -230,7 +230,7 @@ async function loadGeneralInfo() {
                 descEl.innerHTML = descriptions[0];
                 
                 if (descriptions.length > 1) {
-                    setInterval(rotateText, 5000); // Rotate every 5 seconds
+                    setInterval(rotateText, 4000); // Reduce wait slightly to 4s for better pacing
                 }
             }
         }
