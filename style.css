@@ -2468,3 +2468,23 @@ textarea:focus {
     0%, 100% { opacity: 1; }
     50% { opacity: 0; }
 }
+
+/* Mobile Shape Container */
+.mobile-shape-container {
+    display: none; /* Hidden by default on desktop */
+    margin-bottom: 2rem;
+    height: 120px;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-scene {
+    perspective: 600px;
+}
+
+@media (max-width: 768px) {
+    .mobile-shape-container {
+        display: flex; /* Show on mobile */
+    }
+}
+

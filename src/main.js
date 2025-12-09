@@ -327,8 +327,12 @@ async function loadShapes() {
         container.innerHTML = ''; // Clear existing
 
         shapes.forEach(shape => {
-             // No client-side translation needed anymore!
+             // Check for Mobile Shape
+             if (shape.is_mobile_visible) {
+                 renderMobileShape(shape);
+             }
 
+             // Standard Desktop/Visual Shapes (always float in background)
              const wrapper = document.createElement('div');
             wrapper.className = 'cube-wrapper'; // Reuse wrapper for positioning
             wrapper.style.left = `${shape.pos_x}%`;
@@ -1307,3 +1311,89 @@ function initMobileSliderControls() {
 }
 window.addEventListener('load', () => setTimeout(initMobileSliderControls, 100));
 
+function renderMobileShape(shape) {
+    // 1. Find or create mobile container
+    let mobileContainer = document.querySelector('.mobile-shape-container');
+    if (!mobileContainer) {
+        // Insert before hero-title
+        const heroContent = document.querySelector('.hero-content');
+        const heroTitle = document.querySelector('.hero-title');
+        if (heroContent && heroTitle) {
+            mobileContainer = document.createElement('div');
+            mobileContainer.className = 'mobile-shape-container';
+            heroContent.insertBefore(mobileContainer, heroTitle);
+        }
+    }
+
+    if (!mobileContainer) return;
+    mobileContainer.innerHTML = ''; // Clear prev
+
+    // 2. Create the shape (Reusable Cube Logic simplified)
+    const size = '120px'; // Fixed size for mobile header
+    
+    // We can reuse the HTML structure of the cube/pyramid
+    // For simplicity, let's just make it a standard cube for now or clone the logic?
+    // Let's Clone the logic but statically positioned
+    
+    const scene = document.createElement('div');
+    scene.className = 'scene mobile-scene';
+    scene.style.width = size;
+    scene.style.height = size;
+
+    const obj = document.createElement('div');
+    obj.className = shape.type === 'sphere' ? 'sphere' : (shape.type === 'pyramid' ? 'pyramid' : 'cube');
+    
+    // Faces text
+    const texts = {
+        front: shape.face_front,
+        back: shape.face_back,
+        right: shape.face_right,
+        left: shape.face_left,
+        top: shape.face_top,
+        bottom: shape.face_bottom
+    };
+
+    if (shape.type === 'cube') {
+        const faces = ['front', 'back', 'right', 'left', 'top', 'bottom'];
+        faces.forEach(face => {
+            const div = document.createElement('div');
+            div.className = `cube-face ${face}`;
+            div.innerHTML = texts[face] || '';
+            div.style.borderColor = 'var(--accent-color)';
+            div.style.color = 'var(--text-color)';
+            div.style.background = 'rgba(255, 255, 255, 0.05)';
+            obj.appendChild(div);
+        });
+    } else if (shape.type === 'pyramid') {
+        const sides = ['front', 'back', 'right', 'left'];
+        sides.forEach(side => {
+            const div = document.createElement('div');
+            div.className = `pyramid-face ${side}`;
+            div.innerHTML = texts[side] || '';
+            obj.appendChild(div);
+        });
+        // Base
+        const base = document.createElement('div');
+        base.className = 'pyramid-base';
+        obj.appendChild(base);
+    } else if (shape.type === 'sphere') {
+         // Simple sphere representation
+         obj.innerHTML = `<span class="sphere-text">${texts.front || ''}</span>`;
+    }
+
+    // Icon
+     if (shape.icon) {
+        const i = document.createElement('i');
+        i.className = shape.icon;
+        i.style.position = 'absolute';
+        i.style.top = '50%';
+        i.style.left = '50%';
+        i.style.transform = 'translate(-50%, -50%)';
+        i.style.fontSize = '2rem';
+        i.style.color = 'var(--accent-color)';
+        obj.appendChild(i);
+    }
+
+    scene.appendChild(obj);
+    mobileContainer.appendChild(scene);
+}
