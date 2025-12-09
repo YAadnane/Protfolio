@@ -133,7 +133,25 @@ app.get('/api/projects', (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
-});    
+    });
+});
+
+app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, res) => {
+    const { title, description, tags, category, image, link, is_hidden, lang } = req.body;
+    let imagePath = image;
+    if (req.file) {
+        imagePath = `/uploads/${req.file.filename}`;
+    }
+
+    db.run(`INSERT INTO projects (title, description, tags, category, image, link, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [title, description, tags, category, imagePath, link, is_hidden || 0, lang || 'en'],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ id: this.lastID });
+        }
+    );
+});
+
 app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
     const { title, description, tags, category, image, link, is_hidden } = req.body;
     // If a new file is uploaded, use it. Otherwise, keep the old one (passed as 'image' body param or handled via logic)
