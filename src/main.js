@@ -555,13 +555,11 @@ async function loadCertifications() {
     try {
         const res = await fetch(`${API_URL}/certifications?lang=${currentLang}`);
         const certs = (await res.json()).filter(c => !c.is_hidden);
-        const container = document.getElementById('cert-list'); // Keeping original ID
-        const filterContainer = document.getElementById('cert-filters-section'); // Updated logic
+        const container = document.getElementById('cert-list');
         
         if (!container) return;
 
-        // --- FILTER UI INJECTION ---
-        // We look for a place to insert filters. If specific container doesn't exist, insert before list.
+        // --- FILTER UI INJECTION (Status Buttons) ---
         if (!document.getElementById('cert-status-filter')) {
             const filterHtml = `
                 <div id="cert-status-filter" style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; justify-content: center;">
@@ -571,21 +569,60 @@ async function loadCertifications() {
                     <button class="filter-btn" data-status="planned"><i class="fa-solid fa-calendar"></i> Planned</button>
                 </div>
             `;
-            // Insert status filter buttons BEFORE the container (and after any existing dropdowns if we want to keep them, or replaces them)
-            // Strategy: Insert before the grid container.
             container.insertAdjacentHTML('beforebegin', filterHtml);
         }
 
-        const renderCerts = (filter = 'all') => {
+        // --- FILTER POPULATION (Dropdowns) ---
+        const domainSelect = document.getElementById('filter-domain');
+        const issuerSelect = document.getElementById('filter-issuer');
+        
+        // Restore visibility if I hid them previously
+        if(domainSelect && domainSelect.parentElement.style.display === 'none') {
+             domainSelect.parentElement.style.display = 'flex';
+        }
+
+        // Get unique values
+        const domains = [...new Set(certs.map(c => c.domain).filter(Boolean))].sort();
+        const issuers = [...new Set(certs.map(c => c.issuer).filter(Boolean))].sort();
+
+        // Populate Domain Select
+        if (domainSelect && domainSelect.options.length === 1) { 
+            domains.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d;
+                opt.textContent = d;
+                domainSelect.appendChild(opt);
+            });
+        }
+
+        // Populate Issuer Select
+        if (issuerSelect && issuerSelect.options.length === 1) {
+            issuers.forEach(i => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = i;
+                issuerSelect.appendChild(opt);
+            });
+        }
+
+        let currentStatusFilter = 'all';
+
+        const renderCerts = () => {
             container.innerHTML = '';
             
-            // Filter Logic
-            const filtered = filter === 'all' 
-                ? certs 
-                : certs.filter(c => c.status === filter);
+            const selectedDomain = domainSelect ? domainSelect.value : '';
+            const selectedIssuer = issuerSelect ? issuerSelect.value : '';
+
+            // Combined Filter Logic
+            const filtered = certs.filter(c => {
+                const matchStatus = currentStatusFilter === 'all' || c.status === currentStatusFilter;
+                const matchDomain = !selectedDomain || c.domain === selectedDomain;
+                const matchIssuer = !selectedIssuer || c.issuer === selectedIssuer;
+                return matchStatus && matchDomain && matchIssuer;
+            });
 
             if (filtered.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-muted); width:100%; text-align:center;">No certifications found for this status.</p>';
+                container.innerHTML = '<p style="color:var(--text-muted); width:100%; text-align:center;">No certifications found matching criteria.</p>';
                 return;
             }
 
@@ -631,20 +668,20 @@ async function loadCertifications() {
         // Initial Render
         renderCerts();
 
-        // Filter Event Listeners
+        // Status Button Listeners
         const buttons = document.querySelectorAll('#cert-status-filter .filter-btn');
         buttons.forEach(btn => {
             btn.onclick = () => {
                 buttons.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                renderCerts(btn.dataset.status);
+                currentStatusFilter = btn.dataset.status;
+                renderCerts();
             };
         });
         
-        // Hide old filters if they exist to avoid confusion
-        const oldFilterDomain = document.getElementById('filter-domain');
-        const oldFilterIssuer = document.getElementById('filter-issuer');
-        if(oldFilterDomain) oldFilterDomain.parentElement.style.display = 'none'; // Hide the parent container usually
+        // Dropdown Listeners
+        if(domainSelect) domainSelect.onchange = renderCerts;
+        if(issuerSelect) issuerSelect.onchange = renderCerts;
 
     } catch (err) { console.error("Failed to load certifications", err); }
 }
