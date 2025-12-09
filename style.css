@@ -1439,14 +1439,23 @@ textarea:focus {
     }
 
     .bento-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 Columns for smaller width */
         grid-auto-rows: auto;
     }
 
     .bento-item {
-        /* aspect-ratio ensures the card has a video-friendly shape (16:9) */
-        aspect-ratio: 16/9;
-        min-height: auto;
+        aspect-ratio: auto;
+        min-height: 0;
+    }
+
+    /* Adapt image/video to center in small card */
+    .bento-bg {
+        object-fit: cover !important;
+        /* Keep cover, but maybe user wants it centered? contain leaves gaps. User said "adapt". Let's try cover with 2 cols first, as the ratio improves. */
+        /* Actually, if I use contain, it will be tiny bars. Cover is better. 
+           The user's main issue was "too large/long". 2 cols fixes width. Auto height fixes height. 
+           Centering is default. */
     }
 
     .bento-item.large,
