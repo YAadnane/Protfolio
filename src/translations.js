@@ -50,6 +50,12 @@ export const translations = {
         "form.message": "Tell me about your project",
         "footer.rights": "© 2025 Adnane Yadani. Crafted with <i class='fa-solid fa-heart'></i> and AI.",
         "chatbot.welcome": "Hello! I'm Adnane's AI assistant. Ask me anything about his projects, skills, or experience!",
+        "certifications.filter.all": "All",
+        "certifications.filter.obtained": "Obtained",
+        "certifications.filter.in_progress": "In Progress",
+        "certifications.filter.planned": "Planned",
+        "certifications.status.in_progress": "In Progress",
+        "certifications.status.planned": "Planned",
         "chatbot.title": "Portfolio AI Assistant"
     },
     fr: {
@@ -104,6 +110,12 @@ export const translations = {
         "form.send": "Envoyer Message",
         "footer.rights": "© 2025 Adnane Yadani. Créé avec <i class='fa-solid fa-heart'></i> et de l'IA.",
         "chatbot.welcome": "Bonjour ! Je suis l'assistant IA d'Adnane. Posez-moi des questions sur ses projets, compétences ou expérience !",
+        "certifications.filter.all": "Toutes",
+        "certifications.filter.obtained": "Obtenus",
+        "certifications.filter.in_progress": "En cours",
+        "certifications.filter.planned": "Planifiées",
+        "certifications.status.in_progress": "En cours",
+        "certifications.status.planned": "Planifiée",
         "chatbot.title": "Assistant IA Portfolio"
     }
 };
