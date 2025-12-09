@@ -560,19 +560,39 @@ async function loadCertifications() {
         if (!container) return;
 
         // --- FILTER UI INJECTION (Status Buttons) ---
-        if (!document.getElementById('cert-status-filter')) {
-            const filterHtml = `
-                <div id="cert-status-filter" style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; justify-content: center;">
-                    <button class="filter-btn active" data-status="all">All</button>
-                    <button class="filter-btn" data-status="obtained"><i class="fa-solid fa-check-circle"></i> Obtained</button>
-                    <button class="filter-btn" data-status="in_progress"><i class="fa-solid fa-spinner"></i> In Progress</button>
-                    <button class="filter-btn" data-status="planned"><i class="fa-solid fa-calendar"></i> Planned</button>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforebegin', filterHtml);
+        // Always re-inject or update to handle language changes if this function is called on language switch
+        const existingFilter = document.getElementById('cert-status-filter');
+        const t = translations[currentLang]; // Get translations for current lang
+
+        const filterHtmlContent = `
+            <button class="filter-btn active" data-status="all">${t["certifications.filter.all"]}</button>
+            <button class="filter-btn" data-status="obtained"><i class="fa-solid fa-check-circle"></i> ${t["certifications.filter.obtained"]}</button>
+            <button class="filter-btn" data-status="in_progress"><i class="fa-solid fa-spinner"></i> ${t["certifications.filter.in_progress"]}</button>
+            <button class="filter-btn" data-status="planned"><i class="fa-solid fa-calendar"></i> ${t["certifications.filter.planned"]}</button>
+        `;
+
+        if (!existingFilter) {
+            const filterContainer = document.createElement('div');
+            filterContainer.id = 'cert-status-filter';
+            filterContainer.style.cssText = "display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; justify-content: center;";
+            filterContainer.innerHTML = filterHtmlContent;
+            container.insertAdjacentElement('beforebegin', filterContainer);
+        } else {
+            // Update text if it exists (for language switch)
+            // But we need to preserve active class. 
+            // Simpler strategy: If we are reloading content, likely the entire section is rebuilt or we can just replace innerHTML and re-attach listeners.
+            // Let's replace innerHTML and re-bind listeners to be safe and simple.
+            const activeStatus = existingFilter.querySelector('.active')?.dataset.status || 'all';
+            existingFilter.innerHTML = filterHtmlContent;
+            // Restore active
+            existingFilter.querySelectorAll('.filter-btn').forEach(btn => {
+                if(btn.dataset.status === activeStatus) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
         }
 
         // --- FILTER POPULATION (Dropdowns) ---
+        // ... (Dropdown logic stays mostly same, but make sure we don't duplicate listeners/options if called multiple times)
         const domainSelect = document.getElementById('filter-domain');
         const issuerSelect = document.getElementById('filter-issuer');
         
@@ -585,8 +605,10 @@ async function loadCertifications() {
         const domains = [...new Set(certs.map(c => c.domain).filter(Boolean))].sort();
         const issuers = [...new Set(certs.map(c => c.issuer).filter(Boolean))].sort();
 
-        // Populate Domain Select
-        if (domainSelect && domainSelect.options.length === 1) { 
+        // Populate Domain Select (Clear first to avoid duplicates on reload)
+        if (domainSelect) { 
+            // Keep first option (All)
+            while(domainSelect.options.length > 1) domainSelect.remove(1);
             domains.forEach(d => {
                 const opt = document.createElement('option');
                 opt.value = d;
@@ -596,7 +618,8 @@ async function loadCertifications() {
         }
 
         // Populate Issuer Select
-        if (issuerSelect && issuerSelect.options.length === 1) {
+        if (issuerSelect) {
+            while(issuerSelect.options.length > 1) issuerSelect.remove(1);
             issuers.forEach(i => {
                 const opt = document.createElement('option');
                 opt.value = i;
@@ -605,9 +628,11 @@ async function loadCertifications() {
             });
         }
 
-        let currentStatusFilter = 'all';
+        let currentStatusFilter = document.querySelector('#cert-status-filter .active')?.dataset.status || 'all';
 
         const renderCerts = () => {
+            // Re-fetch translations in case they changed (unlikely but safe) or just use 't'
+            const badgesT = translations[currentLang]; 
             container.innerHTML = '';
             
             const selectedDomain = domainSelect ? domainSelect.value : '';
@@ -630,9 +655,9 @@ async function loadCertifications() {
                 // Status Badge Logic
                 let statusBadge = '';
                 if (c.status === 'in_progress') {
-                    statusBadge = `<span style="font-size:0.7rem; background:rgba(255, 165, 0, 0.1); color:orange; padding:2px 8px; border-radius:12px; border:1px solid rgba(255, 165, 0, 0.3); margin-left:8px; white-space:nowrap;">In Progress</span>`;
+                    statusBadge = `<span style="font-size:0.7rem; background:rgba(255, 165, 0, 0.1); color:orange; padding:2px 8px; border-radius:12px; border:1px solid rgba(255, 165, 0, 0.3); margin-left:8px; white-space:nowrap;">${badgesT["certifications.status.in_progress"]}</span>`;
                 } else if (c.status === 'planned') {
-                    statusBadge = `<span style="font-size:0.7rem; background:rgba(0, 191, 255, 0.1); color:deepskyblue; padding:2px 8px; border-radius:12px; border:1px solid rgba(0, 191, 255, 0.3); margin-left:8px; white-space:nowrap;">Planned</span>`;
+                    statusBadge = `<span style="font-size:0.7rem; background:rgba(0, 191, 255, 0.1); color:deepskyblue; padding:2px 8px; border-radius:12px; border:1px solid rgba(0, 191, 255, 0.3); margin-left:8px; white-space:nowrap;">${badgesT["certifications.status.planned"]}</span>`;
                 }
 
                 const item = document.createElement('div');
@@ -668,7 +693,7 @@ async function loadCertifications() {
         // Initial Render
         renderCerts();
 
-        // Status Button Listeners
+        // Status Button Listeners (Need to re-attach if we replaced innerHTML)
         const buttons = document.querySelectorAll('#cert-status-filter .filter-btn');
         buttons.forEach(btn => {
             btn.onclick = () => {
