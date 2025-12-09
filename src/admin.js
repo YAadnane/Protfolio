@@ -55,14 +55,30 @@ window.deleteMedia = async (filename) => {
     if (!confirmed) return;
 
     try {
-        const res = await fetch(`${API_URL}/media/${filename}`, {
+        const encodedFilename = encodeURIComponent(filename);
+        const res = await fetch(`${API_URL}/media/${encodedFilename}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (res.ok) {
             showNotification('File deleted successfully', 'success');
-            loadMedia(); // Refresh list
+            
+            // Optimistic UI Update: Remove card immediately
+            const cards = document.querySelectorAll('.admin-card');
+            cards.forEach(card => {
+                if (card.innerHTML.includes(filename)) {
+                    card.style.transition = 'opacity 0.3s, transform 0.3s';
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.9)';
+                    setTimeout(() => card.remove(), 300);
+                }
+            });
+
+            // Wait a bit for FS to settle, then hard refresh
+            setTimeout(() => {
+                loadMedia(); 
+            }, 500);
         } else {
             showNotification('Failed to delete file', 'error');
         }
