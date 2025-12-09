@@ -574,26 +574,58 @@ app.get('/api/shapes', (req, res) => {
 });
 
 app.post('/api/shapes', authenticateToken, (req, res) => {
-    const { type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, lang } = req.body;
-    db.run(`INSERT INTO shapes (type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, lang) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [type || 'cube', face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden || 0, lang || 'en'],
-        function(err) {
+    const { type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, lang, is_mobile_visible } = req.body;
+    
+    const insertShape = () => {
+        db.run(`INSERT INTO shapes (type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, lang, is_mobile_visible) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [type || 'cube', face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden || 0, lang || 'en', is_mobile_visible || 0],
+            function(err) {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json({ id: this.lastID });
+            }
+        );
+    };
+
+    if (is_mobile_visible) {
+        // Reset others first
+        db.run("UPDATE shapes SET is_mobile_visible = 0 WHERE lang = ?", [lang || 'en'], (err) => {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID });
-        }
-    );
+            insertShape();
+        });
+    } else {
+        insertShape();
+    }
 });
 
 app.put('/api/shapes/:id', authenticateToken, (req, res) => {
-    const { type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden } = req.body;
-    db.run(`UPDATE shapes SET type = ?, face_front = ?, face_back = ?, face_right = ?, face_left = ?, face_top = ?, face_bottom = ?, size = ?, pos_x = ?, pos_y = ?, icon = ?, is_hidden = ? WHERE id = ?`,
-        [type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, req.params.id],
-        function(err) {
+    console.log('PUT /api/shapes payload:', req.body); // Debug log
+    const { type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, is_mobile_visible, lang } = req.body; 
+    
+    // Fix boolean/string type issue strictly
+    const isMobileBool = (is_mobile_visible === '1' || is_mobile_visible === 1 || is_mobile_visible === true);
+
+    const updateShape = () => {
+        db.run(`UPDATE shapes SET type = ?, face_front = ?, face_back = ?, face_right = ?, face_left = ?, face_top = ?, face_bottom = ?, size = ?, pos_x = ?, pos_y = ?, icon = ?, is_hidden = ?, is_mobile_visible = ? WHERE id = ?`,
+            [type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, isMobileBool ? 1 : 0, req.params.id],
+            function(err) {
+                if (err) return res.status(500).json({ error: err.message });
+                console.log('Update successful, changes:', this.changes);
+                res.json({ message: "Updated successfully" });
+            }
+        );
+    };
+
+    if (isMobileBool) {
+        const targetLang = lang || 'en';
+        console.log('Resetting mobile visible for lang:', targetLang);
+        db.run("UPDATE shapes SET is_mobile_visible = 0 WHERE lang = ?", [targetLang], (err) => {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Updated successfully" });
-        }
-    );
+            updateShape();
+        });
+    } else {
+        updateShape();
+    }
 });
 
 app.delete('/api/shapes/:id', authenticateToken, (req, res) => {
