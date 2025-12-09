@@ -189,7 +189,7 @@ function initTheme() {
 
 async function loadGeneralInfo() {
     try {
-        const res = await fetch(`${API_URL}/general?lang=${currentLang}`);
+        const res = await fetch(`${API_URL}/general?lang=${currentLang}&t=${Date.now()}`);
         const data = await res.json();
         
         if (!data) return;
