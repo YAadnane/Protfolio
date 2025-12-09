@@ -2559,3 +2559,16 @@ textarea:focus {
     color: var(--accent-color);
 }
 
+
+@media (max-width: 768px) {
+    .cert-filters {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .cert-filters select {
+        width: 100%;
+        font-size: 0.9rem; /* Slightly smaller font for better fit */
+    }
+}
+
