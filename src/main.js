@@ -319,7 +319,7 @@ async function loadGeneralInfo() {
 
 async function loadShapes() {
     try {
-        const res = await fetch(`${API_URL}/shapes?lang=${currentLang}`);
+        const res = await fetch(`${API_URL}/shapes?lang=${currentLang}&t=${Date.now()}`);
         const shapes = (await res.json()).filter(s => !s.is_hidden);
         const container = document.querySelector('.hero-visual');
         if (!container) return;
