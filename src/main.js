@@ -686,6 +686,8 @@ function resize() {
     width = canvas.width = window.innerWidth;
     height = canvas.height = window.innerHeight;
 }
+window.addEventListener('resize', resize);
+resize();
 // =========================================
 // CHATBOT LOGIC
 // =========================================
