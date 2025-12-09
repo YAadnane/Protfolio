@@ -725,6 +725,14 @@ async function loadCertifications() {
 
                 const item = document.createElement('div');
                 item.className = 'cert-item';
+                // Make item clickable for modal
+                item.style.cursor = 'pointer';
+                item.onclick = (e) => {
+                    // Prevent if clicking the eye icon specifically (optional, keeping both behaviors)
+                    if(e.target.closest('.btn-icon')) return;
+                    openCertModal(c); 
+                };
+
                 item.innerHTML = `
                 <div style="display: flex; align-items: center; gap: 1rem; width: 100%;">
                     <div style="font-size: 1.5rem; color: var(--accent-color); min-width: 40px; text-align: center;">
@@ -742,14 +750,25 @@ async function loadCertifications() {
                         </div>
                         ${c.domain ? `<span style="display: block; font-size: 0.75rem; color: #666; margin-top: 0.1rem;">${c.domain}</span>` : ''}
                     </div>
-                    ${c.pdf ? `
-                        <a href="${API_URL.replace('/api', '')}${c.pdf}" target="_blank" class="btn-icon" title="View Certificate" style="color: var(--accent-color); font-size: 1.2rem; transition: transform 0.2s;">
-                            <i class="fa-solid fa-eye"></i>
-                        </a>
-                    ` : ''}
+                    <div class="btn-icon" style="color: var(--accent-color); font-size: 1.2rem;">
+                         <i class="fa-solid fa-chevron-right" style="font-size: 0.8rem; opacity: 0.7;"></i>
+                    </div>
                 </div>
-            `;
+                `;
                 container.appendChild(item);
+            });
+            
+            // GSAP Animation
+            gsap.from(container.children, {
+                y: 20,
+                opacity: 0,
+                duration: 0.4,
+                stagger: 0.05,
+                ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: container,
+                    start: 'top 80%'
+                }
             });
         };
 

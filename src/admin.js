@@ -223,8 +223,21 @@ const fields = {
             type: 'select', 
             options: ['obtained', 'in_progress', 'planned'] 
         },
+        // Detailed Modal Fields
+        { name: 'description', label: 'Description', type: 'textarea' },
+        { name: 'skills', label: 'Skills (comma separated)', type: 'text' },
+        { name: 'credential_id', label: 'Credential ID', type: 'text' },
+        { name: 'credential_url', label: 'Verification URL', type: 'text' },
+        { 
+            name: 'level', 
+            label: 'Level', 
+            type: 'select', 
+            options: ['Beginner', 'Intermediate', 'Advanced', 'Expert'] 
+        },
         { name: 'pdf', label: 'Current PDF Path', type: 'text' }, // Read-only or manual edit
-        { name: 'pdfFile', label: 'Upload PDF', type: 'file' },
+        { name: 'pdfFile', label: 'Upload Certificate PDF', type: 'file' },
+        { name: 'image', label: 'Current Image Path', type: 'text' },
+        { name: 'imageFile', label: 'Upload Preview Image', type: 'file' },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
     ],
     education: [

@@ -184,10 +184,21 @@ db.serialize(() => {
                         db.run("ALTER TABLE shapes ADD COLUMN type TEXT DEFAULT 'cube'");
                     }
                     
-                    const hasIcon = rows.some(r => r.name === 'icon');
-                    if (!hasIcon) {
-                        db.run("ALTER TABLE shapes ADD COLUMN icon TEXT");
-                    }
+                    const migrations = [
+                        "ALTER TABLE general_info ADD COLUMN lang TEXT DEFAULT 'en'",
+                        "ALTER TABLE projects ADD COLUMN lang TEXT DEFAULT 'en'",
+                        "ALTER TABLE skills ADD COLUMN lang TEXT DEFAULT 'en'",
+                        "ALTER TABLE experience ADD COLUMN lang TEXT DEFAULT 'en'",
+                        "ALTER TABLE education ADD COLUMN lang TEXT DEFAULT 'en'",
+                        "ALTER TABLE certifications ADD COLUMN lang TEXT DEFAULT 'en'",
+                        "ALTER TABLE shapes ADD COLUMN lang TEXT DEFAULT 'en'",
+                        "ALTER TABLE certifications ADD COLUMN description TEXT",
+                        "ALTER TABLE certifications ADD COLUMN skills TEXT",
+                        "ALTER TABLE certifications ADD COLUMN credential_id TEXT",
+                        "ALTER TABLE certifications ADD COLUMN credential_url TEXT",
+                        "ALTER TABLE certifications ADD COLUMN level TEXT",
+                        "ALTER TABLE certifications ADD COLUMN image TEXT"
+                    ];
 
                     const hasHidden = rows.some(r => r.name === 'is_hidden');
                     if (!hasHidden) {

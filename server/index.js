@@ -190,12 +190,20 @@ app.get('/api/certifications', (req, res) => {
     });
 });
 
-app.post('/api/certifications', upload.single('pdfFile'), authenticateToken, (req, res) => {
-    const { name, issuer, icon, year, domain, pdf, is_hidden, lang, status } = req.body;
-    const pdfPath = req.file ? `/uploads/${req.file.filename}` : pdf;
+app.post('/api/certifications', upload.fields([{ name: 'pdfFile', maxCount: 1 }, { name: 'imageFile', maxCount: 1 }]), authenticateToken, (req, res) => {
+    const { name, issuer, icon, year, domain, pdf, is_hidden, lang, status, description, skills, credential_id, credential_url, level, image } = req.body;
+    
+    const pdfPath = req.files['pdfFile'] ? `/uploads/${req.files['pdfFile'][0].filename}` : pdf;
+    const imagePath = req.files['imageFile'] ? `/uploads/${req.files['imageFile'][0].filename}` : image;
 
-    db.run(`INSERT INTO certifications (name, issuer, icon, year, domain, pdf, is_hidden, lang, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [name, issuer, icon, year, domain, pdfPath, is_hidden || 0, lang || 'en', status || 'obtained'],
+    db.run(`INSERT INTO certifications (
+        name, issuer, icon, year, domain, pdf, is_hidden, lang, status, 
+        description, skills, credential_id, credential_url, level, image
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+            name, issuer, icon, year, domain, pdfPath, is_hidden || 0, lang || 'en', status || 'obtained',
+            description, skills, credential_id, credential_url, level, imagePath
+        ],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
@@ -203,16 +211,28 @@ app.post('/api/certifications', upload.single('pdfFile'), authenticateToken, (re
     );
 });
 
-app.put('/api/certifications/:id', upload.single('pdfFile'), authenticateToken, (req, res) => {
-    const { name, issuer, icon, year, domain, pdf, is_hidden, status } = req.body;
+app.put('/api/certifications/:id', upload.fields([{ name: 'pdfFile', maxCount: 1 }, { name: 'imageFile', maxCount: 1 }]), authenticateToken, (req, res) => {
+    const { name, issuer, icon, year, domain, pdf, is_hidden, status, description, skills, credential_id, credential_url, level, image } = req.body;
     
     let pdfPath = pdf;
-    if (req.file) {
-        pdfPath = `/uploads/${req.file.filename}`;
+    if (req.files['pdfFile']) {
+        pdfPath = `/uploads/${req.files['pdfFile'][0].filename}`;
     }
 
-    db.run(`UPDATE certifications SET name = ?, issuer = ?, icon = ?, year = ?, domain = ?, pdf = ?, is_hidden = ?, status = ? WHERE id = ?`,
-        [name, issuer, icon, year, domain, pdfPath, is_hidden, status, req.params.id],
+    let imagePath = image;
+    if (req.files['imageFile']) {
+        imagePath = `/uploads/${req.files['imageFile'][0].filename}`;
+    }
+
+    db.run(`UPDATE certifications SET 
+        name = ?, issuer = ?, icon = ?, year = ?, domain = ?, pdf = ?, is_hidden = ?, status = ?,
+        description = ?, skills = ?, credential_id = ?, credential_url = ?, level = ?, image = ?
+        WHERE id = ?`,
+        [
+            name, issuer, icon, year, domain, pdfPath, is_hidden, status,
+            description, skills, credential_id, credential_url, level, imagePath,
+            req.params.id
+        ],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });
