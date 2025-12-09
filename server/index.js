@@ -604,10 +604,12 @@ app.put('/api/shapes/:id', authenticateToken, (req, res) => {
     
     // Fix boolean/string type issue strictly
     const isMobileBool = (is_mobile_visible === '1' || is_mobile_visible === 1 || is_mobile_visible === true);
+    const targetLang = lang || 'en';
 
     const updateShape = () => {
-        db.run(`UPDATE shapes SET type = ?, face_front = ?, face_back = ?, face_right = ?, face_left = ?, face_top = ?, face_bottom = ?, size = ?, pos_x = ?, pos_y = ?, icon = ?, is_hidden = ?, is_mobile_visible = ? WHERE id = ?`,
-            [type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, isMobileBool ? 1 : 0, req.params.id],
+        // Also update 'lang' to ensure consistency with the reset group
+        db.run(`UPDATE shapes SET type = ?, face_front = ?, face_back = ?, face_right = ?, face_left = ?, face_top = ?, face_bottom = ?, size = ?, pos_x = ?, pos_y = ?, icon = ?, is_hidden = ?, is_mobile_visible = ?, lang = ? WHERE id = ?`,
+            [type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, isMobileBool ? 1 : 0, targetLang, req.params.id],
             function(err) {
                 if (err) return res.status(500).json({ error: err.message });
                 console.log('Update successful, changes:', this.changes);
@@ -617,7 +619,6 @@ app.put('/api/shapes/:id', authenticateToken, (req, res) => {
     };
 
     if (isMobileBool) {
-        const targetLang = lang || 'en';
         console.log('Resetting mobile visible for lang:', targetLang);
         db.run("UPDATE shapes SET is_mobile_visible = 0 WHERE lang = ?", [targetLang], (err) => {
             if (err) return res.status(500).json({ error: err.message });
