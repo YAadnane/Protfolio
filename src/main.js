@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadExperience(),
         loadSkills(),
         loadArticles(),
-        loadStats()
+        loadStats(),
+        loadReviews()
     ]);
     
     // Initialize animations AFTER content is loaded
@@ -30,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initMobileMenu();
     initContactForm();
     initChatbot(); // Initialize Chatbot
+    initReviewModal();
 });
 
 function initContactForm() {
@@ -1267,6 +1269,119 @@ async function loadArticles() {
         if (searchInput) searchInput.oninput = applyFilters;
 
     } catch (err) { console.error("Failed to load articles", err); }
+}
+
+async function loadReviews() {
+    try {
+        const res = await fetch(`${API_URL}/reviews`);
+        const reviews = await res.json();
+        const container = document.getElementById("testimonials-grid");
+        
+        if(!container) return;
+
+        if (reviews.length === 0) {
+            container.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:var(--text-muted);'>No reviews yet. Be the first!</p>";
+            return;
+        }
+
+        container.innerHTML = reviews.map(r => `
+            <div class="testimonial-card">
+                <div class="testimonial-header">
+                    <div class="testimonial-author">
+                        <h4>${r.name}</h4>
+                        <span>${r.role || ''}</span>
+                    </div>
+                    <div class="testimonial-rating">
+                        ${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}
+                    </div>
+                </div>
+                <p class="testimonial-text">"${r.message}"</p>
+            </div>
+        `).join("");
+
+    } catch (err) { console.error("Failed to load reviews", err); }
+}
+
+function initReviewModal() {
+    const modal = document.getElementById("review-modal");
+    const btn = document.getElementById("open-review-modal");
+    const close = modal?.querySelector(".close-modal");
+    const form = document.getElementById("review-form");
+    const stars = modal?.querySelectorAll(".star");
+    const ratingInput = document.getElementById("review-rating");
+
+    if (!modal || !btn) return;
+
+    btn.onclick = () => {
+        modal.style.display = "block";
+        document.body.style.overflow = "hidden";
+    };
+
+    const closeModal = () => {
+        modal.style.display = "none";
+        document.body.style.overflow = "auto";
+    };
+
+    if(close) close.onclick = closeModal;
+    window.onclick = (e) => {
+        if (e.target === modal) closeModal();
+    };
+
+    // Star Rating Logic
+    if(stars) {
+        stars.forEach(star => {
+            star.onclick = () => {
+                const val = star.dataset.value;
+                ratingInput.value = val;
+                stars.forEach(s => {
+                    s.classList.toggle("active", s.dataset.value <= val);
+                });
+            };
+        });
+        // Init state
+        const initialVal = ratingInput.value;
+        stars.forEach(s => s.classList.toggle("active", s.dataset.value <= initialVal));
+    }
+
+    if(form) {
+        form.onsubmit = async (e) => {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText;
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Sending...";
+
+            const data = {
+                name: document.getElementById("review-name").value,
+                role: document.getElementById("review-role").value,
+                rating: document.getElementById("review-rating").value,
+                message: document.getElementById("review-message").value
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/reviews`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if(res.ok) {
+                    alert("Thank you for your review!");
+                    closeModal();
+                    form.reset();
+                    loadReviews(); // Refresh list
+                } else {
+                    alert("Failed to submit review.");
+                }
+            } catch(err) {
+                console.error(err);
+                alert("Error submitting review.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+            }
+        };
+    }
 }
 
 

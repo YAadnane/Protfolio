@@ -58,7 +58,16 @@ export const translations = {
         "certifications.status.planned": "Planned",
         "certifications.filter.domains": "All Domains",
         "certifications.filter.issuers": "All Issuers",
+        "certifications.filter.issuers": "All Issuers",
         "articles.search.placeholder": "Search articles...",
+        "testimonials.title": "Testimonials",
+        "testimonials.subtitle": "What clients say about working with me.",
+        "testimonials.button": "Give a Review",
+        "testimonials.form.title": "Share your experience",
+        "testimonials.form.name": "Your Name",
+        "testimonials.form.role": "Your Role (Optional)",
+        "testimonials.form.message": "Your Review",
+        "testimonials.form.submit": "Submit Review",
         "chatbot.title": "Portfolio AI Assistant"
     },
     fr: {
@@ -121,7 +130,16 @@ export const translations = {
         "certifications.status.planned": "Planifiée",
         "certifications.filter.domains": "Tous les Domaines",
         "certifications.filter.issuers": "Tous les Émetteurs",
+        "certifications.filter.issuers": "Tous les Émetteurs",
         "articles.search.placeholder": "Rechercher un article...",
+        "testimonials.title": "Témoignages",
+        "testimonials.subtitle": "Ce que disent mes collaborateurs.",
+        "testimonials.button": "Donner votre avis",
+        "testimonials.form.title": "Partagez votre expérience",
+        "testimonials.form.name": "Votre Nom",
+        "testimonials.form.role": "Votre Rôle (Optionnel)",
+        "testimonials.form.message": "Votre Avis",
+        "testimonials.form.submit": "Envoyer l'avis",
         "chatbot.title": "Assistant IA Portfolio"
     }
 };

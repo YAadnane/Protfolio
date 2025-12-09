@@ -211,6 +211,32 @@ db.serialize(() => {
         }
     });
 
+    });
+
+    // Reviews Table
+    db.run(`CREATE TABLE IF NOT EXISTS reviews (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        role TEXT,
+        message TEXT,
+        rating INTEGER,
+        is_approved INTEGER DEFAULT 1,
+        date DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`, (err) => {
+        if (!err) {
+            // Seed if empty
+            db.get("SELECT count(*) as count FROM reviews", (err, row) => {
+                if (row.count === 0) {
+                     db.run(`INSERT INTO reviews (name, role, message, rating, is_approved) VALUES 
+                        ('Sarah Connor', 'CTO at TechCorp', 'Adnane delivered exceptional results. His AI expertise transformed our workflow.', 5, 1),
+                        ('John Doe', 'Project Manager', 'Great communication and high quality code. Highly recommended.', 5, 1)
+                     `);
+                     console.log("Reviews seeded.");
+                }
+            });
+        }
+    });
+
     console.log("Database initialized successfully.");
 });
 

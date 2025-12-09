@@ -713,6 +713,29 @@ app.delete('/api/messages/:id', authenticateToken, (req, res) => {
     });
 });
 
+// --- REVIEWS ---
+app.get('/api/reviews', (req, res) => {
+    db.all("SELECT * FROM reviews WHERE is_approved = 1 ORDER BY date DESC", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.post('/api/reviews', sanitizeMiddleware, (req, res) => {
+    const { name, role, message, rating } = req.body;
+    if (!name || !message || !rating) {
+        return res.status(400).json({ error: "Name, message and rating are required." });
+    }
+
+    db.run(`INSERT INTO reviews (name, role, message, rating) VALUES (?, ?, ?, ?)`,
+        [name, role, message, rating],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "Review submitted successfully", id: this.lastID });
+        }
+    );
+});
+
 // --- SEO / SITEMAP ---
 app.get('/sitemap.xml', (req, res) => {
     const baseUrl = 'https://yadani-adnane.duckdns.org';
