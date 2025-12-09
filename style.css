@@ -1448,10 +1448,11 @@ textarea:focus {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        padding: 1rem !important;
-        /* Compact padding */
+        padding: 0 !important;
+        /* Remove padding from container */
         min-height: 0;
-        /* align-self removed -> Grid Stretch applies (Equal Height) */
+        overflow: hidden;
+        /* Ensure rounded corners clip content */
     }
 
     .bento-content {
@@ -1459,9 +1460,11 @@ textarea:focus {
         position: relative;
         z-index: 2;
         margin-bottom: 0.5rem;
+        padding: 1rem;
+        /* Move padding here */
     }
 
-    /* Base Mobile Media Style - UNIFORM SIZE & POSITION */
+    /* Base Mobile Media Style - EDGE-TO-EDGE */
     .bento-bg {
         order: 2;
         position: relative !important;
@@ -1469,12 +1472,11 @@ textarea:focus {
         max-width: 100% !important;
         box-sizing: border-box !important;
         height: 150px !important;
-        /* Compact fixed height */
         object-fit: cover !important;
         margin: auto 0 0 0 !important;
-        /* Pushes media to bottom */
         display: block !important;
-        border-radius: 0.5rem;
+        border-radius: 0 !important;
+        /* No rounded corners needed at bottom if container clips, or keep them? Container has overflow:hidden so keep 0 here. */
         opacity: 1 !important;
         background-color: #000;
         left: auto !important;
