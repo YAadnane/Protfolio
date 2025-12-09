@@ -64,16 +64,19 @@ window.deleteMedia = async (filename) => {
         if (res.ok) {
             showNotification('File deleted successfully', 'success');
             
-            // Optimistic UI Update: Remove card immediately
-            const cards = document.querySelectorAll('.admin-card');
-            cards.forEach(card => {
-                if (card.innerHTML.includes(filename)) {
-                    card.style.transition = 'opacity 0.3s, transform 0.3s';
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.9)';
-                    setTimeout(() => card.remove(), 300);
-                }
-            });
+            // Optimistic UI Update: Robust Selector
+            // Escape filename for selector just in case of quotes (basic safety)
+            const safeFilename = filename.replace(/"/g, '\\"');
+            const card = document.querySelector(`.admin-card[data-filename="${safeFilename}"]`);
+
+            if (card) {
+                card.style.transition = 'opacity 0.3s, transform 0.3s';
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.9)';
+                setTimeout(() => card.remove(), 300);
+            } else {
+                 console.warn('Card not found in DOM for deletion:', filename);
+            }
 
             // Wait a bit for FS to settle, then hard refresh
             setTimeout(() => {
@@ -135,6 +138,7 @@ async function loadMedia() {
 
             const card = document.createElement('div');
             card.className = 'admin-card';
+            card.dataset.filename = file.name; // Crucial for deletion targeting
             card.innerHTML = `
                 ${previewHtml}
                 <div style="margin-bottom: 0.5rem;">
