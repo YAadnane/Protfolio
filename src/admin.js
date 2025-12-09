@@ -568,6 +568,39 @@ function initCursor() {
 }
 
 // Messages Actions
+// Approve Review
+window.approveReview = async (id) => {
+    if (!confirm('Approve this review for publication?')) return;
+    try {
+        const res = await fetch(`${API_URL}/reviews/${id}/approve`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            loadContent('reviews');
+        } else {
+            alert('Failed to approve review');
+        }
+    } catch (err) { console.error(err); }
+};
+
+// Delete Review
+window.deleteReview = async (id) => {
+    if (!confirm('Delete this review permanently?')) return;
+    try {
+        const res = await fetch(`${API_URL}/reviews/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            loadContent('reviews');
+        } else {
+            alert('Failed to delete review');
+        }
+    } catch (err) { console.error(err); }
+};
+
+// --- MARK MESSAGE READ ---
 window.markAsRead = async (id) => {
     if (!confirm('Mark as read?')) return;
     try {
