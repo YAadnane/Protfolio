@@ -20,7 +20,7 @@ export const translations = {
         "cube.left": "ETL",
         "cube.top": "BI",
         "cube.bottom": "CODE",
-        "about.title": "Who I Am",
+        "about.title": "Who I Am?",
         "about.role": "Adnane Yadani",
         "about.lead": "Aspiring Data Scientist focused on Analytics and Artificial Intelligence.",
         "about.desc": "With hands-on experience in machine learning and predictive analytics, I develop user-friendly web interfaces and robust databases. I transform complex data into actionable insights.",
