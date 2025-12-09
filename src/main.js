@@ -1357,7 +1357,12 @@ async function loadReviews() {
                         <div class="testimonial-card">
                             <div class="testimonial-header">
                                 <div class="testimonial-info">
-                                    <h4 class="testimonial-name">${r.name} ${r.social_link ? `<a href="${r.social_link}" target="_blank" style="color:var(--accent-color); margin-left:5px;"><i class="fa-brands fa-linkedin"></i></a>` : ''}</h4>
+                                    <h4 class="testimonial-name">
+                                        ${r.name} 
+                                        ${r.social_link ? `<a href="${r.social_link}" target="_blank" style="color:var(--accent-color); margin-left:5px;">
+                                            ${getSocialIcon(r.social_platform)}
+                                        </a>` : ''}
+                                    </h4>
                                     <span class="testimonial-role">${r.role || ''}</span>
                                 </div>
                                 <div class="testimonial-rating">
@@ -1457,6 +1462,17 @@ function initReviewModal() {
     }
 
     // Helper for Notifications
+    function getSocialIcon(platform) {
+        switch(platform) {
+            case 'linkedin': return '<i class="fa-brands fa-linkedin"></i>';
+            case 'facebook': return '<i class="fa-brands fa-facebook"></i>';
+            case 'instagram': return '<i class="fa-brands fa-instagram"></i>';
+            case 'reddit': return '<i class="fa-brands fa-reddit"></i>';
+            case 'medium': return '<i class="fa-brands fa-medium"></i>';
+            default: return '<i class="fa-solid fa-globe"></i>';
+        }
+    }
+
 function showNotification(title, message, type = 'success') {
     const popup = document.getElementById('notification-popup');
     const titleEl = document.getElementById('notification-title');
@@ -1504,6 +1520,7 @@ function showNotification(title, message, type = 'success') {
                 role: document.getElementById("review-role").value,
                 rating: document.getElementById("review-rating").value,
                 social_link: document.getElementById("review-link").value,
+                social_platform: document.getElementById("review-platform").value,
                 message: message
             };
 

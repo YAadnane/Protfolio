@@ -78,7 +78,8 @@ export const translations = {
         "review.error.title": "Error",
         "review.error.msg": "Failed to submit review. Please try again.",
         "review.validation.error": "Please fill in your Name and Review Message.",
-        "testimonials.form.link": "LinkedIn / Social Link (Optional)"
+        "testimonials.form.link": "Profile Link",
+        "testimonials.form.platform": "Social Network"
     },
     fr: {
         "nav.about": "À propos",
@@ -160,6 +161,7 @@ export const translations = {
         "review.error.title": "Erreur",
         "review.error.msg": "Échec de l'envoi de l'avis. Veuillez réessayer.",
         "review.validation.error": "Veuillez remplir votre Nom et votre Avis.",
-        "testimonials.form.link": "Lien LinkedIn / Social (Optionnel)"
+        "testimonials.form.link": "Lien de votre profil",
+        "testimonials.form.platform": "Réseau Social"
     }
 };
