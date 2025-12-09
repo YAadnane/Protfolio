@@ -458,6 +458,23 @@ window.closeModal = () => {
 function setupModal() {
     document.getElementById('admin-form').addEventListener('submit', async (e) => {
         e.preventDefault();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerText;
+        
+        // File Size Check
+        const fileInput = document.querySelector('input[type="file"][name="imageFile"]');
+        if (fileInput && fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            const maxSize = 500 * 1024 * 1024; // 500MB
+            if (file.size > maxSize) {
+                alert(`File too large! Maximum size is 500MB. Your file is ${Math.round(file.size/1024/1024)}MB.`);
+                return;
+            }
+        }
+        
+        submitBtn.innerText = 'Uploading... (Please wait)';
+        submitBtn.disabled = true;
+
         const formData = new FormData(e.target);
         
         const method = (editingId || currentTab === 'general') ? 'PUT' : 'POST';
@@ -508,15 +525,19 @@ function setupModal() {
             });
             
             if (res.ok) {
+                alert('Saved successfully!');
                 closeModal();
                 loadContent(currentTab);
             } else {
                 const errData = await res.json().catch(() => ({}));
-                alert('Error saving item: ' + (errData.error || res.statusText));
+                alert('Server Error: ' + (errData.error || res.statusText || res.status));
             }
         } catch (err) {
             console.error(err);
-            alert('Network Error: ' + err.message);
+            alert('Network failure. check your connection or file size.');
+        } finally {
+            submitBtn.innerText = originalBtnText;
+            submitBtn.disabled = false;
         }
     });
 }
