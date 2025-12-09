@@ -941,6 +941,20 @@ function initAnimations() {
       .from(".hero-buttons", { opacity: 0, y: 20, duration: 1 }, "-=0.5")
       .from(".data-cube", { opacity: 0, scale: 0, duration: 1.5, ease: "elastic.out(1, 0.5)" }, "-=1");
 
+    // Section Titles Animation
+    gsap.utils.toArray(".section-title").forEach(title => {
+        gsap.from(title, {
+            scrollTrigger: {
+                trigger: title,
+                start: "top 85%"
+            },
+            y: 30,
+            opacity: 0,
+            duration: 1,
+            ease: "power3.out"
+        });
+    });
+
     // Skill Bars Animation
     gsap.utils.toArray(".progress").forEach(bar => {
         gsap.to(bar, {

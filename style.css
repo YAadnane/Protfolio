@@ -2411,3 +2411,77 @@ textarea:focus {
         pointer-events: none;
     }
 }
+
+/* =========================================
+   VISUAL REFINEMENTS (Cards, Glow, Arrows)
+   ========================================= */
+
+/* CERTIFICATIONS: Card Style + Glow */
+.cert-item {
+    background: var(--card-bg);
+    border: 1px solid var(--nav-border);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    /* Float animation is applied via global selector */
+}
+
+.cert-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px var(--accent-glow);
+    border-color: var(--accent-color);
+}
+
+/* SKILLS: Hover Effect */
+.skill-category {
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.skill-category:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px var(--accent-glow);
+    border-color: var(--accent-color);
+}
+
+/* MOBILE ARROWS: Enhanced Style */
+.slider-nav-btn {
+    width: 50px !important; /* Bigger */
+    height: 50px !important;
+    background: rgba(255, 255, 255, 0.15) !important; /* More visible */
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    font-size: 1.2rem !important;
+}
+
+.slider-nav-btn:active {
+    background: var(--accent-color) !important;
+    transform: translateY(-50%) scale(0.95); /* Click effect */
+}
+
+/* MOBILE STATS: Force 3 Columns */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 0.5rem !important; /* Tighten gap to fit */
+    }
+    
+    .stat-item {
+        min-width: auto !important; /* Allow shrinking */
+        padding: 0.5rem !important;
+    }
+    
+    .stat-number {
+        font-size: 1.8rem !important; /* Adjust font size for space */
+    }
+    
+    .stat-label {
+        font-size: 0.8rem !important;
+    }
+}
+
+
+.cert-item {
+    animation: float 6s ease-in-out infinite;
+    animation-delay: -2.5s; /* Stagger */
+}
+
