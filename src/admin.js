@@ -498,7 +498,7 @@ function setupModal() {
         let body;
         let headers = {};
 
-        if (currentTab === 'projects' || currentTab === 'general' || currentTab === 'certifications') {
+        if (currentTab === 'projects' || currentTab === 'general' || currentTab === 'certifications' || currentTab === 'articles') {
             // Send FormData directly
             body = formData;
             // Do NOT set Content-Type header, browser sets it with boundary
