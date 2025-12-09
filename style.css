@@ -2935,9 +2935,11 @@ textarea:focus {
 @media (max-width: 768px) {
     .article-slide {
         /* Mobile: 1 column */
-        grid-template-columns: 1fr;
-        padding: 0 1rem;
-        place-items: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0 1.5rem;
+        /* Balanced spacing */
     }
 
     .article-card {
@@ -2945,6 +2947,7 @@ textarea:focus {
         max-width: 320px;
         /* Optimal mobile width */
         margin: 0 auto;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
 }
 
