@@ -112,6 +112,7 @@ export const translations = {
         "stats.companies": "Entreprises",
         "stats.certs": "Certifications",
         "stats.articles": "Articles",
+        "stats.reviews": "Avis",
         "certs.title": "<i class='fa-solid fa-certificate'></i> Certifications",
         "articles.title": "Derniers Articles",
         "articles.read": "Lire Plus <i class='fa-solid fa-arrow-right'></i>",
