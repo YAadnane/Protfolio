@@ -377,7 +377,109 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
             res.json({ message: "Updated successfully", changes: this.changes });
         }
     );
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Updated successfully" });
+    });
 });
+
+// --- ARTICLES ---
+app.get('/api/articles', (req, res) => {
+    const lang = req.query.lang || 'en';
+    db.all("SELECT * FROM articles WHERE lang = ? ORDER BY date DESC", [lang], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.post('/api/articles', authenticateToken, upload.single('imageFile'), (req, res) => {
+    const { title, summary, link, date, tags, is_hidden, lang, image } = req.body;
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : image;
+
+    db.run(`INSERT INTO articles (title, summary, link, date, tags, image, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [title, summary, link, date, tags, imagePath, is_hidden || 0, lang || 'en'],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ id: this.lastID });
+        }
+    );
+});
+
+app.put('/api/articles/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
+    const { title, summary, link, date, tags, is_hidden, image } = req.body;
+    let imagePath = image;
+    if (req.file) {
+        imagePath = `/uploads/${req.file.filename}`;
+    }
+
+    db.run(`UPDATE articles SET title = ?, summary = ?, link = ?, date = ?, tags = ?, image = ?, is_hidden = ? WHERE id = ?`,
+        [title, summary, link, date, tags, imagePath, is_hidden, req.params.id],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "Updated successfully" });
+        }
+    );
+});
+
+app.delete('/api/articles/:id', authenticateToken, (req, res) => {
+    db.run("DELETE FROM articles WHERE id = ?", req.params.id, function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Deleted successfully" });
+    });
+});
+
+// --- DYNAMIC STATS ---
+app.get('/api/stats', (req, res) => {
+    const lang = req.query.lang || 'en';
+    const stats = {};
+
+    // Use Promises for parallel DB queries
+    const queries = [
+        new Promise((resolve) => {
+            db.get("SELECT MIN(year) as start_year FROM experience WHERE is_hidden = 0", [], (err, row) => {
+                if (row && row.start_year) {
+                    // Extract year if it's "2020 - Present" format, just take the first 4 digits
+                    const match = row.start_year.match(/(\d{4})/);
+                    const start = match ? parseInt(match[0]) : new Date().getFullYear();
+                    stats.years = new Date().getFullYear() - start + 1; // +1 to count current year
+                } else {
+                    stats.years = 0;
+                }
+                resolve();
+            });
+        }),
+        new Promise((resolve) => {
+            db.get("SELECT COUNT(*) as count FROM projects WHERE is_hidden = 0 AND lang = ?", [lang], (err, row) => {
+                stats.projects = row ? row.count : 0;
+                resolve();
+            });
+        }),
+        new Promise((resolve) => {
+            db.get("SELECT COUNT(DISTINCT company) as count FROM experience WHERE is_hidden = 0 AND lang = ?", [lang], (err, row) => {
+                stats.companies = row ? row.count : 0;
+                resolve();
+            });
+        }),
+        new Promise((resolve) => {
+            db.get("SELECT COUNT(*) as count FROM certifications WHERE is_hidden = 0 AND lang = ?", [lang], (err, row) => {
+                stats.certs = row ? row.count : 0;
+                resolve();
+            });
+        }),
+        new Promise((resolve) => {
+            db.get("SELECT COUNT(*) as count FROM articles WHERE is_hidden = 0 AND lang = ?", [lang], (err, row) => {
+                stats.articles = row ? row.count : 0;
+                resolve();
+            });
+        })
+    ];
+
+    Promise.all(queries).then(() => {
+        res.json(stats);
+    }).catch(err => {
+        res.status(500).json({ error: err.message });
+    });
+});
+
 
 // --- CHATBOT ---
 import { GoogleGenerativeAI } from "@google/generative-ai";
