@@ -43,7 +43,8 @@ export const translations = {
         "form.email": "Your Email",
         "form.message": "Tell me about your project",
         "form.send": "Send Message",
-        "footer.rights": "© 2025 Adnane Yadani. Crafted with <i class='fa-solid fa-heart'></i> and AI."
+        "footer.rights": "© 2025 Adnane Yadani. Crafted with <i class='fa-solid fa-heart'></i> and AI.",
+        "chatbot.welcome": "Hello! I'm your AI assistant. Ask me anything about my projects, skills, or experience!"
     },
     fr: {
         "nav.about": "À propos",
@@ -89,6 +90,7 @@ export const translations = {
         "form.email": "Votre Email",
         "form.message": "Parlez-moi de votre projet",
         "form.send": "Envoyer Message",
-        "footer.rights": "© 2025 Adnane Yadani. Créé avec <i class='fa-solid fa-heart'></i> et de l'IA."
+        "footer.rights": "© 2025 Adnane Yadani. Créé avec <i class='fa-solid fa-heart'></i> et de l'IA.",
+        "chatbot.welcome": "Bonjour ! Je suis l'assistant IA. Posez-moi des questions sur mes projets ou compétences !"
     }
 };

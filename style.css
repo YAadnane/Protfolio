@@ -1945,7 +1945,7 @@ textarea:focus {
     font-size: 1.5rem;
     border: none;
     cursor: pointer;
-    box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+    box-shadow: 0 0 20px var(--accent-glow);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     align-items: center;
@@ -1954,7 +1954,7 @@ textarea:focus {
 
 .chat-toggle-btn:hover {
     transform: scale(1.1);
-    box-shadow: 0 0 30px rgba(0, 255, 157, 0.6);
+    box-shadow: 0 0 30px var(--accent-glow);
 }
 
 .chat-window {
@@ -1963,13 +1963,12 @@ textarea:focus {
     right: 0;
     width: 350px;
     height: 500px;
-    background: rgba(10, 10, 10, 0.95);
+    background: var(--nav-bg);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(0, 255, 157, 0.2);
+    border: 1px solid var(--nav-border);
     border-radius: 1rem;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
     display: none;
-    /* Hidden by default */
     flex-direction: column;
     overflow: hidden;
     transform-origin: bottom right;
@@ -1994,8 +1993,8 @@ textarea:focus {
 
 .chat-header {
     padding: 1rem;
-    background: rgba(0, 255, 157, 0.1);
-    border-bottom: 1px solid rgba(0, 255, 157, 0.2);
+    background: var(--nav-border);
+    border-bottom: 1px solid var(--nav-border);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -2035,7 +2034,7 @@ textarea:focus {
 
 .message.bot {
     align-self: flex-start;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--nav-border);
     color: var(--text-main);
     border-bottom-left-radius: 0;
 }
@@ -2050,15 +2049,15 @@ textarea:focus {
 
 .chat-input-area {
     padding: 1rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid var(--nav-border);
     display: flex;
     gap: 0.5rem;
 }
 
 .chat-input-area input {
     flex: 1;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--nav-border);
+    border: 1px solid var(--nav-border);
     border-radius: 0.5rem;
     padding: 0.6rem;
     color: var(--text-main);
