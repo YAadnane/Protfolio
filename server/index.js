@@ -136,6 +136,9 @@ app.get('/api/projects', (req, res) => {
 });
 
 app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, res) => {
+    console.log('POST /api/projects hit');
+    console.log('req.file:', req.file);
+    console.log('req.body:', req.body);
     const { title, description, tags, category, image, link, is_hidden, lang } = req.body;
     let imagePath = image;
     if (req.file) {
@@ -152,6 +155,8 @@ app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, r
 });
 
 app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
+    console.log(`PUT /api/projects/${req.params.id} hit`);
+    console.log('req.file:', req.file);
     const { title, description, tags, category, image, link, is_hidden } = req.body;
     // If a new file is uploaded, use it. Otherwise, keep the old one (passed as 'image' body param or handled via logic)
     // Note: In a real app, we might want to delete the old file.
