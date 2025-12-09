@@ -259,7 +259,7 @@ h4 {
 
 .nav-list {
     display: flex;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
 .nav-link {
@@ -269,6 +269,7 @@ h4 {
     position: relative;
     color: var(--text-muted);
     transition: var(--transition-fast);
+    white-space: nowrap;
 }
 
 .nav-link:hover {
@@ -2262,7 +2263,7 @@ textarea:focus {
         width: 90vw;
         height: 60vh;
         bottom: 100px;
-        left: 0; 
+        left: 0;
         right: 0;
         margin-left: auto;
         margin-right: auto;
@@ -2284,16 +2285,16 @@ textarea:focus {
         grid-template-columns: repeat(3, 1fr) !important;
         gap: 0.5rem !important;
     }
-    
+
     .stat-item {
         min-width: auto !important;
         padding: 0.5rem !important;
     }
-    
+
     .stat-number {
         font-size: 1.8rem !important;
     }
-    
+
     .stat-label {
         font-size: 0.8rem !important;
     }
@@ -2303,7 +2304,8 @@ textarea:focus {
    MOBILE SLIDERS (Horizontal Scroll)
    ========================================= */
 @media (max-width: 768px) {
-    #projects-grid, 
+
+    #projects-grid,
     #articles-grid,
     .skills-grid {
         display: flex !important;
@@ -2328,7 +2330,7 @@ textarea:focus {
         flex-shrink: 0;
         margin-bottom: 0 !important;
     }
-    
+
     .skill-category {
         background: var(--card-bg);
         border: 1px solid var(--nav-border);
@@ -2341,9 +2343,17 @@ textarea:focus {
    ANIMATIONS & FLOAT EFFECT
    ========================================= */
 @keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-    100% { transform: translateY(0px); }
+    0% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0px);
+    }
 }
 
 /* Apply Floating Effect Globally */
@@ -2356,13 +2366,33 @@ textarea:focus {
     will-change: transform;
 }
 
-.bento-item:nth-child(odd) { animation-delay: 0s; }
-.bento-item:nth-child(even) { animation-delay: -3s; }
-.article-card:nth-child(odd) { animation-delay: -1s; }
-.article-card:nth-child(even) { animation-delay: -4s; }
-.skill-category:nth-child(1) { animation-delay: -2s; }
-.skill-category:nth-child(2) { animation-delay: -5s; }
-.cert-item { animation-delay: -2.5s; }
+.bento-item:nth-child(odd) {
+    animation-delay: 0s;
+}
+
+.bento-item:nth-child(even) {
+    animation-delay: -3s;
+}
+
+.article-card:nth-child(odd) {
+    animation-delay: -1s;
+}
+
+.article-card:nth-child(even) {
+    animation-delay: -4s;
+}
+
+.skill-category:nth-child(1) {
+    animation-delay: -2s;
+}
+
+.skill-category:nth-child(2) {
+    animation-delay: -5s;
+}
+
+.cert-item {
+    animation-delay: -2.5s;
+}
 
 .chat-toggle-btn {
     animation-duration: 5s;
@@ -2427,4 +2457,3 @@ textarea:focus {
         border-radius: 10px;
     }
 }
-
