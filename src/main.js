@@ -1063,30 +1063,28 @@ async function loadStats() {
         const res = await fetch(`${API_URL}/stats?lang=${currentLang}&t=${Date.now()}`);
         const data = await res.json();
 
-        const animateValue = (obj, start, end, duration) => {
-            let startTimestamp = null;
-            const step = (timestamp) => {
-                if (!startTimestamp) startTimestamp = timestamp;
-                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-                obj.innerHTML = Math.floor(progress * (end - start) + start) + "+";
-                if (progress < 1) {
-                    window.requestAnimationFrame(step);
-                }
-            };
-            window.requestAnimationFrame(step);
+        const ids = {
+            years: 'stats-years',
+            projects: 'stats-projects',
+            companies: 'stats-companies',
+            certs: 'stats-certs',
+            articles: 'stats-articles'
         };
 
-        const statsYears = document.getElementById("stats-years");
-        const statsProjects = document.getElementById("stats-projects");
-        const statsCompanies = document.getElementById("stats-companies");
-        const statsCerts = document.getElementById("stats-certs");
-        const statsArticles = document.getElementById("stats-articles");
+        const updateStats = () => {
+            for (const [key, id] of Object.entries(ids)) {
+                const el = document.getElementById(id);
+                if (el && data[key] !== undefined) {
+                    el.innerText = data[key] + "+";
+                }
+            }
+        };
 
-        if (data.years && statsYears) animateValue(statsYears, 0, data.years, 2000);
-        if (data.projects && statsProjects) animateValue(statsProjects, 0, data.projects, 2000);
-        if (data.companies && statsCompanies) animateValue(statsCompanies, 0, data.companies, 2000);
-        if (data.certs && statsCerts) animateValue(statsCerts, 0, data.certs, 2000);
-        if (data.articles && statsArticles) animateValue(statsArticles, 0, data.articles, 2000);
+        // Update immediately
+        updateStats();
+
+        // Retry after 500ms to ensure no other script overwrites it
+        setTimeout(updateStats, 500);
 
     } catch (err) { console.error("Failed to load stats", err); }
 }
