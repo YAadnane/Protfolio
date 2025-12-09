@@ -500,16 +500,23 @@ function setupModal() {
         headers['Authorization'] = `Bearer ${token}`;
 
         try {
-            await fetch(url, {
+        try {
+            const res = await fetch(url, {
                 method: method,
                 headers: headers,
                 body: body
             });
-            closeModal();
-            loadContent(currentTab);
+            
+            if (res.ok) {
+                closeModal();
+                loadContent(currentTab);
+            } else {
+                const errData = await res.json().catch(() => ({}));
+                alert('Error saving item: ' + (errData.error || res.statusText));
+            }
         } catch (err) {
             console.error(err);
-            alert('Error saving item');
+            alert('Network Error: ' + err.message);
         }
     });
 }
