@@ -136,7 +136,9 @@ async function loadAllContent() {
         loadCertifications(),
         loadEducation(),
         loadExperience(),
-        loadSkills()
+        loadSkills(),
+        loadStats(),
+        loadArticles()
     ]);
     // Re-trigger animations if needed, though they might be attached to elements
     ScrollTrigger.refresh();
@@ -1111,3 +1113,101 @@ function initAnimations() {
         });
     });
 }
+
+async function loadStats() {
+    try {
+        const res = await fetch(`${API_URL}/stats?lang=${currentLang}`);
+        const data = await res.json();
+
+        const animateValue = (obj, start, end, duration) => {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start) + "+";
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        };
+
+        const statsYears = document.getElementById("stats-years");
+        const statsProjects = document.getElementById("stats-projects");
+        const statsCompanies = document.getElementById("stats-companies");
+        const statsCerts = document.getElementById("stats-certs");
+        const statsArticles = document.getElementById("stats-articles");
+
+        if (data.years && statsYears) animateValue(statsYears, 0, data.years, 2000);
+        if (data.projects && statsProjects) animateValue(statsProjects, 0, data.projects, 2000);
+        if (data.companies && statsCompanies) animateValue(statsCompanies, 0, data.companies, 2000);
+        if (data.certs && statsCerts) animateValue(statsCerts, 0, data.certs, 2000);
+        if (data.articles && statsArticles) animateValue(statsArticles, 0, data.articles, 2000);
+
+    } catch (err) { console.error("Failed to load stats", err); }
+}
+
+async function loadArticles() {
+    try {
+        const res = await fetch(`${API_URL}/articles?lang=${currentLang}`);
+        const articles = (await res.json()).filter(a => !a.is_hidden);
+        const container = document.getElementById("articles-grid");
+
+        if (!container) return;
+
+        const render = (items) => {
+            if (items.length === 0) {
+                container.innerHTML = "<p style=\"grid-column: 1/-1; text-align: center; color: var(--text-muted);\">No articles found.</p>";
+                return;
+            }
+            container.innerHTML = items.map(art => `
+                <div class="article-card">
+                    <div class="article-image">
+                        ${art.image ? `<img src="${API_URL.replace("/api", "")}${art.image}" alt="${art.title}">` : "<div style=\"width:100%; height:100%; background: #222;\"></div>"}
+                    </div>
+                    <div class="article-content">
+                        <div class="article-date">${new Date(art.date).toLocaleDateString()}</div>
+                        <h3 class="article-title">${art.title}</h3>
+                        <p class="article-summary">${art.summary}</p>
+                        <div class="article-tags" style="margin-bottom: 1rem;">
+                            ${art.tags ? art.tags.split(",").map(t => `<span class="tech-tag small" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-right: 5px;">${t.trim()}</span>`).join("") : ""}
+                        </div>
+                        <a href="${art.link}" target="_blank" class="article-link">
+                             ${translations[currentLang]?.["articles.read"] || "Read More"} <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join("");
+        };
+        
+        render(articles);
+
+        const filterSelect = document.getElementById("filter-article-tag");
+        if (filterSelect) {
+            while (filterSelect.options.length > 1) {
+                filterSelect.remove(1);
+            }
+
+            const allTags = articles.flatMap(a => a.tags ? a.tags.split(",").map(t => t.trim()) : []);
+            const uniqueTags = [...new Set(allTags)].sort();
+
+            uniqueTags.forEach(tag => {
+                const opt = document.createElement("option");
+                opt.value = tag;
+                opt.innerText = tag;
+                filterSelect.appendChild(opt);
+            });
+
+            filterSelect.onchange = () => {
+                const tag = filterSelect.value;
+                if (!tag) render(articles);
+                else {
+                    const filtered = articles.filter(a => a.tags && a.tags.split(",").map(t => t.trim()).includes(tag));
+                    render(filtered);
+                }
+            };
+        }
+
+    } catch (err) { console.error("Failed to load articles", err); }
+}
+
