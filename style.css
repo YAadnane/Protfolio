@@ -1803,6 +1803,28 @@ textarea:focus {
     }
 }
 
+/* --- Detailed Certification Modal --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    z-index: 10000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+}
+
+.cert-modal-content {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
 /* Certification Filters */
 .cert-filters {
     display: flex;

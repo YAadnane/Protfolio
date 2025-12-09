@@ -759,6 +759,8 @@ async function loadCertifications() {
             });
             
             // GSAP Animation
+            // GSAP Animation - Disabled to ensure visibility
+            /*
             gsap.from(container.children, {
                 y: 20,
                 opacity: 0,
@@ -770,6 +772,7 @@ async function loadCertifications() {
                     start: 'top 80%'
                 }
             });
+            */
         };
 
         // Initial Render
@@ -785,10 +788,95 @@ async function loadCertifications() {
                 renderCerts();
             };
         });
-        
+
         // Dropdown Listeners
         if(domainSelect) domainSelect.onchange = renderCerts;
         if(issuerSelect) issuerSelect.onchange = renderCerts;
+        
+        // --- MODAL LOGIC ---
+        window.openCertModal = (cert) => {
+            const modal = document.getElementById('cert-modal');
+            if(!modal) return;
+
+            // Populate Fields
+            document.getElementById('cert-modal-title').textContent = cert.name;
+            document.getElementById('cert-modal-issuer').textContent = cert.issuer || 'Unknown Issuer';
+            
+            const idEl = document.getElementById('cert-modal-id');
+            if (cert.credential_id) {
+                idEl.textContent = `ID: ${cert.credential_id}`;
+                idEl.style.display = 'block';
+            } else {
+                idEl.style.display = 'none';
+            }
+
+            document.getElementById('cert-modal-desc').textContent = cert.description || 'No description available.';
+            
+            // Image Logic
+            const imgEl = document.getElementById('cert-modal-img');
+            if (cert.image) {
+                imgEl.src = cert.image.startsWith('http') ? cert.image : `${API_URL.replace('/api', '')}${cert.image}`;
+                imgEl.parentElement.style.display = 'flex';
+            } else {
+                // Use a generic placeholder if no image
+                imgEl.src = 'https://placehold.co/600x400/2a2a2a/FFF?text=Certificate+Preview';
+            }
+
+            // Skills
+            const skillsContainer = document.getElementById('cert-modal-skills');
+            skillsContainer.innerHTML = '';
+            if (cert.skills) {
+                cert.skills.split(',').forEach(skill => {
+                    const tag = document.createElement('span');
+                    tag.className = 'cert-skill-tag';
+                    tag.textContent = skill.trim();
+                    skillsContainer.appendChild(tag);
+                });
+            } else {
+                skillsContainer.innerHTML = '<span style="color:#999; font-size:0.8rem;">No specific skills listed.</span>';
+            }
+
+            // Meta
+            document.getElementById('cert-modal-level').innerHTML = `<i class="fa-regular fa-star"></i> ${cert.level || 'Certificate'}`;
+            document.getElementById('cert-modal-date').innerHTML = `<i class="fa-regular fa-calendar"></i> ${cert.year || 'N/A'}`;
+
+            // Verify Link
+            const linkBtn = document.getElementById('cert-modal-link');
+            if (cert.credential_url) {
+                linkBtn.href = cert.credential_url;
+                linkBtn.style.display = 'inline-flex';
+                linkBtn.className = 'btn-verify';
+                linkBtn.innerHTML = 'Verify Certification <i class="fa-solid fa-arrow-up-right-from-square" style="margin-left:5px;"></i>';
+            } else if (cert.pdf) {
+                // Fallback to PDF view
+                linkBtn.href = `${API_URL.replace('/api', '')}${cert.pdf}`;
+                linkBtn.style.display = 'inline-flex';
+                linkBtn.className = 'btn-verify';
+                linkBtn.innerHTML = 'View PDF <i class="fa-solid fa-file-pdf" style="margin-left:5px;"></i>';
+            } else {
+                linkBtn.style.display = 'none';
+            }
+
+            // Verified Badge (if verified/URL exists)
+            document.getElementById('cert-modal-verified-badge').style.display = (cert.credential_url || cert.status === 'obtained') ? 'flex' : 'none';
+
+            // Show Modal
+            modal.style.display = 'flex';
+            gsap.from('.cert-modal-content', { y: 50, opacity: 0, duration: 0.3, ease: 'power2.out' });
+        };
+
+        window.closeCertModal = () => {
+             const modal = document.getElementById('cert-modal');
+             if(modal) modal.style.display = 'none';
+        };
+
+        // Close on click outside
+        const modal = document.getElementById('cert-modal');
+        if(modal) {
+            modal.onclick = (e) => {
+                if (e.target === modal) closeCertModal();
+            }
+        }
 
     } catch (err) { console.error("Failed to load certifications", err); }
 }
