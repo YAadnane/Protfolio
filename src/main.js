@@ -322,6 +322,30 @@ async function loadGeneralInfo() {
     } catch (err) { console.error("Failed to load general info", err); }
 }
 
+// --- HELPER: Counter Animation ---
+function animateCounter(el, target, duration = 1500) {
+    if (!el) return;
+    const end = parseInt(target, 10);
+    if (isNaN(end)) {
+        el.innerText = target;
+        return;
+    }
+    
+    let start = 0;
+    const stepTime = 20; // 20ms per frame
+    const steps = duration / stepTime;
+    const increment = end / steps;
+    
+    const timer = setInterval(() => {
+        start += increment;
+        if (start >= end) {
+            start = end;
+            clearInterval(timer);
+        }
+        el.innerText = Math.floor(start) + "+";
+    }, stepTime);
+}
+
 // --- HELPER: Social Icons ---
 function getSocialIcon(platform) {
     switch(platform) {
@@ -1195,16 +1219,17 @@ async function loadStats() {
             for (const [key, id] of Object.entries(ids)) {
                 const el = document.getElementById(id);
                 if (el && data[key] !== undefined) {
-                    el.innerText = data[key] + "+";
+                    animateCounter(el, data[key]);
                 }
             }
         };
 
         // Update immediately
+        toggleLanguage ? updateStats() : setTimeout(updateStats, 500); // Wait bit on load
+        
+        // Since loadStats is called on load, we can just run it.
+        // If we want scroll trigger, we'd need IntersectionObserver, but simple load animation is fine for "Who I Am" which is near top.
         updateStats();
-
-        // Retry after 500ms to ensure no other script overwrites it
-        setTimeout(updateStats, 500);
 
     } catch (err) { console.error("Failed to load stats", err); }
 }
@@ -1362,7 +1387,7 @@ async function loadReviews() {
 
         // Update stats
         const statsReviews = document.getElementById('stats-reviews');
-        if(statsReviews) statsReviews.innerText = reviews.length + "+";
+        if(statsReviews) animateCounter(statsReviews, reviews.length);
 
         const renderSlider = () => {
             const isMobile = window.innerWidth <= 768;
