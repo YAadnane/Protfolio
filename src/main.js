@@ -1275,29 +1275,87 @@ async function loadReviews() {
     try {
         const res = await fetch(`${API_URL}/reviews`);
         const reviews = await res.json();
-        const container = document.getElementById("testimonials-grid");
+        const track = document.getElementById("testimonials-track");
+        const pagination = document.getElementById("testimonials-pagination");
         
-        if(!container) return;
+        if(!track || !pagination) return;
 
         if (reviews.length === 0) {
-            container.innerHTML = "<p style='grid-column:1/-1; text-align:center; color:var(--text-muted);'>No reviews yet. Be the first!</p>";
+            track.innerHTML = "<p style='width:100%; text-align:center; color:var(--text-muted); padding: 2rem;'>No reviews yet. Be the first!</p>";
             return;
         }
 
-        container.innerHTML = reviews.map(r => `
-            <div class="testimonial-card">
-                <div class="testimonial-header">
-                    <div class="testimonial-author">
-                        <h4>${r.name}</h4>
-                        <span>${r.role || ''}</span>
-                    </div>
-                    <div class="testimonial-rating">
-                        ${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}
-                    </div>
+        const renderSlider = () => {
+            const isMobile = window.innerWidth <= 768;
+            const itemsPerSlide = isMobile ? 2 : 6;
+            
+            // Chunk reviews
+            const slides = [];
+            for (let i = 0; i < reviews.length; i += itemsPerSlide) {
+                slides.push(reviews.slice(i, i + itemsPerSlide));
+            }
+
+            // Render Slides
+            track.innerHTML = slides.map(group => `
+                <div class="testimonial-slide">
+                    ${group.map(r => `
+                        <div class="testimonial-card">
+                            <div class="testimonial-header">
+                                <div class="testimonial-author">
+                                    <h4>${r.name}</h4>
+                                    <span>${r.role || ''}</span>
+                                </div>
+                                <div class="testimonial-rating">
+                                    ${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}
+                                </div>
+                            </div>
+                            <p class="testimonial-text">"${r.message}"</p>
+                        </div>
+                    `).join("")}
+                    ${/* Fill empty spots if needed for grid layout consistency? Not strictly needed with css grid */ ""}
                 </div>
-                <p class="testimonial-text">"${r.message}"</p>
-            </div>
-        `).join("");
+            `).join("");
+
+            // Render Pagination
+            pagination.innerHTML = slides.map((_, idx) => `
+                <span class="slider-dot ${idx === 0 ? 'active' : ''}" data-index="${idx}"></span>
+            `).join("");
+
+            // Logic
+            let currentSlide = 0;
+            const updateSlide = (index) => {
+                currentSlide = index;
+                track.style.transform = `translateX(-${currentSlide * 100}%)`;
+                pagination.querySelectorAll('.slider-dot').forEach((d, i) => {
+                    d.classList.toggle('active', i === currentSlide);
+                });
+            };
+
+            pagination.querySelectorAll('.slider-dot').forEach(dot => {
+                dot.onclick = () => updateSlide(parseInt(dot.dataset.index));
+            });
+
+            // Swipe support (simple)
+            let touchStartX = 0;
+            track.ontouchstart = e => touchStartX = e.changedTouches[0].screenX;
+            track.ontouchend = e => {
+                const diff = e.changedTouches[0].screenX - touchStartX;
+                if (Math.abs(diff) > 50) {
+                     if (diff > 0 && currentSlide > 0) updateSlide(currentSlide - 1);
+                     else if (diff < 0 && currentSlide < slides.length - 1) updateSlide(currentSlide + 1);
+                }
+            };
+        };
+
+        // Initial Render
+        renderSlider();
+
+        // Re-render on Resize (debounced)
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(renderSlider, 300);
+        });
 
     } catch (err) { console.error("Failed to load reviews", err); }
 }

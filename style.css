@@ -2738,3 +2738,59 @@ textarea:focus {
     outline: none;
 }
 
+
+/* Testimonials Slider */
+.testimonials-slider {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 1rem 0;
+}
+
+.testimonials-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 100%;
+}
+
+.testimonial-slide {
+    min-width: 100%;
+    display: grid;
+    gap: 2rem;
+    padding: 0 1rem;
+    /* Desktop: 3 columns x 2 rows = 6 items */
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto; 
+}
+
+/* Pagination */
+.slider-pagination {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 1.5rem;
+}
+
+.slider-dot {
+    width: 10px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.slider-dot.active {
+    background: var(--accent-color);
+    box-shadow: 0 0 10px var(--accent-color);
+}
+
+@media (max-width: 768px) {
+    .testimonial-slide {
+        /* Mobile: 1 column x 2 rows = 2 items */
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        gap: 1.5rem;
+    }
+}
+
