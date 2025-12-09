@@ -203,15 +203,37 @@ async function loadGeneralInfo() {
         // Hero
         if (data.hero_subtitle) document.querySelector('.hero-subtitle').innerHTML = `<i class="fa-solid fa-terminal"></i> ${data.hero_subtitle}`;
         if (data.hero_title) {
-            // Split title into lines/words to preserve scramble effect style
-            // We assume space separation is good enough for a rough break, or just wrap words.
-            // For better control, user could use <br> in DB, but let's just wrap the whole thing or split by spaces.
-            // Let's just set it as innerHTML to allow user to put <br> in Admin if they want, and wrap in scramble span if plain text.
-            // Actually, best effort:
             const formatted = data.hero_title.split(' ').map(w => `<span class="scramble-text">${w}</span>`).join(' ');
             document.querySelector('.hero-title').innerHTML = formatted;
         }
-        if (data.hero_description) document.querySelector('.hero-description').innerHTML = data.hero_description;
+        
+        // Hero Description Typewriter / Rotator
+        const descEl = document.querySelector('.hero-description');
+        if (descEl) {
+            const descriptions = [data.hero_description, data.hero_description_2, data.hero_description_3].filter(d => d); // Filter empty string/null
+            
+            if (descriptions.length > 0) {
+                let currentIdx = 0;
+                
+                // Simple Fade Rotator (Smoother than typing for long text)
+                const rotateText = () => {
+                    descEl.style.opacity = 0;
+                    setTimeout(() => {
+                        descEl.innerHTML = descriptions[currentIdx];
+                        descEl.style.opacity = 1;
+                        currentIdx = (currentIdx + 1) % descriptions.length;
+                    }, 500); // 0.5s fade out
+                };
+
+                // Initial set
+                descEl.style.transition = 'opacity 0.5s ease';
+                descEl.innerHTML = descriptions[0];
+                
+                if (descriptions.length > 1) {
+                    setInterval(rotateText, 5000); // Rotate every 5 seconds
+                }
+            }
+        }
 
         // About
         if (data.about_lead) document.querySelector('.about-text .lead').innerText = data.about_lead;

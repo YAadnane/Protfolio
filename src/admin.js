@@ -92,6 +92,9 @@ const fields = {
     general: [
         { name: 'hero_subtitle', label: 'Hero Subtitle', type: 'text' },
         { name: 'hero_title', label: 'Hero Title', type: 'text' },
+        { name: 'hero_description', label: 'Hero Description 1', type: 'textarea' },
+        { name: 'hero_description_2', label: 'Hero Description 2 (Optional)', type: 'textarea' },
+        { name: 'hero_description_3', label: 'Hero Description 3 (Optional)', type: 'textarea' },
         { name: 'hero_description', label: 'Hero Description', type: 'textarea' },
         { name: 'about_lead', label: 'About Lead Text', type: 'textarea' },
         { name: 'about_bio', label: 'About Bio', type: 'textarea' },

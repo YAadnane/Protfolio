@@ -329,7 +329,7 @@ app.get('/api/general', (req, res) => {
 // Admin PUT: Update General Info
 app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 'profileImage', maxCount: 1 }]), sanitizeMiddleware, authenticateToken, (req, res) => {
     const { 
-        hero_subtitle, hero_title, hero_description, 
+        hero_subtitle, hero_title, hero_description, hero_description_2, hero_description_3,
         about_lead, about_bio, 
         stat_years, stat_projects, stat_companies,
         cube_front, cube_back, cube_right, cube_left, cube_top, cube_bottom,
@@ -351,9 +351,8 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
         imagePath = `/uploads/${req.files['profileImage'][0].filename}`;
     }
 
-    // Dynamic SQL construction to only update key if provided
     db.run(`UPDATE general_info SET 
-        hero_subtitle = ?, hero_title = ?, hero_description = ?, 
+        hero_subtitle = ?, hero_title = ?, hero_description = ?, hero_description_2 = ?, hero_description_3 = ?,
         about_lead = ?, about_bio = ?, 
         stat_years = ?, stat_projects = ?, stat_companies = ?,
         cube_front = ?, cube_back = ?, cube_right = ?, cube_left = ?, cube_top = ?, cube_bottom = ?,
@@ -362,7 +361,7 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
         gemini_model = ?
         WHERE lang = ?`,
         [
-            hero_subtitle, hero_title, hero_description, 
+            hero_subtitle, hero_title, hero_description, hero_description_2, hero_description_3,
             about_lead, about_bio, 
             stat_years, stat_projects, stat_companies,
             cube_front, cube_back, cube_right, cube_left, cube_top, cube_bottom,
