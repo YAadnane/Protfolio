@@ -2936,8 +2936,15 @@ textarea:focus {
     .article-slide {
         /* Mobile: 1 column */
         grid-template-columns: 1fr;
-        padding: 0 2rem;
-        /* Increased spacing */
+        padding: 0 1rem;
+        place-items: center;
+    }
+
+    .article-card {
+        width: 100%;
+        max-width: 320px;
+        /* Optimal mobile width */
+        margin: 0 auto;
     }
 }
 
