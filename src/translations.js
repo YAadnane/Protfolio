@@ -116,6 +116,8 @@ export const translations = {
         "certifications.filter.planned": "Planifiées",
         "certifications.status.in_progress": "En cours",
         "certifications.status.planned": "Planifiée",
+        "certifications.filter.domains": "Tous les Domaines",
+        "certifications.filter.issuers": "Tous les Émetteurs",
         "chatbot.title": "Assistant IA Portfolio"
     }
 };
