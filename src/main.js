@@ -210,28 +210,44 @@ async function loadGeneralInfo() {
         // Hero Description Typewriter / Rotator
         const descEl = document.querySelector('.hero-description');
         if (descEl) {
-            const descriptions = [data.hero_description, data.hero_description_2, data.hero_description_3].filter(d => d); // Filter empty string/null
+            const descriptions = [data.hero_description, data.hero_description_2, data.hero_description_3].filter(d => d);
             
             if (descriptions.length > 0) {
-                let currentIdx = 1; // Start at 1 since 0 is already shown
-                
-                // Simple Fade Rotator (Smoother than typing for long text)
-                const rotateText = () => {
-                    descEl.style.opacity = 0;
-                    setTimeout(() => {
-                        descEl.innerHTML = descriptions[currentIdx];
-                        descEl.style.opacity = 1;
+                let currentIdx = 0;
+                let charIdx = 0;
+                let isDeleting = false;
+                let typeSpeed = 50;
+
+                const type = () => {
+                    const currentText = descriptions[currentIdx];
+                    
+                    if (isDeleting) {
+                        descEl.textContent = currentText.substring(0, charIdx - 1);
+                        charIdx--;
+                        typeSpeed = 30; // Faster deleting
+                    } else {
+                        descEl.textContent = currentText.substring(0, charIdx + 1);
+                        // Add cursor effect if desired, but simple text content is safer for layout
+                        charIdx++;
+                        typeSpeed = 50; // Normal typing
+                    }
+
+                    if (!isDeleting && charIdx === currentText.length) {
+                        // Finished typing, wait before deleting
+                        isDeleting = true;
+                        typeSpeed = 2000; // Wait 2s
+                    } else if (isDeleting && charIdx === 0) {
+                        // Finished deleting, move to next
+                        isDeleting = false;
                         currentIdx = (currentIdx + 1) % descriptions.length;
-                    }, 500); // 0.5s fade out
+                        typeSpeed = 500; // Pause before typing next
+                    }
+
+                    setTimeout(type, typeSpeed);
                 };
 
-                // Initial set
-                descEl.style.transition = 'opacity 0.5s ease';
-                descEl.innerHTML = descriptions[0];
-                
-                if (descriptions.length > 1) {
-                    setInterval(rotateText, 4000); // Reduce wait slightly to 4s for better pacing
-                }
+                // Start typing
+                type();
             }
         }
 
