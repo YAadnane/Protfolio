@@ -377,6 +377,7 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
             res.json({ message: "Updated successfully", changes: this.changes });
         }
     );
+});
 
 
 // --- ARTICLES ---
