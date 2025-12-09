@@ -1452,6 +1452,9 @@ textarea:focus {
         aspect-ratio: auto;
         padding-bottom: 0 !important;
         /* Flush video to bottom if desired, or keep padding */
+        align-self: start;
+        /* Prevent stretching */
+        height: auto !important;
     }
 
     .bento-content {
