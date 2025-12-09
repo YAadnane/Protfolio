@@ -2283,3 +2283,51 @@ textarea:focus {
         grid-template-columns: 1fr;
     }
 }
+
+/* =========================================
+   MOBILE SLIDERS (Horizontal Scroll)
+   ========================================= */
+@media (max-width: 768px) {
+    /* Transform Grids to Horizontal Scroll Containers */
+    #projects-grid, 
+    #articles-grid,
+    .skills-grid {
+        display: flex !important;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 1rem;
+        padding-bottom: 2rem;
+        scrollbar-width: none; 
+        -ms-overflow-style: none;
+    }
+
+    #projects-grid::-webkit-scrollbar,
+    #articles-grid::-webkit-scrollbar,
+    .skills-grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .bento-item, 
+    .article-card,
+    .skill-category {
+        min-width: 85vw;
+        scroll-snap-align: center;
+        flex-shrink: 0;
+        margin-bottom: 0 !important;
+    }
+    
+    .bento-item.medium, 
+    .bento-item.large, 
+    .bento-item.wide {
+        grid-column: auto !important;
+        grid-row: auto !important;
+    }
+
+    .skill-category {
+        min-width: 85vw;
+        background: var(--card-bg);
+        border: 1px solid var(--nav-border);
+        padding: 1.5rem;
+        border-radius: 1rem;
+    }
+}
