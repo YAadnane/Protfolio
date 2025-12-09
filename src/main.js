@@ -219,18 +219,7 @@ async function loadGeneralInfo() {
 
         // Stats
         // Stats
-        if (data.stat_years) {
-             const el = document.getElementById('stat-years');
-             if(el) el.setAttribute('data-target', data.stat_years);
-        }
-        if (data.stat_projects) {
-             const el = document.getElementById('stat-projects');
-             if(el) el.setAttribute('data-target', data.stat_projects);
-        }
-        if (data.stat_companies) {
-             const el = document.getElementById('stat-companies');
-             if(el) el.setAttribute('data-target', data.stat_companies);
-        }
+
 
 
 
@@ -350,37 +339,7 @@ async function loadShapes() {
     } catch (err) { console.error("Failed to load shapes", err); }
 }
 
-async function loadStats() {
-    try {
-        const res = await fetch(`${API_URL}/stats?lang=${currentLang}`);
-        const stats = await res.json();
-        
-        const ids = {
-            years: 'stats-years',
-            projects: 'stats-projects',
-            companies: 'stats-companies',
-            certs: 'stats-certs',
-            articles: 'stats-articles'
-        };
 
-        for (const [key, id] of Object.entries(ids)) {
-            const el = document.getElementById(id);
-            if (el && stats[key] !== undefined) {
-                // Animate number
-                const target = stats[key];
-                gsap.to(el, {
-                    innerText: target,
-                    duration: 2,
-                    snap: { innerText: 1 },
-                    ease: "power2.out",
-                    onUpdate: function() {
-                        this.targets()[0].innerText = Math.ceil(this.targets()[0].innerText) + "+";
-                    }
-                });
-            }
-        }
-    } catch (err) { console.error("Failed to load stats", err); }
-}
 
 async function loadArticles() {
     try {
@@ -1056,22 +1015,7 @@ function initAnimations() {
     });
 
     // Stats Counter Animation
-    gsap.utils.toArray(".stat-number").forEach(stat => {
-        const target = parseInt(stat.getAttribute("data-target"));
-        gsap.to(stat, {
-            scrollTrigger: {
-                trigger: stat,
-                start: "top 85%"
-            },
-            innerText: target,
-            duration: 2,
-            snap: { innerText: 1 },
-            ease: "power2.out",
-            onUpdate: function() {
-                this.targets()[0].innerText = Math.ceil(this.targets()[0].innerText) + "+";
-            }
-        });
-    });
+
 
     // Bento Grid & Cards Stagger
     gsap.utils.toArray(".bento-item, .timeline-card, .cert-item").forEach((item, i) => {
