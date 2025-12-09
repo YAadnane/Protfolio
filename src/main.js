@@ -1225,33 +1225,46 @@ async function loadArticles() {
             `).join("");
         };
         
+        // Initial Render
         render(articles);
 
         const filterSelect = document.getElementById("filter-article-tag");
+        const searchInput = document.getElementById("filter-article-search");
+
+        // Populate Tags
         if (filterSelect) {
             while (filterSelect.options.length > 1) {
                 filterSelect.remove(1);
             }
-
             const allTags = articles.flatMap(a => a.tags ? a.tags.split(",").map(t => t.trim()) : []);
             const uniqueTags = [...new Set(allTags)].sort();
-
             uniqueTags.forEach(tag => {
                 const opt = document.createElement("option");
                 opt.value = tag;
                 opt.innerText = tag;
                 filterSelect.appendChild(opt);
             });
-
-            filterSelect.onchange = () => {
-                const tag = filterSelect.value;
-                if (!tag) render(articles);
-                else {
-                    const filtered = articles.filter(a => a.tags && a.tags.split(",").map(t => t.trim()).includes(tag));
-                    render(filtered);
-                }
-            };
         }
+
+        // Combined Filter Logic
+        const applyFilters = () => {
+            const tag = filterSelect ? filterSelect.value : "";
+            const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
+
+            const filtered = articles.filter(a => {
+                // Tag Match
+                const matchesTag = !tag || (a.tags && a.tags.split(",").map(t => t.trim()).includes(tag));
+                // Search Match (Title)
+                const matchesSearch = !query || (a.title && a.title.toLowerCase().includes(query));
+                
+                return matchesTag && matchesSearch;
+            });
+
+            render(filtered);
+        };
+
+        if (filterSelect) filterSelect.onchange = applyFilters;
+        if (searchInput) searchInput.oninput = applyFilters;
 
     } catch (err) { console.error("Failed to load articles", err); }
 }

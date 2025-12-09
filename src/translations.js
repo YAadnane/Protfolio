@@ -58,6 +58,7 @@ export const translations = {
         "certifications.status.planned": "Planned",
         "certifications.filter.domains": "All Domains",
         "certifications.filter.issuers": "All Issuers",
+        "articles.search.placeholder": "Search articles...",
         "chatbot.title": "Portfolio AI Assistant"
     },
     fr: {
@@ -120,6 +121,7 @@ export const translations = {
         "certifications.status.planned": "Planifiée",
         "certifications.filter.domains": "Tous les Domaines",
         "certifications.filter.issuers": "Tous les Émetteurs",
+        "articles.search.placeholder": "Rechercher un article...",
         "chatbot.title": "Assistant IA Portfolio"
     }
 };
