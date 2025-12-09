@@ -1453,19 +1453,53 @@ function initReviewModal() {
         stars.forEach(s => s.classList.toggle("active", s.dataset.value <= initialVal));
     }
 
+    // Helper for Notifications
+function showNotification(title, message, type = 'success') {
+    const popup = document.getElementById('notification-popup');
+    const titleEl = document.getElementById('notification-title');
+    const msgEl = document.getElementById('notification-message');
+    const iconEl = popup.querySelector('.notification-icon i');
+
+    if (!popup) return;
+
+    titleEl.textContent = title;
+    msgEl.textContent = message;
+
+    popup.className = `notification-popup ${type} show`;
+
+    if (type === 'success') {
+        iconEl.className = 'fa-solid fa-check-circle';
+    } else {
+        iconEl.className = 'fa-solid fa-circle-exclamation';
+    }
+
+    setTimeout(() => {
+        popup.classList.remove('show');
+    }, 5000);
+}
+
     if(form) {
         form.onsubmit = async (e) => {
             e.preventDefault();
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerText;
+            
+            const name = document.getElementById("review-name").value.trim();
+            const message = document.getElementById("review-message").value.trim();
+
+            if (!name || !message) {
+                showNotification('Error', 'Please fill in your Name and Review Message.', 'error');
+                return;
+            }
+
             submitBtn.disabled = true;
             submitBtn.innerText = "Sending...";
 
             const data = {
-                name: document.getElementById("review-name").value,
+                name: name,
                 role: document.getElementById("review-role").value,
                 rating: document.getElementById("review-rating").value,
-                message: document.getElementById("review-message").value
+                message: message
             };
 
             try {
@@ -1476,16 +1510,16 @@ function initReviewModal() {
                 });
                 
                 if(res.ok) {
-                    alert("Thank you for your review!");
+                    showNotification('Thank You!', 'Your review has been submitted and will be validated before publication.', 'success');
                     closeModal();
                     form.reset();
                     loadReviews(); // Refresh list
                 } else {
-                    alert("Failed to submit review.");
+                    showNotification('Error', 'Failed to submit review.', 'error');
                 }
             } catch(err) {
                 console.error(err);
-                alert("Error submitting review.");
+                showNotification('Error', 'An error occurred. Please try again.', 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = originalText;
