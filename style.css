@@ -1448,35 +1448,31 @@ textarea:focus {
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        padding: 1rem !important;
+        /* Compact padding */
         min-height: 0;
-        aspect-ratio: auto;
-        padding-bottom: 0 !important;
-        /* Flush video to bottom if desired, or keep padding */
-        align-self: start;
-        /* Prevent stretching */
-        height: auto !important;
+        /* align-self removed -> Grid Stretch applies (Equal Height) */
     }
 
     .bento-content {
         order: 1;
         position: relative;
         z-index: 2;
-        margin-bottom: 1rem;
+        margin-bottom: 0.5rem;
     }
 
-    /* Base Mobile Media Style - FORCE FIXED HEIGHT FOR STABILITY */
+    /* Base Mobile Media Style - UNIFORM SIZE & POSITION */
     .bento-bg {
         order: 2;
         position: relative !important;
         width: 100% !important;
         max-width: 100% !important;
-        /* Safety constraint */
         box-sizing: border-box !important;
-        /* Include padding/border */
-        height: 200px !important;
+        height: 150px !important;
+        /* Compact fixed height */
         object-fit: cover !important;
-        margin: 1rem 0 0 0 !important;
-        /* Strict top margin only */
+        margin: auto 0 0 0 !important;
+        /* Pushes media to bottom */
         display: block !important;
         border-radius: 0.5rem;
         opacity: 1 !important;
