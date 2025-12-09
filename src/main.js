@@ -1491,7 +1491,8 @@ function showNotification(title, message, type = 'success') {
             const message = document.getElementById("review-message").value.trim();
 
             if (!name || !message) {
-                showNotification('Error', 'Please fill in your Name and Review Message.', 'error');
+                const t = translations[currentLang];
+                showNotification(t["review.error.title"], t["review.validation.error"], 'error');
                 return;
             }
 
@@ -1525,7 +1526,7 @@ function showNotification(title, message, type = 'success') {
             } catch(err) {
                 console.error(err);
                 const t = translations[currentLang];
-                showNotification(t["review.error.title"], t["review.error.title"], 'error');
+                showNotification(t["review.error.title"], t["review.error.msg"], 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = originalText;

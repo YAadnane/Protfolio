@@ -76,7 +76,8 @@ export const translations = {
         "review.success.title": "Thank You!",
         "review.success.msg": "Your review has been submitted and will be validated before publication.",
         "review.error.title": "Error",
-        "review.error.msg": "Failed to submit review. Please try again."
+        "review.error.msg": "Failed to submit review. Please try again.",
+        "review.validation.error": "Please fill in your Name and Review Message."
     },
     fr: {
         "nav.about": "À propos",
@@ -156,6 +157,7 @@ export const translations = {
         "review.success.title": "Merci !",
         "review.success.msg": "Votre avis a été envoyé et sera validé avant publication.",
         "review.error.title": "Erreur",
-        "review.error.msg": "Échec de l'envoi de l'avis. Veuillez réessayer."
+        "review.error.msg": "Échec de l'envoi de l'avis. Veuillez réessayer.",
+        "review.validation.error": "Veuillez remplir votre Nom et votre Avis."
     }
 };
