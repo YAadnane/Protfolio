@@ -977,8 +977,8 @@ input,
 textarea {
     width: 100%;
     padding: 1rem;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--control-bg);
+    border: 1px solid var(--input-border);
     color: var(--text-main);
     font-family: var(--font-body);
     border-radius: 0.5rem;
@@ -989,7 +989,7 @@ input:focus,
 textarea:focus {
     outline: none;
     border-color: var(--accent-color);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--input-bg);
 }
 
 .footer {
