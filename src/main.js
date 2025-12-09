@@ -64,14 +64,17 @@ function initContactForm() {
             const result = await res.json();
 
             if (res.ok) {
-                alert('Message sent successfully! I will get back to you soon.');
+                const t = translations[currentLang];
+                showNotification(t["form.success.title"], t["form.success.msg"], 'success');
                 form.reset();
             } else {
-                alert(`Error: ${result.error}`);
+                const t = translations[currentLang];
+                showNotification(t["form.error.title"], `${t["form.error.msg"]} (${result.error})`, 'error');
             }
         } catch (err) {
             console.error(err);
-            alert('Failed to send message. Please try again.');
+            const t = translations[currentLang];
+            showNotification(t["form.error.title"], t["form.error.msg"], 'error');
         } finally {
             submitBtn.innerText = originalText;
             submitBtn.disabled = false;
@@ -1510,16 +1513,19 @@ function showNotification(title, message, type = 'success') {
                 });
                 
                 if(res.ok) {
-                    showNotification('Thank You!', 'Your review has been submitted and will be validated before publication.', 'success');
+                    const t = translations[currentLang];
+                    showNotification(t["review.success.title"], t["review.success.msg"], 'success');
                     closeModal();
                     form.reset();
                     loadReviews(); // Refresh list
                 } else {
-                    showNotification('Error', 'Failed to submit review.', 'error');
+                    const t = translations[currentLang];
+                    showNotification(t["review.error.title"], t["review.error.msg"], 'error');
                 }
             } catch(err) {
                 console.error(err);
-                showNotification('Error', 'An error occurred. Please try again.', 'error');
+                const t = translations[currentLang];
+                showNotification(t["review.error.title"], t["review.error.title"], 'error');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = originalText;

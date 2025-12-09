@@ -68,7 +68,15 @@ export const translations = {
         "testimonials.form.role": "Your Role (Optional)",
         "testimonials.form.message": "Your Review",
         "testimonials.form.submit": "Submit Review",
-        "chatbot.title": "Portfolio AI Assistant"
+        "chatbot.title": "Portfolio AI Assistant",
+        "form.success.title": "Message Sent",
+        "form.success.msg": "Message sent successfully! I will get back to you soon.",
+        "form.error.title": "Submission Failed",
+        "form.error.msg": "Failed to send message. Please try again.",
+        "review.success.title": "Thank You!",
+        "review.success.msg": "Your review has been submitted and will be validated before publication.",
+        "review.error.title": "Error",
+        "review.error.msg": "Failed to submit review. Please try again."
     },
     fr: {
         "nav.about": "À propos",
@@ -140,6 +148,14 @@ export const translations = {
         "testimonials.form.role": "Votre Rôle (Optionnel)",
         "testimonials.form.message": "Votre Avis",
         "testimonials.form.submit": "Envoyer l'avis",
-        "chatbot.title": "Assistant IA Portfolio"
+        "chatbot.title": "Assistant IA Portfolio",
+        "form.success.title": "Message Envoyé",
+        "form.success.msg": "Message envoyé avec succès ! Je reviendrai vers vous bientôt.",
+        "form.error.title": "Échec de l'envoi",
+        "form.error.msg": "Échec de l'envoi du message. Veuillez réessayer.",
+        "review.success.title": "Merci !",
+        "review.success.msg": "Votre avis a été envoyé et sera validé avant publication.",
+        "review.error.title": "Erreur",
+        "review.error.msg": "Échec de l'envoi de l'avis. Veuillez réessayer."
     }
 };
