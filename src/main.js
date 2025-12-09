@@ -19,7 +19,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadCertifications(),
         loadEducation(),
         loadExperience(),
-        loadSkills()
+        loadSkills(),
+        loadArticles(),
+        loadStats()
     ]);
     
     // Initialize animations AFTER content is loaded
@@ -344,6 +346,64 @@ async function loadShapes() {
             container.appendChild(wrapper);
         });
     } catch (err) { console.error("Failed to load shapes", err); }
+}
+
+async function loadStats() {
+    try {
+        const res = await fetch(`${API_URL}/stats?lang=${currentLang}`);
+        const stats = await res.json();
+        
+        const ids = {
+            years: 'stats-years',
+            projects: 'stats-projects',
+            companies: 'stats-companies',
+            certs: 'stats-certs',
+            articles: 'stats-articles'
+        };
+
+        for (const [key, id] of Object.entries(ids)) {
+            const el = document.getElementById(id);
+            if (el && stats[key] !== undefined) {
+                // Animate number
+                const target = stats[key];
+                gsap.to(el, {
+                    innerText: target,
+                    duration: 2,
+                    snap: { innerText: 1 },
+                    ease: "power2.out",
+                    onUpdate: function() {
+                        this.targets()[0].innerText = Math.ceil(this.targets()[0].innerText) + "+";
+                    }
+                });
+            }
+        }
+    } catch (err) { console.error("Failed to load stats", err); }
+}
+
+async function loadArticles() {
+    try {
+        const res = await fetch(`${API_URL}/articles?lang=${currentLang}`);
+        const articles = await res.json();
+        const container = document.getElementById('articles-grid');
+        if (!container) return;
+
+        container.innerHTML = articles.map(art => `
+            <div class="article-card">
+                <div class="article-image">
+                    <img src="${art.image || 'https://via.placeholder.com/400x200'}" alt="${art.title}">
+                </div>
+                <div class="article-content">
+                    <div class="article-date">${new Date(art.date).toLocaleDateString()}</div>
+                    <h3 class="article-title">${art.title}</h3>
+                    <p class="article-summary">${art.summary}</p>
+                    <a href="${art.link}" target="_blank" class="article-link">
+                         ${translations[currentLang]?.["articles.read"] || "Read More"} <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        `).join('');
+
+    } catch (err) { console.error("Failed to load articles", err); }
 }
 
 async function loadProjects() {
