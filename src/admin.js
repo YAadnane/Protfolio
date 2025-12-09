@@ -517,7 +517,6 @@ function setupModal() {
         headers['Authorization'] = `Bearer ${token}`;
 
         try {
-        try {
             const res = await fetch(url, {
                 method: method,
                 headers: headers,
