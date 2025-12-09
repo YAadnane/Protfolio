@@ -752,7 +752,7 @@ app.post('/api/reviews', sanitizeMiddleware, (req, res) => {
         return res.status(400).json({ error: "Name, message and rating are required." });
     }
 
-    db.run(`INSERT INTO reviews (name, role, message, rating, social_link, social_platform) VALUES (?, ?, ?, ?, ?, ?)`,
+    db.run(`INSERT INTO reviews (name, role, message, rating, social_link, social_platform, is_approved) VALUES (?, ?, ?, ?, ?, ?, 0)`,
         [name, role, message, rating, social_link || '', social_platform || 'other'],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
