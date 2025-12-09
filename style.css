@@ -2457,6 +2457,7 @@ textarea:focus {
         border-radius: 10px;
     }
 }
+
 /* Typewriter Cursor */
 .hero-description::after {
     content: '|';
@@ -2464,14 +2465,23 @@ textarea:focus {
     margin-left: 2px;
     color: var(--accent-color);
 }
+
 @keyframes blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0;
+    }
 }
 
 /* Mobile Shape Container */
 .mobile-shape-container {
-    display: none; /* Hidden by default on desktop */
+    display: none;
+    /* Hidden by default on desktop */
     margin-bottom: 2rem;
     height: 120px;
     align-items: center;
@@ -2484,7 +2494,8 @@ textarea:focus {
 
 @media (max-width: 768px) {
     .mobile-shape-container {
-        display: flex; /* Show on mobile */
+        display: flex;
+        /* Show on mobile */
     }
 }
 
@@ -2501,36 +2512,57 @@ textarea:focus {
 .mobile-shape-container .cube,
 .mobile-shape-container .pyramid,
 .mobile-shape-container .sphere {
-    position: relative; /* Override standard absolute */
+    position: relative;
+    /* Override standard absolute */
     width: 100%;
     height: 100%;
     transform-style: preserve-3d;
-    animation: rotateCube 10s infinite linear; /* Ensure animation runs */
+    animation: rotateCube 10s infinite linear;
+    /* Ensure animation runs */
 }
 
 /* Ensure faces are absolute within the relative cube */
 .mobile-shape-container .cube-face {
-    position: absolute; 
+    position: absolute;
     width: 120px;
     height: 120px;
     border: 1px solid var(--accent-color);
-    background: rgba(0, 255, 157, 0.05); /* Ensure visibility */
+    background: rgba(0, 255, 157, 0.05);
+    /* Ensure visibility */
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1rem;
     font-weight: bold;
     color: var(--text-main);
-    backface-visibility: visible; /* Ensure we see them */
+    backface-visibility: visible;
+    /* Ensure we see them */
 }
 
 /* Re-apply transforms for faces since size might be different than desktop def */
-.mobile-shape-container .cube-face.front  { transform: rotateY(0deg) translateZ(60px); }
-.mobile-shape-container .cube-face.back   { transform: rotateY(180deg) translateZ(60px); }
-.mobile-shape-container .cube-face.right  { transform: rotateY(90deg) translateZ(60px); }
-.mobile-shape-container .cube-face.left   { transform: rotateY(-90deg) translateZ(60px); }
-.mobile-shape-container .cube-face.top    { transform: rotateX(90deg) translateZ(60px); }
-.mobile-shape-container .cube-face.bottom { transform: rotateX(-90deg) translateZ(60px); }
+.mobile-shape-container .cube-face.front {
+    transform: rotateY(0deg) translateZ(60px);
+}
+
+.mobile-shape-container .cube-face.back {
+    transform: rotateY(180deg) translateZ(60px);
+}
+
+.mobile-shape-container .cube-face.right {
+    transform: rotateY(90deg) translateZ(60px);
+}
+
+.mobile-shape-container .cube-face.left {
+    transform: rotateY(-90deg) translateZ(60px);
+}
+
+.mobile-shape-container .cube-face.top {
+    transform: rotateX(90deg) translateZ(60px);
+}
+
+.mobile-shape-container .cube-face.bottom {
+    transform: rotateX(-90deg) translateZ(60px);
+}
 
 
 /* Certification Filter Buttons */
@@ -2565,10 +2597,11 @@ textarea:focus {
         flex-direction: column;
         gap: 0.5rem;
     }
-    
+
     .cert-filters select {
         width: 100%;
-        font-size: 0.9rem; /* Slightly smaller font for better fit */
+        font-size: 0.9rem;
+        /* Slightly smaller font for better fit */
     }
 }
 
@@ -2615,12 +2648,93 @@ textarea:focus {
 }
 
 .testimonial-card {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--card-bg);
+    border: 1px solid var(--nav-border);
     border-radius: 1rem;
     padding: 2rem;
-    transition: transform 0.3s ease, border-color 0.3s ease;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     backdrop-filter: blur(10px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    /* Subtle shadow for lift */
+}
+
+/* Article Card Styles */
+.article-card {
+    background: var(--card-bg);
+    border: 1px solid var(--nav-border);
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.article-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--accent-color);
+    box-shadow: 0 10px 30px var(--accent-glow);
+}
+
+.article-image {
+    height: 200px;
+    width: 100%;
+    overflow: hidden;
+    background: rgba(127, 127, 127, 0.1);
+    /* Neutral placeholder */
+}
+
+.article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.article-card:hover .article-image img {
+    transform: scale(1.05);
+}
+
+.article-content {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.article-date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.article-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.8rem;
+    color: var(--text-main);
+    line-height: 1.3;
+}
+
+.article-summary {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+    line-height: 1.5;
+}
+
+.article-link {
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-top: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: gap 0.3s;
+}
+
+.article-link:hover {
+    gap: 8px;
 }
 
 .testimonial-card:hover {
@@ -2760,7 +2874,7 @@ textarea:focus {
     padding: 0 1rem;
     /* Desktop: 3 columns x 2 rows = 6 items */
     grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: auto auto; 
+    grid-template-rows: auto auto;
 }
 
 /* Pagination */
@@ -2837,14 +2951,16 @@ textarea:focus {
 #filter-article-tag {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-    background: rgba(255, 255, 255, 0.05); /* Glass dark */
+    background: rgba(255, 255, 255, 0.05);
+    /* Glass dark */
     color: var(--text-main);
     border: 1px solid rgba(255, 255, 255, 0.1);
     font-family: var(--font-body);
     outline: none;
     transition: all 0.3s ease;
     cursor: pointer;
-    appearance: none; /* Remove default arrow */
+    appearance: none;
+    /* Remove default arrow */
     -webkit-appearance: none;
     -moz-appearance: none;
     /* Custom arrow */
@@ -2852,7 +2968,8 @@ textarea:focus {
     background-repeat: no-repeat;
     background-position: right 0.7rem top 50%;
     background-size: 0.65rem auto;
-    padding-right: 2rem; /* Space for arrow */
+    padding-right: 2rem;
+    /* Space for arrow */
 }
 
 #filter-article-tag:hover,
@@ -2863,7 +2980,8 @@ textarea:focus {
 
 /* Dropdown Options (Hard to style consistently, but bg helps) */
 #filter-article-tag option {
-    background-color: var(--card-bg); /* Dark background for options */
+    background-color: var(--card-bg);
+    /* Dark background for options */
     color: var(--text-main);
 }
 
@@ -2879,7 +2997,7 @@ textarea:focus {
     padding: 1.5rem 2rem;
     border-radius: 1rem;
     z-index: 10000;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     display: flex;
     align-items: center;
     gap: 1rem;
@@ -2922,4 +3040,3 @@ textarea:focus {
     color: var(--text-muted);
     margin: 0;
 }
-

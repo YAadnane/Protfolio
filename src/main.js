@@ -1237,24 +1237,29 @@ async function loadArticles() {
             // Render Slides
             track.innerHTML = slides.map(group => `
                 <div class="article-slide">
-                    ${group.map(art => `
+                    ${group.map(art => {
+                        const dateStr = art.date ? new Date(art.date).toLocaleDateString() : new Date().toLocaleDateString();
+                        // Check if date is valid
+                        const displayDate = dateStr === 'Invalid Date' ? new Date().toLocaleDateString() : dateStr;
+
+                        return `
                         <div class="article-card">
                             <div class="article-image">
-                                ${art.image ? `<img src="${API_URL.replace("/api", "")}${art.image}" alt="${art.title}">` : "<div style=\"width:100%; height:100%; background: #222;\"></div>"}
+                                ${art.image ? `<img src="${API_URL.replace("/api", "")}${art.image}" alt="${art.title}">` : `<div style="width:100%; height:100%; background: var(--nav-border); display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><i class="fa-solid fa-newspaper" style="font-size:2rem;"></i></div>`}
                             </div>
                             <div class="article-content">
-                                <div class="article-date">${new Date(art.date).toLocaleDateString()}</div>
-                                <h3 class="article-title">${art.title}</h3>
-                                <p class="article-summary">${art.summary}</p>
+                                <div class="article-date">${displayDate}</div>
+                                <h3 class="article-title">${art.title || 'Untitled'}</h3>
+                                <p class="article-summary">${art.summary || 'No summary available.'}</p>
                                 <div class="article-tags" style="margin-bottom: 1rem;">
                                     ${art.tags ? art.tags.split(",").map(t => `<span class="tech-tag small" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-right: 5px;">${t.trim()}</span>`).join("") : ""}
                                 </div>
-                                <a href="${art.link}" target="_blank" class="article-link">
+                                <a href="${art.link || '#'}" target="_blank" class="article-link">
                                      ${translations[currentLang]?.["articles.read"] || "Read More"} <i class="fa-solid fa-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
-                    `).join("")}
+                    `}).join("")}
                     ${/* Fill empty grid spots for layout consistency if needed (CSS grid handles this well usually) */ ""}
                 </div>
             `).join("");
