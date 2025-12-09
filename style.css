@@ -1464,30 +1464,27 @@ textarea:focus {
         margin-bottom: 1rem;
     }
 
-    /* Base Mobile Media Style */
+    /* Base Mobile Media Style - FORCE FIXED HEIGHT FOR STABILITY */
     .bento-bg {
         order: 2;
         position: relative !important;
         width: 100% !important;
+        height: 200px !important;
+        /* Force fixed height for EVERYTHING */
+        object-fit: cover !important;
         margin-top: 1rem;
         display: block !important;
         border-radius: 0.5rem;
         opacity: 1 !important;
+        background-color: #000;
+        /* Fallback */
     }
 
-    /* Video: Use Aspect Ratio 16/9, Auto Height */
-    .bento-bg.is-video {
-        height: auto !important;
-        aspect-ratio: 16/9;
-        object-fit: cover !important;
-    }
-
-    /* Image (Div): Needs explicit height because it has no intrinsic size */
+    /* Remove specific rules since we are normalizing */
+    .bento-bg.is-video,
     .bento-bg.is-image {
         height: 200px !important;
-        /* Approx 16/9 for mobile width */
-        background-size: cover !important;
-        background-position: center !important;
+        aspect-ratio: unset !important;
     }
 
     /* Hide Gradient Overlay on Mobile */
