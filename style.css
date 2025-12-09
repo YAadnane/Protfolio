@@ -1440,13 +1440,13 @@ textarea:focus {
 
     .bento-grid {
         grid-template-columns: 1fr;
-        grid-auto-rows: minmax(300px, auto);
-        /* Ensure min height */
+        grid-auto-rows: auto;
     }
 
     .bento-item {
-        min-height: 300px;
-        /* Force height so bg image/video is visible */
+        /* aspect-ratio ensures the card has a video-friendly shape (16:9) */
+        aspect-ratio: 16/9;
+        min-height: auto;
     }
 
     .bento-item.large,
