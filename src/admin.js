@@ -54,7 +54,7 @@ async function loadMedia() {
     if (addBtn) addBtn.style.display = 'none';
 
     try {
-        const res = await fetch(`${API_URL}/media`, {
+        const res = await fetch(`${API_URL}/media?t=${Date.now()}`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
         const files = await res.json();
