@@ -58,6 +58,15 @@ const fields = {
         { name: 'description', label: 'Description', type: 'textarea' },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
     ],
+    articles: [
+        { name: 'title', label: 'Title', type: 'text' },
+        { name: 'summary', label: 'Summary', type: 'textarea' },
+        { name: 'link', label: 'Link URL', type: 'text' },
+        { name: 'date', label: 'Date', type: 'date' },
+        { name: 'tags', label: 'Tags (comma sep)', type: 'text' },
+        { name: 'imageFile', label: 'Cover Image', type: 'file' },
+        { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
+    ],
     skills: [
         { name: 'category', label: 'Category', type: 'text' },
         { name: 'icon', label: 'Category Icon Class (FontAwesome)', type: 'text' },
