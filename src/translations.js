@@ -29,6 +29,7 @@ export const translations = {
         "stats.companies": "Companies",
         "stats.certs": "Certifications",
         "stats.articles": "Articles",
+        "stats.reviews": "Reviews",
         "articles.title": "Latest Articles",
         "articles.read": "Read More <i class='fa-solid fa-arrow-right'></i>",
         "articles.filter": "All Topics",
