@@ -743,6 +743,56 @@ app.delete('/api/messages/:id', authenticateToken, (req, res) => {
     });
 });
 
+// --- ARTICLES ---
+app.get('/api/articles', (req, res) => {
+    const lang = req.query.lang || 'en';
+    const limit = req.query.limit ? `LIMIT ${parseInt(req.query.limit)}` : '';
+    // Select all columns including image
+    db.all(`SELECT * FROM articles WHERE is_hidden = 0 AND lang = ? ORDER BY date DESC ${limit}`, [lang], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.post('/api/articles', authenticateToken, upload.single('imageFile'), (req, res) => {
+    const { title, summary, tags, image, link, is_hidden, lang, date } = req.body;
+    let imagePath = image;
+    if (req.file) {
+        imagePath = `/uploads/${req.file.filename}`;
+    }
+
+    db.run(`INSERT INTO articles (title, summary, tags, image, link, is_hidden, lang, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [title, summary, tags, imagePath, link, is_hidden || 0, lang || 'en', date || new Date().toISOString()],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ id: this.lastID });
+        }
+    );
+});
+
+app.put('/api/articles/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
+    const { title, summary, tags, image, link, is_hidden, lang, date } = req.body;
+    let imagePath = image;
+    if (req.file) {
+        imagePath = `/uploads/${req.file.filename}`;
+    }
+
+    db.run(`UPDATE articles SET title = ?, summary = ?, tags = ?, image = ?, link = ?, is_hidden = ?, lang = ?, date = ? WHERE id = ?`,
+        [title, summary, tags, imagePath, link, is_hidden, lang, date, req.params.id],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "Updated successfully" });
+        }
+    );
+});
+
+app.delete('/api/articles/:id', authenticateToken, (req, res) => {
+    db.run("DELETE FROM articles WHERE id = ?", req.params.id, function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Deleted successfully" });
+    });
+});
+
 // --- REVIEWS ---
 app.get('/api/reviews', (req, res) => {
     db.all("SELECT * FROM reviews WHERE is_approved = 1 ORDER BY date DESC", [], (err, rows) => {

@@ -213,6 +213,37 @@ db.serialize(() => {
 
 
 
+    // Articles Table
+    db.run(`CREATE TABLE IF NOT EXISTS articles (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        summary TEXT,
+        image TEXT,
+        link TEXT,
+        tags TEXT,
+        date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        is_hidden INTEGER DEFAULT 0,
+        lang TEXT DEFAULT 'en'
+    )`, (err) => {
+        if (!err) {
+            addColumnIfNotExists('articles', 'image', 'TEXT');
+            addColumnIfNotExists('articles', 'link', 'TEXT');
+            addColumnIfNotExists('articles', 'is_hidden', 'INTEGER DEFAULT 0');
+            addColumnIfNotExists('articles', 'lang', "TEXT DEFAULT 'en'");
+
+             // Seed if empty
+             db.get("SELECT count(*) as count FROM articles", (err, row) => {
+                if (row && row.count === 0) {
+                     db.run(`INSERT INTO articles (title, summary, tags, image, date, lang) VALUES 
+                        ('The Future of AI', 'How Generative AI is reshaping software development.', 'AI, Tech', '', CURRENT_TIMESTAMP, 'en'),
+                        ('Optimizing SQL', 'Best practices for database performance.', 'SQL, Database', '', CURRENT_TIMESTAMP, 'en')
+                     `);
+                     console.log("Articles seeded.");
+                }
+            });
+        }
+    });
+
     // Reviews Table
     db.run(`CREATE TABLE IF NOT EXISTS reviews (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
