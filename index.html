@@ -441,6 +441,39 @@
     </div>
   </div>
 
+  <!-- REVIEW MODAL -->
+  <div id="review-modal" class="modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2 data-i18n="testimonials.form.title">Share your experience</h2>
+      <form id="review-form">
+        <div class="form-group">
+          <input type="text" id="review-name" required placeholder="Your Name"
+            data-i18n-placeholder="testimonials.form.name">
+        </div>
+        <div class="form-group">
+          <input type="text" id="review-role" placeholder="Your Role (Optional)"
+            data-i18n-placeholder="testimonials.form.role">
+        </div>
+        <div class="form-group">
+          <div class="rating-input">
+            <span class="star" data-value="1">★</span>
+            <span class="star" data-value="2">★</span>
+            <span class="star" data-value="3">★</span>
+            <span class="star" data-value="4">★</span>
+            <span class="star" data-value="5">★</span>
+          </div>
+          <input type="hidden" id="review-rating" value="5">
+        </div>
+        <div class="form-group">
+          <textarea id="review-message" required rows="4" placeholder="Your Review"
+            data-i18n-placeholder="testimonials.form.message"></textarea>
+        </div>
+        <button type="submit" class="btn-primary" data-i18n="testimonials.form.submit">Submit Review</button>
+      </form>
+    </div>
+  </div>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 
