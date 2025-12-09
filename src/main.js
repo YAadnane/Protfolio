@@ -325,6 +325,10 @@ async function loadGeneralInfo() {
 // --- HELPER: Counter Animation ---
 function animateCounter(el, target, duration = 1500) {
     if (!el) return;
+    
+    // Clear existing timer if any
+    if (el._timer) clearInterval(el._timer);
+
     const end = parseInt(target, 10);
     if (isNaN(end)) {
         el.innerText = target;
@@ -332,18 +336,25 @@ function animateCounter(el, target, duration = 1500) {
     }
     
     let start = 0;
-    const stepTime = 20; // 20ms per frame
+    const stepTime = 20; // 20ms
     const steps = duration / stepTime;
     const increment = end / steps;
     
+    // Reset to 0 before starting
+    el.innerText = "0+";
+
     const timer = setInterval(() => {
         start += increment;
         if (start >= end) {
             start = end;
             clearInterval(timer);
+            el.innerText = end + "+"; // Ensure clean end (no decimal)
+        } else {
+            el.innerText = Math.floor(start) + "+";
         }
-        el.innerText = Math.floor(start) + "+";
     }, stepTime);
+    
+    el._timer = timer;
 }
 
 // --- HELPER: Social Icons ---
@@ -1224,12 +1235,25 @@ async function loadStats() {
             }
         };
 
-        // Update immediately
-        toggleLanguage ? updateStats() : setTimeout(updateStats, 500); // Wait bit on load
-        
-        // Since loadStats is called on load, we can just run it.
-        // If we want scroll trigger, we'd need IntersectionObserver, but simple load animation is fine for "Who I Am" which is near top.
-        updateStats();
+        // Use IntersectionObserver to start animation when visible
+        const statsGrid = document.querySelector('.stats-grid');
+        if (statsGrid && 'IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        updateStats();
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.2 }); // Start when 20% visible
+            observer.observe(statsGrid);
+            
+            // Allow triggering immediately if already visible or check logic fails
+            // But to avoid double run, we rely on observer. 
+            // Fallback for non-observer browsers? (Rare now, but safe)
+        } else {
+             updateStats();
+        }
 
     } catch (err) { console.error("Failed to load stats", err); }
 }
