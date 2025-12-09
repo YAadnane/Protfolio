@@ -1354,8 +1354,15 @@ async function loadReviews() {
 
         if (reviews.length === 0) {
             track.innerHTML = "<p style='width:100%; text-align:center; color:var(--text-muted); padding: 2rem;'>No reviews yet. Be the first!</p>";
+            // Update stats even if 0
+             const statsReviews = document.getElementById('stats-reviews');
+             if(statsReviews) statsReviews.innerText = "0+";
             return;
         }
+
+        // Update stats
+        const statsReviews = document.getElementById('stats-reviews');
+        if(statsReviews) statsReviews.innerText = reviews.length + "+";
 
         const renderSlider = () => {
             const isMobile = window.innerWidth <= 768;
