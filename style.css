@@ -1483,16 +1483,14 @@ textarea:focus {
         right: auto !important;
     }
 
-    /* Remove specific rules since we are normalizing */
-    .bento-bg.is-video,
-    .bento-bg.is-image {
-        height: 200px !important;
-        aspect-ratio: unset !important;
-    }
-
-    /* Hide Gradient Overlay on Mobile */
-    .media-overlay {
-        display: none !important;
+    /* Micro-adjustment: Video cleaner render (shave 1px to prevent sub-pixel bleed) */
+    .bento-bg.is-video {
+        width: calc(100% - 1px) !important;
+        margin: auto auto 0 auto !important;
+        /* Center horizontally */
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
     }
 
     /* Fallback for old bento-bg + div selector if needed */
