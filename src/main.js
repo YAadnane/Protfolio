@@ -5,6 +5,7 @@ import { translations } from "./translations.js";
 gsap.registerPlugin(ScrollTrigger);
 
 const API_URL = '/api';
+let heroTypewriterTimeout = null;
 
 // =========================================
 // DYNAMIC CONTENT LOADING
@@ -210,6 +211,12 @@ async function loadGeneralInfo() {
         // Hero Description Typewriter / Rotator
         const descEl = document.querySelector('.hero-description');
         if (descEl) {
+            // Clear any existing timeout from previous language load
+            if (heroTypewriterTimeout) {
+                clearTimeout(heroTypewriterTimeout);
+                heroTypewriterTimeout = null;
+            }
+
             const descriptions = [data.hero_description, data.hero_description_2, data.hero_description_3].filter(d => d);
             
             if (descriptions.length > 0) {
@@ -243,7 +250,7 @@ async function loadGeneralInfo() {
                         typeSpeed = 500; // Pause before typing next
                     }
 
-                    setTimeout(type, typeSpeed);
+                    heroTypewriterTimeout = setTimeout(type, typeSpeed);
                 };
 
                 // Start typing
