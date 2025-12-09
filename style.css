@@ -570,6 +570,8 @@ h4 {
     margin-top: 3rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     padding-top: 2rem;
+    flex-wrap: wrap;
+    /* Allow wrapping */
 }
 
 .stat-number {
@@ -1960,10 +1962,23 @@ textarea:focus {
         line-height: 1.6;
     }
 
-    .section {
-        padding: 3rem 0;
-        /* Reduce padding on mobile */
-    }
+    padding: 3rem 0;
+    /* Reduce padding on mobile */
+}
+
+.stats-grid {
+    gap: 2rem;
+    justify-content: flex-start;
+}
+
+.stat-item {
+    flex: 1 1 45%;
+    /* 2 items per row */
+    min-width: 140px;
+}
+
+.stat-number {
+    font-size: 2.5rem;
 }
 
 /* =========================================

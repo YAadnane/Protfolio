@@ -387,21 +387,57 @@ async function loadArticles() {
         const container = document.getElementById('articles-grid');
         if (!container) return;
 
-        container.innerHTML = articles.map(art => `
-            <div class="article-card">
-                <div class="article-image">
-                    <img src="${art.image || 'https://via.placeholder.com/400x200'}" alt="${art.title}">
+        // Render Articles
+        const render = (items) => {
+            container.innerHTML = items.map(art => `
+                <div class="article-card">
+                    <div class="article-image">
+                        <img src="${art.image || 'https://via.placeholder.com/400x200'}" alt="${art.title}">
+                    </div>
+                    <div class="article-content">
+                        <div class="article-date">${new Date(art.date).toLocaleDateString()}</div>
+                        <h3 class="article-title">${art.title}</h3>
+                        <p class="article-summary">${art.summary}</p>
+                        <div class="article-tags" style="margin-bottom: 1rem;">
+                            ${art.tags ? art.tags.split(',').map(t => `<span class="tech-tag small" style="font-size:0.7rem; padding:0.2rem 0.5rem;">${t.trim()}</span>`).join('') : ''}
+                        </div>
+                        <a href="${art.link}" target="_blank" class="article-link">
+                             ${translations[currentLang]?.["articles.read"] || "Read More"} <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
-                <div class="article-content">
-                    <div class="article-date">${new Date(art.date).toLocaleDateString()}</div>
-                    <h3 class="article-title">${art.title}</h3>
-                    <p class="article-summary">${art.summary}</p>
-                    <a href="${art.link}" target="_blank" class="article-link">
-                         ${translations[currentLang]?.["articles.read"] || "Read More"} <i class="fa-solid fa-arrow-right"></i>
-                    </a>
-                </div>
-            </div>
-        `).join('');
+            `).join('');
+        };
+        
+        render(articles);
+
+        // Populate Filter
+        const filterSelect = document.getElementById('filter-article-tag');
+        if (filterSelect) {
+            // Reset options (keep first one)
+            while (filterSelect.options.length > 1) {
+                filterSelect.remove(1);
+            }
+
+            const allTags = articles.flatMap(a => a.tags ? a.tags.split(',').map(t => t.trim()) : []);
+            const uniqueTags = [...new Set(allTags)].sort();
+
+            uniqueTags.forEach(tag => {
+                const opt = document.createElement('option');
+                opt.value = tag;
+                opt.innerText = tag;
+                filterSelect.appendChild(opt);
+            });
+
+            filterSelect.onchange = () => {
+                const tag = filterSelect.value;
+                if (!tag) render(articles);
+                else {
+                    const filtered = articles.filter(a => a.tags && a.tags.split(',').map(t => t.trim()).includes(tag));
+                    render(filtered);
+                }
+            };
+        }
 
     } catch (err) { console.error("Failed to load articles", err); }
 }
