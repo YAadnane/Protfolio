@@ -49,6 +49,26 @@ window.showConfirm = (title, message) => {
     });
 };
 
+window.showNotification = (message, type = 'info') => {
+    const container = document.getElementById('notification-container');
+    if (!container) return;
+
+    const notif = document.createElement('div');
+    notif.className = `notification ${type}`;
+    notif.innerHTML = `
+        <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-exclamation'}"></i>
+        <span>${message}</span>
+    `;
+
+    container.appendChild(notif);
+
+    // Auto remove
+    setTimeout(() => {
+        notif.style.animation = 'slideOut 0.3s ease-in forwards';
+        setTimeout(() => notif.remove(), 300);
+    }, 3000);
+};
+
 // --- MEDIA MANAGER FUNCTIONS ---
 window.deleteMedia = async (filename) => {
     const confirmed = await showConfirm('Delete File?', `Are you sure you want to delete ${filename}?`);
