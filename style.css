@@ -2866,6 +2866,32 @@ textarea:focus {
     outline: none;
 }
 
+/* Generic Select Style */
+.form-select {
+    width: 100%;
+    padding: 0.8rem;
+    background: var(--control-bg);
+    /* Variable */
+    border: 1px solid var(--input-border);
+    /* Variable */
+    border-radius: 0.5rem;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    outline: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.form-select:focus {
+    border-color: var(--accent-color);
+}
+
+.form-select option {
+    background: var(--card-bg);
+    /* Use theme card bg */
+    color: var(--text-main);
+}
+
 
 /* Testimonials Slider */
 .testimonials-slider {
@@ -2977,10 +3003,11 @@ textarea:focus {
 #filter-article-tag {
     padding: 0.5rem 1rem;
     border-radius: 0.5rem;
-    background: rgba(255, 255, 255, 0.05);
+    background-color: var(--control-bg);
+    /* Use var, keep image */
     /* Glass dark */
     color: var(--text-main);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--input-border);
     font-family: var(--font-body);
     outline: none;
     transition: all 0.3s ease;
@@ -3001,7 +3028,7 @@ textarea:focus {
 #filter-article-tag:hover,
 #filter-article-tag:focus {
     border-color: var(--accent-color);
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: var(--input-bg);
 }
 
 /* Dropdown Options (Hard to style consistently, but bg helps) */

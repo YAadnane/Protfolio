@@ -469,14 +469,13 @@
             data-i18n-placeholder="testimonials.form.role">
         </div>
         <div class="form-group" style="display: flex; gap: 0.5rem;">
-          <select id="review-platform"
-            style="flex: 1; padding: 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 0.5rem; color: var(--text-main);">
-            <option value="linkedin" style="background: #222; color: #fff;">LinkedIn</option>
-            <option value="facebook" style="background: #222; color: #fff;">Facebook</option>
-            <option value="instagram" style="background: #222; color: #fff;">Instagram</option>
-            <option value="reddit" style="background: #222; color: #fff;">Reddit</option>
-            <option value="medium" style="background: #222; color: #fff;">Medium</option>
-            <option value="other" style="background: #222; color: #fff;">Other</option>
+          <select id="review-platform" class="form-select" style="flex: 1;">
+            <option value="linkedin">LinkedIn</option>
+            <option value="facebook">Facebook</option>
+            <option value="instagram">Instagram</option>
+            <option value="reddit">Reddit</option>
+            <option value="medium">Medium</option>
+            <option value="other">Other</option>
           </select>
           <input type="url" id="review-link" style="flex: 2;" placeholder="Profile Link"
             data-i18n-placeholder="testimonials.form.link">
@@ -511,7 +510,7 @@
     </div>
   </div>
 
-  <script type="module" src="/src/main.js?v=3.1"></script>
+  <script type="module" src="/src/main.js?v=3.2"></script>
 </body>
 
 </html>
