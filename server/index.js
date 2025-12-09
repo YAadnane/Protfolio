@@ -602,31 +602,38 @@ app.put('/api/shapes/:id', authenticateToken, (req, res) => {
     console.log('PUT /api/shapes payload:', req.body); // Debug log
     const { type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, is_mobile_visible, lang } = req.body; 
     
-    // Fix boolean/string type issue strictly
-    const isMobileBool = (is_mobile_visible === '1' || is_mobile_visible === 1 || is_mobile_visible === true);
-    const targetLang = lang || 'en';
+    // Improve robustness: Fetch existing shape first to get correct language
+    db.get("SELECT * FROM shapes WHERE id = ?", [req.params.id], (err, existingShape) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!existingShape) return res.status(404).json({ error: "Shape not found" });
 
-    const updateShape = () => {
-        // Also update 'lang' to ensure consistency with the reset group
-        db.run(`UPDATE shapes SET type = ?, face_front = ?, face_back = ?, face_right = ?, face_left = ?, face_top = ?, face_bottom = ?, size = ?, pos_x = ?, pos_y = ?, icon = ?, is_hidden = ?, is_mobile_visible = ?, lang = ? WHERE id = ?`,
-            [type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, isMobileBool ? 1 : 0, targetLang, req.params.id],
-            function(err) {
+        // Use provided lang or fallback to existing (never default to 'en' blindly)
+        const targetLang = lang || existingShape.lang || 'en';
+        
+        // Fix boolean/string type issue strictly
+        const isMobileBool = (is_mobile_visible === '1' || is_mobile_visible === 1 || is_mobile_visible === true);
+
+        const updateShape = () => {
+            db.run(`UPDATE shapes SET type = ?, face_front = ?, face_back = ?, face_right = ?, face_left = ?, face_top = ?, face_bottom = ?, size = ?, pos_x = ?, pos_y = ?, icon = ?, is_hidden = ?, is_mobile_visible = ?, lang = ? WHERE id = ?`,
+                [type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, isMobileBool ? 1 : 0, targetLang, req.params.id],
+                function(err) {
+                    if (err) return res.status(500).json({ error: err.message });
+                    console.log('Update successful, changes:', this.changes);
+                    res.json({ message: "Updated successfully" });
+                }
+            );
+        };
+
+        if (isMobileBool) {
+            console.log('Resetting mobile visible for lang:', targetLang);
+            db.run("UPDATE shapes SET is_mobile_visible = 0 WHERE lang = ?", [targetLang], (err) => {
                 if (err) return res.status(500).json({ error: err.message });
-                console.log('Update successful, changes:', this.changes);
-                res.json({ message: "Updated successfully" });
-            }
-        );
-    };
-
-    if (isMobileBool) {
-        console.log('Resetting mobile visible for lang:', targetLang);
-        db.run("UPDATE shapes SET is_mobile_visible = 0 WHERE lang = ?", [targetLang], (err) => {
-            if (err) return res.status(500).json({ error: err.message });
+                updateShape();
+            });
+        } else {
             updateShape();
-        });
-    } else {
-        updateShape();
-    }
+        }
+    });
 });
 
 app.delete('/api/shapes/:id', authenticateToken, (req, res) => {
