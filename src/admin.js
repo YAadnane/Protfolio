@@ -87,7 +87,8 @@ const fields = {
         { name: 'size', label: 'Size (Scale 0.1 - 2.0)', type: 'number', step: '0.1' },
         { name: 'pos_x', label: 'Position X % (0-100)', type: 'number' },
         { name: 'pos_y', label: 'Position Y % (0-100)', type: 'number' },
-        { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
+        { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' },
+        { name: 'is_mobile_visible', label: 'Afficher sur mobile (Un seul)', type: 'checkbox' }
     ],
     general: [
         { name: 'hero_subtitle', label: 'Hero Subtitle', type: 'text' },
@@ -239,10 +240,11 @@ async function loadContent(type) {
             card.dataset.item = JSON.stringify(item);
             
             const isHidden = item.is_hidden == 1 || item.is_hidden === true;
+            const isMobile = item.is_mobile_visible == 1 || item.is_mobile_visible === true;
             card.style.opacity = isHidden ? '0.5' : '1';
             
             card.innerHTML = `
-                <h3>${item.title || item.name || item.degree || item.role || (item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1) + ': ' + (item.face_front || 'Untitled') : (item.face_front ? 'Cube: ' + item.face_front : 'Item'))} ${isHidden ? '<span style="font-size:0.7em; background:#333; padding:2px 5px; border-radius:4px;">(Hidden)</span>' : ''}</h3>
+                <h3>${item.title || item.name || item.degree || item.role || (item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1) + ': ' + (item.face_front || 'Untitled') : (item.face_front ? 'Cube: ' + item.face_front : 'Item'))} ${isHidden ? '<span style="font-size:0.7em; background:#333; padding:2px 5px; border-radius:4px;">(Hidden)</span>' : ''} ${isMobile ? '<span style="font-size:0.7em; background:var(--accent-color); color:#000; padding:2px 5px; border-radius:4px; margin-left:5px;"><i class="fa-solid fa-mobile-screen"></i> Mobile Hero</span>' : ''}</h3>
                 <p style="color: var(--text-muted); font-size: 0.9rem;">
                     ${item.category || item.issuer || item.institution || item.company || (item.size ? `Size: ${item.size}, Pos: ${item.pos_x}%, ${item.pos_y}%` : '')}
                 </p>
