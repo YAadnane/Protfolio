@@ -65,6 +65,7 @@ const fields = {
         { name: 'date', label: 'Date', type: 'date' },
         { name: 'tags', label: 'Theme / Tags (comma separated)', type: 'text' },
         { name: 'imageFile', label: 'Cover Image', type: 'file' },
+        { name: 'lang', label: 'Language', type: 'select', options: ['en', 'fr'] },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
     ],
     skills: [
