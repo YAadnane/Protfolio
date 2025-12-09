@@ -1356,9 +1356,9 @@ async function loadReviews() {
                     ${group.map(r => `
                         <div class="testimonial-card">
                             <div class="testimonial-header">
-                                <div class="testimonial-author">
-                                    <h4>${r.name}</h4>
-                                    <span>${r.role || ''}</span>
+                                <div class="testimonial-info">
+                                    <h4 class="testimonial-name">${r.name} ${r.social_link ? `<a href="${r.social_link}" target="_blank" style="color:var(--accent-color); margin-left:5px;"><i class="fa-brands fa-linkedin"></i></a>` : ''}</h4>
+                                    <span class="testimonial-role">${r.role || ''}</span>
                                 </div>
                                 <div class="testimonial-rating">
                                     ${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}
@@ -1503,6 +1503,7 @@ function showNotification(title, message, type = 'success') {
                 name: name,
                 role: document.getElementById("review-role").value,
                 rating: document.getElementById("review-rating").value,
+                social_link: document.getElementById("review-link").value,
                 message: message
             };
 

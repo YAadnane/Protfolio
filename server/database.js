@@ -220,6 +220,7 @@ db.serialize(() => {
         role TEXT,
         message TEXT,
         rating INTEGER,
+        social_link TEXT,
         is_approved INTEGER DEFAULT 1,
         date DATETIME DEFAULT CURRENT_TIMESTAMP
     )`, (err) => {
@@ -229,6 +230,7 @@ db.serialize(() => {
             addColumnIfNotExists('reviews', 'role', 'TEXT');
             addColumnIfNotExists('reviews', 'message', 'TEXT');
             addColumnIfNotExists('reviews', 'rating', 'INTEGER');
+            addColumnIfNotExists('reviews', 'social_link', 'TEXT');
             addColumnIfNotExists('reviews', 'is_approved', 'INTEGER DEFAULT 1');
             addColumnIfNotExists('reviews', 'date', 'DATETIME DEFAULT CURRENT_TIMESTAMP');
 
@@ -236,9 +238,9 @@ db.serialize(() => {
             db.get("SELECT count(*) as count FROM reviews", (err, row) => {
                 if (err) return console.error(err.message);
                 if (row && row.count === 0) {
-                     db.run(`INSERT INTO reviews (name, role, message, rating, is_approved) VALUES 
-                        ('Sarah Connor', 'CTO at TechCorp', 'Adnane delivered exceptional results. His AI expertise transformed our workflow.', 5, 1),
-                        ('John Doe', 'Project Manager', 'Great communication and high quality code. Highly recommended.', 5, 1)
+                     db.run(`INSERT INTO reviews (name, role, message, rating, social_link, is_approved) VALUES 
+                        ('Sarah Connor', 'CTO at TechCorp', 'Adnane delivered exceptional results. His AI expertise transformed our workflow.', 5, '', 1),
+                        ('John Doe', 'Project Manager', 'Great communication and high quality code. Highly recommended.', 5, '', 1)
                      `);
                      console.log("Reviews seeded.");
                 }

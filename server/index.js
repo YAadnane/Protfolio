@@ -739,13 +739,13 @@ app.get('/api/reviews', (req, res) => {
 });
 
 app.post('/api/reviews', sanitizeMiddleware, (req, res) => {
-    const { name, role, message, rating } = req.body;
+    const { name, role, message, rating, social_link } = req.body;
     if (!name || !message || !rating) {
         return res.status(400).json({ error: "Name, message and rating are required." });
     }
 
-    db.run(`INSERT INTO reviews (name, role, message, rating) VALUES (?, ?, ?, ?)`,
-        [name, role, message, rating],
+    db.run(`INSERT INTO reviews (name, role, message, rating, social_link) VALUES (?, ?, ?, ?, ?)`,
+        [name, role, message, rating, social_link || ''],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             
@@ -754,7 +754,7 @@ app.post('/api/reviews', sanitizeMiddleware, (req, res) => {
                 from: 'yadani.adnane20@gmail.com',
                 to: 'yadani.adnane20@gmail.com',
                 subject: `New Review from ${name}`,
-                text: `You have received a new review:\n\nName: ${name}\nRole: ${role || 'N/A'}\nRating: ${rating}/5\n\nReview:\n${message}\n\nPlease check your admin dashboard to validate or publish it.`
+                text: `You have received a new review:\n\nName: ${name}\nRole: ${role || 'N/A'}\nSocial Link: ${social_link || 'N/A'}\nRating: ${rating}/5\n\nReview:\n${message}\n\nPlease check your admin dashboard to validate or publish it.`
             };
 
             transporter.sendMail(mailOptions, (error, info) => {
