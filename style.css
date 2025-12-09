@@ -1886,8 +1886,26 @@ textarea:focus {
 
     .header-buttons .btn-primary,
     .header-buttons .btn-cv {
-        padding: 0.5rem 0.8rem;
-        font-size: 0.85rem;
+        padding: 0.6rem;
+        /* Square-ish aspect ratio for icons */
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .btn-text {
+        display: none !important;
+    }
+
+    .header .container {
+        padding: 0 0.5rem;
+        /* Reduce container padding */
+    }
+
+    .header {
+        width: 95% !important;
+        /* Widen pill on mobile */
     }
 
     /* Filter Responsiveness */
