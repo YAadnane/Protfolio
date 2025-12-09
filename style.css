@@ -20,6 +20,12 @@
     /* Navbar Vars Default (Dark) */
     --nav-bg: rgba(5, 5, 5, 0.8);
     --nav-border: rgba(255, 255, 255, 0.05);
+
+    /* Control Vars Default (Dark) */
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --input-border: rgba(255, 255, 255, 0.1);
+    --control-bg: rgba(255, 255, 255, 0.1);
+    --dot-bg: rgba(255, 255, 255, 0.2);
 }
 
 body.light-mode {
@@ -35,7 +41,15 @@ body.light-mode {
     --nav-bg: rgba(224, 247, 250, 0.85);
     /* Sky Blue Glass */
     --nav-border: rgba(0, 191, 125, 0.1);
+
+    /* Control Vars Light */
+    --input-bg: rgba(255, 255, 255, 0.6);
+    /* Semi-transparent white */
+    --input-border: rgba(0, 0, 0, 0.1);
+    --control-bg: rgba(0, 0, 0, 0.05);
+    --dot-bg: rgba(0, 0, 0, 0.2);
 }
+
 
 * {
     margin: 0;
@@ -1520,8 +1534,8 @@ textarea:focus {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--control-bg);
+    border: 1px solid var(--input-border);
     color: var(--text-muted);
     transition: var(--transition-fast);
 }
@@ -2567,8 +2581,8 @@ textarea:focus {
 
 /* Certification Filter Buttons */
 .filter-btn {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--control-bg);
+    border: 1px solid var(--input-border);
     color: var(--text-muted);
     padding: 0.5rem 1rem;
     border-radius: 20px;
@@ -2616,9 +2630,9 @@ textarea:focus {
 .search-input {
     padding: 0.5rem 0.5rem 0.5rem 2rem;
     border-radius: 0.5rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--input-bg);
     color: var(--text-main);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--input-border);
     font-family: var(--font-body);
     outline: none;
     transition: all 0.3s ease;
@@ -2839,8 +2853,8 @@ textarea:focus {
 .modal textarea {
     width: 100%;
     padding: 0.8rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--control-bg);
+    border: 1px solid var(--input-border);
     border-radius: 0.5rem;
     color: var(--text-main);
     font-family: var(--font-body);
@@ -2888,7 +2902,7 @@ textarea:focus {
 .slider-dot {
     width: 10px;
     height: 10px;
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--dot-bg);
     border-radius: 50%;
     cursor: pointer;
     transition: background 0.3s;
