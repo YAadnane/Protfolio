@@ -377,10 +377,7 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
             res.json({ message: "Updated successfully", changes: this.changes });
         }
     );
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Updated successfully" });
-    });
-});
+
 
 // --- ARTICLES ---
 app.get('/api/articles', (req, res) => {
