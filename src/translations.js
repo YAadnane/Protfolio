@@ -56,6 +56,8 @@ export const translations = {
         "certifications.filter.planned": "Planned",
         "certifications.status.in_progress": "In Progress",
         "certifications.status.planned": "Planned",
+        "certifications.filter.domains": "All Domains",
+        "certifications.filter.issuers": "All Issuers",
         "chatbot.title": "Portfolio AI Assistant"
     },
     fr: {

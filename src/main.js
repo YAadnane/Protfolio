@@ -610,7 +610,8 @@ async function loadCertifications() {
             domainSelect.innerHTML = ''; // Clear all
             const defaultDomain = document.createElement('option');
             defaultDomain.value = "";
-            defaultDomain.textContent = t["certifications.filter.domains"];
+            // Add fallback to prevent empty box
+            defaultDomain.textContent = t["certifications.filter.domains"] || "All Domains"; 
             domainSelect.appendChild(defaultDomain);
 
             domains.forEach(d => {
@@ -626,7 +627,8 @@ async function loadCertifications() {
             issuerSelect.innerHTML = ''; // Clear all
             const defaultIssuer = document.createElement('option');
             defaultIssuer.value = "";
-            defaultIssuer.textContent = t["certifications.filter.issuers"];
+            // Add fallback
+            defaultIssuer.textContent = t["certifications.filter.issuers"] || "All Issuers";
             issuerSelect.appendChild(defaultIssuer);
 
             issuers.forEach(i => {
