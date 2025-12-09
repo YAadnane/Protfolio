@@ -748,6 +748,23 @@ app.post('/api/reviews', sanitizeMiddleware, (req, res) => {
         [name, role, message, rating],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
+            
+            // Send Email Notification
+            const mailOptions = {
+                from: 'yadani.adnane20@gmail.com',
+                to: 'yadani.adnane20@gmail.com',
+                subject: `New Review from ${name}`,
+                text: `You have received a new review:\n\nName: ${name}\nRole: ${role || 'N/A'}\nRating: ${rating}/5\n\nReview:\n${message}\n\nPlease check your admin dashboard to validate or publish it.`
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.log('Error sending email:', error);
+                } else {
+                    console.log('Review email sent: ' + info.response);
+                }
+            });
+
             res.json({ message: "Review submitted successfully", id: this.lastID });
         }
     );
