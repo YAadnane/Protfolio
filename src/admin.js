@@ -23,9 +23,36 @@ window.logout = function() {
     window.location.href = '/login.html';
 };
 
+// --- CUSTOM MODAL & NOTIFICATIONS ---
+window.showConfirm = (title, message) => {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('confirm-modal');
+        const titleEl = document.getElementById('confirm-title');
+        const msgEl = document.getElementById('confirm-message');
+        const okBtn = document.getElementById('confirm-ok');
+        const cancelBtn = document.getElementById('confirm-cancel');
+
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+        modal.classList.add('open');
+        modal.style.display = 'flex'; // Ensure flex is set
+
+        const cleanup = () => {
+            modal.classList.remove('open');
+            modal.style.display = 'none';
+            okBtn.onclick = null;
+            cancelBtn.onclick = null;
+        };
+
+        okBtn.onclick = () => { cleanup(); resolve(true); };
+        cancelBtn.onclick = () => { cleanup(); resolve(false); };
+    });
+};
+
 // --- MEDIA MANAGER FUNCTIONS ---
 window.deleteMedia = async (filename) => {
-    if (!confirm(`Are you sure you want to delete ${filename}? This cannot be undone.`)) return;
+    const confirmed = await showConfirm('Delete File?', `Are you sure you want to delete ${filename}?`);
+    if (!confirmed) return;
 
     try {
         const res = await fetch(`${API_URL}/media/${filename}`, {
@@ -428,7 +455,7 @@ window.toggleVisibility = async (id) => {
         const item = data.find(i => i.id === id);
         
         if (!item) {
-            alert('Item not found');
+            showNotification('Item not found', 'error');
             return;
         }
 
@@ -451,7 +478,7 @@ window.toggleVisibility = async (id) => {
 
         if (!updateRes.ok) {
             if (updateRes.status === 401 || updateRes.status === 403) {
-                alert('Session expired. Please login again.');
+                // simple redirect, no alert needed usually, or use verify token logic
                 window.location.href = '/login.html';
                 return;
             }
@@ -463,23 +490,28 @@ window.toggleVisibility = async (id) => {
 
     } catch (err) {
         console.error(err);
-        alert('Error updating visibility: ' + err.message);
+        showNotification('Error updating visibility: ' + err.message, 'error');
     }
 };
 
 // Delete Item
 window.deleteItem = async (id) => {
-    if(!confirm('Are you sure?')) return;
+    if(!await showConfirm('Delete Item?', 'Are you sure you want to delete this item?')) return;
     try {
-        await fetch(`${API_URL}/${currentTab}/${id}`, { 
+        const res = await fetch(`${API_URL}/${currentTab}/${id}`, {
             method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
-        loadContent(currentTab);
+
+        if (res.ok) {
+            loadContent(currentTab);
+            showNotification('Item deleted', 'success');
+        } else {
+            showNotification('Failed to delete', 'error');
+        }
     } catch (err) {
-        alert('Error deleting item');
+        console.error(err);
+        showNotification('Error deleting item', 'error');
     }
 };
 
@@ -578,7 +610,7 @@ function setupModal() {
             const file = fileInput.files[0];
             const maxSize = 500 * 1024 * 1024; // 500MB
             if (file.size > maxSize) {
-                alert(`File too large! Maximum size is 500MB. Your file is ${Math.round(file.size/1024/1024)}MB.`);
+                showNotification(`File too large! Max 500MB. Yours: ${Math.round(file.size/1024/1024)}MB.`, 'error');
                 return;
             }
         }
@@ -635,16 +667,16 @@ function setupModal() {
             });
             
             if (res.ok) {
-                alert('Saved successfully!');
+                showNotification('Saved successfully!', 'success');
                 closeModal();
                 loadContent(currentTab);
             } else {
                 const errData = await res.json().catch(() => ({}));
-                alert('Server Error: ' + (errData.error || res.statusText || res.status));
+                showNotification('Server Error: ' + (errData.error || res.statusText || res.status), 'error');
             }
         } catch (err) {
             console.error(err);
-            alert('Network failure. check your connection or file size.');
+            showNotification('Network failure. check your connection or file size.', 'error');
         } finally {
             submitBtn.innerText = originalBtnText;
             submitBtn.disabled = false;
@@ -707,8 +739,10 @@ function initCursor() {
 
 // Messages Actions
 // Approve Review
+// Messages Actions
+// Approve Review
 window.approveReview = async (id) => {
-    if (!confirm('Approve this review for publication?')) return;
+    if (!await showConfirm('Approve Review?', 'Approve this review for publication?')) return;
     try {
         const res = await fetch(`${API_URL}/reviews/${id}/approve`, {
             method: 'PUT',
@@ -716,15 +750,16 @@ window.approveReview = async (id) => {
         });
         if (res.ok) {
             loadContent('reviews');
+            showNotification('Review approved', 'success');
         } else {
-            alert('Failed to approve review');
+            showNotification('Failed to approve review', 'error');
         }
     } catch (err) { console.error(err); }
 };
 
 // Delete Review
 window.deleteReview = async (id) => {
-    if (!confirm('Delete this review permanently?')) return;
+    if (!await showConfirm('Delete Review?', 'Delete this review permanently?')) return;
     try {
         const res = await fetch(`${API_URL}/reviews/${id}`, {
             method: 'DELETE',
@@ -732,15 +767,18 @@ window.deleteReview = async (id) => {
         });
         if (res.ok) {
             loadContent('reviews');
+            showNotification('Review deleted', 'success');
         } else {
-            alert('Failed to delete review');
+            showNotification('Failed to delete review', 'error');
         }
     } catch (err) { console.error(err); }
 };
 
 // --- MARK MESSAGE READ ---
 window.markAsRead = async (id) => {
-    if (!confirm('Mark as read?')) return;
+    // No confirmation needed for read status usually, but if user wants it:
+    // if (!await showConfirm('Mark Read?', 'Mark as read?')) return; 
+    // Actually simpler to just do it for UX, but consistent with request:
     try {
         const res = await fetch(`${API_URL}/messages/${id}/read`, {
             method: 'PUT',
@@ -755,7 +793,7 @@ window.markAsRead = async (id) => {
 };
 
 window.deleteMessage = async (id) => {
-    if (!confirm('Are you sure you want to delete this message?')) return;
+    if (!await showConfirm('Delete Message?', 'Are you sure you want to delete this message?')) return;
     try {
         const res = await fetch(`${API_URL}/messages/${id}`, {
             method: 'DELETE',
@@ -764,6 +802,7 @@ window.deleteMessage = async (id) => {
         if (res.ok) {
             if (currentTab === 'messages') loadContent('messages');
             updateUnreadCount();
+            showNotification('Message deleted', 'success');
         }
     } catch (err) { console.error(err); }
 };
