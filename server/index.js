@@ -313,16 +313,20 @@ app.put('/api/skills/:id', authenticateToken, (req, res) => {
 });
 
 // --- GENERAL INFO ---
+// --- GENERAL INFO ---
+// Public GET: Exclude Sensitive API Key
 app.get('/api/general', (req, res) => {
     const lang = req.query.lang || 'en';
-    // Select by lang. Since default is 'en', if lang is present finding 1 row is enough.
-    // If multiple rows exist (sanity check), valid one is returned.
     db.get("SELECT * FROM general_info WHERE lang = ? ORDER BY id DESC LIMIT 1", [lang], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
+        if (row) {
+            delete row.gemini_api_key; // SECURITY: Do not expose key to public
+        }
         res.json(row || {});
     });
 });
 
+// Admin PUT: Update General Info
 app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 'profileImage', maxCount: 1 }]), sanitizeMiddleware, authenticateToken, (req, res) => {
     const { 
         hero_subtitle, hero_title, hero_description, 
@@ -330,10 +334,10 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
         stat_years, stat_projects, stat_companies,
         cube_front, cube_back, cube_right, cube_left, cube_top, cube_bottom,
         email, phone, location, linkedin_link, github_link,
-        cv_file, profile_image, lang // Added lang and profile_image params
+        cv_file, profile_image, lang, gemini_api_key // Added gemini_api_key
     } = req.body;
     
-    console.log('PUT /api/general payload:', req.body); // Debug log
+    // console.log('PUT /api/general payload:', req.body); // Debug log
 
     const targetLang = lang || 'en';
 
@@ -347,13 +351,16 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
         imagePath = `/uploads/${req.files['profileImage'][0].filename}`;
     }
 
-    // Update based on lang
+    // Dynamic SQL construction to only update key if provided (allow partial updates if needed, but here we update all)
+    // Actually, simple way: Update everything.
+    
     db.run(`UPDATE general_info SET 
         hero_subtitle = ?, hero_title = ?, hero_description = ?, 
         about_lead = ?, about_bio = ?, 
         stat_years = ?, stat_projects = ?, stat_companies = ?,
         cube_front = ?, cube_back = ?, cube_right = ?, cube_left = ?, cube_top = ?, cube_bottom = ?,
-        cv_file = ?, profile_image = ?, email = ?, phone = ?, location = ?, linkedin_link = ?, github_link = ?
+        cv_file = ?, profile_image = ?, email = ?, phone = ?, location = ?, linkedin_link = ?, github_link = ?,
+        gemini_api_key = COALESCE(NULLIF(?, ''), gemini_api_key) -- Only update if not empty string
         WHERE lang = ?`,
         [
             hero_subtitle, hero_title, hero_description, 
@@ -361,14 +368,89 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
             stat_years, stat_projects, stat_companies,
             cube_front, cube_back, cube_right, cube_left, cube_top, cube_bottom,
             cvPath, imagePath, email, phone, location, linkedin_link, github_link,
+            gemini_api_key, // Passed value
             targetLang
         ],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
-            console.log('Update result:', this.changes); // Debug
+            console.log('Update result:', this.changes); 
             res.json({ message: "Updated successfully", changes: this.changes });
         }
     );
+});
+
+// --- CHATBOT ---
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+app.post('/api/chat', async (req, res) => {
+    const { message, lang } = req.body;
+    const targetLang = lang || 'en';
+
+    if (!message) return res.status(400).json({ error: "Message required" });
+
+    // 1. Get Settings (Key) and Context
+    db.get("SELECT gemini_api_key FROM general_info WHERE lang = ? LIMIT 1", [targetLang], async (err, row) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        if (!row || !row.gemini_api_key) return res.status(500).json({ error: "Chatbot not configured (API Key missing)." });
+
+        const apiKey = row.gemini_api_key;
+        
+        // 2. Fetch Portfolio Context
+        const contextData = {};
+        
+        const getAsync = (query, params = []) => new Promise((resolve, reject) => {
+            db.all(query, params, (err, rows) => {
+                if (err) reject(err);
+                else resolve(rows);
+            });
+        });
+
+        try {
+            const general = await new Promise((resolve, reject) => {
+                 db.get("SELECT * FROM general_info WHERE lang = ?", [targetLang], (err, r) => err ? reject(err) : resolve(r));
+            });
+            const projects = await getAsync("SELECT title, description, tags, category FROM projects WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+            const skills = await getAsync("SELECT name, category, level FROM skills WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+            const experience = await getAsync("SELECT role, company, year, description FROM experience WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+            const education = await getAsync("SELECT degree, institution, year, description FROM education WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+            const certs = await getAsync("SELECT name, issuer, year, domain FROM certifications WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+
+            // 3. Construct System Prompt
+            const portfolioOwner = general.hero_subtitle || "Adnane Yadani";
+            const systemPrompt = `
+                You are an AI assistant for ${portfolioOwner}'s portfolio.
+                Your goal is to answer visitor questions about ${portfolioOwner}'s skills, projects, and background.
+                Be professional, concise, and helpful. Use the following context to answer:
+
+                Bio: ${general.about_bio}
+                Skills: ${JSON.stringify(skills)}
+                Experience: ${JSON.stringify(experience)}
+                Education: ${JSON.stringify(education)}
+                Projects: ${JSON.stringify(projects)}
+                Certifications: ${JSON.stringify(certs)}
+                Contact: Email: ${general.email}, LinkedIn: ${general.linkedin_link}
+
+                If the question is not related to the portfolio or professional background, politely steer it back.
+                Answer in the language of the user question (default ${targetLang}).
+            `;
+
+            // 4. Call Gemini
+            const genAI = new GoogleGenerativeAI(apiKey);
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+            const result = await model.generateContent([
+                systemPrompt,
+                `User Question: ${message}`
+            ]);
+            
+            const responseText = result.response.text();
+            res.json({ reply: responseText });
+
+        } catch (error) {
+            console.error("Gemini Error:", error);
+            res.status(500).json({ error: "Failed to generate response." });
+        }
+    });
 });
 
 app.delete('/api/skills/:id', authenticateToken, (req, res) => {

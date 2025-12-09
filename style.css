@@ -206,18 +206,6 @@ h4 {
 }
 
 .btn-lang:hover {
-    border-color: var(--accent-color);
-    color: var(--accent-color);
-}
-
-/* =========================================
-   4. HEADER
-   ========================================= */
-.header {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    padding: 1rem 0;
     z-index: 10000;
     /* Ensure header stays above mobile overlay (9990) */
     transition: var(--transition-fast);

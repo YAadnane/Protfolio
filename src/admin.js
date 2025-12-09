@@ -96,7 +96,8 @@ const fields = {
         { name: 'phone', label: 'Phone', type: 'text' },
         { name: 'location', label: 'Location', type: 'text' },
         { name: 'linkedin_link', label: 'LinkedIn URL', type: 'text' },
-        { name: 'github_link', label: 'GitHub URL', type: 'text' }
+        { name: 'github_link', label: 'GitHub URL', type: 'text' },
+        { name: 'gemini_api_key', label: 'Gemini API Key (Leave empty to keep current)', type: 'password' }
     ],
 };
 

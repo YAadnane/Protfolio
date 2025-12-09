@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     initAnimations();
     initMobileMenu();
     initContactForm();
+    initChatbot(); // Initialize Chatbot
 });
 
 function initContactForm() {
@@ -685,8 +686,87 @@ function resize() {
     width = canvas.width = window.innerWidth;
     height = canvas.height = window.innerHeight;
 }
-window.addEventListener("resize", resize);
-resize();
+// =========================================
+// CHATBOT LOGIC
+// =========================================
+function initChatbot() {
+    const toggleBtn = document.getElementById('chat-toggle');
+    const chatWindow = document.getElementById('chat-window');
+    const closeBtn = document.getElementById('chat-close');
+    const sendBtn = document.getElementById('chat-send');
+    const input = document.getElementById('chat-input');
+    const messages = document.getElementById('chat-messages');
+
+    if (!toggleBtn || !chatWindow) return;
+
+    // Toggle
+    toggleBtn.addEventListener('click', () => {
+        chatWindow.classList.toggle('active');
+        if (chatWindow.classList.contains('active')) input.focus();
+    });
+
+    closeBtn.addEventListener('click', () => {
+        chatWindow.classList.remove('active');
+    });
+
+    // Send Message
+    async function sendMessage() {
+        const text = input.value.trim();
+        if (!text) return;
+
+        // Add User Message
+        appendMessage(text, 'user');
+        input.value = '';
+
+        // Add Loading Message
+        const loadingId = 'loading-' + Date.now();
+        appendMessage('<i class="fa-solid fa-spinner fa-spin"></i> Thinking...', 'bot', loadingId);
+
+        try {
+            const res = await fetch(`${API_URL}/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, lang: currentLang })
+            });
+            const data = await res.json();
+
+            // Remove Loading
+            const loadingMsg = document.getElementById(loadingId);
+            if (loadingMsg) loadingMsg.remove();
+
+            if (data.error) {
+                appendMessage('Error: ' + data.error, 'bot');
+            } else {
+                // Parse markdown-like bolding if needed, or just plain text
+                // Gemini returns markdown. Simple formatting replacement:
+                let reply = data.reply
+                    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    .replace(/\n/g, '<br>');
+                appendMessage(reply, 'bot');
+            }
+
+        } catch (err) {
+            console.error(err);
+             const loadingMsg = document.getElementById(loadingId);
+            if (loadingMsg) loadingMsg.remove();
+            appendMessage('Sorry, something went wrong. Please try again later.', 'bot');
+        }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    input.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') sendMessage();
+    });
+
+    function appendMessage(html, sender, id = null) {
+        const div = document.createElement('div');
+        div.className = `message ${sender}`;
+        div.innerHTML = html;
+        if (id) div.id = id;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+    }
+}
 
 class Particle {
     constructor() {
