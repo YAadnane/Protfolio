@@ -1894,8 +1894,13 @@ textarea:focus {
         justify-content: center;
     }
 
-    .btn-text {
+    .btn-primary .btn-text {
         display: none !important;
+    }
+
+    .btn-cv .btn-text {
+        display: inline-block !important;
+        margin-left: 0.3rem;
     }
 
     .header .container {
