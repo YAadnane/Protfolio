@@ -1755,9 +1755,9 @@ textarea:focus {
 .cert-filters select {
     padding: 0.5rem;
     border-radius: 0.5rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--control-bg);
     color: var(--text-main);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--input-border);
     font-family: var(--font-body);
     cursor: pointer;
     outline: none;
@@ -1801,9 +1801,9 @@ textarea:focus {
 .project-filters select {
     padding: 0.5rem;
     border-radius: 0.5rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--control-bg);
     color: var(--text-main);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--input-border);
     font-family: var(--font-body);
     cursor: pointer;
     outline: none;
