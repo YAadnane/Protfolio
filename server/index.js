@@ -532,6 +532,7 @@ app.post('/api/chat', async (req, res) => {
             const education = await getAsync("SELECT degree, institution, year, description FROM education WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const certs = await getAsync("SELECT name, issuer, year, domain FROM certifications WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const articles = await getAsync("SELECT title, summary, tags, date FROM articles WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+            const reviews = await getAsync("SELECT name, role, message, rating, social_platform FROM reviews WHERE is_approved = 1");
 
             // 3. Construct System Prompt
             const portfolioOwner = general.hero_subtitle || "Adnane Yadani";
@@ -547,6 +548,7 @@ app.post('/api/chat', async (req, res) => {
                 Projects: ${JSON.stringify(projects)}
                 Certifications: ${JSON.stringify(certs)}
                 Articles/Blog: ${JSON.stringify(articles)}
+                Reviews/Testimonials: ${JSON.stringify(reviews)}
                 Contact: Email: ${general.email}, LinkedIn: ${general.linkedin_link}
 
                 If the question is not related to the portfolio or professional background, politely steer it back.
