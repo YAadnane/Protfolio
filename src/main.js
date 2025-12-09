@@ -1198,33 +1198,81 @@ async function loadArticles() {
     try {
         const res = await fetch(`${API_URL}/articles?lang=${currentLang}&t=${Date.now()}`);
         const articles = (await res.json()).filter(a => !a.is_hidden);
-        const container = document.getElementById("articles-grid");
+        const track = document.getElementById("articles-track");
+        const pagination = document.getElementById("articles-pagination");
 
-        if (!container) return;
+        if (!track || !pagination) return;
 
         const render = (items) => {
             if (items.length === 0) {
-                container.innerHTML = "<p style=\"grid-column: 1/-1; text-align: center; color: var(--text-muted);\">No articles found.</p>";
+                track.innerHTML = "<p style=\"width:100%; text-align: center; color: var(--text-muted); padding: 2rem;\">No articles found.</p>";
+                pagination.innerHTML = "";
                 return;
             }
-            container.innerHTML = items.map(art => `
-                <div class="article-card">
-                    <div class="article-image">
-                        ${art.image ? `<img src="${API_URL.replace("/api", "")}${art.image}" alt="${art.title}">` : "<div style=\"width:100%; height:100%; background: #222;\"></div>"}
-                    </div>
-                    <div class="article-content">
-                        <div class="article-date">${new Date(art.date).toLocaleDateString()}</div>
-                        <h3 class="article-title">${art.title}</h3>
-                        <p class="article-summary">${art.summary}</p>
-                        <div class="article-tags" style="margin-bottom: 1rem;">
-                            ${art.tags ? art.tags.split(",").map(t => `<span class="tech-tag small" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-right: 5px;">${t.trim()}</span>`).join("") : ""}
+
+            const isMobile = window.innerWidth <= 768;
+            const itemsPerSlide = isMobile ? 1 : 3;
+            
+            // Chunk items
+            const slides = [];
+            for (let i = 0; i < items.length; i += itemsPerSlide) {
+                slides.push(items.slice(i, i + itemsPerSlide));
+            }
+
+            // Render Slides
+            track.innerHTML = slides.map(group => `
+                <div class="article-slide">
+                    ${group.map(art => `
+                        <div class="article-card">
+                            <div class="article-image">
+                                ${art.image ? `<img src="${API_URL.replace("/api", "")}${art.image}" alt="${art.title}">` : "<div style=\"width:100%; height:100%; background: #222;\"></div>"}
+                            </div>
+                            <div class="article-content">
+                                <div class="article-date">${new Date(art.date).toLocaleDateString()}</div>
+                                <h3 class="article-title">${art.title}</h3>
+                                <p class="article-summary">${art.summary}</p>
+                                <div class="article-tags" style="margin-bottom: 1rem;">
+                                    ${art.tags ? art.tags.split(",").map(t => `<span class="tech-tag small" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-right: 5px;">${t.trim()}</span>`).join("") : ""}
+                                </div>
+                                <a href="${art.link}" target="_blank" class="article-link">
+                                     ${translations[currentLang]?.["articles.read"] || "Read More"} <i class="fa-solid fa-arrow-right"></i>
+                                </a>
+                            </div>
                         </div>
-                        <a href="${art.link}" target="_blank" class="article-link">
-                             ${translations[currentLang]?.["articles.read"] || "Read More"} <i class="fa-solid fa-arrow-right"></i>
-                        </a>
-                    </div>
+                    `).join("")}
+                    ${/* Fill empty grid spots for layout consistency if needed (CSS grid handles this well usually) */ ""}
                 </div>
             `).join("");
+
+            // Render Pagination
+            pagination.innerHTML = slides.map((_, idx) => `
+                <span class="slider-dot ${idx === 0 ? 'active' : ''}" data-index="${idx}"></span>
+            `).join("");
+
+            // Logic
+            let currentSlide = 0;
+            const updateSlide = (index) => {
+                currentSlide = index;
+                track.style.transform = `translateX(-${currentSlide * 100}%)`;
+                pagination.querySelectorAll('.slider-dot').forEach((d, i) => {
+                    d.classList.toggle('active', i === currentSlide);
+                });
+            };
+
+            pagination.querySelectorAll('.slider-dot').forEach(dot => {
+                dot.onclick = () => updateSlide(parseInt(dot.dataset.index));
+            });
+
+             // Swipe support
+            let touchStartX = 0;
+            track.ontouchstart = e => touchStartX = e.changedTouches[0].screenX;
+            track.ontouchend = e => {
+                const diff = e.changedTouches[0].screenX - touchStartX;
+                if (Math.abs(diff) > 50) {
+                     if (diff > 0 && currentSlide > 0) updateSlide(currentSlide - 1);
+                     else if (diff < 0 && currentSlide < slides.length - 1) updateSlide(currentSlide + 1);
+                }
+            };
         };
         
         // Initial Render
@@ -1254,11 +1302,8 @@ async function loadArticles() {
             const query = searchInput ? searchInput.value.toLowerCase().trim() : "";
 
             const filtered = articles.filter(a => {
-                // Tag Match
                 const matchesTag = !tag || (a.tags && a.tags.split(",").map(t => t.trim()).includes(tag));
-                // Search Match (Title)
                 const matchesSearch = !query || (a.title && a.title.toLowerCase().includes(query));
-                
                 return matchesTag && matchesSearch;
             });
 
@@ -1267,6 +1312,13 @@ async function loadArticles() {
 
         if (filterSelect) filterSelect.onchange = applyFilters;
         if (searchInput) searchInput.oninput = applyFilters;
+
+        // Resize Listener for Article Slider
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(applyFilters, 300); // Re-run applyFilters to re-chunk correctly
+        });
 
     } catch (err) { console.error("Failed to load articles", err); }
 }

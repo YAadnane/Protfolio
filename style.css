@@ -2794,3 +2794,34 @@ textarea:focus {
     }
 }
 
+
+/* Articles Slider */
+.articles-slider {
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+    padding: 1rem 0;
+}
+
+.articles-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    width: 100%;
+}
+
+.article-slide {
+    min-width: 100%;
+    display: grid;
+    gap: 2rem;
+    padding: 0 1rem;
+    /* Desktop: 3 columns */
+    grid-template-columns: repeat(3, 1fr);
+}
+
+@media (max-width: 768px) {
+    .article-slide {
+        /* Mobile: 1 column */
+        grid-template-columns: 1fr;
+    }
+}
+
