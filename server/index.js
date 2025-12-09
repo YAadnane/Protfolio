@@ -334,7 +334,7 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
         stat_years, stat_projects, stat_companies,
         cube_front, cube_back, cube_right, cube_left, cube_top, cube_bottom,
         email, phone, location, linkedin_link, github_link,
-        cv_file, profile_image, lang, gemini_api_key // Added gemini_api_key
+        cv_file, profile_image, lang, gemini_api_key, gemini_model // Added gemini_model
     } = req.body;
     
     // console.log('PUT /api/general payload:', req.body); // Debug log
@@ -351,16 +351,15 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
         imagePath = `/uploads/${req.files['profileImage'][0].filename}`;
     }
 
-    // Dynamic SQL construction to only update key if provided (allow partial updates if needed, but here we update all)
-    // Actually, simple way: Update everything.
-    
+    // Dynamic SQL construction to only update key if provided
     db.run(`UPDATE general_info SET 
         hero_subtitle = ?, hero_title = ?, hero_description = ?, 
         about_lead = ?, about_bio = ?, 
         stat_years = ?, stat_projects = ?, stat_companies = ?,
         cube_front = ?, cube_back = ?, cube_right = ?, cube_left = ?, cube_top = ?, cube_bottom = ?,
         cv_file = ?, profile_image = ?, email = ?, phone = ?, location = ?, linkedin_link = ?, github_link = ?,
-        gemini_api_key = COALESCE(NULLIF(?, ''), gemini_api_key) -- Only update if not empty string
+        gemini_api_key = COALESCE(NULLIF(?, ''), gemini_api_key),
+        gemini_model = ?
         WHERE lang = ?`,
         [
             hero_subtitle, hero_title, hero_description, 
@@ -368,7 +367,8 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
             stat_years, stat_projects, stat_companies,
             cube_front, cube_back, cube_right, cube_left, cube_top, cube_bottom,
             cvPath, imagePath, email, phone, location, linkedin_link, github_link,
-            gemini_api_key, // Passed value
+            gemini_api_key,
+            gemini_model || 'gemini-1.5-flash', // Default if missing
             targetLang
         ],
         function(err) {
@@ -388,12 +388,13 @@ app.post('/api/chat', async (req, res) => {
 
     if (!message) return res.status(400).json({ error: "Message required" });
 
-    // 1. Get Settings (Key) and Context
-    db.get("SELECT gemini_api_key FROM general_info WHERE lang = ? LIMIT 1", [targetLang], async (err, row) => {
+    // 1. Get Settings (Key & Model) and Context
+    db.get("SELECT gemini_api_key, gemini_model FROM general_info WHERE lang = ? LIMIT 1", [targetLang], async (err, row) => {
         if (err) return res.status(500).json({ error: "Database error" });
         if (!row || !row.gemini_api_key) return res.status(500).json({ error: "Chatbot not configured (API Key missing)." });
 
         const apiKey = row.gemini_api_key;
+        const modelName = row.gemini_model || "gemini-1.5-flash"; // Use selected model
         
         // 2. Fetch Portfolio Context
         const contextData = {};
@@ -436,7 +437,7 @@ app.post('/api/chat', async (req, res) => {
 
             // 4. Call Gemini
             const genAI = new GoogleGenerativeAI(apiKey);
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const model = genAI.getGenerativeModel({ model: modelName });
 
             const result = await model.generateContent([
                 systemPrompt,
@@ -448,7 +449,8 @@ app.post('/api/chat', async (req, res) => {
 
         } catch (error) {
             console.error("Gemini Error:", error);
-            res.status(500).json({ error: "Failed to generate response." });
+            // More detailed client error if possible, but keep secure
+            res.status(500).json({ error: "Failed to generate response. Check API Key or Model selection." });
         }
     });
 });

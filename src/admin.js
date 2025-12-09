@@ -97,7 +97,13 @@ const fields = {
         { name: 'location', label: 'Location', type: 'text' },
         { name: 'linkedin_link', label: 'LinkedIn URL', type: 'text' },
         { name: 'github_link', label: 'GitHub URL', type: 'text' },
-        { name: 'gemini_api_key', label: 'Gemini API Key (Leave empty to keep current)', type: 'password' }
+        { name: 'gemini_api_key', label: 'Gemini API Key (Leave empty to keep current)', type: 'password' },
+        { 
+            name: 'gemini_model', 
+            label: 'Gemini Model', 
+            type: 'select', 
+            options: ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro', 'gemini-1.0-pro'] 
+        }
     ],
 };
 
