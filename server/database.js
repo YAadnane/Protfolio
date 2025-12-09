@@ -130,7 +130,7 @@ db.serialize(() => {
             addColumnIfNotExists('general_info', 'lang', "TEXT DEFAULT 'en'");
             addColumnIfNotExists('general_info', 'profile_image', 'TEXT');
             addColumnIfNotExists('general_info', 'gemini_api_key', 'TEXT');
-            addColumnIfNotExists('general_info', 'gemini_model', "TEXT DEFAULT 'gemini-1.5-flash'");
+            addColumnIfNotExists('general_info', 'gemini_model', "TEXT DEFAULT 'gemini-2.5-flash'");
 
             // Check if empty, if so seed with default values
             db.get("SELECT count(*) as count FROM general_info", (err, row) => {
