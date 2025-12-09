@@ -481,12 +481,12 @@ async function loadProjects() {
             
             if (p.image && p.image.startsWith('/uploads/')) {
                 const imageUrl = `${API_URL.replace('/api', '')}${p.image}`;
-                const isVideo = p.image.match(/\.(mp4|webm|ogg)$/i);
+                const isVideo = p.image.match(/\.(mp4|webm|ogg|mov|avi|mkv)$/i);
 
                 if (isVideo) {
                     bgContent = `
                         <video class="bento-bg" autoplay loop muted playsinline style="object-fit: cover; width: 100%; height: 100%; opacity: 0.6;">
-                            <source src="${imageUrl}" type="video/${isVideo[1]}">
+                            <source src="${imageUrl}" type="video/${isVideo[1].toLowerCase() === 'mov' ? 'quicktime' : isVideo[1].toLowerCase()}">
                             Your browser does not support the video tag.
                         </video>
                         <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1)); z-index: 1;"></div>
@@ -519,7 +519,7 @@ async function loadProjects() {
                         <a href="${p.link}" class="btn-github" target="_blank" title="View Code">
                             <i class="fa-brands fa-github"></i> GitHub
                         </a>
-                        ${p.image && p.image.match(/\.(mp4|webm|ogg)$/i) ? 
+                        ${p.image && p.image.match(/\.(mp4|webm|ogg|mov|avi|mkv)$/i) ? 
                             `<button class="btn-play" onclick="openVideoModal('${API_URL.replace('/api', '')}${p.image}')"><i class="fa-solid fa-play"></i> Demo</button>` 
                             : ''}
                     </div>
