@@ -211,7 +211,7 @@ db.serialize(() => {
         }
     });
 
-    });
+
 
     // Reviews Table
     db.run(`CREATE TABLE IF NOT EXISTS reviews (
