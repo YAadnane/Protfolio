@@ -389,6 +389,16 @@ async function loadShapes() {
             wrapper.innerHTML = innerHTML;
             container.appendChild(wrapper);
         });
+
+        // Toggle visibility of mobile container based on content
+        if (mobileContainer) {
+            if (mobileContainer.children.length === 0) {
+                mobileContainer.style.display = 'none';
+            } else {
+                mobileContainer.style.display = ''; // Revert to CSS default (flex on mobile, none on desktop)
+            }
+        }
+
     } catch (err) { console.error("Failed to load shapes", err); }
 }
 
