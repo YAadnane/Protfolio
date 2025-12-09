@@ -1469,15 +1469,20 @@ textarea:focus {
         order: 2;
         position: relative !important;
         width: 100% !important;
+        max-width: 100% !important;
+        /* Safety constraint */
+        box-sizing: border-box !important;
+        /* Include padding/border */
         height: 200px !important;
-        /* Force fixed height for EVERYTHING */
         object-fit: cover !important;
-        margin-top: 1rem;
+        margin: 1rem 0 0 0 !important;
+        /* Strict top margin only */
         display: block !important;
         border-radius: 0.5rem;
         opacity: 1 !important;
         background-color: #000;
-        /* Fallback */
+        left: auto !important;
+        right: auto !important;
     }
 
     /* Remove specific rules since we are normalizing */
