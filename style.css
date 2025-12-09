@@ -214,6 +214,33 @@ h4 {
     border-bottom: 1px solid var(--nav-border);
 }
 
+/* =========================================
+   4. HEADER (Floating)
+   ========================================= */
+.header {
+    position: fixed;
+    top: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 1200px;
+    background: var(--nav-bg);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--nav-border);
+    border-radius: 50px;
+    /* Pill shape */
+    z-index: 1000;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    padding: 0.5rem 0;
+}
+
+.header.scrolled {
+    width: 95%;
+    /* Expand slightly on scroll? Or shrink? Let's keep it static for now */
+    /* top: 1rem; maybe? */
+}
+
 .header-container {
     display: flex;
     justify-content: space-between;
