@@ -40,6 +40,12 @@ const fields = {
         { name: 'year', label: 'Year', type: 'text' },
         { name: 'domain', label: 'Domain', type: 'text' },
         { name: 'icon', label: 'Icon Class (FontAwesome)', type: 'text' },
+        { 
+            name: 'status', 
+            label: 'Status', 
+            type: 'select', 
+            options: ['obtained', 'in_progress', 'planned'] 
+        },
         { name: 'pdf', label: 'Current PDF Path', type: 'text' }, // Read-only or manual edit
         { name: 'pdfFile', label: 'Upload PDF', type: 'file' },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }

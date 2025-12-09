@@ -2532,3 +2532,30 @@ textarea:focus {
 .mobile-shape-container .cube-face.top    { transform: rotateX(90deg) translateZ(60px); }
 .mobile-shape-container .cube-face.bottom { transform: rotateX(-90deg) translateZ(60px); }
 
+
+/* Certification Filter Buttons */
+.filter-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.filter-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+}
+
+.filter-btn.active {
+    background: rgba(0, 255, 157, 0.1);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+

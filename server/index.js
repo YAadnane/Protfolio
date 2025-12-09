@@ -169,11 +169,11 @@ app.get('/api/certifications', (req, res) => {
 });
 
 app.post('/api/certifications', upload.single('pdfFile'), authenticateToken, (req, res) => {
-    const { name, issuer, icon, year, domain, pdf, is_hidden, lang } = req.body;
+    const { name, issuer, icon, year, domain, pdf, is_hidden, lang, status } = req.body;
     const pdfPath = req.file ? `/uploads/${req.file.filename}` : pdf;
 
-    db.run(`INSERT INTO certifications (name, issuer, icon, year, domain, pdf, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [name, issuer, icon, year, domain, pdfPath, is_hidden || 0, lang || 'en'],
+    db.run(`INSERT INTO certifications (name, issuer, icon, year, domain, pdf, is_hidden, lang, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [name, issuer, icon, year, domain, pdfPath, is_hidden || 0, lang || 'en', status || 'obtained'],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
@@ -182,15 +182,15 @@ app.post('/api/certifications', upload.single('pdfFile'), authenticateToken, (re
 });
 
 app.put('/api/certifications/:id', upload.single('pdfFile'), authenticateToken, (req, res) => {
-    const { name, issuer, icon, year, domain, pdf, is_hidden } = req.body;
+    const { name, issuer, icon, year, domain, pdf, is_hidden, status } = req.body;
     
     let pdfPath = pdf;
     if (req.file) {
         pdfPath = `/uploads/${req.file.filename}`;
     }
 
-    db.run(`UPDATE certifications SET name = ?, issuer = ?, icon = ?, year = ?, domain = ?, pdf = ?, is_hidden = ? WHERE id = ?`,
-        [name, issuer, icon, year, domain, pdfPath, is_hidden, req.params.id],
+    db.run(`UPDATE certifications SET name = ?, issuer = ?, icon = ?, year = ?, domain = ?, pdf = ?, is_hidden = ?, status = ? WHERE id = ?`,
+        [name, issuer, icon, year, domain, pdfPath, is_hidden, status, req.params.id],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });
