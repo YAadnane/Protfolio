@@ -44,7 +44,8 @@ export const translations = {
         "form.message": "Tell me about your project",
         "form.send": "Send Message",
         "footer.rights": "© 2025 Adnane Yadani. Crafted with <i class='fa-solid fa-heart'></i> and AI.",
-        "chatbot.welcome": "Hello! I'm your AI assistant. Ask me anything about my projects, skills, or experience!"
+        "chatbot.welcome": "Hello! I'm your AI assistant. Ask me anything about my projects, skills, or experience!",
+        "chatbot.title": "Portfolio AI Assistant"
     },
     fr: {
         "nav.about": "À propos",
@@ -91,6 +92,7 @@ export const translations = {
         "form.message": "Parlez-moi de votre projet",
         "form.send": "Envoyer Message",
         "footer.rights": "© 2025 Adnane Yadani. Créé avec <i class='fa-solid fa-heart'></i> et de l'IA.",
-        "chatbot.welcome": "Bonjour ! Je suis l'assistant IA. Posez-moi des questions sur mes projets ou compétences !"
+        "chatbot.welcome": "Bonjour ! Je suis l'assistant IA. Posez-moi des questions sur mes projets ou compétences !",
+        "chatbot.title": "Assistant IA Portfolio"
     }
 };

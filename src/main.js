@@ -719,11 +719,12 @@ function initChatbot() {
          // I need to ADD `appendMessage` definition inside `initChatbot`!
     }
     
-    function appendMessage(html, sender, id = null) {
+    function appendMessage(html, sender, id = null, i18nKey = null) {
         const div = document.createElement('div');
         div.className = `message ${sender}`;
         div.innerHTML = html;
         if (id) div.id = id;
+        if (i18nKey) div.setAttribute('data-i18n', i18nKey); // Add translation key
         messages.appendChild(div);
         messages.scrollTop = messages.scrollHeight;
     }
@@ -731,7 +732,7 @@ function initChatbot() {
     // Call welcome after definition
     if (messages.children.length === 0) {
          const welcomeText = translations[currentLang]?.["chatbot.welcome"] || "Hello!";
-         appendMessage(welcomeText, 'bot');
+         appendMessage(welcomeText, 'bot', null, 'chatbot.welcome'); // Pass key
     }
 
     // Initialize with Welcome Message
