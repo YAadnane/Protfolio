@@ -607,8 +607,12 @@ async function loadCertifications() {
 
         // Populate Domain Select (Clear first to avoid duplicates on reload)
         if (domainSelect) { 
-            // Keep first option (All)
-            while(domainSelect.options.length > 1) domainSelect.remove(1);
+            domainSelect.innerHTML = ''; // Clear all
+            const defaultDomain = document.createElement('option');
+            defaultDomain.value = "";
+            defaultDomain.textContent = t["certifications.filter.domains"];
+            domainSelect.appendChild(defaultDomain);
+
             domains.forEach(d => {
                 const opt = document.createElement('option');
                 opt.value = d;
@@ -619,7 +623,12 @@ async function loadCertifications() {
 
         // Populate Issuer Select
         if (issuerSelect) {
-            while(issuerSelect.options.length > 1) issuerSelect.remove(1);
+            issuerSelect.innerHTML = ''; // Clear all
+            const defaultIssuer = document.createElement('option');
+            defaultIssuer.value = "";
+            defaultIssuer.textContent = t["certifications.filter.issuers"];
+            issuerSelect.appendChild(defaultIssuer);
+
             issuers.forEach(i => {
                 const opt = document.createElement('option');
                 opt.value = i;
