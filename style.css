@@ -1473,8 +1473,13 @@ textarea:focus {
         object-fit: cover !important;
         border-radius: 0.5rem;
         opacity: 1 !important;
-        margin-top: auto;
+        margin-top: 1rem;
+        display: block !important;
         /* Push to bottom */
+    }
+
+    .bento-bg + div {
+        display: none !important;
     }
 
     .bento-item.large,
