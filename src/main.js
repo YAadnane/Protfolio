@@ -1116,7 +1116,7 @@ function initAnimations() {
 
 async function loadStats() {
     try {
-        const res = await fetch(`${API_URL}/stats?lang=${currentLang}`);
+        const res = await fetch(`${API_URL}/stats?lang=${currentLang}&t=${Date.now()}`);
         const data = await res.json();
 
         const animateValue = (obj, start, end, duration) => {
@@ -1149,7 +1149,7 @@ async function loadStats() {
 
 async function loadArticles() {
     try {
-        const res = await fetch(`${API_URL}/articles?lang=${currentLang}`);
+        const res = await fetch(`${API_URL}/articles?lang=${currentLang}&t=${Date.now()}`);
         const articles = (await res.json()).filter(a => !a.is_hidden);
         const container = document.getElementById("articles-grid");
 

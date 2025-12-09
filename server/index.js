@@ -445,25 +445,25 @@ app.get('/api/stats', (req, res) => {
             });
         }),
         new Promise((resolve) => {
-            db.get("SELECT COUNT(*) as count FROM projects WHERE is_hidden = 0", [], (err, row) => {
+            db.get("SELECT COUNT(*) as count FROM projects WHERE is_hidden = 0 AND lang = ?", [lang], (err, row) => {
                 stats.projects = row ? row.count : 0;
                 resolve();
             });
         }),
         new Promise((resolve) => {
-            db.get("SELECT COUNT(DISTINCT company) as count FROM experience WHERE is_hidden = 0", [], (err, row) => {
+            db.get("SELECT COUNT(DISTINCT company) as count FROM experience WHERE is_hidden = 0 AND lang = ?", [lang], (err, row) => {
                 stats.companies = row ? row.count : 0;
                 resolve();
             });
         }),
         new Promise((resolve) => {
-            db.get("SELECT COUNT(*) as count FROM certifications WHERE is_hidden = 0", [], (err, row) => {
+            db.get("SELECT COUNT(*) as count FROM certifications WHERE is_hidden = 0 AND lang = ?", [lang], (err, row) => {
                 stats.certs = row ? row.count : 0;
                 resolve();
             });
         }),
         new Promise((resolve) => {
-            db.get("SELECT COUNT(*) as count FROM articles WHERE is_hidden = 0", [], (err, row) => {
+            db.get("SELECT COUNT(*) as count FROM articles WHERE is_hidden = 0 AND lang = ?", [lang], (err, row) => {
                 stats.articles = row ? row.count : 0;
                 resolve();
             });
