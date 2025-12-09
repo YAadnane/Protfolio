@@ -577,8 +577,8 @@ async function loadEducation() {
     try {
         const res = await fetch(`${API_URL}/education?lang=${currentLang}`);
         const edu = (await res.json()).filter(e => !e.is_hidden);
-        const container = document.getElementById('education-list');
-        container.innerHTML = '<h3 class="column-title"><i class="fa-solid fa-graduation-cap"></i> Education</h3>';
+        const container = document.getElementById('education-content');
+        container.innerHTML = '';
 
         edu.forEach(e => {
             const card = document.createElement('div');
@@ -598,8 +598,8 @@ async function loadExperience() {
     try {
         const res = await fetch(`${API_URL}/experience?lang=${currentLang}`);
         const exp = (await res.json()).filter(e => !e.is_hidden);
-        const container = document.getElementById('experience-list');
-        container.innerHTML = '<h3 class="column-title"><i class="fa-solid fa-briefcase"></i> Experience</h3>';
+        const container = document.getElementById('experience-content');
+        container.innerHTML = '';
 
         exp.forEach(e => {
             const card = document.createElement('div');
@@ -942,7 +942,7 @@ function initAnimations() {
       .from(".data-cube", { opacity: 0, scale: 0, duration: 1.5, ease: "elastic.out(1, 0.5)" }, "-=1");
 
     // Section Titles & Content Animation
-    gsap.utils.toArray(".section-title, .line-separator, .about-text, .stats-grid, .contact-text, .contact-form").forEach(el => {
+    gsap.utils.toArray(".section-title, .line-separator, .about-text, .stats-grid, .contact-text, .contact-form, .column-title").forEach(el => {
         gsap.from(el, {
             scrollTrigger: {
                 trigger: el,
