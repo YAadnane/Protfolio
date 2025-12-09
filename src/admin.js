@@ -95,9 +95,7 @@ const fields = {
         { name: 'hero_description', label: 'Hero Description', type: 'textarea' },
         { name: 'about_lead', label: 'About Lead Text', type: 'textarea' },
         { name: 'about_bio', label: 'About Bio', type: 'textarea' },
-        { name: 'stat_years', label: 'Years Experience', type: 'number' },
-        { name: 'stat_projects', label: 'Projects Count', type: 'number' },
-        { name: 'stat_companies', label: 'Companies Count', type: 'number' },
+
         { name: 'profile_image', label: 'Current Profile Image Path', type: 'text' },
         { name: 'profileImage', label: 'Upload Profile Image', type: 'file' },
         { name: 'cv_file', label: 'Current CV Path', type: 'text' },
