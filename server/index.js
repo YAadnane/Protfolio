@@ -778,6 +778,30 @@ app.post('/api/reviews', sanitizeMiddleware, (req, res) => {
     );
 });
 
+// Admin: Get All Reviews
+app.get('/api/admin/reviews', authenticateToken, (req, res) => {
+    db.all("SELECT * FROM reviews ORDER BY date DESC", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// Admin: Approve Review
+app.put('/api/reviews/:id/approve', authenticateToken, (req, res) => {
+    db.run("UPDATE reviews SET is_approved = 1 WHERE id = ?", req.params.id, function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Review approved" });
+    });
+});
+
+// Admin: Delete Review
+app.delete('/api/reviews/:id', authenticateToken, (req, res) => {
+    db.run("DELETE FROM reviews WHERE id = ?", req.params.id, function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Review deleted" });
+    });
+});
+
 // --- SEO / SITEMAP ---
 app.get('/sitemap.xml', (req, res) => {
     const baseUrl = 'https://yadani-adnane.duckdns.org';

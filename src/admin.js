@@ -177,8 +177,10 @@ async function loadContent(type) {
     const grid = document.getElementById('content-grid');
     grid.innerHTML = '<p>Loading...</p>';
     
+    const endpoint = (type === 'reviews') ? `${API_URL}/admin/reviews` : `${API_URL}/${type}`;
+    
     try {
-        const res = await fetch(`${API_URL}/${type}?lang=${currentAdminLang}&t=${Date.now()}`, {
+        const res = await fetch(`${endpoint}?lang=${currentAdminLang}&t=${Date.now()}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -233,6 +235,40 @@ async function loadContent(type) {
                     <div class="admin-actions">
                         ${!msg.is_read ? `<button class="btn-edit" onclick="markAsRead(${msg.id})" style="background:rgba(0,255,157,0.1); color:var(--accent-color); border:none; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer;"><i class="fa-solid fa-check"></i> Mark Read</button>` : '<span style="color:#666; font-size:0.8rem; align-self:center; margin-right:1rem;">Read</span>'}
                         <button class="btn-delete" onclick="deleteMessage(${msg.id})"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            return;
+            return;
+        }
+
+        if (type === 'reviews') {
+            if (data.length === 0) {
+                grid.innerHTML = '<p>No reviews yet.</p>';
+                return;
+            }
+            data.forEach(rev => {
+                const card = document.createElement('div');
+                card.className = 'admin-card';
+                card.style.opacity = !rev.is_approved ? '1' : '0.7';
+                card.style.borderColor = !rev.is_approved ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)';
+                card.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem; align-items:flex-start;">
+                        <div>
+                            <span style="font-weight:bold; color:var(--text-main); font-size:1.1rem;">${rev.name}</span>
+                            <div style="font-size:0.8rem; color:var(--text-muted);">${rev.role || 'No Role'}</div>
+                            <div style="font-size:0.8rem; color:var(--accent-color); margin-top:2px;">${rev.social_platform} ${rev.social_link ? `<a href="${rev.social_link}" target="_blank" style="color:white;"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}</div>
+                        </div>
+                        <div style="text-align:right;">
+                             <span style="color:#ffd700;">${'★'.repeat(rev.rating)}</span>
+                             <div style="font-size:0.7rem; color:var(--text-muted); margin-top:5px;">${new Date(rev.date).toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                    <p style="background:rgba(255,255,255,0.05); padding:0.8rem; border-radius:0.5rem; font-size:0.95rem; margin-bottom:1rem; font-style:italic;">"${rev.message}"</p>
+                    <div class="admin-actions">
+                        ${!rev.is_approved ? `<button class="btn-edit" onclick="approveReview(${rev.id})" style="background:rgba(0,255,157,0.1); color:var(--accent-color); border:none; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer;"><i class="fa-solid fa-check"></i> Validate</button>` : '<span style="color:#666; font-size:0.8rem; align-self:center; margin-right:1rem;">Approved</span>'}
+                        <button class="btn-delete" onclick="deleteReview(${rev.id})"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
                 grid.appendChild(card);
