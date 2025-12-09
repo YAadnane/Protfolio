@@ -324,7 +324,11 @@ async function loadShapes() {
         const container = document.querySelector('.hero-visual');
         if (!container) return;
         
-        container.innerHTML = ''; // Clear existing
+        container.innerHTML = ''; // Clear existing desktop shapes
+
+        // ALSO Clear mobile container explicitly to prevent persistence
+        const mobileContainer = document.querySelector('.mobile-shape-container');
+        if (mobileContainer) mobileContainer.innerHTML = '';
 
         shapes.forEach(shape => {
              // Check for Mobile Shape
