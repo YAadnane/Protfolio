@@ -857,6 +857,49 @@ app.delete('/api/reviews/:id', authenticateToken, (req, res) => {
     });
 });
 
+// --- MEDIA MANAGER API ---
+app.get('/api/media', authenticateToken, (req, res) => {
+    fs.readdir(uploadDir, (err, files) => {
+        if (err) {
+            return res.status(500).json({ error: 'Failed to read uploads directory' });
+        }
+
+        const fileList = files.map(file => {
+            const filePath = path.join(uploadDir, file);
+            try {
+                const stats = fs.statSync(filePath);
+                return {
+                    name: file,
+                    size: (stats.size / 1024 / 1024).toFixed(2) + ' MB',
+                    url: `/uploads/${file}`,
+                    mtime: stats.mtime
+                };
+            } catch (e) {
+                return null;
+            }
+        }).filter(f => f !== null).sort((a, b) => b.mtime - a.mtime); // Sort by newest
+
+        res.json(fileList);
+    });
+});
+
+app.delete('/api/media/:filename', authenticateToken, (req, res) => {
+    const filename = req.params.filename;
+    // Simple validation to prevent directory traversal
+    if (filename.includes('..') || filename.includes('/') || filename.includes('\\')) {
+        return res.status(400).json({ error: 'Invalid filename' });
+    }
+
+    const filePath = path.join(uploadDir, filename);
+    fs.unlink(filePath, (err) => {
+        if (err) {
+            console.error('Error deleting file:', err);
+            return res.status(500).json({ error: 'Failed to delete file' });
+        }
+        res.json({ message: 'File deleted successfully' });
+    });
+});
+
 // --- SEO / SITEMAP ---
 app.get('/sitemap.xml', (req, res) => {
     const baseUrl = 'https://yadani-adnane.duckdns.org';

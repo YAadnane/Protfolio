@@ -23,6 +23,102 @@ window.logout = function() {
     window.location.href = '/login.html';
 };
 
+// --- MEDIA MANAGER FUNCTIONS ---
+window.deleteMedia = async (filename) => {
+    if (!confirm(`Are you sure you want to delete ${filename}? This cannot be undone.`)) return;
+
+    try {
+        const res = await fetch(`${API_URL}/media/${filename}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+            showNotification('File deleted successfully', 'success');
+            loadMedia(); // Refresh list
+        } else {
+            showNotification('Failed to delete file', 'error');
+        }
+    } catch (err) {
+        console.error('Error deleting file:', err);
+        showNotification('Error deleting file', 'error');
+    }
+};
+
+async function loadMedia() {
+    const grid = document.getElementById('content-grid');
+    grid.innerHTML = '<p>Loading media...</p>';
+    
+    // Hide "Add New" button when in media tab
+    const addBtn = document.querySelector('.btn-add');
+    if (addBtn) addBtn.style.display = 'none';
+
+    try {
+        const res = await fetch(`${API_URL}/media`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const files = await res.json();
+
+        grid.innerHTML = '';
+        if (files.length === 0) {
+            grid.innerHTML = '<p>No media files found.</p>';
+            return;
+        }
+
+        files.forEach(file => {
+            const isImage = file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i);
+            const isVideo = file.name.match(/\.(mp4|webm|ogg|mov|avi|mkv)$/i);
+            const isPDF = file.name.match(/\.pdf$/i);
+
+            let previewHtml = '';
+            if (isImage) {
+                previewHtml = `<div style="height: 150px; background-image: url('${file.url}'); background-size: cover; background-position: center; border-radius: 0.5rem; margin-bottom: 1rem;"></div>`;
+            } else if (isVideo) {
+                 previewHtml = `
+                    <div style="height: 150px; background: #000; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; margin-bottom: 1rem; position: relative;">
+                        <i class="fa-solid fa-video" style="font-size: 3rem; color: #555;"></i>
+                    </div>`;
+            } else if (isPDF) {
+                 previewHtml = `
+                    <div style="height: 150px; background: #2a2a2a; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; margin-bottom: 1rem;">
+                        <i class="fa-solid fa-file-pdf" style="font-size: 3rem; color: #ff0055;"></i>
+                    </div>`;
+            } else {
+                 previewHtml = `
+                    <div style="height: 150px; background: #2a2a2a; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem; margin-bottom: 1rem;">
+                        <i class="fa-solid fa-file" style="font-size: 3rem; color: #888;"></i>
+                    </div>`;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'admin-card';
+            card.innerHTML = `
+                ${previewHtml}
+                <div style="margin-bottom: 0.5rem;">
+                    <a href="${file.url}" target="_blank" style="color: var(--accent-color); font-weight: 500; word-break: break-all;">${file.name}</a>
+                </div>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                    Size: ${file.size}<br>
+                    Modified: ${new Date(file.mtime).toLocaleDateString()}
+                </div>
+                <div class="admin-actions">
+                    <button class="btn-delete" onclick="deleteMedia('${file.name}')">
+                        <i class="fa-solid fa-trash"></i> Delete
+                    </button>
+                    <button class="btn-secondary" onclick="navigator.clipboard.writeText('${file.url}'); showNotification('URL copied!', 'success');" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                        <i class="fa-regular fa-copy"></i>
+                    </button>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+
+    } catch (err) {
+        console.error('Error loading media:', err);
+        grid.innerHTML = '<p>Error loading media files.</p>';
+    }
+}
+
 const fields = {
     projects: [
         { name: 'title', label: 'Title', type: 'text' },
@@ -169,7 +265,22 @@ window.switchTab = (tab) => {
     currentTab = tab;
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
-    loadContent(tab);
+    
+    // Show/Hide "Add New" button based on tab
+    const addBtn = document.querySelector('.btn-add');
+    if (addBtn) {
+        if (tab === 'media' || tab === 'messages') {
+            addBtn.style.display = 'none';
+        } else {
+             addBtn.style.display = 'flex';
+        }
+    }
+
+    if (tab === 'media') {
+        loadMedia();
+    } else {
+        loadContent(tab);
+    }
 };
 
 // Load Content
