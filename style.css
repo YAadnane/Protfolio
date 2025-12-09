@@ -1464,21 +1464,39 @@ textarea:focus {
         margin-bottom: 1rem;
     }
 
+    /* Base Mobile Media Style */
     .bento-bg {
         order: 2;
         position: relative !important;
         width: 100% !important;
+        margin-top: 1rem;
+        display: block !important;
+        border-radius: 0.5rem;
+        opacity: 1 !important;
+    }
+
+    /* Video: Use Aspect Ratio 16/9, Auto Height */
+    .bento-bg.is-video {
         height: auto !important;
         aspect-ratio: 16/9;
         object-fit: cover !important;
-        border-radius: 0.5rem;
-        opacity: 1 !important;
-        margin-top: 1rem;
-        display: block !important;
-        /* Push to bottom */
     }
 
-    .bento-bg + div {
+    /* Image (Div): Needs explicit height because it has no intrinsic size */
+    .bento-bg.is-image {
+        height: 200px !important;
+        /* Approx 16/9 for mobile width */
+        background-size: cover !important;
+        background-position: center !important;
+    }
+
+    /* Hide Gradient Overlay on Mobile */
+    .media-overlay {
+        display: none !important;
+    }
+
+    /* Fallback for old bento-bg + div selector if needed */
+    .bento-bg+div {
         display: none !important;
     }
 

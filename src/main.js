@@ -485,17 +485,17 @@ async function loadProjects() {
 
                 if (isVideo) {
                     bgContent = `
-                        <video class="bento-bg" autoplay loop muted playsinline style="object-fit: cover; width: 100%; height: 100%; opacity: 0.6;">
+                        <video class="bento-bg is-video" autoplay loop muted playsinline>
                             <source src="${imageUrl}" type="video/${isVideo[1].toLowerCase() === 'mov' ? 'quicktime' : isVideo[1].toLowerCase()}">
                             Your browser does not support the video tag.
                         </video>
-                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1)); z-index: 1;"></div>
+                        <div class="media-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1)); z-index: 1;"></div>
                     `;
                 } else {
                     // It's an image
                     bgContent = `
-                        <div class="bento-bg" style="background-image: url('${imageUrl}'); opacity: 0.6; width: 100%; height: 100%; background-size: cover; background-position: center;"></div>
-                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1)); z-index: 1;"></div>
+                        <div class="bento-bg is-image" style="background-image: url('${imageUrl}'); background-size: cover; background-position: center;"></div>
+                        <div class="media-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0.1)); z-index: 1;"></div>
                     `;
                 }
             } else if (p.image && p.image.trim() !== '') {
