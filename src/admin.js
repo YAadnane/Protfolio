@@ -116,6 +116,7 @@ const fields = {
             options: [
                 'gemini-2.0-flash-exp', 
                 'gemini-2.0-flash', 
+                'gemini-2.5-flash',
                 'gemini-1.5-flash', 
                 'gemini-1.5-pro',
                 'gemini-pro', 
@@ -346,6 +347,12 @@ window.editItem = (item) => {
                 }
             }
         });
+
+        // Special handling for API Key placeholder
+        if (item.has_api_key && form.elements['gemini_api_key']) {
+            form.elements['gemini_api_key'].placeholder = 'Current key set (Hidden for security)';
+        }
+
         document.getElementById('modal-title').innerText = 'Edit Item';
     }, 50);
 };

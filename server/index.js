@@ -320,6 +320,7 @@ app.get('/api/general', (req, res) => {
     db.get("SELECT * FROM general_info WHERE lang = ? ORDER BY id DESC LIMIT 1", [lang], (err, row) => {
         if (err) return res.status(500).json({ error: err.message });
         if (row) {
+            row.has_api_key = !!row.gemini_api_key && row.gemini_api_key.length > 0;
             delete row.gemini_api_key; // SECURITY: Do not expose key to public
         }
         res.json(row || {});
