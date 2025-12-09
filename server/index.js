@@ -484,6 +484,12 @@ app.get('/api/stats', (req, res) => {
                 stats.articles = row ? row.count : 0;
                 resolve();
             });
+        }),
+        new Promise((resolve) => {
+            db.get("SELECT COUNT(*) as count FROM reviews WHERE is_approved = 1", [], (err, row) => {
+                stats.reviews = row ? row.count : 0;
+                resolve();
+            });
         })
     ];
 

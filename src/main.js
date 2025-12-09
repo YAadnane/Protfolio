@@ -1223,7 +1223,8 @@ async function loadStats() {
             projects: 'stats-projects',
             companies: 'stats-companies',
             certs: 'stats-certs',
-            articles: 'stats-articles'
+            articles: 'stats-articles',
+            reviews: 'stats-reviews'
         };
 
         const updateStats = () => {
@@ -1403,15 +1404,11 @@ async function loadReviews() {
 
         if (reviews.length === 0) {
             track.innerHTML = "<p style='width:100%; text-align:center; color:var(--text-muted); padding: 2rem;'>No reviews yet. Be the first!</p>";
-            // Update stats even if 0
-             const statsReviews = document.getElementById('stats-reviews');
-             if(statsReviews) statsReviews.innerText = "0+";
+            // Update stats handled by loadStats() now
             return;
         }
 
-        // Update stats
-        const statsReviews = document.getElementById('stats-reviews');
-        if(statsReviews) animateCounter(statsReviews, reviews.length);
+        // Update stats handled by loadStats() now
 
         const renderSlider = () => {
             const isMobile = window.innerWidth <= 768;
