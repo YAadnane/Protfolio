@@ -435,10 +435,9 @@ app.get('/api/stats', (req, res) => {
         new Promise((resolve) => {
             db.get("SELECT MIN(year) as start_year FROM experience WHERE is_hidden = 0", [], (err, row) => {
                 if (row && row.start_year) {
-                    // Extract year if it's "2020 - Present" format, just take the first 4 digits
                     const match = row.start_year.match(/(\d{4})/);
                     const start = match ? parseInt(match[0]) : new Date().getFullYear();
-                    stats.years = new Date().getFullYear() - start + 1; // +1 to count current year
+                    stats.years = new Date().getFullYear() - start + 1;
                 } else {
                     stats.years = 0;
                 }
@@ -446,25 +445,25 @@ app.get('/api/stats', (req, res) => {
             });
         }),
         new Promise((resolve) => {
-            db.get("SELECT COUNT(*) as count FROM projects WHERE is_hidden = 0 AND lang = ?", [lang], (err, row) => {
+            db.get("SELECT COUNT(*) as count FROM projects WHERE is_hidden = 0", [], (err, row) => {
                 stats.projects = row ? row.count : 0;
                 resolve();
             });
         }),
         new Promise((resolve) => {
-            db.get("SELECT COUNT(DISTINCT company) as count FROM experience WHERE is_hidden = 0 AND lang = ?", [lang], (err, row) => {
+            db.get("SELECT COUNT(DISTINCT company) as count FROM experience WHERE is_hidden = 0", [], (err, row) => {
                 stats.companies = row ? row.count : 0;
                 resolve();
             });
         }),
         new Promise((resolve) => {
-            db.get("SELECT COUNT(*) as count FROM certifications WHERE is_hidden = 0 AND lang = ?", [lang], (err, row) => {
+            db.get("SELECT COUNT(*) as count FROM certifications WHERE is_hidden = 0", [], (err, row) => {
                 stats.certs = row ? row.count : 0;
                 resolve();
             });
         }),
         new Promise((resolve) => {
-            db.get("SELECT COUNT(*) as count FROM articles WHERE is_hidden = 0 AND lang = ?", [lang], (err, row) => {
+            db.get("SELECT COUNT(*) as count FROM articles WHERE is_hidden = 0", [], (err, row) => {
                 stats.articles = row ? row.count : 0;
                 resolve();
             });
