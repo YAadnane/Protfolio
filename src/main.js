@@ -322,6 +322,18 @@ async function loadGeneralInfo() {
     } catch (err) { console.error("Failed to load general info", err); }
 }
 
+// --- HELPER: Social Icons ---
+function getSocialIcon(platform) {
+    switch(platform) {
+        case 'linkedin': return '<i class="fa-brands fa-linkedin"></i>';
+        case 'facebook': return '<i class="fa-brands fa-facebook"></i>';
+        case 'instagram': return '<i class="fa-brands fa-instagram"></i>';
+        case 'reddit': return '<i class="fa-brands fa-reddit"></i>';
+        case 'medium': return '<i class="fa-brands fa-medium"></i>';
+        default: return '<i class="fa-solid fa-globe"></i>';
+    }
+}
+
 async function loadShapes() {
     try {
         const res = await fetch(`${API_URL}/shapes?lang=${currentLang}&t=${Date.now()}`);
@@ -1461,17 +1473,7 @@ function initReviewModal() {
         stars.forEach(s => s.classList.toggle("active", s.dataset.value <= initialVal));
     }
 
-    // Helper for Notifications
-    function getSocialIcon(platform) {
-        switch(platform) {
-            case 'linkedin': return '<i class="fa-brands fa-linkedin"></i>';
-            case 'facebook': return '<i class="fa-brands fa-facebook"></i>';
-            case 'instagram': return '<i class="fa-brands fa-instagram"></i>';
-            case 'reddit': return '<i class="fa-brands fa-reddit"></i>';
-            case 'medium': return '<i class="fa-brands fa-medium"></i>';
-            default: return '<i class="fa-solid fa-globe"></i>';
-        }
-    }
+
 
 function showNotification(title, message, type = 'success') {
     const popup = document.getElementById('notification-popup');
