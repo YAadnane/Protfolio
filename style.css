@@ -2936,6 +2936,8 @@ textarea:focus {
     .article-slide {
         /* Mobile: 1 column */
         grid-template-columns: 1fr;
+        padding: 0 2rem;
+        /* Increased spacing */
     }
 }
 
