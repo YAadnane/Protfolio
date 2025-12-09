@@ -1093,3 +1093,47 @@ async function loadArticles() {
     } catch (err) { console.error("Failed to load articles", err); }
 }
 
+
+// =========================================
+// MOBILE SLIDER CONTROLS (ARROWS)
+// =========================================
+function initMobileSliderControls() {
+    const sliders = [
+        { id: 'projects-grid' },
+        { id: 'articles-grid' },
+        { id: 'skills-grid' }
+    ];
+
+    sliders.forEach(s => {
+        const el = document.getElementById(s.id);
+        if (!el) return;
+
+        // Check if already initialized to avoid duplicates
+        if (el.parentElement.classList.contains('slider-container')) return;
+
+        // Wrap in slider-container
+        const wrapper = document.createElement('div');
+        wrapper.className = 'slider-container';
+        
+        // Move element into wrapper
+        el.parentNode.insertBefore(wrapper, el);
+        wrapper.appendChild(el);
+
+        // Create Arrows
+        const prevBtn = document.createElement('button');
+        prevBtn.className = 'slider-nav-btn prev';
+        prevBtn.innerHTML = '<i class=\a-solid fa-chevron-left\></i>';
+        prevBtn.onclick = () => el.scrollBy({ left: -300, behavior: 'smooth' });
+
+        const nextBtn = document.createElement('button');
+        nextBtn.className = 'slider-nav-btn next';
+        nextBtn.innerHTML = '<i class=\a-solid fa-chevron-right\></i>';
+        nextBtn.onclick = () => el.scrollBy({ left: 300, behavior: 'smooth' });
+
+        wrapper.appendChild(prevBtn);
+        wrapper.appendChild(nextBtn);
+    });
+}
+// Init after short delay to ensure DOM is ready and grid is populated
+window.addEventListener('load', () => setTimeout(initMobileSliderControls, 100));
+

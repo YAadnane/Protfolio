@@ -2331,3 +2331,83 @@ textarea:focus {
         border-radius: 1rem;
     }
 }
+
+/* =========================================
+   ANIMATIONS & FLOAT EFFECT
+   ========================================= */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+/* Apply Floating Effect Globally */
+.bento-item,
+.article-card,
+.skill-category,
+.chat-toggle-btn {
+    animation: float 6s ease-in-out infinite;
+    /* Optimizations */
+    will-change: transform; 
+}
+
+/* Stagger animations to look natural */
+.bento-item:nth-child(odd) { animation-delay: 0s; }
+.bento-item:nth-child(even) { animation-delay: -3s; }
+
+.article-card:nth-child(odd) { animation-delay: -1s; }
+.article-card:nth-child(even) { animation-delay: -4s; }
+
+.skill-category:nth-child(1) { animation-delay: -2s; }
+.skill-category:nth-child(2) { animation-delay: -5s; }
+
+/* Keep chatbot button floating but distinct */
+.chat-toggle-btn {
+    animation-duration: 5s; /* Slightly faster */
+    animation-delay: -1.5s;
+}
+
+/* =========================================
+   MOBILE SLIDER NAVIGATION (ARROWS)
+   ========================================= */
+@media (max-width: 768px) {
+    .slider-container {
+        position: relative;
+        width: 100%;
+    }
+
+    .slider-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(5px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        opacity: 0.8;
+        transition: opacity 0.3s;
+    }
+
+    .slider-nav-btn:active {
+        background: var(--accent-color);
+        color: #000;
+        opacity: 1;
+    }
+
+    .slider-nav-btn.prev { left: 5px; }
+    .slider-nav-btn.next { right: 5px; }
+
+    /* Hide arrows if disabled */
+    .slider-nav-btn.hidden {
+        opacity: 0;
+        pointer-events: none;
+    }
+}
