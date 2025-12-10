@@ -10,11 +10,11 @@ const db = new sqlite3.Database(dbPath);
 console.log("--- Education (Raw Order) ---");
 db.all("SELECT id, degree, year FROM education", [], (err, rows) => {
     if (err) console.error(err);
-    else console.table(rows);
+    else console.log(JSON.stringify(rows, null, 2));
 });
 
 console.log("--- Education (Sorted by ID DESC) ---");
 db.all("SELECT id, degree, year FROM education ORDER BY id DESC", [], (err, rows) => {
     if (err) console.error(err);
-    else console.table(rows);
+    else console.log(JSON.stringify(rows, null, 2));
 });
