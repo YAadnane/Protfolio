@@ -3196,19 +3196,18 @@ textarea:focus {
 
 /* Header: Clean & Simple */
 .cert-modal-header {
-    padding: 2rem 2.5rem 1rem;
+    padding: 1.5rem 2rem 0.5rem;
     border-bottom: none;
-    /* Cleaner look */
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    display: block;
+    /* Use block for centering */
+    text-align: center;
     background: transparent;
+    width: 100%;
 }
 
 .cert-modal-title {
     font-family: var(--font-heading);
     font-size: 1.5rem;
-    /* Slightly smaller title */
     font-weight: 700;
     color: var(--text-main);
     margin: 0;
@@ -3217,11 +3216,14 @@ textarea:focus {
 
 /* Close Button: Top Right Corner */
 .cert-modal-close {
+    position: absolute;
+    /* Pin to corner */
+    top: 1.5rem;
+    right: 1.5rem;
     background: transparent;
     border: 1px solid var(--nav-border);
     color: var(--text-muted);
     width: 32px;
-    /* Compact */
     height: 32px;
     border-radius: 50%;
     font-size: 1.1rem;
@@ -3230,8 +3232,7 @@ textarea:focus {
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
-    margin-left: 1rem;
-    flex-shrink: 0;
+    z-index: 20;
 }
 
 .cert-modal-close:hover {
