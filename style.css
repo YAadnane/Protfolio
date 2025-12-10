@@ -517,20 +517,24 @@ h4 {
     border-radius: 1.5rem;
     width: 100%;
     height: 100%;
-    /* border applied to wrapper might be hidden by img, so we keep it structure-only */
+    /* Container style strategy */
+    overflow: hidden;
+    /* Clips the image if it exceeds corners */
+    border: 4px solid var(--accent-color);
+    box-shadow: 0 0 25px rgba(0, 255, 157, 0.4);
+    box-sizing: border-box;
+    /* Ensures border is included in 100% size */
+    background: var(--card-bg);
+    /* Prevents transparent gaps */
 }
 
-/* Force Specificity with ID */
+/* Image just fills the container */
 #about-profile-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 1.5rem !important;
-    border: 4px solid var(--accent-color) !important;
-    box-shadow: 0 0 25px rgba(0, 255, 157, 0.4) !important;
-    box-sizing: border-box !important;
     display: block;
-    /* Ensure it behaves */
+    /* No border here, handled by parent */
 }
 
 /* Back Face */
