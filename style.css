@@ -3170,217 +3170,155 @@ textarea:focus {
 
 
 
-/* --- Detailed Certification Modal (Themed) --- */
+/* --- Detailed Certification Modal (Rebuilt) --- */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     background: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(8px);
-    z-index: 10000;
+    z-index: 1000;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 2rem;
-    opacity: 0;
-    animation: fadeInOverlay 0.3s forwards;
+    padding: 1rem;
+    animation: fadeInOverlay 0.3s ease forwards;
 }
 
-@keyframes fadeInOverlay {
-    to {
-        opacity: 1;
-    }
-}
-
-.cert-modal-content-dark {
-    background: var(--card-bg);
+.cert-modal-content {
+    background-color: var(--card-bg);
     color: var(--text-main);
-    /* FORCE DARK MODE DEFAULTS */
-    background-color: #0f0f0f !important;
-    color: #e0e0e0 !important;
-
     width: 100%;
     max-width: 900px;
     border-radius: 16px;
-    padding: 0;
-    position: relative;
-    box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
     border: 1px solid var(--nav-border);
-    overflow: hidden;
-    max-height: 90vh;
+    box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
     display: flex;
     flex-direction: column;
-    font-family: var(--font-body);
-    transform: translateY(20px);
-    opacity: 0;
+    max-height: 90vh;
+    overflow: hidden;
+    position: relative;
+    /* Transformation handled by animation */
     animation: slideUpModal 0.4s 0.1s forwards cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Explicit Light Mode Override for the new class */
-body.light-mode .cert-modal-content-dark {
-    background-color: #ffffff !important;
-    color: #111111 !important;
+/* Header, Body, Footer Transparency */
+.cert-modal-header,
+.cert-modal-body,
+.cert-modal-footer {
+    background: transparent;
+    position: relative;
+    z-index: 2;
 }
 
-/* Explicit Dark Mode Enforcement (redundant but safe) */
-body:not(.light-mode) .cert-modal-content-dark {
-    background-color: #0f0f0f !important;
-    color: #e0e0e0 !important;
+.cert-modal-header {
+    padding: 2rem 2.5rem 1rem;
+    border-bottom: 1px solid var(--nav-border);
 }
 
-@keyframes slideUpModal {
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+.cert-modal-body {
+    padding: 2.5rem;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 3rem;
 }
 
+.cert-modal-footer {
+    padding: 1.5rem 2.5rem;
+    border-top: 1px solid var(--nav-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Close Button */
 .cert-modal-close {
     position: absolute;
     top: 1.5rem;
     right: 1.5rem;
     background: var(--control-bg);
-    /* THEMED */
+    color: var(--text-muted);
     border: none;
     width: 40px;
     height: 40px;
     border-radius: 50%;
     font-size: 1.5rem;
-    color: var(--text-muted);
-    /* THEMED */
     cursor: pointer;
-    z-index: 20;
+    z-index: 10;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
-    line-height: 1;
+    transition: all 0.2s;
 }
 
 .cert-modal-close:hover {
     background: #ff4d4d;
     color: white;
-    transform: rotate(90deg);
 }
 
-.cert-modal-header {
-    padding: 2.5rem 2.5rem 1.5rem;
-    background: transparent;
-    border-bottom: 1px solid var(--nav-border);
-    /* THEMED */
-}
-
-.cert-modal-title {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 2rem;
-    margin: 0;
-    color: var(--text-main);
-    line-height: 1.2;
-}
-
-.cert-modal-body {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    gap: 3rem;
-    padding: 2.5rem;
-    overflow-y: auto;
-    background: transparent;
-}
-
-/* Left Column: Image */
+/* Image */
 .cert-modal-image {
-    position: relative;
     background: var(--input-bg);
-    /* THEMED */
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
     border: 1px solid var(--nav-border);
-    min-height: 300px;
 }
 
 .cert-modal-image img {
-    width: 100%;
-    height: auto;
-    display: block;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    max-width: 100%;
+    max-height: 350px;
+    object-fit: contain;
     border-radius: 4px;
-    transition: transform 0.3s;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
-.cert-modal-image:hover img {
-    transform: scale(1.02);
-}
-
-.verified-badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: var(--accent-color);
-    /* THEMED */
-    color: #000;
-    /* Contrast on neon green */
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1rem;
-    box-shadow: 0 4px 10px var(--accent-glow);
-    z-index: 5;
-}
-
-/* Right Column: Details */
-.cert-modal-details {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
+/* Typography & Details */
+.cert-modal-title {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    color: var(--text-main);
+    margin: 0;
 }
 
 .cert-detail-group h4,
 .cert-detail-group label {
-    /* Catch both if label used */
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 1px;
     color: var(--text-muted);
-    /* THEMED */
-    margin-bottom: 0.8rem;
-    font-weight: 600;
+    margin-bottom: 0.5rem;
     display: block;
+    font-weight: 600;
 }
 
 .cert-detail-group p {
     font-size: 1rem;
-    line-height: 1.7;
     color: var(--text-main);
-    /* THEMED */
-    margin: 0;
+    line-height: 1.6;
 }
 
 .cert-id {
     display: inline-block;
-    padding: 0.3rem 0.6rem;
+    padding: 0.4rem 0.8rem;
     background: var(--input-bg);
     border: 1px solid var(--nav-border);
     border-radius: 4px;
     font-family: var(--font-mono);
-    font-size: 0.9rem;
     color: var(--text-muted);
     margin-top: 0.5rem;
 }
 
-/* Skills Tags */
+/* Skills */
 .cert-skills-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.8rem;
+    gap: 0.5rem;
 }
 
 .cert-skill-tag {
@@ -3388,45 +3326,6 @@ body:not(.light-mode) .cert-modal-content-dark {
     color: var(--text-main);
     border: 1px solid var(--nav-border);
     padding: 0.4rem 1rem;
-    border-radius: 2rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: all 0.2s;
-}
-
-.cert-skill-tag:hover {
-    border-color: var(--accent-color);
-    background: var(--accent-color);
-    color: #000;
-}
-
-/* Footer */
-.cert-modal-footer {
-    padding: 1.5rem 2.5rem;
-    background: transparent;
-    border-top: 1px solid #eaeaea;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.cert-meta {
-    display: flex;
-    gap: 2rem;
-    align-items: center;
-}
-
-.cert-level-badge {
-    background: rgba(255, 193, 7, 0.15);
-    /* Custom subtle yellow */
-    color: #ffc107;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
     border: 1px solid rgba(255, 193, 7, 0.2);
 }
 
