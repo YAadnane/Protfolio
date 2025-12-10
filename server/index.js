@@ -250,7 +250,7 @@ app.delete('/api/certifications/:id', authenticateToken, (req, res) => {
 // --- EDUCATION ---
 app.get('/api/education', (req, res) => {
     const lang = req.query.lang || 'en';
-    db.all("SELECT * FROM education WHERE lang = ?", [lang], (err, rows) => {
+    db.all("SELECT * FROM education WHERE lang = ? ORDER BY id DESC", [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
@@ -288,7 +288,7 @@ app.delete('/api/education/:id', authenticateToken, (req, res) => {
 // --- EXPERIENCE ---
 app.get('/api/experience', (req, res) => {
     const lang = req.query.lang || 'en';
-    db.all("SELECT * FROM experience WHERE lang = ?", [lang], (err, rows) => {
+    db.all("SELECT * FROM experience WHERE lang = ? ORDER BY id DESC", [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
