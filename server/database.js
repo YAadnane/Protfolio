@@ -49,6 +49,14 @@ db.serialize(() => {
         addColumnIfNotExists('certifications', 'is_hidden', 'INTEGER DEFAULT 0');
         addColumnIfNotExists('certifications', 'domain', 'TEXT');
         addColumnIfNotExists('certifications', 'pdf', 'TEXT');
+        // New Fields for Modal
+        addColumnIfNotExists('certifications', 'status', 'TEXT DEFAULT "obtained"');
+        addColumnIfNotExists('certifications', 'description', 'TEXT');
+        addColumnIfNotExists('certifications', 'skills', 'TEXT');
+        addColumnIfNotExists('certifications', 'credential_id', 'TEXT');
+        addColumnIfNotExists('certifications', 'credential_url', 'TEXT');
+        addColumnIfNotExists('certifications', 'level', 'TEXT');
+        addColumnIfNotExists('certifications', 'image', 'TEXT');
     });
 
     // Education Table
