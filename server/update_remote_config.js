@@ -15,10 +15,10 @@ db.serialize(() => {
         else console.log(rows);
     });
 
-    console.log("--- Updating Model to gemini-1.5-flash ---");
-    db.run("UPDATE general_info SET gemini_model = 'gemini-1.5-flash'", function(err) {
+    console.log("--- Updating Model to gemini-2.5-flash ---");
+    db.run("UPDATE general_info SET gemini_model = 'gemini-2.5-flash'", function(err) {
         if (err) console.error("Update Error:", err);
-        else console.log(`Updated ${this.changes} rows.`);
+        else console.log(`Updated ${this.changes} rows to gemini-2.5-flash.`);
     });
     
     // Force 'en' row to have the same key/model as 'fr' if 'en' is missing key but 'fr' has it? 
