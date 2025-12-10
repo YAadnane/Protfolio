@@ -85,7 +85,8 @@ export const translations = {
         "cert.issuer": "Issuer",
         "cert.desc": "Description",
         "cert.skills": "Skills Acquired",
-        "cert.verify": "Verify Certification"
+        "cert.verify": "Verify Certification",
+        "chatbot.wait": "Wait"
     },
     fr: {
         "nav.about": "À propos",
@@ -175,6 +176,7 @@ export const translations = {
         "cert.issuer": "Organisme",
         "cert.desc": "Description",
         "cert.skills": "Compétences Acquises",
-        "cert.verify": "Vérifier la Certification"
+        "cert.verify": "Vérifier",
+        "chatbot.wait": "Attendez"
     }
 };

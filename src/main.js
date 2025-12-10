@@ -1006,6 +1006,7 @@ function initChatbot() {
     const sendBtn = document.getElementById('chat-send');
     const input = document.getElementById('chat-input');
     const messages = document.getElementById('chat-messages');
+    let lastMessageTime = 0; // Cooldown timer state
 
     if (!toggleBtn || !chatWindow) return;
 
@@ -1071,8 +1072,39 @@ function initChatbot() {
 
     // Send Message
     async function sendMessage() {
+        // Cooldown Check
+        const now = Date.now();
+        if (now - lastMessageTime < 15000) return;
+
         const text = input.value.trim();
         if (!text) return;
+
+        // Start Cooldown
+        lastMessageTime = now;
+        
+        // Disable UI
+        sendBtn.disabled = true;
+        input.disabled = true;
+
+        // Start Countdown UI
+        let timeLeft = 15;
+        const waitText = translations[currentLang]?.["chatbot.wait"] || "Wait";
+        const originalIcon = '<i class="fa-solid fa-paper-plane"></i>';
+        
+        sendBtn.innerHTML = `<span style="font-size:0.8rem">${waitText} ${timeLeft}s</span>`;
+        
+        const timerInterval = setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                sendBtn.disabled = false;
+                input.disabled = false;
+                sendBtn.innerHTML = originalIcon;
+                // input.focus(); // Optional: might be annoying on mobile
+            } else {
+                 sendBtn.innerHTML = `<span style="font-size:0.8rem">${waitText} ${timeLeft}s</span>`;
+            }
+        }, 1000);
 
         // Add User Message
         appendMessage(text, 'user');
