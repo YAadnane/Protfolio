@@ -3267,7 +3267,7 @@ body:not(.light-mode) .cert-modal-content-dark {
 
 .cert-modal-header {
     padding: 2.5rem 2.5rem 1.5rem;
-    background: var(--card-bg);
+    background: transparent;
     border-bottom: 1px solid var(--nav-border);
     /* THEMED */
 }
@@ -3287,7 +3287,7 @@ body:not(.light-mode) .cert-modal-content-dark {
     gap: 3rem;
     padding: 2.5rem;
     overflow-y: auto;
-    background: var(--card-bg);
+    background: transparent;
 }
 
 /* Left Column: Image */
@@ -3403,7 +3403,7 @@ body:not(.light-mode) .cert-modal-content-dark {
 /* Footer */
 .cert-modal-footer {
     padding: 1.5rem 2.5rem;
-    background: var(--card-bg);
+    background: transparent;
     border-top: 1px solid #eaeaea;
     display: flex;
     justify-content: space-between;
