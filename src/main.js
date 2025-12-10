@@ -1,6 +1,7 @@
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { translations } from "./translations.js";
+import "../style.css"; // Ensure global styles are bundled
 
 gsap.registerPlugin(ScrollTrigger);
 
