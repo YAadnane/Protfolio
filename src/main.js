@@ -884,9 +884,9 @@ async function loadCertifications() {
     } catch (err) { console.error("Failed to load certifications", err); }
 }
 
-async function loadEducation() {
-    try {
-        const res = await fetch(`${API_URL}/education?lang=${currentLang}`);
+    async function loadEducation() {
+        try {
+            const res = await fetch(`${API_URL}/education?lang=${currentLang}&t=${Date.now()}`);
         const edu = (await res.json()).filter(e => !e.is_hidden);
         const container = document.getElementById('education-content');
         container.innerHTML = '';
@@ -907,7 +907,7 @@ async function loadEducation() {
 
 async function loadExperience() {
     try {
-        const res = await fetch(`${API_URL}/experience?lang=${currentLang}`);
+        const res = await fetch(`${API_URL}/experience?lang=${currentLang}&t=${Date.now()}`);
         const exp = (await res.json()).filter(e => !e.is_hidden);
         const container = document.getElementById('experience-content');
         container.innerHTML = '';
