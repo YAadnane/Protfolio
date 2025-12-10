@@ -536,12 +536,19 @@ app.post('/api/chat', async (req, res) => {
     if (!message) return res.status(400).json({ error: "Message required" });
 
     // 1. Get Settings (Key & Model) and Context
-    db.get("SELECT gemini_api_key, gemini_model FROM general_info WHERE lang = ? LIMIT 1", [targetLang], async (err, row) => {
+    // Fix: Fallback to 'en' if specific language config doesn't exist
+    db.all("SELECT gemini_api_key, gemini_model, lang FROM general_info WHERE lang = ? OR lang = 'en'", [targetLang], async (err, rows) => {
         if (err) return res.status(500).json({ error: "Database error" });
-        if (!row || !row.gemini_api_key) return res.status(500).json({ error: "Chatbot not configured (API Key missing)." });
+        
+        // Find best match: Exact lang with key > 'en' with key > any match
+        const configRow = rows.find(r => r.lang === targetLang && r.gemini_api_key) 
+                       || rows.find(r => r.lang === 'en' && r.gemini_api_key)
+                       || rows[0];
 
-        const apiKey = row.gemini_api_key;
-        const modelName = row.gemini_model || "gemini-1.5-flash"; // Use selected model
+        if (!configRow || !configRow.gemini_api_key) return res.status(500).json({ error: "Chatbot not configured (API Key missing)." });
+
+        const apiKey = configRow.gemini_api_key;
+        const modelName = configRow.gemini_model || "gemini-1.5-flash"; // Use selected model
         
         // 2. Fetch Portfolio Context
         const contextData = {};
