@@ -249,11 +249,9 @@ app.delete('/api/certifications/:id', authenticateToken, (req, res) => {
 
 // --- EDUCATION ---
 app.get('/api/education', (req, res) => {
-    console.log("API: Fetching Education...");
     const lang = req.query.lang || 'en';
     db.all("SELECT * FROM education WHERE lang = ? ORDER BY id DESC", [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
-        console.log(`API: Education Rows Returned: ${rows.length}, First ID: ${rows[0]?.id}`);
         res.json(rows);
     });
 });
