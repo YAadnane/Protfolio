@@ -80,7 +80,12 @@ export const translations = {
         "review.error.msg": "Failed to submit review. Please try again.",
         "review.validation.error": "Please fill in your Name and Review Message.",
         "testimonials.form.link": "Profile Link",
-        "testimonials.form.platform": "Social Network"
+        "testimonials.form.platform": "Social Network",
+        // Certification Modal
+        "cert.issuer": "Issuer",
+        "cert.desc": "Description",
+        "cert.skills": "Skills Acquired",
+        "cert.verify": "Verify Certification"
     },
     fr: {
         "nav.about": "À propos",
@@ -164,6 +169,12 @@ export const translations = {
         "review.error.msg": "Échec de l'envoi de l'avis. Veuillez réessayer.",
         "review.validation.error": "Veuillez remplir votre Nom et votre Avis.",
         "testimonials.form.link": "Lien de votre profil",
-        "testimonials.form.platform": "Réseau Social"
+        "testimonials.form.link": "Lien vers profil",
+        "testimonials.form.platform": "Réseau Social",
+        // Certification Modal
+        "cert.issuer": "Organisme",
+        "cert.desc": "Description",
+        "cert.skills": "Compétences Acquises",
+        "cert.verify": "Vérifier la Certification"
     }
 };
