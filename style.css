@@ -3525,29 +3525,17 @@ body.light-mode .cert-skill-tag {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-backdrop-filter: blur(8px);
-z-index: 1000;
+width: 100%;
+max-width: 900px;
+border-radius: 16px;
+border: 1px solid var(--nav-border);
+box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
 display: flex;
-justify-content: center;
-align-items: center;
-padding: 1rem;
-animation: fadeInOverlay 0.3s ease forwards;
-}
-
-.cert-modal-content {
-    background-color: var(--card-bg);
-    color: var(--text-main);
-    width: 100%;
-    max-width: 900px;
-    border-radius: 16px;
-    border: 1px solid var(--nav-border);
-    box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-    max-height: 90vh;
-    overflow: hidden;
-    position: relative;
-    animation: slideUpModal 0.4s 0.1s forwards cubic-bezier(0.16, 1, 0.3, 1);
+flex-direction: column;
+max-height: 90vh;
+overflow: hidden;
+position: relative;
+animation: slideUpModal 0.4s 0.1s forwards cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Header, Body, Footer Transparency */
