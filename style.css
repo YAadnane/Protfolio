@@ -3610,11 +3610,19 @@ textarea:focus {
 }
 
 .cert-modal-image img {
-    width: 100%;
-    height: auto;
+    width: auto;
+    /* Allow width to adjust */
+    max-width: 100%;
+    /* Never exceed container width */
+    max-height: 350px;
+    /* Limit height to avoid scrolling */
     display: block;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
+    object-fit: contain;
+    /* Ensure full image explains */
+    margin: 0 auto;
+    /* Center horizontally */
     transition: transform 0.3s;
 }
 
