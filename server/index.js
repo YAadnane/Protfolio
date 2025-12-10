@@ -535,15 +535,22 @@ app.post('/api/chat', async (req, res) => {
 
     if (!message) return res.status(400).json({ error: "Message required" });
 
-    // 1. Get Settings (Key & Model) and Context
     // Fix: Fallback to 'en' if specific language config doesn't exist
     db.all("SELECT gemini_api_key, gemini_model, lang FROM general_info WHERE lang = ? OR lang = 'en'", [targetLang], async (err, rows) => {
-        if (err) return res.status(500).json({ error: "Database error" });
+        if (err) {
+            console.error("Chatbot DB Error:", err);
+            return res.status(500).json({ error: "Database error" });
+        }
         
+        console.log("Chatbot Request Lang:", targetLang);
+        console.log("Config Rows Found:", rows);
+
         // Find best match: Exact lang with key > 'en' with key > any match
         const configRow = rows.find(r => r.lang === targetLang && r.gemini_api_key) 
                        || rows.find(r => r.lang === 'en' && r.gemini_api_key)
                        || rows[0];
+
+        console.log("Selected Config Row:", configRow);
 
         if (!configRow || !configRow.gemini_api_key) return res.status(500).json({ error: "Chatbot not configured (API Key missing)." });
 
