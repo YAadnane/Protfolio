@@ -3196,9 +3196,11 @@ textarea:focus {
 
 .cert-modal-content {
     background: var(--card-bg);
-    /* THEMED */
     color: var(--text-main);
-    /* THEMED */
+    /* FORCE DARK MODE DEFAULTS if variables fail or mixed mode occurs */
+    background-color: #0f0f0f;
+    color: #e0e0e0;
+
     width: 100%;
     max-width: 900px;
     border-radius: 16px;
@@ -3206,7 +3208,6 @@ textarea:focus {
     position: relative;
     box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.5);
     border: 1px solid var(--nav-border);
-    /* THEMED BORDER */
     overflow: hidden;
     max-height: 90vh;
     display: flex;
@@ -3215,6 +3216,18 @@ textarea:focus {
     transform: translateY(20px);
     opacity: 0;
     animation: slideUpModal 0.4s 0.1s forwards cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Explicit Light Mode Override */
+body.light-mode .cert-modal-content {
+    background-color: #ffffff !important;
+    color: #111111 !important;
+}
+
+/* Explicit Dark Mode Enforcement (redundant but safe) */
+body:not(.light-mode) .cert-modal-content {
+    background-color: #0f0f0f !important;
+    color: #e0e0e0 !important;
 }
 
 @keyframes slideUpModal {
