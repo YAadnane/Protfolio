@@ -3194,12 +3194,12 @@ textarea:focus {
     }
 }
 
-.cert-modal-content {
+.cert-modal-content-dark {
     background: var(--card-bg);
     color: var(--text-main);
-    /* FORCE DARK MODE DEFAULTS if variables fail or mixed mode occurs */
-    background-color: #0f0f0f;
-    color: #e0e0e0;
+    /* FORCE DARK MODE DEFAULTS */
+    background-color: #0f0f0f !important;
+    color: #e0e0e0 !important;
 
     width: 100%;
     max-width: 900px;
@@ -3218,14 +3218,14 @@ textarea:focus {
     animation: slideUpModal 0.4s 0.1s forwards cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Explicit Light Mode Override */
-body.light-mode .cert-modal-content {
+/* Explicit Light Mode Override for the new class */
+body.light-mode .cert-modal-content-dark {
     background-color: #ffffff !important;
     color: #111111 !important;
 }
 
 /* Explicit Dark Mode Enforcement (redundant but safe) */
-body:not(.light-mode) .cert-modal-content {
+body:not(.light-mode) .cert-modal-content-dark {
     background-color: #0f0f0f !important;
     color: #e0e0e0 !important;
 }

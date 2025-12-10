@@ -110,7 +110,9 @@ function initMobileMenu() {
 // =========================================
 // LANGUAGE SUPPORT
 // =========================================
-let currentLang = localStorage.getItem('lang') || 'en';
+// Force French as default or detect browser language, defaulting to FR if unsure
+const userLang = navigator.language || navigator.userLanguage; 
+let currentLang = localStorage.getItem('lang') || (userLang.startsWith('en') ? 'en' : 'fr');
 
 function initLanguage() {
     const langBtn = document.getElementById('lang-switch');
