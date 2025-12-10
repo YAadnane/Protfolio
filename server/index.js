@@ -580,7 +580,8 @@ app.post('/api/chat', async (req, res) => {
             const reviews = await getAsync("SELECT name, role, message, rating, social_platform FROM reviews WHERE is_approved = 1");
 
             // 3. Construct System Prompt
-            const portfolioOwner = general.hero_subtitle || "Adnane Yadani";
+            // Fix: Use explicit name instead of job title (hero_subtitle)
+            const portfolioOwner = "Adnane YADANI"; 
             const systemPrompt = `
                 You are an AI assistant for ${portfolioOwner}'s portfolio.
                 Your goal is to answer visitor questions about ${portfolioOwner}'s skills, projects, and background.
