@@ -519,17 +519,25 @@ async function loadProjects() {
                     <p>${p.description}</p>
                     <div class="bento-tags" style="margin-top: 1rem; margin-bottom: 1.5rem;">${tagsHtml}</div>
                     <div class="project-actions">
-                        <a href="${p.link}" class="btn-github" target="_blank" title="View Code">
+                        <a href="${p.link}" class="btn-github" target="_blank" title="View Code" onclick="event.stopPropagation()">
                             <i class="fa-brands fa-github"></i> GitHub
                         </a>
                         ${p.image && p.image.match(/\.(mp4|webm|ogg|mov|avi|mkv)$/i) ? 
-                            `<button class="btn-play" onclick="openVideoModal('${API_URL.replace('/api', '')}${p.image}')"><i class="fa-solid fa-play"></i> Demo</button>` 
+                            `<button class="btn-play" onclick="event.stopPropagation(); openVideoModal('${API_URL.replace('/api', '')}${p.image}')"><i class="fa-solid fa-play"></i> Demo</button>` 
                             : ''}
                     </div>
                 </div>
                 ${bgContent}
                 ${sizeClass === 'large' ? '<div class="bento-overlay"></div>' : ''}
             `;
+
+            // CLICK HANDLER FOR MODAL
+            item.style.cursor = 'pointer';
+            item.addEventListener('click', (e) => {
+                // Don't open if clicking action buttons (handled by stopPropagation above, but safety check)
+                if (e.target.closest('a') || e.target.closest('button')) return;
+                openProjectModal(p);
+            });
 
             container.appendChild(item);
         });
