@@ -85,26 +85,18 @@ const ADMIN_USER = {
     passwordHash: process.env.ADMIN_PASSWORD_HASH || '$2b$10$HREwPsOL57zGfNOb7tfdMuHB4HkrTA.lYC2AFc9VePxJQPnXmvT5a'
 };
 
-// Startup Log
-try { fs.appendFileSync('/tmp/debug_server.log', `Startup at ${new Date().toISOString()}\nDir: ${__dirname}\n`); } catch(e) { console.error(e); }
+
 
 // Middleware to verify JWT
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
-    if (token == null) {
-        fs.appendFileSync('/tmp/debug_server.log', `[${new Date().toISOString()}] Auth Fail: No Token\n`);
-        return res.sendStatus(401);
-    }
+    if (token == null) return res.sendStatus(401);
 
     jwt.verify(token, SECRET_KEY, (err, user) => {
-        if (err) {
-            fs.appendFileSync('/tmp/debug_server.log', `[${new Date().toISOString()}] Auth Fail: Invalid Token - ${err.message}\n`);
-            return res.sendStatus(403);
-        }
+        if (err) return res.sendStatus(403);
         req.user = user;
-        fs.appendFileSync('/tmp/debug_server.log', `[${new Date().toISOString()}] Auth OK: ${user.email}\n`);
         next();
     });
 };
@@ -145,16 +137,6 @@ app.get('/api/projects', (req, res) => {
 });
 
 app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const debugInfo = {
-        timestamp: new Date().toISOString(),
-        method: 'POST',
-        headers: req.headers['content-type'],
-        bodyKeys: Object.keys(req.body),
-        body: req.body,
-        file: req.file ? req.file.originalname : 'No file'
-    };
-    try { fs.appendFileSync('/tmp/debug_server.log', `POST PROJECT: ${JSON.stringify(debugInfo, null, 2)}\n----------------\n`); } catch(e) { console.error(e); }
-
     console.log('POST /api/projects hit');
     const { title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks } = req.body;
     let imagePath = image;
@@ -172,18 +154,7 @@ app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, r
 });
 
 app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const debugInfo = {
-        timestamp: new Date().toISOString(),
-        id: req.params.id,
-        headers: req.headers['content-type'],
-        bodyKeys: Object.keys(req.body),
-        body: req.body,
-        file: req.file ? req.file.originalname : 'No file'
-    };
-    fs.appendFileSync('/tmp/debug_server.log', `PUT PROJECT: ${JSON.stringify(debugInfo, null, 2)}\n----------------\n`);
-    
     console.log(`PUT /api/projects/${req.params.id} hit`);
-    console.log('req.file:', req.file);
     const { title, description, tags, category, image, link, is_hidden, role, year, subject, tasks } = req.body;
     // If a new file is uploaded, use it. Otherwise, keep the old one (passed as 'image' body param or handled via logic)
     // Note: In a real app, we might want to delete the old file.
@@ -192,11 +163,8 @@ app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req
         imagePath = `/uploads/${req.file.filename}`;
     }
 
-    const params = [title, description, tags, imagePath, link, category, is_hidden, role, year, subject, tasks, req.params.id];
-    console.log('DB UPDATE Params:', params);
-
     db.run(`UPDATE projects SET title = ?, description = ?, tags = ?, image = ?, link = ?, category = ?, is_hidden = ?, role = ?, year = ?, subject = ?, tasks = ? WHERE id = ?`,
-        params,
+        [title, description, tags, imagePath, link, category, is_hidden, role, year, subject, tasks, req.params.id],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });
