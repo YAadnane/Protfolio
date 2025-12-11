@@ -3761,3 +3761,80 @@ body.light-mode .cert-modal-image {
     background: #f9f9f9;
     border-color: #eee;
 }
+
+/* =========================================
+   REVIEW MODAL FORM STYLES
+   ========================================= */
+#review-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+#review-form .form-group {
+    margin-bottom: 0.5rem;
+}
+
+#review-form input,
+#review-form textarea,
+#review-form select {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    transition: var(--transition-fast);
+}
+
+#review-form input:focus,
+#review-form textarea:focus,
+#review-form select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 15px rgba(0, 255, 157, 0.1);
+}
+
+#review-form select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+}
+
+/* Light mode specific for select arrow */
+body.light-mode #review-form select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+#review-form select option {
+    background: var(--card-bg);
+    color: var(--text-main);
+}
+
+/* Rating Stars */
+.rating-input {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    justify-content: center;
+    margin: 1rem 0;
+}
+
+.rating-input .star {
+    color: var(--text-muted);
+    transition: color 0.2s;
+}
+
+.rating-input .star.active,
+.rating-input .star:hover,
+.rating-input .star:hover~.star {
+    color: #ffd700;
+}
