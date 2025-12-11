@@ -2040,17 +2040,47 @@ function openProjectModal(project) {
         yearEl.innerHTML = `<i class="fa-regular fa-calendar"></i> ${project.year || new Date().getFullYear()}`;
     }
 
-    if (imgEl) {
-        if (project.image && project.image.startsWith('/uploads/')) {
-            imgEl.src = `${API_URL.replace('/api', '')}${project.image}`;
-            imgEl.style.display = 'block';
-        } else if (project.image && !project.image.startsWith('bento-')) {
-            imgEl.src = project.image;
-            imgEl.style.display = 'block';
+    // IMAGE / MEDIA HANDLING
+    const mediaContainer = imgEl.parentElement;
+    
+    // Clear previous dynamic content but keep the original img element reference if needed
+    // Actually, safest is to clear container and rebuild
+    mediaContainer.innerHTML = ''; 
+
+    if (project.image && project.image.startsWith('/uploads/')) {
+        const imageUrl = `${API_URL.replace('/api', '')}${project.image}`;
+        const isVideo = project.image.match(/\.(mp4|webm|ogg|mov|avi|mkv)$/i);
+
+        if (isVideo) {
+            const video = document.createElement('video');
+            video.src = imageUrl;
+            video.controls = true;
+            video.autoplay = true;
+            video.loop = true;
+            video.muted = true;
+            video.style.width = '100%';
+            video.style.maxHeight = '500px';
+            video.style.borderRadius = '8px';
+            mediaContainer.appendChild(video);
         } else {
-            // Hide image if it's a CSS class or missing
-            imgEl.style.display = 'none';
+             const img = document.createElement('img');
+             img.src = imageUrl;
+             img.id = 'project-modal-img';
+             mediaContainer.appendChild(img);
         }
+    } else if (project.image && !project.image.startsWith('bento-')) {
+         const img = document.createElement('img');
+         img.src = project.image;
+         img.id = 'project-modal-img';
+         mediaContainer.appendChild(img);
+    } else {
+        // Fallback or specific class handling
+        // We can just leave it empty or show a placeholder
+        mediaContainer.style.display = 'none'; // Hide container if no media
+    }
+    
+    if (mediaContainer.children.length > 0) {
+        mediaContainer.style.display = 'flex'; // Restore display
     }
 
     if (descEl) descEl.innerText = project.description || '';

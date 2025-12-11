@@ -202,8 +202,8 @@
 
 .btn-github-modal {
     background: var(--text-main);
-    /* White/Black depending on theme, but let's say dark usually */
-    color: var(--bg-main);
+    /* White/Black depending on theme */
+    color: var(--bg-color);
     padding: 0.8rem 1.5rem;
     border-radius: 8px;
     text-decoration: none;
