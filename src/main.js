@@ -2041,8 +2041,10 @@ function openProjectModal(project) {
     }
 
     // IMAGE / MEDIA HANDLING
+    if (!imgEl) return; // Safety check
     const mediaContainer = imgEl.parentElement;
-    
+    if (!mediaContainer) return; // Double safety
+
     // Clear previous dynamic content but keep the original img element reference if needed
     // Actually, safest is to clear container and rebuild
     mediaContainer.innerHTML = ''; 

@@ -919,7 +919,8 @@ h4 {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
-    color: #fff;
+    color: var(--text-main);
+    /* Changed from #fff to adaptive variable */
     font-size: 0.85rem;
     text-decoration: none;
     transition: var(--transition-fast);
@@ -932,6 +933,14 @@ h4 {
     background: var(--accent-color);
     color: #000;
     border-color: var(--accent-color);
+}
+
+/* Light Mode specific override for better visibility if needed */
+body.light-mode .btn-github,
+body.light-mode .btn-play {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-main);
 }
 
 /* ------------------------------- */
