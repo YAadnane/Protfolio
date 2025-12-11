@@ -86,7 +86,7 @@ const ADMIN_USER = {
 };
 
 // Startup Log
-try { fs.writeFileSync('/tmp/debug_server.log', `Startup at ${new Date().toISOString()}\nDir: ${__dirname}\n`); } catch(e) { console.error(e); }
+try { fs.appendFileSync('/tmp/debug_server.log', `Startup at ${new Date().toISOString()}\nDir: ${__dirname}\n`); } catch(e) { console.error(e); }
 
 // Middleware to verify JWT
 const authenticateToken = (req, res, next) => {
