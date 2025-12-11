@@ -1580,6 +1580,15 @@ async function loadReviews() {
                     ${group.map(r => `
                         <div class="testimonial-card">
                             <div class="testimonial-header">
+                                <!-- Avatar Injection (with fallback logic handled by standard img error or js) -->
+                                ${r.social_link ? 
+                                    `<img src="https://unavatar.io/${r.social_link}?fallback=false" 
+                                          class="testimonial-avatar" 
+                                          alt="${r.name}"
+                                          onerror="this.style.display='none'"
+                                    />` 
+                                : ''}
+                                
                                 <div class="testimonial-info">
                                     <h4 class="testimonial-name">
                                         ${r.name} 
@@ -1596,7 +1605,6 @@ async function loadReviews() {
                             <p class="testimonial-text">"${r.message}"</p>
                         </div>
                     `).join("")}
-                    ${/* Fill empty spots if needed for grid layout consistency? Not strictly needed with css grid */ ""}
                 </div>
             `).join("");
 

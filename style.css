@@ -3838,3 +3838,34 @@ body.light-mode #review-form select {
 .rating-input .star:hover~.star {
     color: #ffd700;
 }
+
+/* =========================================
+   TESTIMONIAL AVATARS
+   ========================================= */
+.testimonial-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.testimonial-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--accent-color);
+    background: var(--nav-bg);
+}
+
+.testimonial-info {
+    flex: 1;
+}
+
+.testimonial-name {
+    font-size: 1.1rem;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
