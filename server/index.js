@@ -90,10 +90,16 @@ const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
-    if (token == null) return res.sendStatus(401); // No token
+    if (token == null) {
+        console.log('Auth failed: No token provided');
+        return res.sendStatus(401);
+    }
 
     jwt.verify(token, SECRET_KEY, (err, user) => {
-        if (err) return res.sendStatus(403); // Invalid token
+        if (err) {
+            console.log('Auth failed: Invalid token', err.message);
+            return res.sendStatus(403);
+        }
         req.user = user;
         next();
     });
