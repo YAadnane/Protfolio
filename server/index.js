@@ -165,8 +165,11 @@ app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req
         imagePath = `/uploads/${req.file.filename}`;
     }
 
+    const params = [title, description, tags, imagePath, link, category, is_hidden, role, year, subject, tasks, req.params.id];
+    console.log('DB UPDATE Params:', params);
+
     db.run(`UPDATE projects SET title = ?, description = ?, tags = ?, image = ?, link = ?, category = ?, is_hidden = ?, role = ?, year = ?, subject = ?, tasks = ? WHERE id = ?`,
-        [title, description, tags, imagePath, link, category, is_hidden, role, year, subject, tasks, req.params.id],
+        params,
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });
