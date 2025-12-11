@@ -186,7 +186,10 @@ async function loadMedia() {
                     <button class="btn-delete" onclick="deleteMedia('${file.name}')">
                         <i class="fa-solid fa-trash"></i> Delete
                     </button>
-                    <button class="btn-secondary" onclick="navigator.clipboard.writeText('${file.url}'); showNotification('URL copied!', 'success');" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
+                    <a href="${file.url}" download="${file.name}" class="btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem; text-decoration: none; color: var(--text-main); display: inline-flex; align-items: center; justify-content: center; margin-right: 0.5rem;" title="Download">
+                        <i class="fa-solid fa-download"></i>
+                    </a>
+                    <button class="btn-secondary" onclick="navigator.clipboard.writeText('${file.url}'); showNotification('URL copied!', 'success');" style="padding: 0.5rem 1rem; font-size: 0.9rem;" title="Copy URL">
                         <i class="fa-regular fa-copy"></i>
                     </button>
                 </div>
