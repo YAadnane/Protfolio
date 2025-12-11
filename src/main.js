@@ -805,125 +805,9 @@ async function loadCertifications() {
         if(issuerSelect) issuerSelect.onchange = renderCerts;
         
         // --- MODAL LOGIC ---
-        function openProjectModal(project) {
-    const modal = document.getElementById('project-modal');
-    if (!modal) return;
+        // (Moved to top-level below)
 
-    // Elements
-    const titleEl = document.getElementById('project-modal-title');
-    const categoryEl = document.getElementById('project-modal-category');
-    const yearEl = document.getElementById('project-modal-year');
-    const imgEl = document.getElementById('project-modal-img');
-    const descEl = document.getElementById('project-modal-desc');
-    const roleEl = document.getElementById('project-modal-role');
-    const subjectEl = document.getElementById('project-modal-subject');
-    const techsContainer = document.getElementById('project-modal-techs');
-    const tasksContainer = document.getElementById('project-modal-tasks');
-    const linkEl = document.getElementById('project-modal-link');
 
-    // Populate Data
-    if (titleEl) titleEl.innerText = project.title || 'Untitled Project';
-    
-    if (categoryEl) {
-        // Use icon for category if available or generic folder
-        categoryEl.innerHTML = `<i class="fa-solid fa-folder"></i> ${project.category || 'General'}`;
-    }
-    
-    if (yearEl) {
-        yearEl.innerHTML = `<i class="fa-regular fa-calendar"></i> ${project.year || new Date().getFullYear()}`;
-    }
-
-    if (imgEl) {
-        if (project.image && project.image.startsWith('/uploads/')) {
-            imgEl.src = `${API_URL.replace('/api', '')}${project.image}`;
-            imgEl.style.display = 'block';
-        } else if (project.image && !project.image.startsWith('bento-')) {
-            imgEl.src = project.image;
-            imgEl.style.display = 'block';
-        } else {
-            // Hide image if it's a CSS class or missing
-            imgEl.style.display = 'none';
-        }
-    }
-
-    if (descEl) descEl.innerText = project.description || '';
-    
-    // Left Column Info
-    if (roleEl) roleEl.innerText = project.role || 'Developer';
-    if (subjectEl) subjectEl.innerText = project.subject || project.category || 'N/A';
-
-    // Technologies (Tags)
-    if (techsContainer) {
-        techsContainer.innerHTML = '';
-        if (project.tags) {
-            project.tags.split(',').forEach(tag => {
-                const span = document.createElement('span');
-                span.className = 'tech-tag';
-                span.innerText = tag.trim();
-                techsContainer.appendChild(span);
-            });
-        }
-    }
-
-    // Tasks List
-    if (tasksContainer) {
-        tasksContainer.innerHTML = '';
-        if (project.tasks) {
-            // Handle both newline separated (textarea) or just text
-            const tasks = project.tasks.split('\n').filter(t => t.trim() !== '');
-            if (tasks.length > 0) {
-                 tasks.forEach(task => {
-                    const li = document.createElement('li');
-                    li.innerText = task.trim();
-                    tasksContainer.appendChild(li);
-                });
-            } else {
-                 tasksContainer.innerHTML = '<li>No specific tasks listed.</li>';
-            }
-        }
-    }
-
-    // GitHub Link
-    if (linkEl) {
-        linkEl.href = project.link || '#';
-        if (!project.link) linkEl.style.display = 'none';
-        else linkEl.style.display = 'inline-flex';
-    }
-
-    // Translation update for labels (Role, Subject, Techs, Tasks)
-    // We can call updateTranslations() if needed, but the labels have data-i18n attributes.
-    // However, since we just injected HTML, we need to ensure translations are applied.
-    if (typeof updateTranslations === 'function') {
-        updateTranslations();
-    }
-
-    // Show Modal
-    modal.style.display = 'flex';
-    requestAnimationFrame(() => {
-        modal.classList.add('active');
-    });
-    
-    document.body.style.overflow = 'hidden';
-
-    // Close Handler
-    const closeBtn = modal.querySelector('.project-modal-close');
-    const closeFn = () => {
-        modal.classList.remove('active');
-        setTimeout(() => {
-            modal.style.display = 'none';
-            document.body.style.overflow = '';
-        }, 300);
-    };
-    
-    if (closeBtn) closeBtn.onclick = closeFn;
-    
-    // Click outside to close
-    modal.onclick = (e) => {
-        if (e.target === modal) closeFn();
-    };
-    
-    // Esc key support already in global listener? If not add it.
-}
         window.openCertModal = (cert) => {
             const modal = document.getElementById('cert-modal');
             if(!modal) return;
@@ -2123,3 +2007,123 @@ function renderMobileShape(shape) {
     scene.appendChild(obj);
     mobileContainer.appendChild(scene);
 }
+
+// =========================================
+// PROJECT MODAL LOGIC (Global Scope)
+// =========================================
+function openProjectModal(project) {
+    const modal = document.getElementById('project-modal');
+    if (!modal) return;
+
+    // Elements
+    const titleEl = document.getElementById('project-modal-title');
+    const categoryEl = document.getElementById('project-modal-category');
+    const yearEl = document.getElementById('project-modal-year');
+    const imgEl = document.getElementById('project-modal-img');
+    const descEl = document.getElementById('project-modal-desc');
+    const roleEl = document.getElementById('project-modal-role');
+    const subjectEl = document.getElementById('project-modal-subject');
+    const techsContainer = document.getElementById('project-modal-techs');
+    const tasksContainer = document.getElementById('project-modal-tasks');
+    const linkEl = document.getElementById('project-modal-link');
+
+    // Populate Data
+    if (titleEl) titleEl.innerText = project.title || 'Untitled Project';
+    
+    if (categoryEl) {
+        // Use icon for category if available or generic folder
+        categoryEl.innerHTML = `<i class="fa-solid fa-folder"></i> ${project.category || 'General'}`;
+    }
+    
+    if (yearEl) {
+        yearEl.innerHTML = `<i class="fa-regular fa-calendar"></i> ${project.year || new Date().getFullYear()}`;
+    }
+
+    if (imgEl) {
+        if (project.image && project.image.startsWith('/uploads/')) {
+            imgEl.src = `${API_URL.replace('/api', '')}${project.image}`;
+            imgEl.style.display = 'block';
+        } else if (project.image && !project.image.startsWith('bento-')) {
+            imgEl.src = project.image;
+            imgEl.style.display = 'block';
+        } else {
+            // Hide image if it's a CSS class or missing
+            imgEl.style.display = 'none';
+        }
+    }
+
+    if (descEl) descEl.innerText = project.description || '';
+    
+    // Left Column Info
+    if (roleEl) roleEl.innerText = project.role || 'Developer';
+    if (subjectEl) subjectEl.innerText = project.subject || project.category || 'N/A';
+
+    // Technologies (Tags)
+    if (techsContainer) {
+        techsContainer.innerHTML = '';
+        if (project.tags) {
+            project.tags.split(',').forEach(tag => {
+                const span = document.createElement('span');
+                span.className = 'tech-tag';
+                span.innerText = tag.trim();
+                techsContainer.appendChild(span);
+            });
+        }
+    }
+
+    // Tasks List
+    if (tasksContainer) {
+        tasksContainer.innerHTML = '';
+        if (project.tasks) {
+            // Handle both newline separated (textarea) or just text
+            const tasks = project.tasks.split('\n').filter(t => t.trim() !== '');
+            if (tasks.length > 0) {
+                 tasks.forEach(task => {
+                    const li = document.createElement('li');
+                    li.innerText = task.trim();
+                    tasksContainer.appendChild(li);
+                });
+            } else {
+                 tasksContainer.innerHTML = '<li>No specific tasks listed.</li>';
+            }
+        }
+    }
+
+    // GitHub Link
+    if (linkEl) {
+        linkEl.href = project.link || '#';
+        if (!project.link) linkEl.style.display = 'none';
+        else linkEl.style.display = 'inline-flex';
+    }
+
+    // Translation update for labels (Role, Subject, Techs, Tasks)
+    if (typeof updateTranslations === 'function') {
+        updateTranslations();
+    }
+
+    // Show Modal
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => {
+        modal.classList.add('active');
+    });
+    
+    document.body.style.overflow = 'hidden';
+
+    // Close Handler
+    const closeBtn = modal.querySelector('.project-modal-close');
+    const closeFn = () => {
+        modal.classList.remove('active');
+        setTimeout(() => {
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }, 300);
+    };
+    
+    if (closeBtn) closeBtn.onclick = closeFn;
+    
+    // Click outside to close
+    modal.onclick = (e) => {
+        if (e.target === modal) closeFn();
+    };
+}
+window.openProjectModal = openProjectModal; // Ensure global access
