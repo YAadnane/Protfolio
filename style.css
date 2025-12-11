@@ -870,6 +870,72 @@ h4 {
     gap: 4rem;
 }
 
+/* --- Added Project Card Styles --- */
+.bento-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    opacity: 0.6;
+    transition: var(--transition-smooth);
+}
+
+.bento-bg.is-video {
+    object-fit: cover;
+    opacity: 0.4;
+}
+
+.bento-item:hover .bento-bg {
+    transform: scale(1.05);
+    opacity: 0.3;
+}
+
+.bento-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    z-index: 1;
+}
+
+.project-actions {
+    margin-top: auto;
+    display: flex;
+    gap: 1rem;
+    z-index: 3;
+    position: relative;
+}
+
+.btn-github,
+.btn-play {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: var(--transition-fast);
+    cursor: pointer;
+    backdrop-filter: blur(5px);
+}
+
+.btn-github:hover,
+.btn-play:hover {
+    background: var(--accent-color);
+    color: #000;
+    border-color: var(--accent-color);
+}
+
+/* ------------------------------- */
+
 .column-title {
     font-size: 1.5rem;
     margin-bottom: 2rem;

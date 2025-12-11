@@ -2127,4 +2127,49 @@ function openProjectModal(project) {
         if (e.target === modal) closeFn();
     };
 }
-window.openProjectModal = openProjectModal; // Ensure global access
+window.openProjectModal = openProjectModal; 
+
+// =========================================
+// VIDEO MODAL LOGIC
+// =========================================
+function openVideoModal(videoSrc) {
+    const modal = document.getElementById('video-modal');
+    const video = document.getElementById('modal-video-player');
+    if (!modal || !video) return;
+
+    video.src = videoSrc;
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => modal.classList.add('active'));
+    
+    // Play video
+    try {
+        video.play();
+    } catch(e) { console.error("Auto-play failed", e); }
+
+    document.body.style.overflow = 'hidden';
+
+    // Click outside to close
+    modal.onclick = (e) => {
+        if (e.target === modal) closeVideoModal();
+    };
+}
+
+function closeVideoModal() {
+    const modal = document.getElementById('video-modal');
+    const video = document.getElementById('modal-video-player');
+    if (!modal) return;
+
+    if (video) {
+        video.pause();
+        video.src = "";
+    }
+
+    modal.classList.remove('active');
+    setTimeout(() => {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }, 300);
+}
+
+window.openVideoModal = openVideoModal;
+window.closeVideoModal = closeVideoModal;
