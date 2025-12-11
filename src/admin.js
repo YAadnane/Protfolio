@@ -736,6 +736,18 @@ function setupModal() {
 
         headers['Authorization'] = `Bearer ${token}`;
 
+        // DEBUG: Confirm data being sent
+        if (currentTab === 'projects') {
+            const role = formData.get('role');
+            const year = formData.get('year');
+            const subject = formData.get('subject');
+            const tasks = formData.get('tasks');
+            
+            const debugMsg = `DEBUG PRE-SEND:\nRole: ${role}\nYear: ${year}\nSubject: ${subject}\nTasks: ${tasks ? tasks.substring(0, 50) + '...' : 'None'}`;
+            alert(debugMsg); // Enabled for user debugging
+            console.log(debugMsg);
+        }
+
         try {
             const res = await fetch(url, {
                 method: method,
