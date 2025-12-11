@@ -142,10 +142,11 @@ app.get('/api/projects', (req, res) => {
 });
 
 app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, res) => {
+    const logData = `[${new Date().toISOString()}] POST /api/projects\nBody: ${JSON.stringify(req.body, null, 2)}\nFile: ${req.file ? req.file.originalname : 'None'}\n----------------\n`;
+    fs.appendFileSync(path.join(__dirname, '../debug_payload.txt'), logData);
+
     console.log('POST /api/projects hit');
-    console.log('req.file:', req.file);
-    console.log('req.body:', req.body);
-    const { title, description, tags, category, image, link, is_hidden, lang } = req.body;
+    const { title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks } = req.body;
     let imagePath = image;
     if (req.file) {
         imagePath = `/uploads/${req.file.filename}`;
