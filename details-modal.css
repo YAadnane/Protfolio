@@ -1,7 +1,7 @@
 /* Detailed Project Modal Styles */
 #project-modal .project-modal-content {
-    background: var(--bg-card);
-    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    border: 1px solid var(--nav-border);
     width: 90%;
     max-width: 900px;
     max-height: 90vh;
@@ -17,7 +17,7 @@
 #project-modal .project-modal-header {
     padding: 2rem 2rem 1rem;
     text-align: center;
-    border-bottom: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--nav-border);
 }
 
 #project-modal-title {
@@ -131,7 +131,7 @@
 
 .tech-tag {
     background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--nav-border);
     padding: 0.4rem 0.8rem;
     border-radius: 6px;
     font-size: 0.85rem;
@@ -163,7 +163,7 @@
 
 .project-modal-footer {
     padding: 1.5rem 2rem;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid var(--nav-border);
     display: flex;
     justify-content: flex-end;
     /* Button on right as typical, or center? Design implies bottom right or center. */
