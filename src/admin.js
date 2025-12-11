@@ -209,6 +209,13 @@ const fields = {
         { name: 'description', label: 'Description', type: 'textarea' },
         { name: 'tags', label: 'Tags (comma separated)', type: 'text' },
         { name: 'category', label: 'Category', type: 'text' },
+        
+        // New Modal Fields
+        { name: 'role', label: 'Role', type: 'text' },
+        { name: 'year', label: 'Year', type: 'text' },
+        { name: 'subject', label: 'Subject', type: 'text' },
+        { name: 'tasks', label: 'Tasks (One per line)', type: 'textarea' },
+
         { name: 'image', label: 'Image Class (or upload file)', type: 'text' }, // Keep for fallback
         { name: 'imageFile', label: 'Upload Image/Video', type: 'file' }, // New file input
         { name: 'link', label: 'Link', type: 'text' },

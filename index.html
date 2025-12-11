@@ -570,6 +570,67 @@
   </div>
 
 
+  <!-- Detailed Project Modal -->
+  <div id="project-modal" class="modal-overlay" style="display: none;">
+    <div class="project-modal-content">
+      <button class="project-modal-close" onclick="closeProjectModal()">&times;</button>
+
+      <div class="project-modal-header">
+        <h2 id="project-modal-title">Project Title</h2>
+        <div class="project-modal-meta">
+          <span id="project-modal-category"><i class="fa-solid fa-folder"></i> Category</span>
+          <span class="meta-separator">•</span>
+          <span id="project-modal-year"><i class="fa-regular fa-calendar"></i> 2024</span>
+        </div>
+      </div>
+
+      <div class="project-modal-scroll">
+        <div class="project-modal-image-container">
+          <img id="project-modal-img" src="" alt="Project Preview">
+        </div>
+
+        <div class="project-modal-body">
+          <div class="project-col-left">
+            <h4 data-i18n="project.description">Description</h4>
+            <p id="project-modal-desc">Project description...</p>
+
+            <div class="project-info-list" style="margin-top: 1.5rem;">
+              <div class="info-item">
+                <i class="fa-solid fa-briefcase"></i>
+                <div>
+                  <label data-i18n="project.role" style="font-size: 0.8rem; color: var(--text-muted);">Role</label>
+                  <div id="project-modal-role" class="info-val">Developer</div>
+                </div>
+              </div>
+              <div class="info-item" style="margin-top: 1rem;">
+                <i class="fa-solid fa-tag"></i>
+                <div>
+                  <label data-i18n="project.subject"
+                    style="font-size: 0.8rem; color: var(--text-muted);">Subject</label>
+                  <div id="project-modal-subject" class="info-val">Subject</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="project-col-right">
+            <h4 data-i18n="project.technologies">Technologies</h4>
+            <div id="project-modal-techs" class="tech-tags"></div>
+
+            <h4 data-i18n="project.tasks" style="margin-top: 1.5rem;">Tasks</h4>
+            <ul id="project-modal-tasks" class="task-list"></ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="project-modal-footer">
+        <a id="project-modal-link" href="#" target="_blank" class="btn-github-modal">
+          <i class="fa-brands fa-github"></i> <span data-i18n="project.view_code">View Code</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="/src/main.js"></script>
 </body>
 

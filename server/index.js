@@ -145,8 +145,8 @@ app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, r
         imagePath = `/uploads/${req.file.filename}`;
     }
 
-    db.run(`INSERT INTO projects (title, description, tags, category, image, link, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [title, description, tags, category, imagePath, link, is_hidden || 0, lang || 'en'],
+    db.run(`INSERT INTO projects (title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [title, description, tags, category, imagePath, link, is_hidden || 0, lang || 'en', role, year, subject, tasks],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
@@ -157,7 +157,7 @@ app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, r
 app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
     console.log(`PUT /api/projects/${req.params.id} hit`);
     console.log('req.file:', req.file);
-    const { title, description, tags, category, image, link, is_hidden } = req.body;
+    const { title, description, tags, category, image, link, is_hidden, role, year, subject, tasks } = req.body;
     // If a new file is uploaded, use it. Otherwise, keep the old one (passed as 'image' body param or handled via logic)
     // Note: In a real app, we might want to delete the old file.
     let imagePath = image;
@@ -165,8 +165,8 @@ app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req
         imagePath = `/uploads/${req.file.filename}`;
     }
 
-    db.run(`UPDATE projects SET title = ?, description = ?, tags = ?, image = ?, link = ?, category = ?, is_hidden = ? WHERE id = ?`,
-        [title, description, tags, imagePath, link, category, is_hidden, req.params.id],
+    db.run(`UPDATE projects SET title = ?, description = ?, tags = ?, image = ?, link = ?, category = ?, is_hidden = ?, role = ?, year = ?, subject = ?, tasks = ? WHERE id = ?`,
+        [title, description, tags, imagePath, link, category, is_hidden, role, year, subject, tasks, req.params.id],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });

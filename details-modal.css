@@ -1,0 +1,219 @@
+/* Detailed Project Modal Styles */
+#project-modal .project-modal-content {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    border-radius: 12px;
+    padding: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+#project-modal .project-modal-header {
+    padding: 2rem 2rem 1rem;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#project-modal-title {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-main);
+}
+
+.project-modal-meta {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.modal-close-btn:hover {
+    color: var(--accent-color);
+}
+
+.project-modal-scroll {
+    overflow-y: auto;
+    flex: 1;
+    padding: 2rem;
+}
+
+.project-modal-image-container {
+    width: 100%;
+    margin-bottom: 2rem;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+    display: flex;
+    justify-content: center;
+}
+
+.project-modal-image-container img {
+    max-width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+}
+
+.project-modal-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    /* 50/50 split matching design */
+    gap: 3rem;
+}
+
+/* Left Column */
+.project-col-left h4 {
+    color: var(--text-main);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.project-col-left p {
+    color: var(--text-muted);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+.project-info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.info-item i {
+    color: var(--accent-color);
+    font-size: 1.1rem;
+    margin-top: 0.2rem;
+}
+
+.info-val {
+    color: var(--text-main);
+    font-weight: 500;
+}
+
+/* Right Column */
+.project-col-right h4 {
+    color: var(--text-main);
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+
+.tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.tech-tag {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--text-main);
+}
+
+.task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.task-list li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.8rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.task-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+.project-modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    /* Button on right as typical, or center? Design implies bottom right or center. */
+}
+
+.btn-github-modal {
+    background: var(--text-main);
+    /* White/Black depending on theme, but let's say dark usually */
+    color: var(--bg-main);
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: transform 0.2s, opacity 0.2s;
+    width: 100%;
+    /* Full width on mobile, auto on desktop */
+    justify-content: center;
+}
+
+.btn-github-modal:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+/* Dark/Light Mode adjustments via existing vars */
+body.light-mode .project-modal-content {
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+}
+
+body.light-mode .btn-github-modal {
+    background: #000;
+    color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .project-modal-body {
+        grid-template-columns: 1fr;
+        /* Stack columns */
+        gap: 2rem;
+    }
+
+    #project-modal-title {
+        font-size: 1.6rem;
+    }
+
+    .project-modal-image-container img {
+        max-height: 250px;
+    }
+}
