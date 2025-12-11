@@ -1582,11 +1582,11 @@ async function loadReviews() {
                             <div class="testimonial-header">
                                 <!-- Avatar Injection -->
                                 ${r.social_link ? 
-                                    `<img src="https://unavatar.io/${encodeURIComponent(r.social_link)}" 
+                                    `<img src="https://unavatar.io/${encodeURIComponent(r.social_link)}?fallback=false" 
                                           class="testimonial-avatar" 
                                           alt="${r.name}"
                                           loading="lazy"
-                                          onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(r.name)}&background=random'"
+                                          onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(r.name)}&background=random&color=fff'"
                                     />` 
                                 : ''}
                                 
