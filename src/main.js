@@ -1580,12 +1580,13 @@ async function loadReviews() {
                     ${group.map(r => `
                         <div class="testimonial-card">
                             <div class="testimonial-header">
-                                <!-- Avatar Injection (with fallback logic handled by standard img error or js) -->
+                                <!-- Avatar Injection -->
                                 ${r.social_link ? 
-                                    `<img src="https://unavatar.io/${r.social_link}?fallback=false" 
+                                    `<img src="https://unavatar.io/${encodeURIComponent(r.social_link)}" 
                                           class="testimonial-avatar" 
                                           alt="${r.name}"
-                                          onerror="this.style.display='none'"
+                                          loading="lazy"
+                                          onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(r.name)}&background=random'"
                                     />` 
                                 : ''}
                                 
