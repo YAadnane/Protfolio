@@ -2041,13 +2041,13 @@ function openProjectModal(project) {
     }
 
     // IMAGE / MEDIA HANDLING
-    if (!imgEl) return; // Safety check
-    const mediaContainer = imgEl.parentElement;
-    if (!mediaContainer) return; // Double safety
+    // We target the container directly because the inner IMG might be destroyed/swapped for VIDEO
+    const mediaContainer = modal.querySelector('.project-modal-image-container');
+    if (!mediaContainer) return;
 
-    // Clear previous dynamic content but keep the original img element reference if needed
-    // Actually, safest is to clear container and rebuild
-    mediaContainer.innerHTML = ''; 
+    // Reset Container
+    mediaContainer.innerHTML = '';
+    mediaContainer.style.display = 'flex';
 
     if (project.image && project.image.startsWith('/uploads/')) {
         const imageUrl = `${API_URL.replace('/api', '')}${project.image}`;
@@ -2067,7 +2067,7 @@ function openProjectModal(project) {
         } else {
              const img = document.createElement('img');
              img.src = imageUrl;
-             img.id = 'project-modal-img';
+             img.id = 'project-modal-img'; // Re-create ID for consistency
              mediaContainer.appendChild(img);
         }
     } else if (project.image && !project.image.startsWith('bento-')) {
@@ -2158,6 +2158,9 @@ function openProjectModal(project) {
     modal.onclick = (e) => {
         if (e.target === modal) closeFn();
     };
+    
+    // SAFETY: Expose close function globally for existing HTML onclick references
+    window.closeProjectModal = closeFn;
 }
 window.openProjectModal = openProjectModal; 
 
