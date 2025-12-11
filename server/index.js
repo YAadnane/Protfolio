@@ -109,7 +109,67 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
-// ...
+// Login Endpoint
+app.post('/api/login', (req, res) => {
+    const { email, password } = req.body;
+    console.log('Login attempt:', email); 
+
+    if (email === ADMIN_USER.email) {
+        bcrypt.compare(password, ADMIN_USER.passwordHash, (err, result) => {
+            if (result) {
+                console.log('Password match!'); 
+                const token = jwt.sign({ email: email }, SECRET_KEY, { expiresIn: '24h' });
+                res.json({ token: token });
+            } else {
+                console.log('Password mismatch'); 
+                res.status(401).json({ error: "Invalid credentials" });
+            }
+        });
+    } else {
+        console.log('Email mismatch'); 
+        res.status(401).json({ error: "Invalid credentials" });
+    }
+});
+
+// =========================================
+// API ENDPOINTS
+// =========================================
+
+// --- PROJECTS ---
+app.get('/api/projects', (req, res) => {
+    const lang = req.query.lang || 'en';
+    db.all("SELECT * FROM projects WHERE lang = ?", [lang], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, res) => {
+    const debugInfo = {
+        timestamp: new Date().toISOString(),
+        method: 'POST',
+        headers: req.headers['content-type'],
+        bodyKeys: Object.keys(req.body),
+        body: req.body,
+        file: req.file ? req.file.originalname : 'No file'
+    };
+    try { fs.appendFileSync('/tmp/debug_server.log', `POST PROJECT: ${JSON.stringify(debugInfo, null, 2)}\n----------------\n`); } catch(e) { console.error(e); }
+
+    console.log('POST /api/projects hit');
+    const { title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks } = req.body;
+    let imagePath = image;
+    if (req.file) {
+        imagePath = `/uploads/${req.file.filename}`;
+    }
+
+    db.run(`INSERT INTO projects (title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [title, description, tags, category, imagePath, link, is_hidden || 0, lang || 'en', role, year, subject, tasks],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ id: this.lastID });
+        }
+    );
+});
 
 app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
     const debugInfo = {
