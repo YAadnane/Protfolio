@@ -1712,30 +1712,48 @@ function showNotification(title, message, type = 'success') {
 }
 
     if(form) {
+        // Simple client-side sterilization helper
+        const escapeHTML = (str) => {
+            if (!str) return '';
+            return str.replace(/[&<>"']/g, function(m) {
+                switch (m) {
+                    case '&': return '&amp;';
+                    case '<': return '&lt;';
+                    case '>': return '&gt;';
+                    case '"': return '&quot;';
+                    case "'": return '&#039;';
+                    default: return m;
+                }
+            });
+        };
+
         form.onsubmit = async (e) => {
             e.preventDefault();
             const submitBtn = form.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerText;
             
-            const name = document.getElementById("review-name").value.trim();
-            const message = document.getElementById("review-message").value.trim();
+            // 1. Get raw values
+            const rawName = document.getElementById("review-name").value.trim();
+            const rawMessage = document.getElementById("review-message").value.trim();
+            const rawRole = document.getElementById("review-role").value.trim();
+            const rawLink = document.getElementById("review-link").value.trim();
 
-            if (!name || !message) {
-                const t = translations[currentLang];
-                showNotification(t["review.error.title"], t["review.validation.error"], 'error');
+            if (!rawName || !rawMessage) {
+                const t = translations[currentLang] || translations['en'];
+                showNotification(t["review.error.title"] || "Error", t["review.validation.error"] || "Please fill required fields", 'error');
                 return;
             }
 
             submitBtn.disabled = true;
             submitBtn.innerText = "Sending...";
 
+            // 2. Sterilize/Sanitize inputs before sending for extra safety
             const data = {
-                name: name,
-                role: document.getElementById("review-role").value,
+                name: escapeHTML(rawName),
+                role: escapeHTML(rawRole),
                 rating: document.getElementById("review-rating").value,
-                social_link: document.getElementById("review-link").value,
+                social_link: escapeHTML(rawLink),
                 social_platform: document.getElementById("review-platform").value,
-                message: message
+                message: escapeHTML(rawMessage)
             };
 
             try {
