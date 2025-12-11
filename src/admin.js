@@ -24,7 +24,7 @@ window.logout = function() {
 };
 
 // --- CUSTOM MODAL & NOTIFICATIONS ---
-window.showConfirm = (title, message) => {
+window.showConfirm = (title, message, confirmText = 'Delete', confirmColor = '#ff0055') => {
     return new Promise((resolve) => {
         const modal = document.getElementById('confirm-modal');
         const titleEl = document.getElementById('confirm-title');
@@ -34,14 +34,22 @@ window.showConfirm = (title, message) => {
 
         titleEl.textContent = title;
         msgEl.textContent = message;
+        
+        // Dynamic Button
+        okBtn.textContent = confirmText;
+        okBtn.style.background = confirmColor;
+
         modal.classList.add('open');
-        modal.style.display = 'flex'; // Ensure flex is set
+        modal.style.display = 'flex'; 
 
         const cleanup = () => {
             modal.classList.remove('open');
             modal.style.display = 'none';
             okBtn.onclick = null;
             cancelBtn.onclick = null;
+            // Reset to default for next time (optional, but good practice if reused)
+            okBtn.textContent = 'Delete';
+            okBtn.style.background = '#ff0055'; 
         };
 
         okBtn.onclick = () => { cleanup(); resolve(true); };
@@ -821,7 +829,7 @@ function initCursor() {
 // Messages Actions
 // Approve Review
 window.approveReview = async (id) => {
-    if (!await showConfirm('Approve Review?', 'Approve this review for publication?')) return;
+    if (!await showConfirm('Approve Review?', 'Approve this review for publication?', 'Approve', '#2ed573')) return;
     try {
         const res = await fetch(`${API_URL}/reviews/${id}/approve`, {
             method: 'PUT',
