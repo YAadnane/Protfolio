@@ -86,7 +86,7 @@ const ADMIN_USER = {
 };
 
 // Startup Log
-fs.writeFileSync(path.join(__dirname, '../debug_startup.txt'), `Startup at ${new Date().toISOString()}\nDir: ${__dirname}\n`);
+try { fs.writeFileSync('/tmp/debug_server.log', `Startup at ${new Date().toISOString()}\nDir: ${__dirname}\n`); } catch(e) { console.error(e); }
 
 // Middleware to verify JWT
 const authenticateToken = (req, res, next) => {
@@ -94,29 +94,34 @@ const authenticateToken = (req, res, next) => {
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
     if (token == null) {
-        fs.appendFileSync(path.join(__dirname, '../debug_auth.txt'), `[${new Date().toISOString()}] No Token\n`);
+        fs.appendFileSync('/tmp/debug_server.log', `[${new Date().toISOString()}] Auth Fail: No Token\n`);
         return res.sendStatus(401);
     }
 
     jwt.verify(token, SECRET_KEY, (err, user) => {
         if (err) {
-            fs.appendFileSync(path.join(__dirname, '../debug_auth.txt'), `[${new Date().toISOString()}] Invalid Token: ${err.message}\n`);
+            fs.appendFileSync('/tmp/debug_server.log', `[${new Date().toISOString()}] Auth Fail: Invalid Token - ${err.message}\n`);
             return res.sendStatus(403);
         }
         req.user = user;
-        fs.appendFileSync(path.join(__dirname, '../debug_auth.txt'), `[${new Date().toISOString()}] Auth Success: ${user.email}\n`);
+        fs.appendFileSync('/tmp/debug_server.log', `[${new Date().toISOString()}] Auth OK: ${user.email}\n`);
         next();
     });
 };
 
-// ... (Login endpoint skipped in replacement for brevity if not targeted)
-
 // ...
 
 app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const logData = `[${new Date().toISOString()}] PUT /api/projects/${req.params.id}\nBody: ${JSON.stringify(req.body, null, 2)}\n----------------\n`;
-    fs.appendFileSync(path.join(__dirname, '../debug_payload.txt'), logData);
-
+    const debugInfo = {
+        timestamp: new Date().toISOString(),
+        id: req.params.id,
+        headers: req.headers['content-type'],
+        bodyKeys: Object.keys(req.body),
+        body: req.body,
+        file: req.file ? req.file.originalname : 'No file'
+    };
+    fs.appendFileSync('/tmp/debug_server.log', `PUT PROJECT: ${JSON.stringify(debugInfo, null, 2)}\n----------------\n`);
+    
     console.log(`PUT /api/projects/${req.params.id} hit`);
     console.log('req.file:', req.file);
     const { title, description, tags, category, image, link, is_hidden, role, year, subject, tasks } = req.body;
