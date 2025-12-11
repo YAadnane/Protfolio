@@ -2098,8 +2098,8 @@ function openProjectModal(project) {
     }
 
     // Translation update for labels (Role, Subject, Techs, Tasks)
-    if (typeof updateTranslations === 'function') {
-        updateTranslations();
+    if (typeof updatePageLanguage === 'function') {
+        updatePageLanguage();
     }
 
     // Show Modal
