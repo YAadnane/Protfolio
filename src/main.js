@@ -1738,6 +1738,7 @@ function showNotification(title, message, type = 'success') {
         form.onsubmit = async (e) => {
             e.preventDefault();
             const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerText || "Submit Review"; // Restore variable with fallback
             
             // 1. Get raw values
             const rawName = document.getElementById("review-name").value.trim();
