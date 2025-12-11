@@ -212,7 +212,8 @@
     padding: 1.5rem 2rem;
     border-top: 1px solid var(--nav-border);
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
+    /* Center the full width button */
 }
 
 .btn-github-modal {
@@ -220,15 +221,18 @@
     /* Explicit Light Grey */
     color: #000;
     /* Explicit Black */
-    padding: 0.8rem 1.5rem;
+    padding: 1rem 1.5rem;
+    /* Slightly taller */
     border-radius: 8px;
     text-decoration: none;
     font-weight: 600;
-    display: inline-flex;
+    display: flex;
+    /* Changed from inline-flex to flex */
     align-items: center;
     gap: 0.5rem;
     transition: transform 0.2s, opacity 0.2s;
     width: 100%;
+    /* Ensure full width */
     justify-content: center;
     border: 2px solid transparent;
 }
