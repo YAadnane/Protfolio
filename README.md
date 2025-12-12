@@ -31,8 +31,8 @@ graph TD
         end
         
         subgraph "Data Layer"
-            SQLite[(🗄️ SQLite Database)]
-            FS[📂 File System (Uploads)]
+            SQLite[("🗄️ SQLite Database")]
+            FS["📂 File System (Uploads)"]
         end
     end
     
