@@ -225,25 +225,25 @@ window.updateProjectCardsTheme = () => {
     const cards = document.querySelectorAll('.bento-fallback-gradient');
     cards.forEach(card => {
         if (isLight) {
-            // Force Green Gradient
-            card.style.background = 'linear-gradient(160deg, #ffffff 20%, rgba(0, 191, 125, 0.3) 100%)';
-            card.style.opacity = '1';
-            card.style.border = '1px solid rgba(0, 191, 125, 0.1)';
+            // Force Green Gradient with IMPORTANT priority
+            card.style.setProperty('background', 'linear-gradient(160deg, #ffffff 20%, rgba(0, 191, 125, 0.3) 100%)', 'important');
+            card.style.setProperty('opacity', '1', 'important');
+            card.style.setProperty('border', '1px solid rgba(0, 191, 125, 0.1)', 'important');
             
             // Hide Overlay
             const overlay = card.nextElementSibling;
             if (overlay && overlay.classList.contains('bento-fallback-overlay')) {
-                overlay.style.display = 'none';
+                overlay.style.setProperty('display', 'none', 'important');
             }
         } else {
-            // Revert to CSS (Dark Gradient)
-            card.style.background = '';
-            card.style.opacity = '';
-            card.style.border = '';
+            // Revert (remove priority)
+            card.style.removeProperty('background');
+            card.style.removeProperty('opacity');
+            card.style.removeProperty('border');
             
             const overlay = card.nextElementSibling;
             if (overlay && overlay.classList.contains('bento-fallback-overlay')) {
-                overlay.style.display = '';
+                overlay.style.removeProperty('display');
             }
         }
     });
