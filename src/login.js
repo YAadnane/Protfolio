@@ -47,8 +47,14 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    const sanitizeInput = (str) => {
+        const temp = document.createElement('div');
+        temp.textContent = str;
+        return temp.innerHTML.trim();
+    };
+
+    const email = sanitizeInput(document.getElementById('email').value);
+    const password = document.getElementById('password').value.trim(); // Only trim password
     const errorMsg = document.getElementById('error-msg');
     
     try {
@@ -98,7 +104,13 @@ if (forgotToggle) {
 if (forgotForm) {
     forgotForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('forgot-email').value;
+        
+        // Reuse sanitizer logic (or simplified here since it's isolated scope, redefining for safety)
+        const rawEmail = document.getElementById('forgot-email').value;
+        const div = document.createElement('div');
+        div.textContent = rawEmail;
+        const email = div.innerHTML.trim();
+
         forgotMsg.style.display = 'none';
         forgotMsg.style.color = 'var(--accent-color)';
         forgotMsg.textContent = 'Processing...';
