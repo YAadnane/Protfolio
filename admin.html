@@ -561,6 +561,80 @@
         .db-data-wrapper::-webkit-scrollbar-thumb:hover {
             background: var(--accent-color);
         }
+
+        /* --- LIGHT MODE OVERRIDES --- */
+        body.light-mode .db-sidebar,
+        body.light-mode .db-content,
+        html.light-mode .db-sidebar,
+        html.light-mode .db-content,
+        .light-mode .db-sidebar,
+        .light-mode .db-content {
+            background: rgba(255, 255, 255, 0.70) !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
+            backdrop-filter: blur(15px) !important;
+        }
+
+        body.light-mode .db-checklist-title,
+        html.light-mode .db-checklist-title,
+        .light-mode .db-checklist-title {
+            color: #333 !important;
+            border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+        }
+
+        body.light-mode .db-table-btn,
+        html.light-mode .db-table-btn,
+        .light-mode .db-table-btn {
+            color: #1a1a1a !important;
+        }
+
+        body.light-mode .db-table-btn:hover,
+        html.light-mode .db-table-btn:hover,
+        .light-mode .db-table-btn:hover {
+            background: rgba(0, 0, 0, 0.05) !important;
+        }
+
+        body.light-mode .db-table-btn.active,
+        html.light-mode .db-table-btn.active,
+        .light-mode .db-table-btn.active {
+            background: rgba(46, 213, 115, 0.15) !important;
+            color: var(--accent-color) !important;
+        }
+
+        body.light-mode .db-header,
+        html.light-mode .db-header,
+        .light-mode .db-header {
+            background: rgba(255, 255, 255, 0.5) !important;
+            border-bottom-color: rgba(0, 0, 0, 0.05) !important;
+        }
+
+        body.light-mode .db-table thead th,
+        html.light-mode .db-table thead th,
+        .light-mode .db-table thead th {
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: #1a1a1a !important;
+            border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+        }
+
+        body.light-mode .db-table tbody td,
+        html.light-mode .db-table tbody td,
+        .light-mode .db-table tbody td {
+            color: #333 !important;
+            border-bottom-color: rgba(0, 0, 0, 0.05) !important;
+        }
+
+        body.light-mode .db-table tbody tr:hover,
+        html.light-mode .db-table tbody tr:hover,
+        .light-mode .db-table tbody tr:hover {
+            background: rgba(0, 0, 0, 0.03) !important;
+        }
+
+        body.light-mode .db-sidebar::-webkit-scrollbar-thumb,
+        body.light-mode .db-data-wrapper::-webkit-scrollbar-thumb,
+        html.light-mode .db-sidebar::-webkit-scrollbar-thumb,
+        html.light-mode .db-data-wrapper::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2) !important;
+        }
     </style>
 </head>
 
