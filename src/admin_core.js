@@ -912,9 +912,10 @@ window.deleteMessage = async (id) => {
 };
 
 // --- DATABASE VIEWER ---
+// --- DATABASE VIEWER ---
 async function renderDatabaseView() {
     const grid = document.getElementById('content-grid');
-    grid.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted);">Loading Database...</div>';
+    grid.innerHTML = '<div style="text-align:center; padding:5rem; color:var(--text-muted); grid-column:1/-1;"><i class="fa-solid fa-circle-notch fa-spin" style="font-size:2rem; margin-bottom:1rem; color:var(--accent-color);"></i><br>Accessing Data Vault...</div>';
 
     try {
         const res = await fetch(`${API_URL}/admin/database/tables`, {
@@ -926,19 +927,20 @@ async function renderDatabaseView() {
 
         // Layout: Sidebar for tables, Main area for data
         let html = `
-            <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 250px 1fr; gap: 1rem; height: calc(100vh - 200px); width: 100%;">
+            <div class="db-container">
                 <!-- Table List -->
-                <div class="card" style="overflow-y: auto; height: 100%;">
-                    <h3 style="margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Tables</h3>
-                    <ul style="list-style: none; padding: 0;">
-                        ${tables.map(t => `<li style="margin-bottom: 0.5rem;"><button onclick="loadTableData('${t}')" style="width: 100%; text-align: left; padding: 0.5rem; background: rgba(255,255,255,0.05); border: none; color: var(--text-main); cursor: pointer; border-radius: 4px;">${t}</button></li>`).join('')}
-                    </ul>
+                <div class="db-sidebar">
+                    <div class="db-checklist-title"><i class="fa-solid fa-table"></i> Tables (${tables.length})</div>
+                    <div style="display:flex; flex-direction:column; gap:0.3rem;">
+                        ${tables.map(t => `<button onclick="loadTableData('${t}', this)" class="db-table-btn"><span>${t}</span> <i class="fa-solid fa-chevron-right" style="font-size:0.7rem; opacity:0.5;"></i></button>`).join('')}
+                    </div>
                 </div>
 
                 <!-- Data View -->
-                <div class="card" id="db-data-view" style="overflow: auto; height: 100%;">
-                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; color: var(--text-muted);">
-                        Select a table to view data
+                <div class="db-content" id="db-data-view">
+                    <div style="display: flex; flex-direction:column; justify-content: center; align-items: center; height: 100%; color: var(--text-muted);">
+                        <i class="fa-solid fa-database" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.2;"></i>
+                        <p>Select a table to inspect data</p>
                     </div>
                 </div>
             </div>
@@ -949,13 +951,19 @@ async function renderDatabaseView() {
 
     } catch (err) {
         console.error(err);
-        grid.innerHTML = `<div class="error-message">Error loading database: ${err.message}</div>`;
+        grid.innerHTML = `<div class="error-message" style="grid-column:1/-1;">Error loading database: ${err.message}</div>`;
     }
 }
 
-async function loadTableData(tableName) {
+async function loadTableData(tableName, btnElement) {
+    // Update Active State
+    if (btnElement) {
+        document.querySelectorAll('.db-table-btn').forEach(b => b.classList.remove('active'));
+        btnElement.classList.add('active');
+    }
+
     const container = document.getElementById('db-data-view');
-    container.innerHTML = '<div style="padding:1rem;">Loading data...</div>';
+    container.innerHTML = '<div style="display:flex; justify-content:center; align-items:center; height:100%;"><i class="fa-solid fa-circle-notch fa-spin" style="color:var(--accent-color); font-size:1.5rem;"></i></div>';
 
     try {
         const res = await fetch(`${API_URL}/admin/database/table/${tableName}`, {
@@ -966,28 +974,41 @@ async function loadTableData(tableName) {
         if (data.error) throw new Error(data.error);
 
         if (data.length === 0) {
-            container.innerHTML = `<div style="padding:1rem;"><h3>${tableName}</h3><p>Table is empty.</p></div>`;
+            container.innerHTML = `
+                <div class="db-header">
+                    <h3 style="margin:0;">${tableName}</h3>
+                    <button onclick="renderDatabaseView()" style="background:none; border:none; color:var(--accent-color); cursor:pointer;"><i class="fa-solid fa-rotate"></i></button>
+                </div>
+                <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; color:var(--text-muted);">
+                    <i class="fa-regular fa-folder-open" style="font-size:2rem; margin-bottom:0.5rem; opacity:0.5;"></i>
+                    <p>Table is empty</p>
+                </div>`;
             return;
         }
 
         const headers = Object.keys(data[0]);
 
         let tableHtml = `
-            <div style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
-                <h3>${tableName} <span style="font-size:0.8rem; color:var(--text-muted);">(${data.length} rows visible)</span></h3>
-                <button onclick="renderDatabaseView()" style="background:none; border:none; color:var(--accent-color); cursor:pointer;"><i class="fa-solid fa-rotate"></i> Refresh</button>
+            <div class="db-header">
+                <div style="display:flex; align-items:center; gap:1rem;">
+                    <h3 style="margin:0; font-family:var(--font-heading);">${tableName}</h3>
+                    <span class="badge" style="background:rgba(255,255,255,0.1);">${data.length} rows</span>
+                </div>
+                <div style="display:flex; gap:1rem;">
+                    <button onclick="loadTableData('${tableName}')" style="background:var(--accent-color); border:none; color:#000; padding:0.4rem 0.8rem; border-radius:4px; font-weight:600; cursor:pointer; font-size:0.85rem;"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                </div>
             </div>
-            <div style="overflow-x: auto;">
-                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+            <div class="db-data-wrapper">
+                <table class="db-table">
                     <thead>
-                        <tr style="background: rgba(255,255,255,0.1);">
-                            ${headers.map(h => `<th style="padding: 0.8rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1);">${h}</th>`).join('')}
+                        <tr>
+                            ${headers.map(h => `<th>${h}</th>`).join('')}
                         </tr>
                     </thead>
                     <tbody>
                         ${data.map(row => `
-                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                                ${headers.map(h => `<td style="padding: 0.8rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${row[h] === null ? '<span style="color:#666">NULL</span>' : String(row[h]).substring(0, 50)}</td>`).join('')}
+                            <tr>
+                                ${headers.map(h => `<td>${row[h] === null ? '<span style="color:#666">NULL</span>' : String(row[h])}</td>`).join('')}
                             </tr>
                         `).join('')}
                     </tbody>
@@ -998,6 +1019,6 @@ async function loadTableData(tableName) {
         container.innerHTML = tableHtml;
 
     } catch (err) {
-        container.innerHTML = `<div class="error-message">Error loading table: ${err.message}</div>`;
+        container.innerHTML = `<div style="padding:2rem; color:#ff4757;">Error loading table: ${err.message}</div>`;
     }
 }
