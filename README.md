@@ -46,6 +46,54 @@ graph TD
     Node -->|Send Alerts| SMTP
 ```
 
+### 🗺️ Use Case Diagram
+
+```mermaid
+usecaseDiagram
+    actor "👤 Visitor" as V
+    actor "👨‍💻 Admin" as A
+
+    package "Public Interface" {
+        usecase "View Projects & Details" as U1
+        usecase "Chat with AI Agent" as U2
+        usecase "Switch Language (EN/FR)" as U3
+        usecase "Send Contact Message" as U4
+        usecase "Submit & Rate Review" as U5
+        usecase "Download CV" as U6
+        usecase "Interact with 3D Shapes" as U7
+    }
+
+    package "Admin Dashboard" {
+        usecase "Login (JWT)" as U8
+        usecase "Manage Projects (CRUD)" as U9
+        usecase "Manage Skills & Stats" as U10
+        usecase "Manage History (Exp/Edu)" as U11
+        usecase "Manage Certifications" as U12
+        usecase "Moderate Reviews" as U13
+        usecase "Read & Reply Messages" as U14
+        usecase "Direct Database Access" as U15
+        usecase "Edit Profile & Config" as U16
+    }
+
+    V --> U1
+    V --> U2
+    V --> U3
+    V --> U4
+    V --> U5
+    V --> U6
+    V --> U7
+
+    A --> U8
+    A --> U9
+    A --> U10
+    A --> U11
+    A --> U12
+    A --> U13
+    A --> U14
+    A --> U15
+    A --> U16
+```
+
 ---
 
 ## 🚀 Key Features
