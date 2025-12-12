@@ -3890,102 +3890,103 @@ body.light-mode #review-form select {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
 
-    /* =========================================
+/* =========================================
    7. RESPONSIVE TEXT FIXES
    ========================================= */
-    @media (max-width: 1200px) {
-        .hero-title {
-            font-size: 3rem;
-            /* Reduced further from 3.5rem */
-        }
-
-        .hero {
-            /* Enable scroll if content is too tall */
-            height: auto;
-            min-height: 100vh;
-            overflow: visible;
-            padding-top: 7rem;
-            padding-bottom: 4rem;
-        }
+@media (max-width: 1200px) {
+    .hero-title {
+        font-size: 3rem;
+        /* Reduced further from 3.5rem */
     }
 
-    @media (max-width: 992px) {
-        .hero-container {
-            grid-template-columns: 1fr;
-            text-align: center;
-            gap: 2rem;
-        }
+    .hero {
+        /* Enable scroll if content is too tall */
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+        padding-top: 7rem;
+        padding-bottom: 4rem;
+    }
+}
 
-        .hero-content {
-            order: 2;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .hero-visual {
-            order: 1;
-            height: 300px;
-            /* Reduced specific height */
-            margin-bottom: 1rem;
-        }
-
-        .hero-description {
-            margin: 0 auto 2rem auto;
-            max-width: 80%;
-            /* Limit width for readability */
-        }
-
-        .hero-actions {
-            justify-content: center;
-        }
+@media (max-width: 992px) {
+    .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2rem;
     }
 
-    @media (max-width: 768px) {
-        .hero-title {
-            font-size: 2.2rem;
-            line-height: 1.2;
-            word-wrap: break-word;
-        }
-
-        .hero-subtitle {
-            font-size: 0.8rem;
-            padding: 0.4rem 0.8rem;
-            margin-bottom: 0.5rem;
-            /* Reduced margin */
-            white-space: normal;
-            text-align: center;
-        }
-
-        .hero-description {
-            font-size: 1rem;
-            line-height: 1.5;
-            max-width: 100%;
-            padding: 0 1rem;
-            margin-bottom: 1.5rem;
-            /* Compact spacing */
-        }
-
-        .hero-container {
-            gap: 1rem;
-            /* Reduced gap */
-        }
-
-        .hero {
-            padding-top: 5rem;
-            /* Reduced from 8rem to move content up */
-            /* Start from top instead of center */
-        }
-
-        /* Show mobile shapes */
-        .mobile-shape-container {
-            display: flex !important;
-            justify-content: center;
-            margin-bottom: 1rem;
-            width: 100%;
-            position: relative;
-            height: 150px;
-            /* Reserve space */
-        }
+    .hero-content {
+        order: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
+
+    .hero-visual {
+        order: 1;
+        height: 300px;
+        /* Reduced specific height */
+        margin-bottom: 1rem;
+    }
+
+    .hero-description {
+        margin: 0 auto 2rem auto;
+        max-width: 80%;
+        /* Limit width for readability */
+    }
+
+    .hero-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.2rem;
+        line-height: 1.2;
+        word-wrap: break-word;
+    }
+
+    .hero-subtitle {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+        margin-bottom: 0.5rem;
+        /* Reduced margin */
+        white-space: normal;
+        text-align: center;
+    }
+
+    .hero-description {
+        font-size: 1rem;
+        line-height: 1.5;
+        max-width: 100%;
+        padding: 0 1rem;
+        margin-bottom: 1.5rem;
+        /* Compact spacing */
+    }
+
+    .hero-container {
+        gap: 1rem;
+        /* Reduced gap */
+    }
+
+    .hero {
+        padding-top: 5rem;
+        /* Reduced from 8rem to move content up */
+        /* Start from top instead of center */
+    }
+
+    /* Show mobile shapes */
+    .mobile-shape-container {
+        display: flex !important;
+        justify-content: center;
+        margin-bottom: 1rem;
+        width: 100%;
+        position: relative;
+        height: 150px;
+        /* Reserve space */
+    }
+}
