@@ -252,6 +252,7 @@ db.serialize(() => {
 
              // Seed if empty
              db.get("SELECT count(*) as count FROM articles", (err, row) => {
+                /*
                 if (row && row.count === 0) {
                      db.run(`INSERT INTO articles (title, summary, tags, image, date, lang) VALUES 
                         ('The Future of AI', 'How Generative AI is reshaping software development.', 'AI, Tech', '', CURRENT_TIMESTAMP, 'en'),
@@ -259,7 +260,12 @@ db.serialize(() => {
                      `);
                      console.log("Articles seeded.");
                 }
+                */
             });
+
+            // FORCE CLEANUP: Ensure these specific default articles are removed if they exist
+            db.run("DELETE FROM articles WHERE title IN ('The Future of AI', 'Optimizing SQL')");
+            console.log("Cleanup: Zombie articles removed.");
         }
     });
 
