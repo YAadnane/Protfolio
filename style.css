@@ -335,7 +335,7 @@ h4 {
     gap: 0.5rem;
     color: var(--accent-color);
     font-family: var(--font-mono);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
     background: rgba(0, 255, 157, 0.1);
@@ -346,7 +346,7 @@ h4 {
 .hero-title {
     font-size: clamp(3rem, 5vw, 5rem);
     /* Responsive font size */
-    margin-bottom: 2rem;
+    margin-bottom: 0.8rem;
     line-height: 1.1;
 }
 
@@ -358,7 +358,7 @@ h4 {
     font-size: 1.1rem;
     color: var(--text-muted);
     max-width: 550px;
-    margin-bottom: 3rem;
+    margin-bottom: 1.5rem;
     line-height: 1.6;
 }
 
