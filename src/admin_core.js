@@ -533,6 +533,9 @@ async function loadContent(type) {
             `;
             grid.appendChild(card);
         });
+        
+        applyThemeStyles(); // Force styles after render
+
     } catch (err) {
         console.error(err);
         grid.innerHTML = '<p>Error loading data.</p>';
@@ -790,6 +793,7 @@ function setupModal() {
 
 
 // Theme Logic
+// Theme Logic
 function initThemeAdmin() {
     const themeBtn = document.getElementById('admin-theme-switch');
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -797,6 +801,7 @@ function initThemeAdmin() {
     if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
         if(themeBtn) themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        applyThemeStyles();
     }
 
     if (themeBtn) {
@@ -805,9 +810,45 @@ function initThemeAdmin() {
              const isLight = document.body.classList.contains('light-mode');
              localStorage.setItem('theme', isLight ? 'light' : 'dark');
              themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+             applyThemeStyles();
         });
     }
 }
+
+// Force apply styles if CSS fails
+window.applyThemeStyles = () => {
+    const isLight = document.body.classList.contains('light-mode');
+    
+    // Project Cards
+    document.querySelectorAll('.admin-card').forEach(card => {
+        if (isLight) {
+            card.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
+            card.style.borderColor = 'rgba(0, 0, 0, 0.1)';
+            card.style.color = '#1a1a1a';
+            card.querySelectorAll('h3, p').forEach(el => el.style.color = (el.tagName === 'H3' ? '#1a1a1a' : '#555'));
+        } else {
+            card.style.backgroundColor = '';
+            card.style.borderColor = ''; // Let CSS handle dark mode
+            card.style.color = '';
+            card.querySelectorAll('h3, p').forEach(el => el.style.color = '');
+        }
+    });
+
+    // Database Viewer (if active)
+    const dbSidebar = document.querySelector('.db-sidebar');
+    const dbContent = document.querySelector('.db-content');
+    if (dbSidebar && dbContent) {
+        if (isLight) {
+            dbSidebar.style.backgroundColor = 'rgba(255, 255, 255, 0.70)';
+            dbContent.style.backgroundColor = 'rgba(255, 255, 255, 0.70)';
+            document.querySelectorAll('.db-table-btn').forEach(btn => btn.style.color = '#1a1a1a');
+        } else {
+            dbSidebar.style.backgroundColor = '';
+            dbContent.style.backgroundColor = '';
+            document.querySelectorAll('.db-table-btn').forEach(btn => btn.style.color = '');
+        }
+    }
+};
 
 // Cursor Logic
 function initCursor() {
