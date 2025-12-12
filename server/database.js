@@ -287,6 +287,8 @@ db.serialize(() => {
             addColumnIfNotExists('reviews', 'date', 'DATETIME DEFAULT CURRENT_TIMESTAMP');
 
             // Seed if empty
+            // Seed if empty -> DISABLED to allow full deletion without respawn
+            /*
             db.get("SELECT count(*) as count FROM reviews", (err, row) => {
                 if (err) return console.error(err.message);
                 if (row && row.count === 0) {
@@ -297,6 +299,7 @@ db.serialize(() => {
                      console.log("Reviews seeded.");
                 }
             });
+            */
         }
     });
 
