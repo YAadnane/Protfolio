@@ -1577,16 +1577,34 @@ async function loadReviews() {
             // Render Slides
             track.innerHTML = slides.map(group => `
                 <div class="testimonial-slide">
-                    ${group.map(r => `
+                    ${group.map(r => {
+                        // Safe List: Platforms where unavatar.io works reliably without auth walls
+                        const safeAvatarPlatforms = ['github', 'twitter', 'x', 'gitlab', 'dribbble', 'behance'];
+                        const isSafePlatform = safeAvatarPlatforms.includes((r.social_platform || '').toLowerCase());
+                        
+                        // Avatar URL Logic
+                        let avatarUrl = '';
+                        let onerrorAttr = '';
+                        
+                        if (r.social_link && isSafePlatform) {
+                            // Try fetching real photo for safe platforms
+                            avatarUrl = `https://unavatar.io/${encodeURIComponent(r.social_link)}?fallback=false`;
+                            onerrorAttr = `onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(r.name)}&background=random&color=fff'"`;
+                        } else {
+                            // Force Initials for LinkedIn, Instagram, etc. to avoid platform logos
+                            avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(r.name)}&background=random&color=fff`;
+                        }
+
+                        return `
                         <div class="testimonial-card">
                             <div class="testimonial-header">
                                 <!-- Avatar Injection -->
-                                ${r.social_link ? 
-                                    `<img src="https://unavatar.io/${encodeURIComponent(r.social_link)}?fallback=false" 
+                                ${r.social_link || r.name ? 
+                                    `<img src="${avatarUrl}" 
                                           class="testimonial-avatar" 
                                           alt="${r.name}"
                                           loading="lazy"
-                                          onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(r.name)}&background=random&color=fff'"
+                                          ${onerrorAttr}
                                     />` 
                                 : ''}
                                 
@@ -1605,7 +1623,7 @@ async function loadReviews() {
                             </div>
                             <p class="testimonial-text">"${r.message}"</p>
                         </div>
-                    `).join("")}
+                    `}).join("")}
                 </div>
             `).join("");
 
