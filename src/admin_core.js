@@ -338,6 +338,10 @@ const fields = {
             ] 
         }
     ],
+    profile: [
+        { name: 'username', label: 'Username', type: 'text' },
+        { name: 'password', label: 'New Password (leave blank to keep current)', type: 'password' }
+    ]
 };
 
 // Initialize
@@ -421,19 +425,22 @@ async function loadContent(type) {
         
         grid.innerHTML = '';
 
-        if (type === 'general') {
+        if (type === 'general' || type === 'profile') {
             const card = document.createElement('div');
             card.className = 'admin-card';
             card.style.gridColumn = "1 / -1";
             card.dataset.item = JSON.stringify(data);
+            
+            let title = type === 'general' ? 'General Information' : 'Admin Profile';
+            let subtitle = type === 'general' ? 'Hero, About, Stats & Cube Settings' : 'Manage your credentials';
+
             card.innerHTML = `
-                <h3>General Information</h3>
-                <p>Hero, About, Stats & Cube Settings</p>
+                <h3>${title}</h3>
+                <p>${subtitle}</p>
                 <div class="admin-actions">
-                    <button class="btn-edit" onclick='editItem(${JSON.stringify(data).replace(/'/g, "&#39;")})' style="background: rgba(0, 255, 157, 0.1); color: var(--accent-color); border: 1px solid rgba(0, 255, 157, 0.2); padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; margin-right: 0.5rem;"><i class="fa-solid fa-pen"></i> Edit Content</button>
+                    <button class="btn-edit" onclick='editItem(${JSON.stringify(data).replace(/'/g, "&#39;")})' style="background: rgba(0, 255, 157, 0.1); color: var(--accent-color); border: 1px solid rgba(0, 255, 157, 0.2); padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; margin-right: 0.5rem;"><i class="fa-solid fa-pen"></i> Edit ${type === 'profile' ? 'Profile' : 'Content'}</button>
                 </div>
             `;
-            grid.appendChild(card);
             grid.appendChild(card);
             return;
         }
@@ -708,10 +715,15 @@ function setupModal() {
 
         const formData = new FormData(e.target);
         
-        const method = (editingId || currentTab === 'general') ? 'PUT' : 'POST';
+        
+        let method = (editingId || currentTab === 'general') ? 'PUT' : 'POST';
         let url = '';
         if (currentTab === 'general') {
             url = `${API_URL}/general`;
+        } else if (currentTab === 'profile') {
+            // Profile is always PUT
+             url = `${API_URL}/profile`;
+             method = 'PUT';
         } else {
             url = editingId ? `${API_URL}/${currentTab}/${editingId}` : `${API_URL}/${currentTab}`;
         }

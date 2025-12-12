@@ -81,24 +81,19 @@ import bcrypt from 'bcrypt';
 
 const SECRET_KEY = process.env.SECRET_KEY || 'default_dev_secret';
 const ADMIN_USER = {
-    // FORCE DEFAULT for User Access (admin / admin)
-    email: 'admin', 
-    passwordHash: '$2b$10$AvzbJGVzQRk7zEP1YZiM2effU.2865ZE3vfBKsVx1miNLvDrhu.qgG'
-    // email: process.env.ADMIN_EMAIL || 'admin@example.com',
-    // passwordHash: process.env.ADMIN_PASSWORD_HASH || '...'
+    email: process.env.ADMIN_EMAIL || 'admin@example.com',
+    passwordHash: process.env.ADMIN_PASSWORD_HASH || '$2b$10$HREwPsOL57zGfNOb7tfdMuHB4HkrTA.lYC2AFc9VePxJQPnXmvT5a'
 };
-
-
 
 // Middleware to verify JWT
 const authenticateToken = (req, res, next) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
-    if (token == null) return res.sendStatus(401);
+    if (token == null) return res.sendStatus(401); // No token
 
     jwt.verify(token, SECRET_KEY, (err, user) => {
-        if (err) return res.sendStatus(403);
+        if (err) return res.sendStatus(403); // Invalid token
         req.user = user;
         next();
     });
@@ -107,82 +102,23 @@ const authenticateToken = (req, res, next) => {
 // Login Endpoint
 app.post('/api/login', (req, res) => {
     const { email, password } = req.body;
-    console.log('Login attempt:', email); 
+    console.log('Login attempt:', email); // Debug log
 
-    db.get("SELECT * FROM users WHERE username = ?", [email], (err, user) => {
-        if (err) return res.status(500).json({ error: "Database error" });
-        
-        if (!user) {
-            // Fallback for hardcoded if DB fails or during migration (Optional, but safer to stick to DB now)
-            if (email === ADMIN_USER.email) {
-                 bcrypt.compare(password, ADMIN_USER.passwordHash, (err, result) => {
-                    if (result) {
-                        const token = jwt.sign({ email: email, id: 'static' }, SECRET_KEY, { expiresIn: '24h' });
-                        return res.json({ token });
-                    }
-                    return res.status(401).json({ error: "Invalid credentials" });
-                 });
-                 return;
-            }
-            return res.status(401).json({ error: "Invalid credentials" });
-        }
-
-        bcrypt.compare(password, user.password_hash, (err, result) => {
+    if (email === ADMIN_USER.email) {
+        bcrypt.compare(password, ADMIN_USER.passwordHash, (err, result) => {
             if (result) {
-                console.log('Password match!'); 
-                const token = jwt.sign({ email: user.username, id: user.id }, SECRET_KEY, { expiresIn: '24h' });
+                console.log('Password match!'); // Debug log
+                // Password matches
+                const token = jwt.sign({ email: email }, SECRET_KEY, { expiresIn: '24h' });
                 res.json({ token: token });
             } else {
-                console.log('Password mismatch'); 
+                console.log('Password mismatch'); // Debug log
                 res.status(401).json({ error: "Invalid credentials" });
             }
         });
-    });
-});
-
-// --- PROFILE MANAGEMENT ---
-app.get('/api/profile', authenticateToken, (req, res) => {
-    // If using static admin
-    if (req.user.id === 'static') {
-        return res.json({ id: 'static', username: 'admin' });
-    }
-
-    db.get("SELECT id, username FROM users WHERE id = ?", [req.user.id], (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!row) return res.status(404).json({ error: "User not found" });
-        res.json(row);
-    });
-});
-
-app.put('/api/profile', authenticateToken, async (req, res) => {
-    const { username, password } = req.body;
-    const userId = req.user.id;
-
-    if (userId === 'static') {
-        return res.status(403).json({ error: "Cannot update static admin. Please migrate to DB user." });
-    }
-
-    if (!username) return res.status(400).json({ error: "Username is required" });
-
-    try {
-        let updateQuery = "UPDATE users SET username = ?";
-        let params = [username];
-
-        if (password && password.trim() !== "") {
-            const hash = await bcrypt.hash(password, 10);
-            updateQuery += ", password_hash = ?";
-            params.push(hash);
-        }
-
-        updateQuery += " WHERE id = ?";
-        params.push(userId);
-
-        db.run(updateQuery, params, function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Profile updated successfully" });
-        });
-    } catch (e) {
-        res.status(500).json({ error: e.message });
+    } else {
+        console.log('Email mismatch'); // Debug log
+        res.status(401).json({ error: "Invalid credentials" });
     }
 });
 
@@ -201,7 +137,9 @@ app.get('/api/projects', (req, res) => {
 
 app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, res) => {
     console.log('POST /api/projects hit');
-    const { title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks } = req.body;
+    console.log('req.file:', req.file);
+    console.log('req.body:', req.body);
+    const { title, description, tags, category, image, link, is_hidden, lang } = req.body;
     let imagePath = image;
     if (req.file) {
         imagePath = `/uploads/${req.file.filename}`;
@@ -218,6 +156,7 @@ app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, r
 
 app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
     console.log(`PUT /api/projects/${req.params.id} hit`);
+    console.log('req.file:', req.file);
     const { title, description, tags, category, image, link, is_hidden, role, year, subject, tasks } = req.body;
     // If a new file is uploaded, use it. Otherwise, keep the old one (passed as 'image' body param or handled via logic)
     // Note: In a real app, we might want to delete the old file.
@@ -632,11 +571,11 @@ app.post('/api/chat', async (req, res) => {
             const general = await new Promise((resolve, reject) => {
                  db.get("SELECT * FROM general_info WHERE lang = ?", [targetLang], (err, r) => err ? reject(err) : resolve(r));
             });
-            const projects = await getAsync("SELECT title, description, tags, category, role, year, subject, tasks FROM projects WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+            const projects = await getAsync("SELECT title, description, tags, category FROM projects WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const skills = await getAsync("SELECT name, category, level FROM skills WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const experience = await getAsync("SELECT role, company, year, description FROM experience WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const education = await getAsync("SELECT degree, institution, year, description FROM education WHERE is_hidden = 0 AND lang = ?", [targetLang]);
-            const certs = await getAsync("SELECT name, issuer, year, domain, status, description, skills, credential_id, credential_url, level FROM certifications WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+            const certs = await getAsync("SELECT name, issuer, year, domain FROM certifications WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const articles = await getAsync("SELECT title, summary, tags, date FROM articles WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const reviews = await getAsync("SELECT name, role, message, rating, social_platform FROM reviews WHERE is_approved = 1");
 
