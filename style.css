@@ -309,11 +309,17 @@ h4 {
    5. HERO SECTION
    ========================================= */
 .hero {
-    height: 100vh;
+    min-height: 100vh;
+    height: auto;
+    /* Allow growth */
     display: flex;
     align-items: center;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
+    /* Prevent cutting off content */
+    padding-top: 6rem;
+    /* Ensure nav clearance */
+    padding-bottom: 2rem;
 }
 
 .hero-container {
@@ -338,7 +344,8 @@ h4 {
 }
 
 .hero-title {
-    font-size: 4.5rem;
+    font-size: clamp(3rem, 5vw, 5rem);
+    /* Responsive font size */
     margin-bottom: 2rem;
     line-height: 1.1;
 }
