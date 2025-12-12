@@ -184,6 +184,13 @@
             box-shadow: 0 0 0 2px rgba(46, 213, 115, 0.1);
         }
 
+        /* Fix for options having white bg on some browsers */
+        select option {
+            background-color: #1a1a1a;
+            color: #fff;
+            padding: 10px;
+        }
+
         /* --- CUSTOM CHECKBOX --- */
         /* Hidden default checkbox */
         input[type="checkbox"] {
@@ -636,7 +643,7 @@
     <!-- Toast Container -->
     <div id="notification-container" class="notification-container"></div>
 
-    <script src="/src/admin_core.js?v=2.6" type="module"></script>
+    <script src="/src/admin_core.js?v=2.7" type="module"></script>
 </body>
 
 </html>
