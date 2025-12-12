@@ -367,6 +367,7 @@ function getSocialIcon(platform) {
         case 'linkedin': return '<i class="fa-brands fa-linkedin"></i>';
         case 'github': return '<i class="fa-brands fa-github"></i>';
         case 'twitter': return '<i class="fa-brands fa-x-twitter"></i>';
+        case 'email': return '<i class="fa-solid fa-envelope"></i>';
         case 'facebook': return '<i class="fa-brands fa-facebook"></i>';
         case 'instagram': return '<i class="fa-brands fa-instagram"></i>';
         case 'reddit': return '<i class="fa-brands fa-reddit"></i>';
@@ -1581,8 +1582,9 @@ async function loadReviews() {
                 <div class="testimonial-slide">
                     ${group.map(r => {
                         // Safe List: Platforms where unavatar.io works reliably without auth walls
-                        const safeAvatarPlatforms = ['github', 'twitter', 'x', 'gitlab', 'dribbble', 'behance'];
-                        const isSafePlatform = safeAvatarPlatforms.includes((r.social_platform || '').toLowerCase());
+                        const safeAvatarPlatforms = ['github', 'twitter', 'x', 'gitlab', 'dribbble', 'behance', 'email'];
+                        let safePlatformStr = (r.social_platform || '').toLowerCase();
+                        const isSafePlatform = safeAvatarPlatforms.includes(safePlatformStr);
                         
                         // Avatar URL Logic
                         let avatarUrl = '';
@@ -1596,6 +1598,9 @@ async function loadReviews() {
                             // Force Initials for LinkedIn, Instagram, etc. to avoid platform logos
                             avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(r.name)}&background=random&color=fff`;
                         }
+
+                        // Link Rendering: Hide link if platform is email (Privacy)
+                        const showLink = r.social_link && safePlatformStr !== 'email';
 
                         return `
                         <div class="testimonial-card">
@@ -1613,9 +1618,11 @@ async function loadReviews() {
                                 <div class="testimonial-info">
                                     <h4 class="testimonial-name">
                                         ${r.name} 
-                                        ${r.social_link ? `<a href="${r.social_link}" target="_blank" style="color:var(--accent-color); margin-left:5px;">
+                                        ${showLink ? `<a href="${r.social_link}" target="_blank" style="color:var(--accent-color); margin-left:5px;">
                                             ${getSocialIcon(r.social_platform)}
-                                        </a>` : ''}
+                                        </a>` : 
+                                        (safePlatformStr === 'email' ? `<span style="color:var(--text-muted); margin-left:5px; font-size:0.9em;" title="Verified by Email"><i class="fa-solid fa-envelope"></i></span>` : '')
+                                        }
                                     </h4>
                                     <span class="testimonial-role">${r.role || ''}</span>
                                 </div>
@@ -1687,6 +1694,22 @@ function initReviewModal() {
         modal.style.display = "block";
         document.body.style.overflow = "hidden";
     };
+
+    // Platform Change Logic (Email vs URL)
+    const platformSelect = document.getElementById('review-platform');
+    const linkInput = document.getElementById('review-link');
+    
+    if (platformSelect && linkInput) {
+        platformSelect.addEventListener('change', () => {
+            if (platformSelect.value === 'email') {
+                linkInput.type = 'email';
+                linkInput.placeholder = 'your@email.com (For Avatar)';
+            } else {
+                linkInput.type = 'url';
+                linkInput.placeholder = 'Profile Link';
+            }
+        });
+    }
 
     const closeModal = () => {
         modal.style.display = "none";
