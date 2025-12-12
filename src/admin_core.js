@@ -908,3 +908,90 @@ window.deleteMessage = async (id) => {
         }
     } catch (err) { console.error(err); }
 };
+
+// --- DATABASE VIEWER ---
+async function renderDatabaseView() {
+    const grid = document.getElementById('content-grid');
+    grid.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted);">Loading Database...</div>';
+
+    try {
+        const res = await fetchWithAuth(`${API_URL}/admin/database/tables`);
+        const tables = await res.json();
+
+        if (!Array.isArray(tables)) throw new Error("Failed to fetch tables");
+
+        // Layout: Sidebar for tables, Main area for data
+        let html = `
+            <div style="display: grid; grid-template-columns: 250px 1fr; gap: 1rem; height: calc(100vh - 200px);">
+                <!-- Table List -->
+                <div class="card" style="overflow-y: auto; height: 100%;">
+                    <h3 style="margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Tables</h3>
+                    <ul style="list-style: none; padding: 0;">
+                        ${tables.map(t => `<li style="margin-bottom: 0.5rem;"><button onclick="loadTableData('${t}')" style="width: 100%; text-align: left; padding: 0.5rem; background: rgba(255,255,255,0.05); border: none; color: var(--text-main); cursor: pointer; border-radius: 4px;">${t}</button></li>`).join('')}
+                    </ul>
+                </div>
+
+                <!-- Data View -->
+                <div class="card" id="db-data-view" style="overflow: auto; height: 100%;">
+                    <div style="display: flex; justify-content: center; align-items: center; height: 100%; color: var(--text-muted);">
+                        Select a table to view data
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        grid.innerHTML = html;
+        window.loadTableData = loadTableData; // Expose globally
+
+    } catch (err) {
+        console.error(err);
+        grid.innerHTML = `<div class="error-message">Error loading database: ${err.message}</div>`;
+    }
+}
+
+async function loadTableData(tableName) {
+    const container = document.getElementById('db-data-view');
+    container.innerHTML = '<div style="padding:1rem;">Loading data...</div>';
+
+    try {
+        const res = await fetchWithAuth(`${API_URL}/admin/database/table/${tableName}`);
+        const data = await res.json();
+
+        if (data.error) throw new Error(data.error);
+
+        if (data.length === 0) {
+            container.innerHTML = `<div style="padding:1rem;"><h3>${tableName}</h3><p>Table is empty.</p></div>`;
+            return;
+        }
+
+        const headers = Object.keys(data[0]);
+
+        let tableHtml = `
+            <div style="margin-bottom:1rem; display:flex; justify-content:space-between; align-items:center;">
+                <h3>${tableName} <span style="font-size:0.8rem; color:var(--text-muted);">(${data.length} rows visible)</span></h3>
+                <button onclick="renderDatabaseView()" style="background:none; border:none; color:var(--accent-color); cursor:pointer;"><i class="fa-solid fa-rotate"></i> Refresh</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem;">
+                    <thead>
+                        <tr style="background: rgba(255,255,255,0.1);">
+                            ${headers.map(h => `<th style="padding: 0.8rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1);">${h}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.map(row => `
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                ${headers.map(h => `<td style="padding: 0.8rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${row[h] === null ? '<span style="color:#666">NULL</span>' : String(row[h]).substring(0, 50)}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        container.innerHTML = tableHtml;
+
+    } catch (err) {
+        container.innerHTML = `<div class="error-message">Error loading table: ${err.message}</div>`;
+    }
+}
