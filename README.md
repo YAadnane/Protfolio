@@ -78,28 +78,76 @@ graph TD
 
 ```mermaid
 erDiagram
-    GENERAL_INFO ||--o{ SOCIAL_LINKS : contains
-    PROJECTS ||--o{ TAGS : has
-    REVIEWS {
+    GENERAL_INFO {
+        int id PK
+        string hero_title
+        string email
+        string lang
+    }
+    PROJECTS {
+        int id PK
+        string title
+        string category
+        string tags
+        string lang
+        boolean is_hidden
+    }
+    SKILLS {
+        int id PK
         string name
-        string message
+        string category
+        int level
+        string lang
+    }
+    EXPERIENCE {
+        int id PK
+        string role
+        string company
+        string lang
+    }
+    EDUCATION {
+        int id PK
+        string degree
+        string institution
+        string lang
+    }
+    CERTIFICATIONS {
+        int id PK
+        string name
+        string issuer
+        string lang
+    }
+    ARTICLES {
+        int id PK
+        string title
+        string tags
+        string lang
+    }
+    REVIEWS {
+        int id PK
+        string name
         int rating
         boolean is_approved
     }
     MESSAGES {
+        int id PK
+        string name
         string email
-        string message
         boolean is_read
     }
     USERS {
+        int id PK
         string username
         string password_hash
     }
     SHAPES {
+        int id PK
         string type
-        float position_x
-        float position_y
+        float pos_x
+        string lang
     }
+
+    PROJECTS }|--|{ SKILLS : "conceptual tag match"
 ```
 
 ---
