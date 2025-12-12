@@ -569,11 +569,11 @@ app.post('/api/chat', async (req, res) => {
             const general = await new Promise((resolve, reject) => {
                  db.get("SELECT * FROM general_info WHERE lang = ?", [targetLang], (err, r) => err ? reject(err) : resolve(r));
             });
-            const projects = await getAsync("SELECT title, description, tags, category FROM projects WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+            const projects = await getAsync("SELECT title, description, tags, category, role, year, subject, tasks FROM projects WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const skills = await getAsync("SELECT name, category, level FROM skills WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const experience = await getAsync("SELECT role, company, year, description FROM experience WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const education = await getAsync("SELECT degree, institution, year, description FROM education WHERE is_hidden = 0 AND lang = ?", [targetLang]);
-            const certs = await getAsync("SELECT name, issuer, year, domain FROM certifications WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+            const certs = await getAsync("SELECT name, issuer, year, domain, status, description, skills, credential_id, credential_url, level FROM certifications WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const articles = await getAsync("SELECT title, summary, tags, date FROM articles WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const reviews = await getAsync("SELECT name, role, message, rating, social_platform FROM reviews WHERE is_approved = 1");
 
