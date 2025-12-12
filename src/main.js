@@ -14,8 +14,6 @@ let heroTypewriterTimeout = null;
 // =========================================
 document.addEventListener('DOMContentLoaded', async () => {
     initTheme();
-    console.log("%c Portfolio v5.0 - Green Gradient Loaded ", "background: #00bf7d; color: white; padding: 5px; border-radius: 5px;");
-    document.body.classList.add('ver-5-0-green');
     initLanguage(); // Init language first
     await Promise.all([
         loadGeneralInfo(),
