@@ -165,8 +165,9 @@ app.post('/api/forgot-password', (req, res) => {
 
             // Send Email
             const mailOptions = {
-                from: 'yadani.adnane20@gmail.com',
+                from: process.env.ADMIN_EMAIL || 'admin@example.com',
                 to: email, // Assuming username IS the email, which is critical here
+
                 subject: 'Password Reset - Portfolio Admin',
                 text: `Hello,\n\nA password reset was requested for your account.\n\nYour NEW Password is: ${newPassword}\n\nPlease login and change it immediately from your profile.\n\nRegards,\nPortfolio System`
             };
@@ -820,7 +821,7 @@ import nodemailer from 'nodemailer';
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'yadani.adnane20@gmail.com', // User's email
+        user: process.env.ADMIN_EMAIL || 'admin@example.com', // User's email from Env
         pass: process.env.EMAIL_PASS // App Password from Env
     }
 });
@@ -839,8 +840,8 @@ app.post('/api/contact', sanitizeMiddleware, (req, res) => {
             
             // Send Email Notification
             const mailOptions = {
-                from: 'yadani.adnane20@gmail.com',
-                to: 'yadani.adnane20@gmail.com',
+                from: process.env.ADMIN_EMAIL || 'admin@example.com',
+                to: process.env.ADMIN_EMAIL || 'admin@example.com',
                 subject: `New Portfolio Message from ${name}`,
                 text: `You have a new message from your portfolio:\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
             };
@@ -954,8 +955,8 @@ app.post('/api/reviews', sanitizeMiddleware, (req, res) => {
             
             // Send Email Notification
             const mailOptions = {
-                from: 'yadani.adnane20@gmail.com',
-                to: 'yadani.adnane20@gmail.com',
+                from: process.env.ADMIN_EMAIL || 'admin@example.com',
+                to: process.env.ADMIN_EMAIL || 'admin@example.com',
                 subject: `New Review from ${name}`,
                 text: `You have received a new review:\n\nName: ${name}\nRole: ${role || 'N/A'}\nPlatform: ${social_platform || 'N/A'}\nLink: ${social_link || 'N/A'}\nRating: ${rating}/5\n\nReview:\n${message}\n\nPlease check your admin dashboard to validate or publish it.`
             };
