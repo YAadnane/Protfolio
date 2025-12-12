@@ -3975,7 +3975,17 @@ body.light-mode #review-form select {
         .hero {
             padding-top: 5rem;
             /* Reduced from 8rem to move content up */
-            align-items: flex-start;
             /* Start from top instead of center */
+        }
+
+        /* Show mobile shapes */
+        .mobile-shape-container {
+            display: flex !important;
+            justify-content: center;
+            margin-bottom: 1rem;
+            width: 100%;
+            position: relative;
+            height: 150px;
+            /* Reserve space */
         }
     }
