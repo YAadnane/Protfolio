@@ -1040,6 +1040,32 @@ app.delete('/api/media/:filename', authenticateToken, (req, res) => {
     });
 });
 
+// --- DATABASE MANAGER API ---
+app.get('/api/admin/database/tables', authenticateToken, (req, res) => {
+    db.all("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows.map(r => r.name));
+    });
+});
+
+app.get('/api/admin/database/table/:name', authenticateToken, (req, res) => {
+    const tableName = req.params.name;
+    // Basic SQL Injection prevention: Whitelist tables
+    db.all("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'", [], (err, tables) => {
+        if (err) return res.status(500).json({ error: err.message });
+        
+        const validTables = tables.map(t => t.name);
+        if (!validTables.includes(tableName)) {
+            return res.status(400).json({ error: 'Invalid table name' });
+        }
+
+        db.all(`SELECT * FROM ${tableName} ORDER BY id DESC LIMIT 100`, [], (err, rows) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json(rows);
+        });
+    });
+});
+
 // --- SEO / SITEMAP ---
 app.get('/sitemap.xml', (req, res) => {
     const baseUrl = 'https://yadani-adnane.duckdns.org';
