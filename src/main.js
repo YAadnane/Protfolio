@@ -1599,8 +1599,12 @@ async function loadReviews() {
                             avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(r.name)}&background=random&color=fff`;
                         }
 
-                        // Link Rendering: Hide link if platform is email (Privacy)
-                        const showLink = r.social_link && safePlatformStr !== 'email';
+                        // Link Rendering: Show link for all (Email uses mailto)
+                        const showLink = !!r.social_link;
+                        let href = r.social_link;
+                        if (safePlatformStr === 'email' && !href.startsWith('mailto:')) {
+                            href = `mailto:${href}`;
+                        }
 
                         return `
                         <div class="testimonial-card">
@@ -1618,11 +1622,9 @@ async function loadReviews() {
                                 <div class="testimonial-info">
                                     <h4 class="testimonial-name">
                                         ${r.name} 
-                                        ${showLink ? `<a href="${r.social_link}" target="_blank" style="color:var(--accent-color); margin-left:5px;">
+                                        ${showLink ? `<a href="${href}" target="_blank" style="color:var(--accent-color); margin-left:5px;">
                                             ${getSocialIcon(r.social_platform)}
-                                        </a>` : 
-                                        (safePlatformStr === 'email' ? `<span style="color:var(--text-muted); margin-left:5px; font-size:0.9em;" title="Verified by Email"><i class="fa-solid fa-envelope"></i></span>` : '')
-                                        }
+                                        </a>` : ''}
                                     </h4>
                                     <span class="testimonial-role">${r.role || ''}</span>
                                 </div>
