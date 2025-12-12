@@ -317,8 +317,9 @@ h4 {
     position: relative;
     overflow: visible;
     /* Prevent cutting off content */
-    padding-top: 6rem;
-    /* Ensure nav clearance */
+    margin: 0;
+    padding-top: 9rem;
+    /* Increased to prevent nav overlapping subtitle */
     padding-bottom: 2rem;
 }
 
@@ -335,7 +336,8 @@ h4 {
     gap: 0.5rem;
     color: var(--accent-color);
     font-family: var(--font-mono);
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
+    /* Zero space */
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
     background: rgba(0, 255, 157, 0.1);
@@ -346,7 +348,8 @@ h4 {
 .hero-title {
     font-size: clamp(3rem, 5vw, 5rem);
     /* Responsive font size */
-    margin-bottom: 0.2rem;
+    margin-bottom: 0;
+    /* Zero space */
     line-height: 1.1;
 }
 

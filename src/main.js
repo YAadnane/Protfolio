@@ -182,20 +182,35 @@ window.optimizeHeroText = function() {
     const title = document.querySelector('.hero-title');
     if (!title) return;
     
-    // Reset to responsive clamp default first
-    title.style.fontSize = ''; 
-    
-    requestAnimationFrame(() => {
-        let currentSize = parseFloat(getComputedStyle(title).fontSize);
-        const lineHeight = parseFloat(getComputedStyle(title).lineHeight);
-        // Threshold: 3 lines (approx 3.2 to account for slight padding/rendering diffs)
-        const maxLinesHeight = lineHeight * 3.2;
+    const runAdjustment = () => {
+        // Reset to allow recalc
+        title.style.fontSize = ''; 
+        
+        requestAnimationFrame(() => {
+            const style = getComputedStyle(title);
+            let currentSize = parseFloat(style.fontSize);
+            let lineHeight = parseFloat(style.lineHeight);
+            
+            // Fallback
+            if (isNaN(lineHeight)) lineHeight = currentSize * 1.2;
 
-        while (title.offsetHeight > maxLinesHeight && currentSize > 24) {
-             currentSize -= 2; // Decrease by 2px steps
-             title.style.fontSize = `${currentSize}px`;
-        }
-    });
+            // Strict limit: 3 lines (use 3.1 multiplier for safety)
+            const maxAllowedHeight = lineHeight * 3.1;
+
+            let loops = 0;
+            // Checks offsetHeight which includes padding/border, title has none usually
+            while (title.offsetHeight > maxAllowedHeight && currentSize > 20 && loops < 20) {
+                 currentSize -= 3; // Aggressive step
+                 title.style.fontSize = `${currentSize}px`;
+                 // Recalculate line-height dependent on new font-size
+                 lineHeight = parseFloat(getComputedStyle(title).lineHeight);
+                 loops++;
+            }
+        });
+    };
+
+    runAdjustment();
+    setTimeout(runAdjustment, 300); // Retry to catch font loads
 };
 
 window.addEventListener('resize', () => { clearTimeout(window.resizeTo); window.resizeTo = setTimeout(window.optimizeHeroText, 200); });
