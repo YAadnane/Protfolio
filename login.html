@@ -112,6 +112,25 @@
             </div>
             <button type="submit" class="btn-login">Login</button>
         </form>
+        <div style="margin-top: 1rem; text-align: center;">
+            <button type="button" id="btn-forgot-toggle"
+                style="background: none; border: none; color: var(--text-muted); cursor: pointer; text-decoration: underline;">Forgot
+                Password?</button>
+        </div>
+
+        <!-- Forgot Password Form (Hidden by default) -->
+        <div id="forgot-password-section"
+            style="display: none; margin-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem;">Enter your username/email to
+                receive a new password:</p>
+            <form id="forgot-form">
+                <div class="form-group">
+                    <input type="text" id="forgot-email" placeholder="Username / Email" required>
+                </div>
+                <button type="submit" class="btn-login" style="background: var(--text-muted);">Reset Password</button>
+            </form>
+            <div id="forgot-msg" class="error-message" style="color: var(--accent-color); margin-top:0.5rem;"></div>
+        </div>
     </div>
     <script type="module" src="src/login.js"></script>
 </body>

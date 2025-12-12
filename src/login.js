@@ -77,3 +77,54 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         errorMsg.style.display = 'block';
     }
 });
+    }
+});
+
+// Forgot Password Logic
+const forgotToggle = document.getElementById('btn-forgot-toggle');
+const forgotSection = document.getElementById('forgot-password-section');
+const forgotForm = document.getElementById('forgot-form');
+const forgotMsg = document.getElementById('forgot-msg');
+
+if (forgotToggle) {
+    forgotToggle.addEventListener('click', () => {
+        if (forgotSection.style.display === 'none') {
+            forgotSection.style.display = 'block';
+        } else {
+            forgotSection.style.display = 'none';
+        }
+    });
+}
+
+if (forgotForm) {
+    forgotForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('forgot-email').value;
+        forgotMsg.style.display = 'none';
+        forgotMsg.style.color = 'var(--accent-color)';
+        forgotMsg.textContent = 'Processing...';
+        forgotMsg.style.display = 'block';
+
+        try {
+            const res = await fetch(`${API_URL}/forgot-password`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            
+            const data = await res.json();
+
+            if (res.ok) {
+                forgotMsg.textContent = data.message;
+                forgotMsg.style.color = '#00ff9d'; // Success green
+            } else {
+                forgotMsg.textContent = data.error || 'Reset failed';
+                forgotMsg.style.color = '#ff4d4d'; // Error red
+            }
+        } catch (err) {
+            console.error(err);
+            forgotMsg.textContent = 'Network error';
+            forgotMsg.style.color = '#ff4d4d';
+        }
+    });
+}

@@ -106,6 +106,7 @@ const authenticateToken = (req, res, next) => {
 
 // Login Endpoint
 app.post('/api/login', (req, res) => {
+    // ... existing logic ...
     const { email, password } = req.body;
     console.log('Login attempt:', email); 
 
@@ -136,6 +137,49 @@ app.post('/api/login', (req, res) => {
                 console.log('Password mismatch'); 
                 res.status(401).json({ error: "Invalid credentials" });
             }
+        });
+    });
+});
+
+// Forgot Password Endpoint
+app.post('/api/forgot-password', (req, res) => {
+    const { email } = req.body;
+    
+    if (!email) return res.status(400).json({ error: "Username/Email is required." });
+
+    db.get("SELECT * FROM users WHERE username = ?", [email], async (err, user) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        
+        if (!user) {
+            // Security: Don't reveal if user exists, but here we can be a bit more explicit if asked
+            // Logic: User asked to "verify if valid".
+            return res.status(404).json({ error: "User not found." });
+        }
+
+        // Generate new password
+        const newPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+        const hash = await bcrypt.hash(newPassword, 10);
+
+        db.run("UPDATE users SET password_hash = ? WHERE id = ?", [hash, user.id], (err) => {
+            if (err) return res.status(500).json({ error: "Update failed" });
+
+            // Send Email
+            const mailOptions = {
+                from: 'yadani.adnane20@gmail.com',
+                to: email, // Assuming username IS the email, which is critical here
+                subject: 'Password Reset - Portfolio Admin',
+                text: `Hello,\n\nA password reset was requested for your account.\n\nYour NEW Password is: ${newPassword}\n\nPlease login and change it immediately from your profile.\n\nRegards,\nPortfolio System`
+            };
+
+            transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.log('Error sending reset email:', error);
+                    return res.status(500).json({ error: "Password reset internally but email failed. Contact admin." });
+                } else {
+                    console.log('Reset email sent: ' + info.response);
+                    res.json({ message: "New password sent to your email." });
+                }
+            });
         });
     });
 });
