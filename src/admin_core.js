@@ -917,7 +917,9 @@ async function renderDatabaseView() {
     grid.innerHTML = '<div style="text-align:center; padding:2rem; color:var(--text-muted);">Loading Database...</div>';
 
     try {
-        const res = await fetchWithAuth(`${API_URL}/admin/database/tables`);
+        const res = await fetch(`${API_URL}/admin/database/tables`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         const tables = await res.json();
 
         if (!Array.isArray(tables)) throw new Error("Failed to fetch tables");
@@ -956,7 +958,9 @@ async function loadTableData(tableName) {
     container.innerHTML = '<div style="padding:1rem;">Loading data...</div>';
 
     try {
-        const res = await fetchWithAuth(`${API_URL}/admin/database/table/${tableName}`);
+        const res = await fetch(`${API_URL}/admin/database/table/${tableName}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
         const data = await res.json();
 
         if (data.error) throw new Error(data.error);
