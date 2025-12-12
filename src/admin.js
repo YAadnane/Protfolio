@@ -253,9 +253,9 @@ const fields = {
             options: ['Beginner', 'Intermediate', 'Advanced', 'Expert'] 
         },
         { name: 'pdf', label: 'Current PDF Path', type: 'text' }, // Read-only or manual edit
-        { name: 'pdfFile', label: 'Upload Certificate PDF', type: 'file', accept: '.pdf,application/pdf' },
+        { name: 'pdfFile', label: 'Upload Certificate (PDF Only)', type: 'file', accept: '.pdf' },
         { name: 'image', label: 'Current Image Path', type: 'text' },
-        { name: 'imageFile', label: 'Upload Preview Image', type: 'file' },
+        { name: 'imageFile', label: 'Upload Preview (Image Only)', type: 'file' },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
     ],
     education: [
@@ -316,7 +316,7 @@ const fields = {
         { name: 'profile_image', label: 'Current Profile Image Path', type: 'text' },
         { name: 'profileImage', label: 'Upload Profile Image', type: 'file' },
         { name: 'cv_file', label: 'Current CV Path', type: 'text' },
-        { name: 'cvFile', label: 'Upload New CV (PDF)', type: 'file', accept: '.pdf,application/pdf' },
+        { name: 'cvFile', label: 'Upload New CV (PDF Only)', type: 'file', accept: '.pdf' },
         { name: 'email', label: 'Email', type: 'text' },
         { name: 'phone', label: 'Phone', type: 'text' },
         { name: 'location', label: 'Location', type: 'text' },
@@ -690,14 +690,16 @@ function setupModal() {
         const submitBtn = e.target.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.innerText;
         
-        // File Size Check
-        const fileInput = document.querySelector('input[type="file"][name="imageFile"]');
-        if (fileInput && fileInput.files.length > 0) {
-            const file = fileInput.files[0];
-            const maxSize = 500 * 1024 * 1024; // 500MB
-            if (file.size > maxSize) {
-                showNotification(`File too large! Max 500MB. Yours: ${Math.round(file.size/1024/1024)}MB.`, 'error');
-                return;
+        // File Size Check - GENERIC for all file inputs
+        const fileInputs = document.querySelectorAll('input[type="file"]');
+        for (const input of fileInputs) {
+            if (input.files.length > 0) {
+                const file = input.files[0];
+                const maxSize = 500 * 1024 * 1024; // 500MB
+                if (file.size > maxSize) {
+                    showNotification(`File too large! Max 500MB. Yours: ${Math.round(file.size/1024/1024)}MB.`, 'error');
+                    return;
+                }
             }
         }
         
