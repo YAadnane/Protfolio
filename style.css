@@ -3937,7 +3937,8 @@ body.light-mode #review-form select {
         .hero-subtitle {
             font-size: 0.8rem;
             padding: 0.4rem 0.8rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
+            /* Reduced margin */
             white-space: normal;
             text-align: center;
         }
@@ -3947,10 +3948,19 @@ body.light-mode #review-form select {
             line-height: 1.5;
             max-width: 100%;
             padding: 0 1rem;
+            margin-bottom: 1.5rem;
+            /* Compact spacing */
+        }
+
+        .hero-container {
+            gap: 1rem;
+            /* Reduced gap */
         }
 
         .hero {
-            padding-top: 8rem;
-            /* Extra space for mobile nav */
+            padding-top: 5rem;
+            /* Reduced from 8rem to move content up */
+            align-items: flex-start;
+            /* Start from top instead of center */
         }
     }
