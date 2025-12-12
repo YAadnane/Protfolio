@@ -253,7 +253,7 @@ const fields = {
             options: ['Beginner', 'Intermediate', 'Advanced', 'Expert'] 
         },
         { name: 'pdf', label: 'Current PDF Path', type: 'text' }, // Read-only or manual edit
-        { name: 'pdfFile', label: 'Upload Certificate PDF', type: 'file' },
+        { name: 'pdfFile', label: 'Upload Certificate PDF', type: 'file', accept: '.pdf,application/pdf' },
         { name: 'image', label: 'Current Image Path', type: 'text' },
         { name: 'imageFile', label: 'Upload Preview Image', type: 'file' },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
@@ -316,7 +316,7 @@ const fields = {
         { name: 'profile_image', label: 'Current Profile Image Path', type: 'text' },
         { name: 'profileImage', label: 'Upload Profile Image', type: 'file' },
         { name: 'cv_file', label: 'Current CV Path', type: 'text' },
-        { name: 'cvFile', label: 'Upload New CV (PDF)', type: 'file' },
+        { name: 'cvFile', label: 'Upload New CV (PDF)', type: 'file', accept: '.pdf,application/pdf' },
         { name: 'email', label: 'Email', type: 'text' },
         { name: 'phone', label: 'Phone', type: 'text' },
         { name: 'location', label: 'Location', type: 'text' },
@@ -647,7 +647,8 @@ window.openModal = (isEdit = false) => {
         if (field.type === 'textarea') {
             inputHtml = `<textarea name="${field.name}" rows="3"></textarea>`;
         } else if (field.type === 'file') {
-            inputHtml = `<input type="file" name="${field.name}" accept="image/*,video/*">`;
+            const accept = field.accept || 'image/*,video/*';
+            inputHtml = `<input type="file" name="${field.name}" accept="${accept}">`;
         } else if (field.type === 'select') {
             const optionsHtml = field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
             inputHtml = `<select name="${field.name}">${optionsHtml}</select>`;
