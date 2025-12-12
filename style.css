@@ -3868,4 +3868,72 @@ body.light-mode #review-form select {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}/* =========================================
+   7. RESPONSIVE TEXT FIXES
+   ========================================= */
+@media (max-width: 1200px) {
+    .hero-title {
+        font-size: 3.5rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .hero-container {
+        grid-template-columns: 1fr;
+        text-align: center;
+        gap: 2rem;
+    }
+
+    .hero-content {
+        order: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-visual {
+        order: 1;
+        height: 350px;
+        margin-bottom: 1rem;
+    }
+
+    .hero-description {
+        margin: 0 auto 2rem auto;
+    }
+
+    .hero-actions {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+        line-height: 1.2;
+        word-wrap: break-word;
+    }
+
+    .hero-subtitle {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+        margin-bottom: 1rem;
+        white-space: normal;
+        text-align: center;
+    }
+
+    .hero-description {
+        font-size: 1rem;
+        line-height: 1.5;
+        max-width: 100%;
+        padding: 0 1rem;
+    }
+
+    /* Ensure no overflow */
+    .hero {
+        height: auto;
+        min-height: 100vh;
+        padding-top: 8rem;
+        /* Space for nav */
+        padding-bottom: 4rem;
+    }
 }
