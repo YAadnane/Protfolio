@@ -365,6 +365,8 @@ function animateCounter(el, target, duration = 1500) {
 function getSocialIcon(platform) {
     switch(platform) {
         case 'linkedin': return '<i class="fa-brands fa-linkedin"></i>';
+        case 'github': return '<i class="fa-brands fa-github"></i>';
+        case 'twitter': return '<i class="fa-brands fa-x-twitter"></i>';
         case 'facebook': return '<i class="fa-brands fa-facebook"></i>';
         case 'instagram': return '<i class="fa-brands fa-instagram"></i>';
         case 'reddit': return '<i class="fa-brands fa-reddit"></i>';
