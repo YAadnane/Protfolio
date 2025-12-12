@@ -1114,7 +1114,15 @@ app.get('/sitemap.xml', (req, res) => {
 // SERVE FRONTEND (MUST BE LAST)
 // =========================================
 const distPath = path.join(__dirname, '../dist');
-app.use(express.static(distPath));
+app.use(express.static(distPath, {
+    etag: false,
+    lastModified: false,
+    setHeaders: (res, path) => {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+}));
 
 app.get(/(.*)/, (req, res) => {
     res.sendFile(path.join(distPath, 'index.html'));
