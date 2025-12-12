@@ -635,6 +635,36 @@
         html.light-mode .db-data-wrapper::-webkit-scrollbar-thumb {
             background: rgba(0, 0, 0, 0.2) !important;
         }
+
+        /* Project Card Light Mode */
+        body.light-mode .admin-card,
+        html.light-mode .admin-card,
+        .light-mode .admin-card {
+            background: rgba(255, 255, 255, 0.8) !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
+            backdrop-filter: blur(10px) !important;
+            color: #1a1a1a !important;
+        }
+
+        body.light-mode .admin-card h3,
+        html.light-mode .admin-card h3,
+        .light-mode .admin-card h3 {
+            color: #1a1a1a !important;
+        }
+
+        body.light-mode .admin-card p,
+        html.light-mode .admin-card p,
+        .light-mode .admin-card p {
+            color: #555 !important;
+        }
+
+        body.light-mode .admin-card .tag,
+        html.light-mode .admin-card .tag,
+        .light-mode .admin-card .tag {
+            background: rgba(0, 0, 0, 0.05) !important;
+            color: #333 !important;
+        }
     </style>
 </head>
 
@@ -734,7 +764,7 @@
     <!-- Toast Container -->
     <div id="notification-container" class="notification-container"></div>
 
-    <script src="/src/admin_core.js?v=3.0" type="module"></script>
+    <script src="/src/admin_core.js?v=3.1" type="module"></script>
 </body>
 
 </html>
