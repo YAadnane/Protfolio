@@ -1,144 +1,171 @@
-# Adnane Yadani - Data Scientist Portfolio 📊🤖
+# ⚡ Adnane Yadani - Data Scientist Portfolio v5.0
 
-A high-performance, full-stack portfolio application designed for a Data Scientist & AI Engineer. This project showcases advanced web development skills, integrating 3D visualizations, dynamic content management, and a secure admin dashboard.
+![Status](https://img.shields.io/badge/Status-Live-success?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-5.0-blue?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)
 
-**Live Demo:** [https://yadani-adnane.duckdns.org](https://yadani-adnane.duckdns.org)
+> *Replacing generic templates with a handcrafted, high-performance Data Science showcase.*
+
+This is not just a resume; it's a **Full-Stack Application** demonstrating advanced capabilities in **AI Integration, Data Visualization, and System Architecture**.
+
+🌐 **Live Demo:** [https://yadani-adnane.duckdns.org](https://yadani-adnane.duckdns.org)
+
+---
+
+## 🧠 System Architecture
+
+The ecosystem relies on a robust **Monolithic Architecture** optimized for speed and low latency.
+
+```mermaid
+graph TD
+    User([👤 User / Visitor])
+    Admin([👨‍💻 Admin])
+    
+    subgraph "Oracle Cloud Infrastructure (Ubuntu VM)"
+        Nginx[🟢 Nginx Reverse Proxy]
+        
+        subgraph "Application Layer"
+            Node[🟢 Node.js Server]
+            Gemini[🤖 Google Gemini API]
+            SMTP[📧 Gmail SMTP]
+        end
+        
+        subgraph "Data Layer"
+            SQLite[(🗄️ SQLite Database)]
+            FS[📂 File System (Uploads)]
+        end
+    end
+    
+    User -->|HTTPS| Nginx
+    Admin -->|HTTPS| Nginx
+    Nginx -->|Proxy :3000| Node
+    
+    Node <-->|Read/Write| SQLite
+    Node <-->|Store Images| FS
+    Node <-->|Chat Context| Gemini
+    Node -->|Send Alerts| SMTP
+```
 
 ---
 
 ## 🚀 Key Features
 
-### 🎨 Frontend Experience
-*   **Modern Design**: Glassmorphism, neon accents, and a "cyber-data" aesthetic.
-*   **AI Integration**: **Smart Chatbot** powered by Google Gemini 🤖. It answers questions about my skills, projects, and background in real-time, with context-awareness and rate limiting.
-*   **Bilingual Support**: seamless **EN/FR** language toggling with instant content update.
-*   **3D Visualizations**: Interactive cubes, spheres, and pyramids representing data concepts (using CSS3D & GSAP).
-*   **Animations**: Complex GSAP ScrollTrigger animations, "Hacker" text scramble effects, and particle networks.
-*   **Responsive**: Fully optimized for Desktop, Tablet, and Mobile.
-*   **Dynamic Content**: Projects, Skills, Education, and Experience are fetched from the API.
+### 🎨 **Immersive Frontend**
+*   **"Cyber-Data" Aesthetic**: Custom Glassmorphism UI with neon accents.
+*   **3D Interactive Core**: Three.js/CSS3D visualizations representing AI concepts.
+*   **Smart Chatbot (Gemini 2.5)**: Context-aware AI assistant that answers questions about *me* in real-time.
+*   **Bilingual Engine**: Instant English/French switching without page reloads.
 
-### 🛠️ Admin Dashboard
-*   **Authentication**: Secure JWT-based login system.
-*   **Content Management (CMS)**:
-    *   **CRUD Operations**: Add, Edit, Delete, and Hide/Show any content (Projects, Certifications, Skills, Education, Experience).
-    *   **Review Management**: Approve or Delete user-submitted testimonials before they go live ("Anti-Zombie" database protection included).
-    *   **File Uploads**: Drag & drop support for Project Images/Videos and PDF Documents.
-*   **Messages & Notifications**:
-    *   Real-time **Unread Message Counter** badge.
-    *   **Email Notifications** via SMTP (Gmail) for every new contact form submission.
-    *   Manage messages (Mark as Read / Delete) directly from the dashboard.
-
-### ⚙️ Backend & Architecture
-*   **API**: RESTful API built with Node.js & Express.
-*   **Database**: SQLite for lightweight, zero-configuration data persistence.
-*   **Security**:
-    *   Input Sanitization (XSS prevention) on all inputs.
-    *   JWT Middleware for protected routes.
-    *   Helmet & CORS configuration.
-*   **SEO Optimized**:
-    *   Dynamic Sitemap (`/sitemap.xml`) generation.
-    *   Open Graph tags (Social Previews).
-    *   JSON-LD Structured Data for Google Indexing.
+### 🛡️ **Secure Admin Dashboard**
+*   **Full CMS**: Update Projects, Skills, and Experience without touching code.
+*   **Database Viewer**: Direct read/write access to SQLite tables from the UI.
+*   **Review Gatekeeper**: "Anti-Zombie" logic to approve/delete testimonials.
+*   **Security First**: JWT Authentication, Input Sanitization, and Rate Limiting.
 
 ---
 
-## 🛠️ Tech Stack
+## 🛠️ Tech Stack & Tools
 
-| Component | Technology |
-| :--- | :--- |
-| **Frontend** | HTML5, CSS3, JavaScript (ES6+), Vite |
-| **Animations** | GSAP (GreenSock), Vanilla-Tilt.js, Particles.js |
-| **AI / LLM** | **Google Gemini 2.5 Flash** (via API) |
-| **Backend** | Node.js, Express.js |
-| **Database** | SQLite3 |
-| **Auth** | JSON Web Tokens (JWT), Bcrypt |
-| **Email** | Nodemailer |
-| **Server** | Nginx (Reverse Proxy), PM2 (Process Manager) |
-| **OS** | Ubuntu (Oracle Cloud VM) |
+![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?style=flat&logo=javascript&logoColor=black)
+![Node.js](https://img.shields.io/badge/Node.js-Backend-339933?style=flat&logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express.js-Framework-000000?style=flat&logo=express&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=flat&logo=sqlite&logoColor=white)
+![Oracle Cloud](https://img.shields.io/badge/Oracle_Cloud-Infrastructure-F80000?style=flat&logo=oracle&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-Proxy-009639?style=flat&logo=nginx&logoColor=white)
+![Gemini](https://img.shields.io/badge/Google_Gemini-AI-8E75B2?style=flat&logo=google&logoColor=white)
 
----
+### 📊 Database Schema (Entity Relationship)
 
-## 📦 Installation (Local)
-
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/YAadnane/Protfolio.git
-    cd Protfolio
-    ```
-
-2.  **Install Dependencies**
-    ```bash
-    npm install
-    ```
-
-3.  **Environment Setup**
-    Create a `.env` file in the root directory:
-    ```env
-    PORT=3000
-    JWT_SECRET=your_super_secret_jwt_key
-    EMAIL_USER=your_email@gmail.com
-    EMAIL_PASS=your_app_password
-    ```
-
-4.  **Run Development Server**
-    ```bash
-    npm run dev
-    ```
-    *   Frontend: `http://localhost:5173`
-    *   Backend: `http://localhost:3000`
-
----
-
-## ☁️ Deployment (Oracle Cloud)
-
-The project is deployed on an Ubuntu VM using Nginx as a reverse proxy.
-
-### Quick Commands (Server)
-
-**Update & Restart:**
-```bash
-# Pull changes, rebuild frontend, and restart Node server
-cd ~/Protfolio
-git pull
-npm install # if new deps added
-npm run build
-pm2 restart portfolio
+```mermaid
+erDiagram
+    GENERAL_INFO ||--o{ SOCIAL_LINKS : contains
+    PROJECTS ||--o{ TAGS : has
+    REVIEWS {
+        string name
+        string message
+        int rating
+        boolean is_approved
+    }
+    MESSAGES {
+        string email
+        string message
+        boolean is_read
+    }
+    USERS {
+        string username
+        string password_hash
+    }
+    SHAPES {
+        string type
+        float position_x
+        float position_y
+    }
 ```
 
-**Check Logs:**
+---
+
+## 📦 Installation & Setup
+
+### 1. Clone & Install
 ```bash
-pm2 logs portfolio
+git clone https://github.com/YAadnane/Protfolio.git
+cd Protfolio
+npm install
 ```
 
-**Nginx Configuration:**
-Located at `/etc/nginx/sites-available/portfolio`. Handles SSL (Let's Encrypt) and proxies traffic to port 3000.
+### 2. Configure Environment
+Create a `.env` file:
+```env
+PORT=3000
+SECRET_KEY=complex_key_here
+ADMIN_EMAIL=your_email@gmail.com
+EMAIL_PASS=your_app_password
+GEMINI_API_KEY=your_gemini_key
+```
+
+### 3. Run Locally
+```bash
+npm run dev
+# Frontend: http://localhost:5173
+# Backend: http://localhost:3000
+```
 
 ---
 
-## 👮 Admin Access
+## ☁️ Deployment Implementation
 
-To access the dashboard, visit `/login.html`.
+The project uses a **Continuous Integration-like Webhook Workflow** (simulated via SSH commands).
 
-*   **Default Username**: `admin`
-*   **Default Password**: *(Check server environment variables or database seed)*
+```mermaid
+sequenceDiagram
+    participant Dev as 👨‍💻 Developer
+    participant Git as 🐙 GitHub
+    participant Server as ☁️ Oracle VM
+    
+    Dev->>Git: Push Code (Main)
+    Dev->>Server: SSH Trigger Command
+    Server->>Git: git pull origin main
+    Server->>Server: npm install & npm run build
+    Server->>Server: pm2 restart portfolio
+    Server-->>Dev: Deployment Success ✅
+```
 
 ---
 
 ## 📂 Project Structure
 
 ```
-├── public/             # Static assets (robots.txt, og-image.jpg)
-├── server/             # Backend logic
-│   ├── database.js     # SQLite connection & schema
-│   └── index.js        # Express API routes & server
-├── src/                # Frontend source
-│   ├── admin.js        # Dashboard logic
-│   ├── main.js         # Public site logic
-│   └── ...
-├── index.html          # Main entry point
-└── admin.html          # Dashboard entry point
+├── public/             # Static Assets (Images, Icons)
+├── server/             
+│   ├── database.js     # SQLite Singleton & Seeding
+│   └── index.js        # Express API & Auth Logic
+├── src/                
+│   ├── admin_core.js   # Dashboard Logic (Glassmorphism UI)
+│   ├── main.js         # Public Portfolio Logic (Animations)
+│   └── styles/         # CSS Modules
+└── index.html          # Entry Point
 ```
 
 ---
 
-© 2025 [Adnane Yadani](https://yadani-adnane.duckdns.org). Built from scratch with ❤️ and Code. 
+© 2025 **Adnane Yadani**. Built with Data & Design.
