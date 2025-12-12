@@ -926,7 +926,7 @@ async function renderDatabaseView() {
 
         // Layout: Sidebar for tables, Main area for data
         let html = `
-            <div style="display: grid; grid-template-columns: 250px 1fr; gap: 1rem; height: calc(100vh - 200px);">
+            <div style="grid-column: 1 / -1; display: grid; grid-template-columns: 250px 1fr; gap: 1rem; height: calc(100vh - 200px); width: 100%;">
                 <!-- Table List -->
                 <div class="card" style="overflow-y: auto; height: 100%;">
                     <h3 style="margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;">Tables</h3>
