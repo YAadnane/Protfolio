@@ -178,6 +178,29 @@ function updatePageLanguage() {
     document.documentElement.lang = currentLang;
 }
 
+window.optimizeHeroText = function() {
+    const title = document.querySelector('.hero-title');
+    if (!title) return;
+    
+    // Reset to responsive clamp default first
+    title.style.fontSize = ''; 
+    
+    requestAnimationFrame(() => {
+        let currentSize = parseFloat(getComputedStyle(title).fontSize);
+        const lineHeight = parseFloat(getComputedStyle(title).lineHeight);
+        // Threshold: 3 lines (approx 3.2 to account for slight padding/rendering diffs)
+        const maxLinesHeight = lineHeight * 3.2;
+
+        while (title.offsetHeight > maxLinesHeight && currentSize > 24) {
+             currentSize -= 2; // Decrease by 2px steps
+             title.style.fontSize = `${currentSize}px`;
+        }
+    });
+};
+
+window.addEventListener('resize', () => { clearTimeout(window.resizeTo); window.resizeTo = setTimeout(window.optimizeHeroText, 200); });
+
+
 function initTheme() {
     const themeBtn = document.getElementById('theme-switch');
     const savedTheme = localStorage.getItem('theme') || 'dark';
@@ -215,6 +238,7 @@ async function loadGeneralInfo() {
         if (data.hero_title) {
             const formatted = data.hero_title.split(' ').map(w => `<span class="scramble-text">${w}</span>`).join(' ');
             document.querySelector('.hero-title').innerHTML = formatted;
+            window.optimizeHeroText(); // Adjust size immediately
         }
         
         // Hero Description Typewriter / Rotator
