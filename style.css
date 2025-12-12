@@ -318,9 +318,9 @@ h4 {
     overflow: visible;
     /* Prevent cutting off content */
     margin: 0;
-    padding-top: 9rem;
-    /* Increased to prevent nav overlapping subtitle */
-    padding-bottom: 2rem;
+    padding-top: 11rem !important;
+    /* Force visible space below nav */
+    padding-bottom: 1rem;
 }
 
 .hero-container {
@@ -336,8 +336,8 @@ h4 {
     gap: 0.5rem;
     color: var(--accent-color);
     font-family: var(--font-mono);
-    margin-bottom: 0;
-    /* Zero space */
+    margin-bottom: 0 !important;
+    /* Force zero */
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
     background: rgba(0, 255, 157, 0.1);
@@ -346,10 +346,11 @@ h4 {
 }
 
 .hero-title {
-    font-size: clamp(3rem, 5vw, 5rem);
-    /* Responsive font size */
-    margin-bottom: 0;
-    /* Zero space */
+    font-size: clamp(2rem, 4.5vw, 3.8rem);
+    /* Significantly reduced max size to prevent 4 lines */
+    margin-bottom: 0 !important;
+    /* Force zero */
+    margin-top: 0.5rem;
     line-height: 1.1;
 }
 
