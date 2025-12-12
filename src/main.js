@@ -230,10 +230,17 @@ window.updateProjectCardsTheme = () => {
             card.style.setProperty('opacity', '1', 'important');
             card.style.setProperty('border', '1px solid rgba(0, 191, 125, 0.1)', 'important');
             
-            // Hide Overlay
+            // Hide Overlay (Fallback AND Standard Overlay for Large Cards)
             const overlay = card.nextElementSibling;
-            if (overlay && overlay.classList.contains('bento-fallback-overlay')) {
+            if (overlay && (overlay.classList.contains('bento-fallback-overlay') || overlay.classList.contains('bento-overlay'))) {
                 overlay.style.setProperty('display', 'none', 'important');
+            }
+            
+            // Also check for separate .bento-overlay if it's not the immediate sibling (structure varies)
+            const parent = card.parentElement;
+            if(parent) {
+                 const regularOverlay = parent.querySelector('.bento-overlay');
+                 if(regularOverlay) regularOverlay.style.setProperty('display', 'none', 'important');
             }
         } else {
             // Revert (remove priority)
@@ -242,8 +249,14 @@ window.updateProjectCardsTheme = () => {
             card.style.removeProperty('border');
             
             const overlay = card.nextElementSibling;
-            if (overlay && overlay.classList.contains('bento-fallback-overlay')) {
+            if (overlay && (overlay.classList.contains('bento-fallback-overlay') || overlay.classList.contains('bento-overlay'))) {
                 overlay.style.removeProperty('display');
+            }
+            
+            const parent = card.parentElement;
+            if(parent) {
+                 const regularOverlay = parent.querySelector('.bento-overlay');
+                 if(regularOverlay) regularOverlay.style.removeProperty('display');
             }
         }
     });

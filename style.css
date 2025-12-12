@@ -4012,7 +4012,8 @@ body.light-mode .bento-fallback-gradient {
     border: 1px solid rgba(0, 191, 125, 0.1);
 }
 
-body.light-mode .bento-fallback-overlay {
+body.light-mode .bento-fallback-overlay,
+body.light-mode .bento-overlay {
     display: none !important;
     /* Hide default overlay to keep the green pure */
 }
