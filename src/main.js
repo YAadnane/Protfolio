@@ -218,14 +218,86 @@ window.optimizeHeroText = function() {
 window.addEventListener('resize', () => { clearTimeout(window.resizeTo); window.resizeTo = setTimeout(window.optimizeHeroText, 200); });
 
 
+window.updateProjectCardsTheme = () => {
+    const isLight = document.body.classList.contains('light-mode');
+    
+    // 1. Handle Fallback Gradients (Green vs Dark)
+    const cards = document.querySelectorAll('.bento-fallback-gradient');
+    cards.forEach(card => {
+        if (isLight) {
+            // Force Green Gradient
+            card.style.background = 'linear-gradient(160deg, #ffffff 20%, rgba(0, 191, 125, 0.3) 100%)';
+            card.style.opacity = '1';
+            card.style.border = '1px solid rgba(0, 191, 125, 0.1)';
+            
+            // Hide Overlay
+            const overlay = card.nextElementSibling;
+            if (overlay && overlay.classList.contains('bento-fallback-overlay')) {
+                overlay.style.display = 'none';
+            }
+        } else {
+            // Revert to CSS (Dark Gradient)
+            card.style.background = '';
+            card.style.opacity = '';
+            card.style.border = '';
+            
+            const overlay = card.nextElementSibling;
+            if (overlay && overlay.classList.contains('bento-fallback-overlay')) {
+                overlay.style.display = '';
+            }
+        }
+    });
+
+    // 2. Handle Text Colors (White for Media, Dark for Fallback)
+    const allItems = document.querySelectorAll('.bento-item');
+    allItems.forEach(item => {
+         const hasMedia = item.classList.contains('has-media');
+         const h3 = item.querySelector('h3');
+         const p = item.querySelector('p');
+         const btns = item.querySelectorAll('.btn-github, .btn-play');
+         const tags = item.querySelectorAll('.bento-tags span');
+
+         if (isLight) {
+             if (hasMedia) {
+                 // Media Card in Light Mode -> Force White Text
+                 if(h3) h3.style.cssText = 'color: #ffffff !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5);';
+                 if(p) p.style.cssText = 'color: #ffffff !important; text-shadow: 0 2px 4px rgba(0,0,0,0.5);';
+                 btns.forEach(b => {
+                     b.style.cssText = 'color: #ffffff !important; background: rgba(255,255,255,0.2) !important; border-color: rgba(255,255,255,0.3) !important;';
+                 });
+                 tags.forEach(t => t.style.cssText = 'background: rgba(0,0,0,0.6) !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.2) !important;');
+             } else {
+                // Fallback (Green) Card in Light Mode -> Dark Text (Default)
+                // We clear styles to let CSS variables take over (which are correct for light mode)
+                 if(h3) h3.style.cssText = ''; 
+                 if(p) p.style.cssText = '';
+                 btns.forEach(b => b.style.cssText = '');
+                 tags.forEach(t => t.style.cssText = '');
+             }
+         } else {
+             // Dark Mode -> Clear all inline styles
+             if(h3) h3.style.cssText = ''; 
+             if(p) p.style.cssText = '';
+             btns.forEach(b => b.style.cssText = '');
+             tags.forEach(t => t.style.cssText = '');
+         }
+    });
+};
+
 function initTheme() {
     const themeBtn = document.getElementById('theme-switch');
     const savedTheme = localStorage.getItem('theme') || 'dark';
     
+    // Apply initial theme
     if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
         if(themeBtn) themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
     }
+    
+    // Run style update immediately (waiting for DOM content done in caller)
+    // But projects might not be loaded yet. That's why we also call it in loadProjects.
+    // However, if we just toggled, we must run it.
+    setTimeout(window.updateProjectCardsTheme, 100);
 
     if (themeBtn) {
         themeBtn.addEventListener('click', () => {
@@ -233,6 +305,9 @@ function initTheme() {
              const isLight = document.body.classList.contains('light-mode');
              localStorage.setItem('theme', isLight ? 'light' : 'dark');
              themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+             
+             // UPDATE CARDS ON TOGGLE
+             window.updateProjectCardsTheme();
         });
     }
 }
@@ -603,6 +678,10 @@ async function loadProjects() {
                 "max-glare": 0.2
             });
         }
+        
+        // APPLY THEME STYLES after rendering
+        if (window.updateProjectCardsTheme) window.updateProjectCardsTheme();
+
 
         // Populate Filters
         const categorySelect = document.getElementById('filter-project-category');
