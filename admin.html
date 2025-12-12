@@ -561,14 +561,15 @@
         .db-data-wrapper::-webkit-scrollbar-thumb:hover {
             background: var(--accent-color);
         }
+    </style>
+    <style id="light-mode-styles">
+        /* --- ISOLATED LIGHT MODE OVERRIDES --- */
 
-        /* --- LIGHT MODE OVERRIDES --- */
+        /* 1. Database Viewer */
         body.light-mode .db-sidebar,
         body.light-mode .db-content,
         html.light-mode .db-sidebar,
-        html.light-mode .db-content,
-        .light-mode .db-sidebar,
-        .light-mode .db-content {
+        html.light-mode .db-content {
             background: rgba(255, 255, 255, 0.70) !important;
             border-color: rgba(0, 0, 0, 0.1) !important;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
@@ -576,56 +577,49 @@
         }
 
         body.light-mode .db-checklist-title,
-        html.light-mode .db-checklist-title,
-        .light-mode .db-checklist-title {
+        html.light-mode .db-checklist-title {
             color: #333 !important;
             border-bottom-color: rgba(0, 0, 0, 0.1) !important;
         }
 
         body.light-mode .db-table-btn,
-        html.light-mode .db-table-btn,
-        .light-mode .db-table-btn {
+        html.light-mode .db-table-btn {
             color: #1a1a1a !important;
         }
 
         body.light-mode .db-table-btn:hover,
-        html.light-mode .db-table-btn:hover,
-        .light-mode .db-table-btn:hover {
+        html.light-mode .db-table-btn:hover {
             background: rgba(0, 0, 0, 0.05) !important;
         }
 
         body.light-mode .db-table-btn.active,
-        html.light-mode .db-table-btn.active,
-        .light-mode .db-table-btn.active {
-            background: rgba(46, 213, 115, 0.15) !important;
+        html.light-mode .db-table-btn.active {
+            background: rgba(0, 0, 0, 0.1) !important;
             color: var(--accent-color) !important;
+            border-color: var(--accent-color) !important;
         }
 
         body.light-mode .db-header,
-        html.light-mode .db-header,
-        .light-mode .db-header {
+        html.light-mode .db-header {
             background: rgba(255, 255, 255, 0.5) !important;
             border-bottom-color: rgba(0, 0, 0, 0.05) !important;
         }
 
         body.light-mode .db-table thead th,
-        html.light-mode .db-table thead th,
-        .light-mode .db-table thead th {
+        html.light-mode .db-table thead th {
             background: rgba(255, 255, 255, 0.9) !important;
             color: #1a1a1a !important;
             border-bottom-color: rgba(0, 0, 0, 0.1) !important;
         }
 
         body.light-mode .db-table tbody td,
-        html.light-mode .db-table tbody td,
-        .light-mode .db-table tbody td {
+        html.light-mode .db-table tbody td {
             color: #333 !important;
             border-bottom-color: rgba(0, 0, 0, 0.05) !important;
         }
 
         body.light-mode .db-table tbody tr:hover,
-        html.light-mode .db-table tbody tr:hover,
-        .light-mode .db-table tbody tr:hover {
+        html.light-mode .db-table tbody tr:hover {
             background: rgba(0, 0, 0, 0.03) !important;
         }
 
@@ -636,13 +630,11 @@
             background: rgba(0, 0, 0, 0.2) !important;
         }
 
-        /* Project Card Light Mode */
+        /* 2. Project Cards (High Specificity) */
         body.light-mode #content-grid .admin-card,
         body.light-mode .admin-card,
-        html.light-mode .admin-card,
-        .light-mode .admin-card {
+        html.light-mode .admin-card {
             background-color: rgba(255, 255, 255, 0.85) !important;
-            background: rgba(255, 255, 255, 0.85) !important;
             border: 1px solid rgba(0, 0, 0, 0.1) !important;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
             backdrop-filter: blur(10px) !important;
@@ -651,21 +643,14 @@
 
         body.light-mode .admin-card h3,
         html.light-mode .admin-card h3,
-        .light-mode .admin-card h3 {
+        body.light-mode .admin-card p,
+        html.light-mode .admin-card p {
             color: #1a1a1a !important;
         }
 
-        body.light-mode .admin-card p,
-        html.light-mode .admin-card p,
-        .light-mode .admin-card p {
-            color: #555 !important;
-        }
-
-        body.light-mode .admin-card .tag,
-        html.light-mode .admin-card .tag,
-        .light-mode .admin-card .tag {
-            background: rgba(0, 0, 0, 0.05) !important;
-            color: #333 !important;
+        body.light-mode .admin-card .tag {
+            background: rgba(0, 0, 0, 0.1) !important;
+            color: #222 !important;
         }
     </style>
 </head>
@@ -766,7 +751,7 @@
     <!-- Toast Container -->
     <div id="notification-container" class="notification-container"></div>
 
-    <script src="/src/admin_core.js?v=3.2" type="module"></script>
+    <script src="/src/admin_core.js?v=3.3" type="module"></script>
 </body>
 
 </html>
