@@ -394,6 +394,8 @@ window.switchTab = (tab) => {
 
     if (tab === 'media') {
         loadMedia();
+    } else if (tab === 'database') {
+        renderDatabaseView();
     } else {
         loadContent(tab);
     }
