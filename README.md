@@ -10,6 +10,8 @@ A high-performance, full-stack portfolio application designed for a Data Scienti
 
 ### 🎨 Frontend Experience
 *   **Modern Design**: Glassmorphism, neon accents, and a "cyber-data" aesthetic.
+*   **AI Integration**: **Smart Chatbot** powered by Google Gemini 🤖. It answers questions about my skills, projects, and background in real-time, with context-awareness and rate limiting.
+*   **Bilingual Support**: seamless **EN/FR** language toggling with instant content update.
 *   **3D Visualizations**: Interactive cubes, spheres, and pyramids representing data concepts (using CSS3D & GSAP).
 *   **Animations**: Complex GSAP ScrollTrigger animations, "Hacker" text scramble effects, and particle networks.
 *   **Responsive**: Fully optimized for Desktop, Tablet, and Mobile.
@@ -18,8 +20,9 @@ A high-performance, full-stack portfolio application designed for a Data Scienti
 ### 🛠️ Admin Dashboard
 *   **Authentication**: Secure JWT-based login system.
 *   **Content Management (CMS)**:
-    *   **CRUD Operations**: Add, Edit, Delete, and Hide/Show any content (Projects, Certifications, etc.).
-    *   **File Uploads**: Drag & drop support for Project Images/Videos and PDF Documents (CV, Certs).
+    *   **CRUD Operations**: Add, Edit, Delete, and Hide/Show any content (Projects, Certifications, Skills, Education, Experience).
+    *   **Review Management**: Approve or Delete user-submitted testimonials before they go live ("Anti-Zombie" database protection included).
+    *   **File Uploads**: Drag & drop support for Project Images/Videos and PDF Documents.
 *   **Messages & Notifications**:
     *   Real-time **Unread Message Counter** badge.
     *   **Email Notifications** via SMTP (Gmail) for every new contact form submission.
@@ -45,6 +48,7 @@ A high-performance, full-stack portfolio application designed for a Data Scienti
 | :--- | :--- |
 | **Frontend** | HTML5, CSS3, JavaScript (ES6+), Vite |
 | **Animations** | GSAP (GreenSock), Vanilla-Tilt.js, Particles.js |
+| **AI / LLM** | **Google Gemini 2.5 Flash** (via API) |
 | **Backend** | Node.js, Express.js |
 | **Database** | SQLite3 |
 | **Auth** | JSON Web Tokens (JWT), Bcrypt |
