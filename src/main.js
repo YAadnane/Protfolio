@@ -524,8 +524,10 @@ async function loadProjects() {
 
             // Check if image is a file path (uploaded) or a class name
             let bgContent = '';
-            
+            let hasMedia = false; // Flag to determine if text should remain white
+
             if (p.image && p.image.startsWith('/uploads/')) {
+                hasMedia = true;
                 const imageUrl = `${API_URL.replace('/api', '')}${p.image}`;
                 const isVideo = p.image.match(/\.(mp4|webm|ogg|mov|avi|mkv)$/i);
 
@@ -545,13 +547,15 @@ async function loadProjects() {
                     `;
                 }
             } else if (p.image && p.image.trim() !== '') {
-                // It's a CSS class or external URL
+                // It's a CSS class or external URL - treat as media if it's not just a pattern? 
+                // Assumed media for safety if user provides custom class.
+                // But often these are gradients. Let's assume NOT media unless specified.
                 bgContent = `<div class="bento-bg ${p.image}"></div>`;
             } else {
-                // Fallback: No image/video -> Gradient Background
-                bgContent = `
-                    <div class="bento-bg" style="background: linear-gradient(135deg, #1a1a1a, #0a0a0a); opacity: 1;"></div>
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at top right, rgba(0, 255, 157, 0.1), transparent 60%); z-index: 1;"></div>
+                // Fallback: No image/video -> Use CSS Class for styling
+               bgContent = `
+                    <div class="bento-bg bento-fallback-gradient"></div>
+                    <div class="bento-fallback-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
                 `;
             }
 
@@ -573,6 +577,9 @@ async function loadProjects() {
                 ${bgContent}
                 ${sizeClass === 'large' ? '<div class="bento-overlay"></div>' : ''}
             `;
+            
+            if (hasMedia) item.classList.add('has-media');
+
 
             // CLICK HANDLER FOR MODAL
             item.style.cursor = 'pointer';

@@ -3990,3 +3990,64 @@ body.light-mode #review-form select {
         /* Reserve space */
     }
 }
+/* =========================================
+   LIGHT MODE PROJECT CARD OVERRIDES
+   ========================================= */
+
+/* Fallback Gradient (No Image) */
+.bento-fallback-gradient {
+    background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+    opacity: 1 !important;
+}
+
+.bento-fallback-overlay {
+    background: radial-gradient(circle at top right, rgba(0, 255, 157, 0.1), transparent 60%);
+}
+
+/* Light Mode Specifics */
+body.light-mode .bento-fallback-gradient {
+    background: linear-gradient(135deg, #ffffff, #f0f4f8) !important;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+/* Text Colors in Light Mode */
+body.light-mode .bento-item {
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* If Card HAS MEDIA (Image/Video), force White Text even in Light Mode */
+body.light-mode .bento-item.has-media h3,
+body.light-mode .bento-item.has-media p,
+body.light-mode .bento-item.has-media .btn-github,
+body.light-mode .bento-item.has-media .btn-play {
+    color: #ffffff !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+body.light-mode .bento-item.has-media .btn-github {
+    background: rgba(255,255,255,0.2);
+    border-color: rgba(255,255,255,0.3);
+}
+
+/* If Card DOES NOT HAVE MEDIA (Fallback), use Dark Text (default from body vars) */
+body.light-mode .bento-item:not(.has-media) h3 {
+    color: var(--text-main);
+}
+body.light-mode .bento-item:not(.has-media) p {
+    color: var(--text-muted);
+}
+
+/* Bento Tags in Light Mode */
+body.light-mode .bento-item:not(.has-media) .bento-tags span {
+    background: rgba(0, 0, 0, 0.05);
+    color: #333;
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+body.light-mode .bento-item.has-media .bento-tags span {
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
