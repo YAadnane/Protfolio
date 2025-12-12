@@ -628,7 +628,8 @@
 
     <!-- Add/Edit Modal -->
     <div id="modal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" style="position: relative;">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
             <h2 id="modal-title">Add Item</h2>
             <form id="admin-form">
                 <div id="form-fields"></div>
@@ -643,7 +644,7 @@
     <!-- Toast Container -->
     <div id="notification-container" class="notification-container"></div>
 
-    <script src="/src/admin_core.js?v=2.7" type="module"></script>
+    <script src="/src/admin_core.js?v=2.8" type="module"></script>
 </body>
 
 </html>
