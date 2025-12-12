@@ -77,8 +77,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         errorMsg.style.display = 'block';
     }
 });
-    }
-});
+
 
 // Forgot Password Logic
 const forgotToggle = document.getElementById('btn-forgot-toggle');
