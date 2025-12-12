@@ -325,7 +325,8 @@ h4 {
 
 .hero-container {
     display: grid;
-    grid-template-columns: 1.2fr 0.8fr;
+    /* Give much more space to text (65%) vs visual (35%) */
+    grid-template-columns: 65% 35%;
     align-items: center;
     width: 100%;
 }
@@ -346,12 +347,14 @@ h4 {
 }
 
 .hero-title {
-    font-size: clamp(2rem, 4.5vw, 3.8rem);
-    /* Significantly reduced max size to prevent 4 lines */
+    /* Drastically reduced max size to 3.2rem */
+    font-size: clamp(2rem, 3.5vw, 3.2rem);
     margin-bottom: 0 !important;
     /* Force zero */
     margin-top: 0.5rem;
     line-height: 1.1;
+    max-width: 100%;
+    /* Ensure it uses full column width */
 }
 
 .scramble-text {
