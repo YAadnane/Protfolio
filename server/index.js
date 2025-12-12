@@ -81,8 +81,11 @@ import bcrypt from 'bcrypt';
 
 const SECRET_KEY = process.env.SECRET_KEY || 'default_dev_secret';
 const ADMIN_USER = {
-    email: process.env.ADMIN_EMAIL || 'admin@example.com',
-    passwordHash: process.env.ADMIN_PASSWORD_HASH || '$2b$10$HREwPsOL57zGfNOb7tfdMuHB4HkrTA.lYC2AFc9VePxJQPnXmvT5a'
+    // FORCE DEFAULT for User Access (admin / admin)
+    email: 'admin', 
+    passwordHash: '$2b$10$AvzbJGVzQRk7zEP1YZiM2effU.2865ZE3vfBKsVx1miNLvDrhu.qgG'
+    // email: process.env.ADMIN_EMAIL || 'admin@example.com',
+    // passwordHash: process.env.ADMIN_PASSWORD_HASH || '...'
 };
 
 
