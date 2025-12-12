@@ -368,7 +368,13 @@ h4 {
     margin-top: -10px !important;
     /* Pull up closer to title */
     margin-bottom: 1rem;
+    margin-bottom: 1rem;
     line-height: 1.6;
+}
+
+/* Hide mobile shapes on desktop */
+.mobile-shape-container {
+    display: none !important;
 }
 
 .hero-description strong {
