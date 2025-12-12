@@ -637,11 +637,13 @@
         }
 
         /* Project Card Light Mode */
+        body.light-mode #content-grid .admin-card,
         body.light-mode .admin-card,
         html.light-mode .admin-card,
         .light-mode .admin-card {
-            background: rgba(255, 255, 255, 0.8) !important;
-            border-color: rgba(0, 0, 0, 0.1) !important;
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            background: rgba(255, 255, 255, 0.85) !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
             backdrop-filter: blur(10px) !important;
             color: #1a1a1a !important;
@@ -764,7 +766,7 @@
     <!-- Toast Container -->
     <div id="notification-container" class="notification-container"></div>
 
-    <script src="/src/admin_core.js?v=3.1" type="module"></script>
+    <script src="/src/admin_core.js?v=3.2" type="module"></script>
 </body>
 
 </html>
