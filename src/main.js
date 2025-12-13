@@ -2431,7 +2431,7 @@ window.closeVideoModal = closeVideoModal;
 // =========================================
 function attachCubeInteraction(container) {
     if (!container) return;
-    const cube = container.querySelector('.data-cube') || container.querySelector('.sphere') || container.querySelector('.pyramid');
+    const cube = container.querySelector('.data-cube') || container.querySelector('.cube') || container.querySelector('.sphere') || container.querySelector('.pyramid');
     if (!cube) return;
 
     // Check if already attached (prevent duplicates)
