@@ -311,24 +311,26 @@ h4 {
 .hero {
     min-height: 100vh;
     height: auto;
-    /* Allow growth */
     display: flex;
     align-items: center;
+    /* Center vertically */
+    justify-content: center;
     position: relative;
     overflow: visible;
-    /* Prevent cutting off content */
     margin: 0;
-    padding-top: 11rem !important;
-    /* Force visible space below nav */
-    padding-bottom: 1rem;
+    padding-top: 6rem;
+    /* Reduced from 11rem to allow centering */
+    padding-bottom: 2rem;
 }
 
 .hero-container {
     display: grid;
-    /* Give much more space to text (65%) vs visual (35%) */
-    grid-template-columns: 65% 35%;
+    grid-template-columns: 60% 40%;
+    /* Balanced ratio */
     align-items: center;
     width: 100%;
+    gap: 2rem;
+    /* Add gap between text and visual */
 }
 
 .hero-subtitle {
@@ -337,8 +339,8 @@ h4 {
     gap: 0.5rem;
     color: var(--accent-color);
     font-family: var(--font-mono);
-    margin-bottom: 0 !important;
-    /* Force zero */
+    margin-bottom: 1rem;
+    /* Restored margin */
     font-size: 0.9rem;
     padding: 0.5rem 1rem;
     background: rgba(0, 255, 157, 0.1);
@@ -347,14 +349,14 @@ h4 {
 }
 
 .hero-title {
-    /* Drastically reduced max size to 3.2rem */
-    font-size: clamp(2rem, 3.5vw, 3.2rem);
-    margin-bottom: 0 !important;
-    /* Force zero */
-    margin-top: 0.5rem;
-    line-height: 1.1;
+    font-size: clamp(2.5rem, 4vw, 3.8rem);
+    /* Slightly larger */
+    margin-bottom: 1.5rem;
+    /* Restored margin */
+    margin-top: 0;
+    line-height: 1.25;
+    /* Increased from 1.1 */
     max-width: 100%;
-    /* Ensure it uses full column width */
 }
 
 .scramble-text {
@@ -362,14 +364,14 @@ h4 {
 }
 
 .hero-description {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
     color: var(--text-muted);
-    max-width: 550px;
-    margin-top: -10px !important;
-    /* Pull up closer to title */
-    margin-bottom: 1rem;
-    margin-bottom: 1rem;
-    line-height: 1.6;
+    max-width: 600px;
+    margin-top: 0;
+    margin-bottom: 2rem;
+    /* Restored margin */
+    line-height: 1.7;
+    /* Increased for readability */
 }
 
 /* Hide mobile shapes on desktop */
@@ -2168,7 +2170,10 @@ textarea:focus {
         line-height: 1.6;
     }
 
-    padding: 3rem 0;
+    .section {
+        padding: 3rem 0;
+    }
+
     /* Reduce padding on mobile */
 }
 
