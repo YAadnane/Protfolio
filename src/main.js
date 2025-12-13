@@ -2135,21 +2135,23 @@ function initMobileSliderControls() {
 window.addEventListener('load', () => setTimeout(initMobileSliderControls, 100));
 
 function renderMobileShape(shape) {
-    // 1. Find or create mobile container
+    // 1. Mobile Container Logic
     let mobileContainer = document.querySelector('.mobile-shape-container');
-    if (!mobileContainer) {
-        // Insert before hero-title
-        const heroContent = document.querySelector('.hero-content');
-        const heroTitle = document.querySelector('.hero-title');
-        if (heroContent && heroTitle) {
-            mobileContainer = document.createElement('div');
-            mobileContainer.className = 'mobile-shape-container';
-            heroContent.insertBefore(mobileContainer, heroTitle);
-        }
+    
+    // Always remove and recreate to ensure fresh event listeners
+    if (mobileContainer) {
+        mobileContainer.remove();
     }
 
-    if (!mobileContainer) return;
-    mobileContainer.innerHTML = ''; // Clear prev
+    // Insert before hero-title
+    const heroContent = document.querySelector('.hero-content');
+    const heroTitle = document.querySelector('.hero-title');
+    
+    if (!heroContent || !heroTitle) return; // Ensure elements exist
+
+    mobileContainer = document.createElement('div');
+    mobileContainer.className = 'mobile-shape-container';
+    heroContent.insertBefore(mobileContainer, heroTitle);
 
     // 2. Create the shape (Reusable Cube Logic simplified)
     const size = '120px'; // Fixed size for mobile header
