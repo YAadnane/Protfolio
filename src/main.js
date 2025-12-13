@@ -847,7 +847,7 @@ async function loadCertifications() {
         let currentStatusFilter = document.querySelector('#cert-status-filter .active')?.dataset.status || 'all';
 
         // =========================================
-// HERO CUBE INTERACTION (Drag to Rotate)
+// HERO CUBE INTERACTION (Drag + Auto-Rotate)
 // =========================================
 function initHeroCubeInteraction() {
     const cube = document.querySelector('.data-cube');
@@ -856,15 +856,35 @@ function initHeroCubeInteraction() {
 
     let isDragging = false;
     let startX, startY;
-    let currentX = 0, currentY = 0;
-    let previousX = 0, previousY = 0;
+    let currentX = -30; // Initial nice angle
+    let currentY = -30;
+    
+    // Auto-rotation config
+    let autoRotateSpeedX = 0.5;
+    let autoRotateSpeedY = 0.5;
+    let animationFrameId;
+
+    // 1. Disable CSS Animation immediately to let JS take over
+    cube.style.animation = 'none';
+
+    // 2. Animation Loop
+    const animate = () => {
+        if (!isDragging) {
+            currentX += autoRotateSpeedX;
+            currentY += autoRotateSpeedY;
+            cube.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg)`;
+        }
+        animationFrameId = requestAnimationFrame(animate);
+    };
+
+    // Start Loop
+    animate();
 
     // Mouse Events
     container.addEventListener('mousedown', (e) => {
         isDragging = true;
         startX = e.clientX;
         startY = e.clientY;
-        cube.style.animation = 'none'; // Stop auto-spin
         cube.style.cursor = 'grabbing';
     });
 
@@ -873,20 +893,21 @@ function initHeroCubeInteraction() {
         const deltaX = e.clientX - startX;
         const deltaY = e.clientY - startY;
 
-        currentX = previousX + deltaX * 0.5; // Sensitivity
-        currentY = previousY - deltaY * 0.5;
+        // Update angles based on movement
+        currentX += deltaX * 0.5;
+        currentY -= deltaY * 0.5;
 
         cube.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg)`;
+
+        // Reset start positions for next frame
+        startX = e.clientX;
+        startY = e.clientY;
     });
 
     window.addEventListener('mouseup', () => {
         if (!isDragging) return;
         isDragging = false;
-        previousX = currentX;
-        previousY = currentY;
         cube.style.cursor = 'grab';
-        // Optional: Resume animation or keep static
-        // cube.style.animation = 'rotateCube 15s infinite linear'; 
     });
 
     // Touch Events (Mobile)
@@ -894,7 +915,6 @@ function initHeroCubeInteraction() {
         isDragging = true;
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
-        cube.style.animation = 'none';
     }, { passive: true });
 
     window.addEventListener('touchmove', (e) => {
@@ -902,16 +922,17 @@ function initHeroCubeInteraction() {
         const deltaX = e.touches[0].clientX - startX;
         const deltaY = e.touches[0].clientY - startY;
         
-        currentX = previousX + deltaX * 0.5;
-        currentY = previousY - deltaY * 0.5;
+        currentX += deltaX * 0.5;
+        currentY -= deltaY * 0.5;
         
         cube.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg)`;
+        
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
     }, { passive: true });
 
     window.addEventListener('touchend', () => {
         isDragging = false;
-        previousX = currentX;
-        previousY = currentY;
     });
 }
 
