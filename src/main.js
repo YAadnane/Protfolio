@@ -886,10 +886,12 @@ function initHeroCubeInteraction() {
         startX = e.clientX;
         startY = e.clientY;
         cube.style.cursor = 'grabbing';
+        cube.style.transition = 'none'; // Critical: Remove lag
     });
 
     window.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
+        e.preventDefault(); // Prevent text selection
         const deltaX = e.clientX - startX;
         const deltaY = e.clientY - startY;
 
@@ -908,6 +910,7 @@ function initHeroCubeInteraction() {
         if (!isDragging) return;
         isDragging = false;
         cube.style.cursor = 'grab';
+        // restore smooth auto-rotate if needed, but 'none' is fine for step-based animation
     });
 
     // Touch Events (Mobile)
@@ -915,6 +918,7 @@ function initHeroCubeInteraction() {
         isDragging = true;
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
+        cube.style.transition = 'none';
     }, { passive: true });
 
     window.addEventListener('touchmove', (e) => {
