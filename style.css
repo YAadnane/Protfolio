@@ -4000,6 +4000,9 @@ body.light-mode #review-form select {
         position: relative;
         height: 150px;
         /* Reserve space */
+        touch-action: none;
+        z-index: 20;
+        /* Ensure on top */
     }
 }
 
