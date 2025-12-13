@@ -916,14 +916,16 @@ function initHeroCubeInteraction() {
 
     // Touch Events (Mobile)
     container.addEventListener('touchstart', (e) => {
+        if (e.cancelable) e.preventDefault(); // Stop scrolling
         isDragging = true;
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
         cube.style.transition = 'none';
-    }, { passive: true });
+    }, { passive: false }); // Must be false to allow preventDefault
 
     window.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
+        if (e.cancelable) e.preventDefault(); // Stop scrolling logic if dragging
         const deltaX = e.touches[0].clientX - startX;
         const deltaY = e.touches[0].clientY - startY;
         
@@ -934,7 +936,7 @@ function initHeroCubeInteraction() {
         
         startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
-    }, { passive: true });
+    }, { passive: false });
 
     window.addEventListener('touchend', () => {
         isDragging = false;

@@ -394,6 +394,8 @@ h4 {
     position: relative;
     z-index: 10;
     /* Ensure it's above background elements */
+    touch-action: none;
+    /* Critical: Disable scrolling on mobile to allow drag */
 }
 
 .data-cube {
@@ -402,6 +404,8 @@ h4 {
     position: relative;
     transform-style: preserve-3d;
     animation: rotateCube 15s infinite linear;
+    cursor: grab;
+    touch-action: none;
 }
 
 .cube-face {
