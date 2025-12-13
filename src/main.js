@@ -846,120 +846,7 @@ async function loadCertifications() {
 
         let currentStatusFilter = document.querySelector('#cert-status-filter .active')?.dataset.status || 'all';
 
-        // =========================================
-// HERO CUBE INTERACTION (Drag + Auto-Rotate)
-// =========================================
-// =========================================
-// HERO CUBE INTERACTION (Drag + Auto-Rotate)
-// =========================================
-// =========================================
-// HERO CUBE INTERACTION (Drag + Auto-Rotate)
-// =========================================
-function attachCubeInteraction(container) {
-    if (!container) return;
-    const cube = container.querySelector('.data-cube') || container.querySelector('.sphere') || container.querySelector('.pyramid');
-    if (!cube) return;
 
-    // Check if already attached (prevent duplicates)
-    if (container.dataset.interactionAttached) return;
-    container.dataset.interactionAttached = 'true';
-
-    // Independent state for each cube
-    let isDragging = false;
-    let startX, startY;
-    let currentX = -30;
-    let currentY = -30;
-    
-    let autoRotateSpeedX = 0.5;
-    let autoRotateSpeedY = 0.5;
-    let animationFrameId;
-
-    // 1. Disable CSS Animation
-    cube.style.animation = 'none';
-
-    // 2. Animation Loop
-    const animate = () => {
-        if (!isDragging) {
-            currentX += autoRotateSpeedX;
-            currentY += autoRotateSpeedY;
-            cube.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg)`;
-        }
-        animationFrameId = requestAnimationFrame(animate);
-    };
-    animate();
-
-    // Mouse Events
-    container.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        cube.style.cursor = 'grabbing';
-        cube.style.transition = 'none';
-    });
-
-    window.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        const deltaX = e.clientX - startX;
-        const deltaY = e.clientY - startY;
-
-        currentX += deltaX * 0.5;
-        currentY -= deltaY * 0.5;
-
-        cube.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg)`;
-
-        startX = e.clientX;
-        startY = e.clientY;
-    });
-
-    window.addEventListener('mouseup', () => {
-        if (!isDragging) return;
-        isDragging = false;
-        cube.style.cursor = 'grab';
-    });
-
-    // Touch Events (Mobile)
-    container.addEventListener('touchstart', (e) => {
-        if (e.cancelable) e.preventDefault();
-        isDragging = true;
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-        cube.style.transition = 'none';
-    }, { passive: false });
-
-    window.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        if (e.cancelable) e.preventDefault();
-        const deltaX = e.touches[0].clientX - startX;
-        const deltaY = e.touches[0].clientY - startY;
-        
-        currentX += deltaX * 0.5;
-        currentY -= deltaY * 0.5;
-        
-        cube.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg)`;
-        
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-    }, { passive: false });
-
-    window.addEventListener('touchend', () => {
-         if (isDragging) isDragging = false;
-    });
-}
-
-function initHeroCubeInteraction() {
-    // Desktop
-    attachCubeInteraction(document.querySelector('.hero-visual'));
-    
-    // Mobile (if already exists)
-    attachCubeInteraction(document.querySelector('.mobile-shape-container'));
-}
-
-// Initialize
-window.addEventListener('load', () => {
-    setTimeout(initHeroCubeInteraction, 500);
-});
         const renderCerts = () => {
             // Re-fetch translations in case they changed (unlikely but safe) or just use 't'
             const badgesT = translations[currentLang]; 
@@ -2536,3 +2423,4 @@ function closeVideoModal() {
 
 window.openVideoModal = openVideoModal;
 window.closeVideoModal = closeVideoModal;
+ 
