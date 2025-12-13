@@ -849,97 +849,102 @@ async function loadCertifications() {
         // =========================================
 // HERO CUBE INTERACTION (Drag + Auto-Rotate)
 // =========================================
+// =========================================
+// HERO CUBE INTERACTION (Drag + Auto-Rotate)
+// =========================================
 function initHeroCubeInteraction() {
-    const cube = document.querySelector('.data-cube');
-    const container = document.querySelector('.hero-visual');
-    if (!cube || !container) return;
-
-    let isDragging = false;
-    let startX, startY;
-    let currentX = -30; // Initial nice angle
-    let currentY = -30;
+    // Target BOTH desktop and mobile containers
+    const containers = document.querySelectorAll('.hero-visual, .mobile-shape-container');
     
-    // Auto-rotation config
-    let autoRotateSpeedX = 0.5;
-    let autoRotateSpeedY = 0.5;
-    let animationFrameId;
+    containers.forEach(container => {
+        const cube = container.querySelector('.data-cube');
+        if (!cube) return;
 
-    // 1. Disable CSS Animation immediately to let JS take over
-    cube.style.animation = 'none';
+        // Independent state for each cube
+        let isDragging = false;
+        let startX, startY;
+        let currentX = -30;
+        let currentY = -30;
+        
+        let autoRotateSpeedX = 0.5;
+        let autoRotateSpeedY = 0.5;
+        let animationFrameId;
 
-    // 2. Animation Loop
-    const animate = () => {
-        if (!isDragging) {
-            currentX += autoRotateSpeedX;
-            currentY += autoRotateSpeedY;
+        // 1. Disable CSS Animation
+        cube.style.animation = 'none';
+
+        // 2. Animation Loop (Global or scoped? Scoped is better)
+        const animate = () => {
+            if (!isDragging) {
+                currentX += autoRotateSpeedX;
+                currentY += autoRotateSpeedY;
+                cube.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg)`;
+            }
+            animationFrameId = requestAnimationFrame(animate);
+        };
+        animate();
+
+        // Mouse Events
+        container.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            cube.style.cursor = 'grabbing';
+            cube.style.transition = 'none';
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+
+            currentX += deltaX * 0.5;
+            currentY -= deltaY * 0.5;
+
             cube.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg)`;
-        }
-        animationFrameId = requestAnimationFrame(animate);
-    };
 
-    // Start Loop
-    animate();
+            startX = e.clientX;
+            startY = e.clientY;
+        });
 
-    // Mouse Events
-    container.addEventListener('mousedown', (e) => {
-        e.preventDefault(); // Stop native drag (ghost image)
-        isDragging = true;
-        startX = e.clientX;
-        startY = e.clientY;
-        cube.style.cursor = 'grabbing';
-        cube.style.transition = 'none'; // Critical: Remove lag
-    });
+        window.addEventListener('mouseup', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            cube.style.cursor = 'grab';
+        });
 
-    window.addEventListener('mousemove', (e) => {
-        if (!isDragging) return;
-        e.preventDefault(); // Prevent text selection
-        const deltaX = e.clientX - startX;
-        const deltaY = e.clientY - startY;
+        // Touch Events (Mobile)
+        container.addEventListener('touchstart', (e) => {
+            if (e.cancelable) e.preventDefault();
+            isDragging = true;
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+            cube.style.transition = 'none';
+        }, { passive: false });
 
-        // Update angles based on movement
-        currentX += deltaX * 0.5;
-        currentY -= deltaY * 0.5;
+        window.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            if (e.cancelable) e.preventDefault();
+            const deltaX = e.touches[0].clientX - startX;
+            const deltaY = e.touches[0].clientY - startY;
+            
+            currentX += deltaX * 0.5;
+            currentY -= deltaY * 0.5;
+            
+            cube.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg)`;
+            
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        }, { passive: false });
 
-        cube.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg)`;
-
-        // Reset start positions for next frame
-        startX = e.clientX;
-        startY = e.clientY;
-    });
-
-    window.addEventListener('mouseup', () => {
-        if (!isDragging) return;
-        isDragging = false;
-        cube.style.cursor = 'grab';
-        // restore smooth auto-rotate if needed, but 'none' is fine for step-based animation
-    });
-
-    // Touch Events (Mobile)
-    container.addEventListener('touchstart', (e) => {
-        if (e.cancelable) e.preventDefault(); // Stop scrolling
-        isDragging = true;
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-        cube.style.transition = 'none';
-    }, { passive: false }); // Must be false to allow preventDefault
-
-    window.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        if (e.cancelable) e.preventDefault(); // Stop scrolling logic if dragging
-        const deltaX = e.touches[0].clientX - startX;
-        const deltaY = e.touches[0].clientY - startY;
-        
-        currentX += deltaX * 0.5;
-        currentY -= deltaY * 0.5;
-        
-        cube.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg)`;
-        
-        startX = e.touches[0].clientX;
-        startY = e.touches[0].clientY;
-    }, { passive: false });
-
-    window.addEventListener('touchend', () => {
-        isDragging = false;
+        window.addEventListener('touchend', () => {
+             // Only reset dragging for THIS container's interaction
+             // Note: window listeners might cross-talk if multiple cubes are active/dragging simultaneously (unlikely)
+             // Ideally check if THIS specific interaction was active.
+             if (isDragging) isDragging = false;
+        });
     });
 }
 
