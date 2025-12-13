@@ -846,6 +846,79 @@ async function loadCertifications() {
 
         let currentStatusFilter = document.querySelector('#cert-status-filter .active')?.dataset.status || 'all';
 
+        // =========================================
+// HERO CUBE INTERACTION (Drag to Rotate)
+// =========================================
+function initHeroCubeInteraction() {
+    const cube = document.querySelector('.data-cube');
+    const container = document.querySelector('.hero-visual');
+    if (!cube || !container) return;
+
+    let isDragging = false;
+    let startX, startY;
+    let currentX = 0, currentY = 0;
+    let previousX = 0, previousY = 0;
+
+    // Mouse Events
+    container.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        cube.style.animation = 'none'; // Stop auto-spin
+        cube.style.cursor = 'grabbing';
+    });
+
+    window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+
+        currentX = previousX + deltaX * 0.5; // Sensitivity
+        currentY = previousY - deltaY * 0.5;
+
+        cube.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg)`;
+    });
+
+    window.addEventListener('mouseup', () => {
+        if (!isDragging) return;
+        isDragging = false;
+        previousX = currentX;
+        previousY = currentY;
+        cube.style.cursor = 'grab';
+        // Optional: Resume animation or keep static
+        // cube.style.animation = 'rotateCube 15s infinite linear'; 
+    });
+
+    // Touch Events (Mobile)
+    container.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        cube.style.animation = 'none';
+    }, { passive: true });
+
+    window.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const deltaX = e.touches[0].clientX - startX;
+        const deltaY = e.touches[0].clientY - startY;
+        
+        currentX = previousX + deltaX * 0.5;
+        currentY = previousY - deltaY * 0.5;
+        
+        cube.style.transform = `rotateY(${currentX}deg) rotateX(${currentY}deg)`;
+    }, { passive: true });
+
+    window.addEventListener('touchend', () => {
+        isDragging = false;
+        previousX = currentX;
+        previousY = currentY;
+    });
+}
+
+// Initialize
+window.addEventListener('load', () => {
+    setTimeout(initHeroCubeInteraction, 500);
+});
         const renderCerts = () => {
             // Re-fetch translations in case they changed (unlikely but safe) or just use 't'
             const badgesT = translations[currentLang]; 
