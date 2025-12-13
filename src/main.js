@@ -882,6 +882,7 @@ function initHeroCubeInteraction() {
 
     // Mouse Events
     container.addEventListener('mousedown', (e) => {
+        e.preventDefault(); // Stop native drag (ghost image)
         isDragging = true;
         startX = e.clientX;
         startY = e.clientY;
