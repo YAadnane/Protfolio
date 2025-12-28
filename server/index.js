@@ -1189,24 +1189,32 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM visits WHERE date >= date("now", "-7 days")', (e, r) => resolve({k:'visitors_7d', v:r?.c||0}))),
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM analytics_events', (e, r) => resolve({k:'total_clicks', v:r?.c||0}))),
 
+        // Historical Stats (Visits) - Default last 30 days
+        new Promise(resolve => db.all(`
+            SELECT DATE(date) as date, COUNT(*) as count 
+            FROM visits 
+            WHERE date >= date('now', '-30 days') 
+            GROUP BY DATE(date) 
+            ORDER BY date ASC`, (e, r) => resolve({k: 'visits_history', v: r || []}))),
+
         // TOP ITEMS (Projects)
         new Promise(resolve => db.all(`
-            SELECT p.title as name, COUNT(e.id) as clicks 
+            SELECT COALESCE(p.title, 'Unknown Project #' || e.target_id) as name, COUNT(e.id) as clicks 
             FROM analytics_events e 
-            JOIN projects p ON e.target_id = p.id 
+            LEFT JOIN projects p ON e.target_id = p.id 
             WHERE e.event_type = 'click_project' 
-            GROUP BY p.id 
+            GROUP BY e.target_id 
             ORDER BY clicks DESC 
             LIMIT 5
         `, (e, r) => resolve({k:'top_projects', v:r||[]}))),
 
         // TOP ITEMS (Certifications)
         new Promise(resolve => db.all(`
-            SELECT c.name as name, COUNT(e.id) as clicks 
+            SELECT COALESCE(c.name, 'Unknown Cert #' || e.target_id) as name, COUNT(e.id) as clicks 
             FROM analytics_events e 
-            JOIN certifications c ON e.target_id = c.id 
+            LEFT JOIN certifications c ON e.target_id = c.id 
             WHERE e.event_type = 'click_certif' 
-            GROUP BY c.id 
+            GROUP BY e.target_id 
             ORDER BY clicks DESC 
             LIMIT 5
         `, (e, r) => resolve({k:'top_certifs', v:r||[]}))),
