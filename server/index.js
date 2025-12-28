@@ -1169,6 +1169,39 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM visits', (e, r) => resolve({k:'total_visitors', v:r?.c||0}))),
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM visits WHERE date >= date("now", "-7 days")', (e, r) => resolve({k:'visitors_7d', v:r?.c||0}))),
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM analytics_events', (e, r) => resolve({k:'total_clicks', v:r?.c||0}))),
+
+        // TOP ITEMS (Projects)
+        new Promise(resolve => db.all(`
+            SELECT p.title as name, COUNT(e.id) as clicks 
+            FROM analytics_events e 
+            JOIN projects p ON e.target_id = p.id 
+            WHERE e.event_type = 'click_project' 
+            GROUP BY p.id 
+            ORDER BY clicks DESC 
+            LIMIT 5
+        `, (e, r) => resolve({k:'top_projects', v:r||[]}))),
+
+        // TOP ITEMS (Certifications)
+        new Promise(resolve => db.all(`
+            SELECT c.name as name, COUNT(e.id) as clicks 
+            FROM analytics_events e 
+            JOIN certifications c ON e.target_id = c.id 
+            WHERE e.event_type = 'click_certif' 
+            GROUP BY c.id 
+            ORDER BY clicks DESC 
+            LIMIT 5
+        `, (e, r) => resolve({k:'top_certifs', v:r||[]}))),
+
+        // TOP ITEMS (Articles)
+        new Promise(resolve => db.all(`
+            SELECT a.title as name, COUNT(e.id) as clicks 
+            FROM analytics_events e 
+            JOIN articles a ON e.target_id = a.id 
+            WHERE e.event_type = 'click_article' 
+            GROUP BY a.id 
+            ORDER BY clicks DESC 
+            LIMIT 5
+        `, (e, r) => resolve({k:'top_articles', v:r||[]})))
     ];
 
     Promise.all(queries).then(results => {
