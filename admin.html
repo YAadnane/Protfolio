@@ -738,6 +738,42 @@
             background: rgba(0, 0, 0, 0.1) !important;
             color: #222 !important;
         }
+
+        /* Search Bar */
+        .search-container {
+            margin-bottom: 2rem;
+            display: none;
+            /* Hidden by default, shown via JS for relevant tabs */
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1rem 1rem 1rem 3rem;
+            border-radius: 0.8rem;
+            color: var(--text-main);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 15px rgba(46, 213, 115, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
     </style>
 </head>
 
@@ -794,6 +830,12 @@
             <button class="tab-btn" onclick="switchTab('reviews')">Reviews</button>
             <button class="tab-btn" onclick="switchTab('media')">Media</button>
 
+        </div>
+
+        <!-- Search Bar -->
+        <div id="admin-search-container" class="search-container">
+            <i class="fa-solid fa-search search-icon"></i>
+            <input type="text" id="admin-search-input" class="search-input" placeholder="Search items...">
         </div>
 
         <div id="content-grid" class="admin-grid">

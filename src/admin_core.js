@@ -401,11 +401,39 @@ window.switchTab = (tab) => {
     }
 };
 
+const SEARCHABLE_TABS = ['projects', 'certifications', 'education', 'experience', 'skills', 'articles', 'shapes'];
+let currentTabData = [];
+
+// Initialize Search Listener
+document.addEventListener('DOMContentLoaded', () => {
+    // ... existing init code ...
+    const searchInput = document.getElementById('admin-search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            filterAndRender(e.target.value);
+        });
+    }
+});
+
 // Load Content
 async function loadContent(type) {
     const grid = document.getElementById('content-grid');
     grid.innerHTML = '<p>Loading...</p>';
     
+    // Reset Search
+    const searchContainer = document.getElementById('admin-search-container');
+    const searchInput = document.getElementById('admin-search-input');
+    if(searchInput) searchInput.value = '';
+
+    // Show/Hide Search Bar
+    if (searchContainer) {
+        if (SEARCHABLE_TABS.includes(type)) {
+            searchContainer.style.display = 'block';
+        } else {
+            searchContainer.style.display = 'none';
+        }
+    }
+
     const endpoint = (type === 'reviews') ? `${API_URL}/admin/reviews` : `${API_URL}/${type}`;
     
     try {
@@ -424,122 +452,176 @@ async function loadContent(type) {
         }
 
         const data = await res.json();
+        currentTabData = data; // Store for filtering
         
-        grid.innerHTML = '';
-
+        let filteredData = data;
+        
+        // Handle specific non-generic tabs immediately (restore their original logic)
         if (type === 'general' || type === 'profile') {
-            const card = document.createElement('div');
-            card.className = 'admin-card';
-            card.style.gridColumn = "1 / -1";
-            card.dataset.item = JSON.stringify(data);
-            
-            let title = type === 'general' ? 'General Information' : 'Admin Profile';
-            let subtitle = type === 'general' ? 'Hero, About, Stats & Cube Settings' : 'Manage your credentials';
-
-            card.innerHTML = `
-                <h3>${title}</h3>
-                <p>${subtitle}</p>
-                <div class="admin-actions">
-                    <button class="btn-edit" onclick='editItem(${JSON.stringify(data).replace(/'/g, "&#39;")})' style="background: rgba(0, 255, 157, 0.1); color: var(--accent-color); border: 1px solid rgba(0, 255, 157, 0.2); padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; margin-right: 0.5rem;"><i class="fa-solid fa-pen"></i> Edit ${type === 'profile' ? 'Profile' : 'Content'}</button>
-                </div>
-            `;
-            grid.appendChild(card);
-            return;
+           renderSpecialCard(type, data);
+           return;
         }
 
         if (type === 'messages') {
-            if (data.length === 0) {
-                grid.innerHTML = '<p>No messages yet.</p>';
-                return;
-            }
-            data.forEach(msg => {
-                const card = document.createElement('div');
-                card.className = 'admin-card';
-                card.style.opacity = msg.is_read ? '0.6' : '1';
-                card.style.borderColor = msg.is_read ? 'rgba(255,255,255,0.05)' : 'var(--accent-color)';
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
-                        <span style="font-weight:bold; color:var(--text-main);">${msg.name}</span>
-                        <span style="font-size:0.8rem; color:var(--text-muted);">${new Date(msg.date).toLocaleString()}</span>
-                    </div>
-                    <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:0.5rem;">${msg.email}</div>
-                    <p style="background:rgba(255,255,255,0.05); padding:0.8rem; border-radius:0.5rem; font-size:0.95rem; margin-bottom:1rem;">${msg.message}</p>
-                    <div class="admin-actions">
-                        ${!msg.is_read ? `<button class="btn-edit" onclick="markAsRead(${msg.id})" style="background:rgba(0,255,157,0.1); color:var(--accent-color); border:none; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer;"><i class="fa-solid fa-check"></i> Mark Read</button>` : '<span style="color:#666; font-size:0.8rem; align-self:center; margin-right:1rem;">Read</span>'}
-                        <button class="btn-delete" onclick="deleteMessage(${msg.id})"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-            return;
+            renderMessages(data);
             return;
         }
 
         if (type === 'reviews') {
-            if (data.length === 0) {
-                grid.innerHTML = '<p>No reviews yet.</p>';
-                return;
-            }
-            data.forEach(rev => {
-                const card = document.createElement('div');
-                card.className = 'admin-card';
-                card.style.opacity = !rev.is_approved ? '1' : '0.7';
-                card.style.borderColor = !rev.is_approved ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)';
-                card.innerHTML = `
-                    <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem; align-items:flex-start;">
-                        <div>
-                            <span style="font-weight:bold; color:var(--text-main); font-size:1.1rem;">${rev.name}</span>
-                            <div style="font-size:0.8rem; color:var(--text-muted);">${rev.role || 'No Role'}</div>
-                            <div style="font-size:0.8rem; color:var(--accent-color); margin-top:2px;">${rev.social_platform} ${rev.social_link ? `<a href="${rev.social_link}" target="_blank" style="color:white;"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}</div>
-                        </div>
-                        <div style="text-align:right;">
-                             <span style="color:#ffd700;">${'★'.repeat(rev.rating)}</span>
-                             <div style="font-size:0.7rem; color:var(--text-muted); margin-top:5px;">${new Date(rev.date).toLocaleDateString()}</div>
-                        </div>
-                    </div>
-                    <p style="background:rgba(255,255,255,0.05); padding:0.8rem; border-radius:0.5rem; font-size:0.95rem; margin-bottom:1rem; font-style:italic;">"${rev.message}"</p>
-                    <div class="admin-actions">
-                        ${!rev.is_approved ? `<button class="btn-edit" onclick="approveReview(${rev.id})" style="background:rgba(0,255,157,0.1); color:var(--accent-color); border:none; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer;"><i class="fa-solid fa-check"></i> Validate</button>` : '<span style="color:#666; font-size:0.8rem; align-self:center; margin-right:1rem;">Approved</span>'}
-                        <button class="btn-delete" onclick="deleteReview(${rev.id})"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
+            renderReviews(data);
             return;
         }
-
-        data.forEach(item => {
-            const card = document.createElement('div');
-            card.className = 'admin-card';
-            // Store item data in dataset for easy editing
-            card.dataset.item = JSON.stringify(item);
-            
-            const isHidden = item.is_hidden == 1 || item.is_hidden === true;
-            const isMobile = item.is_mobile_visible == 1 || item.is_mobile_visible === true;
-            card.style.opacity = isHidden ? '0.5' : '1';
-            
-            card.innerHTML = `
-                <h3>${item.title || item.name || item.degree || item.role || (item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1) + ': ' + (item.face_front || 'Untitled') : (item.face_front ? 'Cube: ' + item.face_front : 'Item'))} ${isHidden ? '<span style="font-size:0.7em; background:#333; padding:2px 5px; border-radius:4px;">(Hidden)</span>' : ''} ${isMobile ? '<span style="font-size:0.7em; background:var(--accent-color); color:#000; padding:2px 5px; border-radius:4px; margin-left:5px;"><i class="fa-solid fa-mobile-screen"></i> Mobile Hero</span>' : ''}</h3>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">
-                    ${item.category || item.issuer || item.institution || item.company || (item.size ? `Size: ${item.size}, Pos: ${item.pos_x}%, ${item.pos_y}%` : '')}
-                </p>
-                <div class="admin-actions">
-                    <button class="btn-edit" onclick='toggleVisibility(${item.id})' style="background: rgba(255, 255, 255, 0.1); color: ${isHidden ? '#ff4757' : '#2ed573'}; border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; margin-right: 0.5rem;" title="${isHidden ? 'Show' : 'Hide'}">
-                        <i class="fa-solid ${isHidden ? 'fa-eye-slash' : 'fa-eye'}"></i>
-                    </button>
-                    <button class="btn-edit" onclick='editItem(${JSON.stringify(item).replace(/'/g, "&#39;")})' style="background: rgba(0, 255, 157, 0.1); color: var(--accent-color); border: 1px solid rgba(0, 255, 157, 0.2); padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; margin-right: 0.5rem;"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn-delete" onclick="deleteItem(${item.id})"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
         
-        applyThemeStyles(); // Force styles after render
+        // For generic searchable tabs
+        renderItems(data);
 
     } catch (err) {
         console.error(err);
         grid.innerHTML = '<p>Error loading data.</p>';
     }
+}
+
+// Filter and Render
+function filterAndRender(query) {
+    if (!currentTabData) return;
+    const lowerQuery = query.toLowerCase();
+    
+    const filtered = currentTabData.filter(item => {
+        // Search in common fields
+        const title = item.title || item.name || item.degree || item.role || item.face_front || '';
+        const desc = item.description || item.summary || item.skills || item.institution || item.company || '';
+        const tags = item.tags || item.category || '';
+        
+        return title.toLowerCase().includes(lowerQuery) || 
+               desc.toLowerCase().includes(lowerQuery) || 
+               tags.toLowerCase().includes(lowerQuery);
+    });
+
+    renderItems(filtered);
+}
+
+// Extracted Render Function for Generic Items
+function renderItems(data) {
+    const grid = document.getElementById('content-grid');
+    grid.innerHTML = '';
+    
+    if (data.length === 0) {
+        grid.innerHTML = '<p>No items found.</p>';
+        return;
+    }
+
+    data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'admin-card';
+        // Store item data in dataset for easy editing
+        card.dataset.item = JSON.stringify(item);
+        
+        const isHidden = item.is_hidden == 1 || item.is_hidden === true;
+        const isMobile = item.is_mobile_visible == 1 || item.is_mobile_visible === true;
+        card.style.opacity = isHidden ? '0.5' : '1';
+        
+        card.innerHTML = `
+            <h3>${item.title || item.name || item.degree || item.role || (item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1) + ': ' + (item.face_front || 'Untitled') : (item.face_front ? 'Cube: ' + item.face_front : 'Item'))} ${isHidden ? '<span style="font-size:0.7em; background:#333; padding:2px 5px; border-radius:4px;">(Hidden)</span>' : ''} ${isMobile ? '<span style="font-size:0.7em; background:var(--accent-color); color:#000; padding:2px 5px; border-radius:4px; margin-left:5px;"><i class="fa-solid fa-mobile-screen"></i> Mobile Hero</span>' : ''}</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                ${item.category || item.issuer || item.institution || item.company || (item.size ? `Size: ${item.size}, Pos: ${item.pos_x}%, ${item.pos_y}%` : '')}
+            </p>
+            <div class="admin-actions">
+                <button class="btn-edit" onclick='toggleVisibility(${item.id})' style="background: rgba(255, 255, 255, 0.1); color: ${isHidden ? '#ff4757' : '#2ed573'}; border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; margin-right: 0.5rem;" title="${isHidden ? 'Show' : 'Hide'}">
+                    <i class="fa-solid ${isHidden ? 'fa-eye-slash' : 'fa-eye'}"></i>
+                </button>
+                <button class="btn-edit" onclick='editItem(${JSON.stringify(item).replace(/'/g, "&#39;")})' style="background: rgba(0, 255, 157, 0.1); color: var(--accent-color); border: 1px solid rgba(0, 255, 157, 0.2); padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; margin-right: 0.5rem;"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn-delete" onclick="deleteItem(${item.id})"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+    
+    applyThemeStyles(); // Force styles after render
+}
+
+// Special Render Helpers (extracted from original loadContent)
+function renderSpecialCard(type, data) {
+    const grid = document.getElementById('content-grid');
+    grid.innerHTML = '';
+    
+    const card = document.createElement('div');
+    card.className = 'admin-card';
+    card.style.gridColumn = "1 / -1";
+    card.dataset.item = JSON.stringify(data);
+    
+    let title = type === 'general' ? 'General Information' : 'Admin Profile';
+    let subtitle = type === 'general' ? 'Hero, About, Stats & Cube Settings' : 'Manage your credentials';
+
+    card.innerHTML = `
+        <h3>${title}</h3>
+        <p>${subtitle}</p>
+        <div class="admin-actions">
+            <button class="btn-edit" onclick='editItem(${JSON.stringify(data).replace(/'/g, "&#39;")})' style="background: rgba(0, 255, 157, 0.1); color: var(--accent-color); border: 1px solid rgba(0, 255, 157, 0.2); padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; margin-right: 0.5rem;"><i class="fa-solid fa-pen"></i> Edit ${type === 'profile' ? 'Profile' : 'Content'}</button>
+        </div>
+    `;
+    grid.appendChild(card);
+}
+
+function renderMessages(data) {
+    const grid = document.getElementById('content-grid');
+    grid.innerHTML = '';
+    if (data.length === 0) {
+        grid.innerHTML = '<p>No messages yet.</p>';
+        return;
+    }
+    data.forEach(msg => {
+        const card = document.createElement('div');
+        card.className = 'admin-card';
+        card.style.opacity = msg.is_read ? '0.6' : '1';
+        card.style.borderColor = msg.is_read ? 'rgba(255,255,255,0.05)' : 'var(--accent-color)';
+        card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
+                <span style="font-weight:bold; color:var(--text-main);">${msg.name}</span>
+                <span style="font-size:0.8rem; color:var(--text-muted);">${new Date(msg.date).toLocaleString()}</span>
+            </div>
+            <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:0.5rem;">${msg.email}</div>
+            <p style="background:rgba(255,255,255,0.05); padding:0.8rem; border-radius:0.5rem; font-size:0.95rem; margin-bottom:1rem;">${msg.message}</p>
+            <div class="admin-actions">
+                ${!msg.is_read ? `<button class="btn-edit" onclick="markAsRead(${msg.id})" style="background:rgba(0,255,157,0.1); color:var(--accent-color); border:none; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer;"><i class="fa-solid fa-check"></i> Mark Read</button>` : '<span style="color:#666; font-size:0.8rem; align-self:center; margin-right:1rem;">Read</span>'}
+                <button class="btn-delete" onclick="deleteMessage(${msg.id})"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function renderReviews(data) {
+    const grid = document.getElementById('content-grid');
+    grid.innerHTML = '';
+    if (data.length === 0) {
+        grid.innerHTML = '<p>No reviews yet.</p>';
+        return;
+    }
+    data.forEach(rev => {
+        const card = document.createElement('div');
+        card.className = 'admin-card';
+        card.style.opacity = !rev.is_approved ? '1' : '0.7';
+        card.style.borderColor = !rev.is_approved ? 'var(--accent-color)' : 'rgba(255,255,255,0.05)';
+        card.innerHTML = `
+            <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem; align-items:flex-start;">
+                <div>
+                    <span style="font-weight:bold; color:var(--text-main); font-size:1.1rem;">${rev.name}</span>
+                    <div style="font-size:0.8rem; color:var(--text-muted);">${rev.role || 'No Role'}</div>
+                    <div style="font-size:0.8rem; color:var(--accent-color); margin-top:2px;">${rev.social_platform} ${rev.social_link ? `<a href="${rev.social_link}" target="_blank" style="color:white;"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>` : ''}</div>
+                </div>
+                <div style="text-align:right;">
+                        <span style="color:#ffd700;">${'★'.repeat(rev.rating)}</span>
+                        <div style="font-size:0.7rem; color:var(--text-muted); margin-top:5px;">${new Date(rev.date).toLocaleDateString()}</div>
+                </div>
+            </div>
+            <p style="background:rgba(255,255,255,0.05); padding:0.8rem; border-radius:0.5rem; font-size:0.95rem; margin-bottom:1rem; font-style:italic;">"${rev.message}"</p>
+            <div class="admin-actions">
+                ${!rev.is_approved ? `<button class="btn-edit" onclick="approveReview(${rev.id})" style="background:rgba(0,255,157,0.1); color:var(--accent-color); border:none; padding:0.5rem 1rem; border-radius:0.5rem; cursor:pointer;"><i class="fa-solid fa-check"></i> Validate</button>` : '<span style="color:#666; font-size:0.8rem; align-self:center; margin-right:1rem;">Approved</span>'}
+                <button class="btn-delete" onclick="deleteReview(${rev.id})"><i class="fa-solid fa-trash"></i></button>
+            </div>
+        `;
+        grid.appendChild(card);
+    });
 }
 
 // Toggle Visibility
