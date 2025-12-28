@@ -588,9 +588,11 @@ function renderOverview(data) {
 
     // Tab Switcher Logic (Global helper)
     window.switchTab = (targetId, btn) => {
-        // Toggle Buttons
-        btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
+        // Toggle Buttons (if btn provided)
+        if (btn && btn.parentElement) {
+            btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
         
         // Toggle Lists
         ['top-projects', 'top-certifs', 'top-articles'].forEach(id => {
