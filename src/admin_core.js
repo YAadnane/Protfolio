@@ -416,9 +416,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // Load Content
-async function loadContent(type) {
+async function loadContent(type, isRefresh = false) {
     const grid = document.getElementById('content-grid');
-    grid.innerHTML = '<p>Loading...</p>';
+    if (!isRefresh) {
+        grid.innerHTML = '<p>Loading...</p>';
+    }
     
     // Reset Search
     const searchContainer = document.getElementById('admin-search-container');
@@ -572,7 +574,7 @@ function renderSystemStats(data) {
     // Auto-refresh every 5 seconds if still on system tab
     if (!window.systemInterval) {
         window.systemInterval = setInterval(() => {
-            if (currentTab === 'system') loadContent('system');
+            if (currentTab === 'system') loadContent('system', true);
             else clearInterval(window.systemInterval), window.systemInterval = null;
         }, 5000);
     }
