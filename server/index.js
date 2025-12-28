@@ -1070,6 +1070,25 @@ app.get('/api/admin/database/table/:name', authenticateToken, (req, res) => {
     });
 });
 
+
+app.delete('/api/admin/database/table/:name', authenticateToken, (req, res) => {
+    const tableName = req.params.name;
+    // Security Whitelist
+    db.all("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'", [], (err, tables) => {
+        if (err) return res.status(500).json({ error: err.message });
+        
+        const validTables = tables.map(t => t.name);
+        if (!validTables.includes(tableName)) {
+            return res.status(400).json({ error: 'Invalid table name' });
+        }
+
+        db.run(`DELETE FROM ${tableName}`, [], function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: `Table ${tableName} cleared successfully` });
+        });
+    });
+});
+
 // --- SEO / SITEMAP ---
 app.get('/sitemap.xml', (req, res) => {
     const baseUrl = 'https://yadani-adnane.duckdns.org';
