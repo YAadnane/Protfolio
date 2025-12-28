@@ -434,7 +434,14 @@ async function loadContent(type) {
         }
     }
 
-    const endpoint = (type === 'reviews') ? `${API_URL}/admin/reviews` : `${API_URL}/${type}`;
+    let endpoint;
+    if (type === 'reviews') {
+        endpoint = `${API_URL}/admin/reviews`;
+    } else if (type === 'system') {
+        endpoint = `${API_URL}/admin/system`;
+    } else {
+        endpoint = `${API_URL}/${type}`;
+    }
     
     try {
         const res = await fetch(`${endpoint}?lang=${currentAdminLang}&t=${Date.now()}`, {
