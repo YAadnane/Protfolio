@@ -1,7 +1,7 @@
 import { gsap } from "gsap";
 
 const API_URL = '/api';
-let currentTab = 'projects';
+let currentTab = 'overview';
 let editingId = null;
 let currentAdminLang = localStorage.getItem('admin_lang') || 'en';
 
@@ -441,6 +441,8 @@ async function loadContent(type, isRefresh = false) {
         endpoint = `${API_URL}/admin/reviews`;
     } else if (type === 'system') {
         endpoint = `${API_URL}/admin/system`;
+    } else if (type === 'overview') {
+        endpoint = `${API_URL}/admin/stats`;
     } else {
         endpoint = `${API_URL}/${type}`;
     }
@@ -485,6 +487,11 @@ async function loadContent(type, isRefresh = false) {
             renderSystemStats(data);
             return;
         }
+
+        if (type === 'overview') {
+            renderOverview(data);
+            return;
+        }
         
         // For generic searchable tabs
         renderItems(data);
@@ -493,6 +500,51 @@ async function loadContent(type, isRefresh = false) {
         console.error(err);
         grid.innerHTML = '<p>Error loading data.</p>';
     }
+}
+
+// Overview Render
+function renderOverview(data) {
+    const grid = document.getElementById('content-grid');
+    grid.innerHTML = '';
+    
+    // Helper for Stat Card
+    const card = (title, value, icon, color, sub='') => `
+        <div class="admin-card" style="display:flex; align-items:center; gap:1.5rem; border-left:4px solid ${color};">
+            <div style="background:rgba(255,255,255,0.05); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:${color}; font-size:1.5rem;">
+                <i class="${icon}"></i>
+            </div>
+            <div>
+                <h3 style="margin:0; font-size:2rem; font-weight:bold;">${value}</h3>
+                <div style="color:var(--text-muted); font-size:0.9rem;">${title}</div>
+                ${sub ? `<div style="color:${color}; font-size:0.8rem; margin-top:0.2rem;">${sub}</div>` : ''}
+            </div>
+        </div>
+    `;
+
+    // 1. Content Stats
+    const contentHtml = `
+        <h2 style="grid-column:1/-1; margin-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Content Overview</h2>
+        ${card('Projects', data.projects, 'fa-solid fa-briefcase', '#ff9ff3')}
+        ${card('Certifications', data.certifications, 'fa-solid fa-certificate', '#feca57')}
+        ${card('Articles', data.articles, 'fa-solid fa-newspaper', '#54a0ff')}
+    `;
+
+    // 2. Interaction Stats
+    const interactionHtml = `
+        <h2 style="grid-column:1/-1; margin:2rem 0 1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Interactions</h2>
+        ${card('Total Messages', data.messages_total, 'fa-solid fa-envelope', '#ff6b6b', `${data.messages_unread} unread`)}
+        ${card('Reviews', data.reviews_total, 'fa-solid fa-star', '#48dbfb', `${data.reviews_pending} pending`)}
+    `;
+
+    // 3. Analytics Stats
+    const analyticsHtml = `
+        <h2 style="grid-column:1/-1; margin:2rem 0 1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Analytics</h2>
+        ${card('Total Visitors', data.total_visitors, 'fa-solid fa-users', '#1dd1a1', `Unique IPs`)}
+        ${card('Visitors (7d)', data.visitors_7d, 'fa-solid fa-user-clock', '#00d2d3', 'Last 7 Days')}
+        ${card('Total Clicks', data.total_clicks, 'fa-solid fa-hand-pointer', '#5f27cd', 'Projects/Certs/Articles')}
+    `;
+
+    grid.innerHTML = contentHtml + interactionHtml + analyticsHtml;
 }
 
 // System Stats Render

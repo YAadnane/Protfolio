@@ -9,6 +9,7 @@ import db from './database.js';
 import dotenv from 'dotenv';
 import os from 'os';
 import { exec } from 'child_process';
+import crypto from 'crypto';
 
 dotenv.config();
 

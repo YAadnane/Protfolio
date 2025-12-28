@@ -101,6 +101,38 @@ db.serialize(() => {
         addColumnIfNotExists('messages', 'is_read', 'INTEGER DEFAULT 0');
     });
 
+    // Reviews Table
+    db.run(`CREATE TABLE IF NOT EXISTS reviews (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        role TEXT,
+        message TEXT,
+        rating INTEGER,
+        social_link TEXT,
+        social_platform TEXT,
+        date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        is_approved INTEGER DEFAULT 0
+    )`, () => addColumnIfNotExists('reviews', 'is_approved', 'INTEGER DEFAULT 0'));
+
+    // ANALYTICS: Visits Table
+    db.run(`CREATE TABLE IF NOT EXISTS visits (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ip_hash TEXT,
+        user_agent TEXT,
+        date DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
+    // ANALYTICS: Events Table (Clicks)
+    db.run(`CREATE TABLE IF NOT EXISTS analytics_events (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        event_type TEXT, -- 'click_project', 'click_certif', 'view_article'
+        target_id INTEGER,
+        metadata TEXT,
+        date DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+        addColumnIfNotExists('messages', 'is_read', 'INTEGER DEFAULT 0');
+    });
+
     // General Info Table (Single Row)
     db.run(`CREATE TABLE IF NOT EXISTS general_info (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
