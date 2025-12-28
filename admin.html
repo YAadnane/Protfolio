@@ -775,6 +775,99 @@
             pointer-events: none;
         }
     </style>
+    <style>
+        /* --- SIDEBAR LAYOUT REFACTOR --- */
+        .admin-layout {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+            min-height: calc(100vh - 200px);
+            align-items: start;
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding-right: 1.5rem;
+            /* Sticky sidebar */
+            position: sticky;
+            top: 100px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .sidebar-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: var(--font-heading);
+            font-size: 1rem;
+            cursor: pointer;
+            padding: 0.8rem 1.2rem;
+            border-radius: 0.5rem;
+            text-align: left;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            width: 100%;
+        }
+
+        .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            transform: translateX(5px);
+        }
+
+        .sidebar-btn.active {
+            background: rgba(46, 213, 115, 0.1);
+            color: var(--accent-color);
+            border: 1px solid rgba(46, 213, 115, 0.2);
+            font-weight: 600;
+        }
+
+        .sidebar-btn i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .admin-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+            /* Ensure it fills the grid cell */
+        }
+
+        /* Cleanup old tabs style override */
+        .tabs {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .admin-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                flex-direction: row;
+                overflow-x: auto;
+                border-right: none;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                padding-right: 0;
+                padding-bottom: 1rem;
+                position: static;
+            }
+
+            .sidebar-btn {
+                white-space: nowrap;
+                padding: 0.5rem 1rem;
+            }
+        }
+    </style>
+
 </head>
 
 <body>
@@ -816,32 +909,49 @@
             </div>
         </div>
 
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('overview')"><i class="fa-solid fa-chart-pie"></i>
-                Overview</button>
-            <button class="tab-btn" onclick="switchTab('projects')">Projects</button>
-            <button class="tab-btn" onclick="switchTab('certifications')">Certifications</button>
-            <button class="tab-btn" onclick="switchTab('education')">Education</button>
-            <button class="tab-btn" onclick="switchTab('experience')">Experience</button>
-            <button class="tab-btn" onclick="switchTab('skills')">Skills</button>
-            <button class="tab-btn" onclick="switchTab('articles')">Articles</button>
-            <button class="tab-btn" onclick="switchTab('shapes')">Shapes</button>
-            <button class="tab-btn" onclick="switchTab('general')">General</button>
-            <button class="tab-btn" onclick="switchTab('messages')">Messages <span id="msg-badge"
-                    class="badge"></span></button>
-            <button class="tab-btn" onclick="switchTab('reviews')">Reviews</button>
-            <button class="tab-btn" onclick="switchTab('media')">Media</button>
-            <button class="tab-btn" onclick="switchTab('system')"><i class="fa-solid fa-server"></i> System</button>
-        </div>
+        <div class="admin-layout">
+            <!-- Sidebar Navigation -->
+            <nav class="sidebar">
+                <button class="sidebar-btn active tab-btn" onclick="switchTab('overview')"><i
+                        class="fa-solid fa-chart-pie"></i> Overview</button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('projects')"><i
+                        class="fa-solid fa-briefcase"></i> Projects</button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('certifications')"><i
+                        class="fa-solid fa-certificate"></i> Certifications</button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('education')"><i
+                        class="fa-solid fa-graduation-cap"></i> Education</button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('experience')"><i
+                        class="fa-solid fa-building"></i> Experience</button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('skills')"><i class="fa-solid fa-code"></i>
+                    Skills</button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('articles')"><i
+                        class="fa-solid fa-newspaper"></i> Articles</button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('shapes')"><i class="fa-solid fa-shapes"></i>
+                    Shapes</button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('general')"><i class="fa-solid fa-sliders"></i>
+                    General</button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('messages')"><i class="fa-solid fa-envelope"></i>
+                    Messages <span id="msg-badge" class="badge"></span></button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('reviews')"><i class="fa-solid fa-star"></i>
+                    Reviews</button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('media')"><i class="fa-solid fa-images"></i>
+                    Media</button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('system')"><i class="fa-solid fa-server"></i>
+                    System</button>
+            </nav>
 
-        <!-- Search Bar -->
-        <div id="admin-search-container" class="search-container">
-            <i class="fa-solid fa-search search-icon"></i>
-            <input type="text" id="admin-search-input" class="search-input" placeholder="Search items...">
-        </div>
+            <!-- Main Content Area -->
+            <main class="admin-content">
+                <!-- Search Bar -->
+                <div id="admin-search-container" class="search-container">
+                    <i class="fa-solid fa-search search-icon"></i>
+                    <input type="text" id="admin-search-input" class="search-input" placeholder="Search items...">
+                </div>
 
-        <div id="content-grid" class="admin-grid">
-            <!-- Content loaded via JS -->
+                <div id="content-grid" class="admin-grid">
+                    <!-- Content loaded via JS -->
+                </div>
+            </main>
         </div>
     </div>
 
