@@ -544,7 +544,7 @@
             background: rgba(255, 255, 255, 0.02);
         }
 
-        /* Custom Scrollbar for DB */
+    /* Custom Scrollbar for DB */
         .db-sidebar::-webkit-scrollbar,
         .db-data-wrapper::-webkit-scrollbar {
             width: 6px;
@@ -560,6 +560,58 @@
         .db-sidebar::-webkit-scrollbar-thumb:hover,
         .db-data-wrapper::-webkit-scrollbar-thumb:hover {
             background: var(--accent-color);
+        }
+
+        /* Responsive DB Viewer */
+        .db-table-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        @media (max-width: 768px) {
+            .db-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+                height: calc(100vh - 140px);
+                gap: 1rem;
+            }
+
+            .db-sidebar {
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 0.8rem;
+                height: auto;
+                min-height: auto;
+                align-items: center;
+                gap: 1rem;
+                white-space: nowrap;
+            }
+
+            .db-checklist-title {
+                margin-bottom: 0;
+                border-bottom: none;
+                padding-bottom: 0;
+                margin-right: 0.5rem;
+            }
+
+            .db-table-list {
+                flex-direction: row;
+                gap: 0.5rem;
+            }
+
+            .db-table-btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.85rem;
+            }
+            
+            .db-table-btn span {
+                /* ensure text is visible */
+            }
+
+            .db-table-btn i.fa-chevron-right {
+                display: none;
+            }
         }
     </style>
     <style id="light-mode-styles">

@@ -1017,7 +1017,7 @@ async function renderDatabaseView() {
                 <!-- Table List -->
                 <div class="db-sidebar">
                     <div class="db-checklist-title"><i class="fa-solid fa-table"></i> Tables (${tables.length})</div>
-                    <div style="display:flex; flex-direction:column; gap:0.3rem;">
+                    <div class="db-table-list">
                         ${tables.map(t => `<button onclick="loadTableData('${t}', this)" class="db-table-btn"><span>${t}</span> <i class="fa-solid fa-chevron-right" style="font-size:0.7rem; opacity:0.5;"></i></button>`).join('')}
                     </div>
                 </div>
