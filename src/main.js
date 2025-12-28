@@ -676,6 +676,10 @@ async function loadProjects() {
             item.addEventListener('click', (e) => {
                 // Don't open if clicking action buttons (handled by stopPropagation above, but safety check)
                 if (e.target.closest('a') || e.target.closest('button')) return;
+                
+                // Track Click
+                if(window.trackEvent) window.trackEvent('click_project', p.id);
+                
                 openProjectModal(p);
             });
 
@@ -888,6 +892,10 @@ async function loadCertifications() {
                 item.onclick = (e) => {
                     // Prevent if clicking the eye icon specifically (optional, keeping both behaviors)
                     if(e.target.closest('.btn-icon')) return;
+                    
+                    // Track Click
+                    if(window.trackEvent) window.trackEvent('click_certif', c.id);
+
                     openCertModal(c); 
                 };
 
@@ -2538,29 +2546,18 @@ function initHeroCubeInteraction() {
 });
 
 // =========================================
-// ANALYTICS TRACKING
+// ANALYTICS TRACKING HELPER
 // =========================================
-function initAnalytics() {
-    // 1. Track Visit
-    fetch('/api/track/visit', { method: 'POST' }).catch(err => console.error('Tracking Error', err));
+window.trackEvent = (type, id) => {
+    fetch('/api/track/event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: type, id: id })
+    }).catch(err => console.error("Tracking failed", err));
+};
 
-    // 2. Track Clicks
-    document.addEventListener('click', (e) => {
-        // Find closest trackable element
-        const trackable = e.target.closest('[data-track]');
-        if (trackable) {
-            const type = trackable.dataset.track; // 'project', 'certif'
-            const id = trackable.dataset.id;
-            
-            fetch('/api/track/event', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ type: `click_${type}`, id: id })
-            }).catch(() => {});
-        }
-    });
-}
-
-// Initialize on load
-initAnalytics();
+// Track Visit on Load
+window.addEventListener('load', () => {
+    fetch('/api/track/visit', { method: 'POST' }).catch(() => {});
+});
  
