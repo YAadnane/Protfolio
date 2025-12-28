@@ -1221,11 +1221,11 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
 
         // TOP ITEMS (Articles)
         new Promise(resolve => db.all(`
-            SELECT a.title as name, COUNT(e.id) as clicks 
+            SELECT COALESCE(a.title, 'Unknown Article #' || e.target_id) as name, COUNT(e.id) as clicks 
             FROM analytics_events e 
-            JOIN articles a ON e.target_id = a.id 
-            WHERE e.event_type = 'click_article' 
-            GROUP BY a.id 
+            LEFT JOIN articles a ON e.target_id = a.id 
+            WHERE e.event_type = 'view_article' 
+            GROUP BY e.target_id 
             ORDER BY clicks DESC 
             LIMIT 5
         `, (e, r) => resolve({k:'top_articles', v:r||[]})))
