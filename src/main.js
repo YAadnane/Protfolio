@@ -2543,7 +2543,7 @@ function initHeroCubeInteraction() {
 }
 
 // Initialize
-});
+
 
 // =========================================
 // ANALYTICS TRACKING HELPER
