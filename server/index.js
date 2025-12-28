@@ -1115,6 +1115,72 @@ app.get('/sitemap.xml', (req, res) => {
 });
 
 // =========================================
+// ANALYTICS TRACKING API
+// =========================================
+
+// Track Visit
+app.post('/api/track/visit', (req, res) => {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const ua = req.headers['user-agent'] || '';
+    // Create a daily hash to count unique daily visitors per IP without storing raw IP
+    const dateStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    const hash = crypto.createHash('sha256').update(`${ip}-${ua}-${dateStr}`).digest('hex');
+
+    // Check if visit exists for today
+    db.get('SELECT id FROM visits WHERE ip_hash = ? AND date >= ?', [hash, dateStr + ' 00:00:00'], (err, row) => {
+        if (err) return res.sendStatus(500);
+        if (!row) {
+            db.run('INSERT INTO visits (ip_hash, user_agent) VALUES (?, ?)', [hash, ua], (err) => {
+                if (err) console.error('Track visit error:', err);
+            });
+        }
+        res.sendStatus(200);
+    });
+});
+
+// Track Event (Click)
+app.post('/api/track/event', (req, res) => {
+    const { type, id, meta } = req.body;
+    db.run('INSERT INTO analytics_events (event_type, target_id, metadata) VALUES (?, ?, ?)', 
+        [type, id || 0, meta || ''], 
+        (err) => {
+            if (err) console.error('Track event error:', err);
+            res.sendStatus(200);
+        }
+    );
+});
+
+// =========================================
+// ADMIN STATS API
+// =========================================
+app.get('/api/admin/stats', authenticateToken, (req, res) => {
+    const stats = {};
+
+    const queries = [
+        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM projects', (e, r) => resolve({k:'projects', v:r?.c||0}))),
+        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM certifications', (e, r) => resolve({k:'certifications', v:r?.c||0}))),
+        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM articles', (e, r) => resolve({k:'articles', v:r?.c||0}))),
+        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM messages', (e, r) => resolve({k:'messages_total', v:r?.c||0}))),
+        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM messages WHERE is_read=0', (e, r) => resolve({k:'messages_unread', v:r?.c||0}))),
+        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM reviews', (e, r) => resolve({k:'reviews_total', v:r?.c||0}))),
+        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM reviews WHERE is_approved=0', (e, r) => resolve({k:'reviews_pending', v:r?.c||0}))),
+        
+        // Analytics Counts
+        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM visits', (e, r) => resolve({k:'total_visitors', v:r?.c||0}))),
+        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM visits WHERE date >= date("now", "-7 days")', (e, r) => resolve({k:'visitors_7d', v:r?.c||0}))),
+        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM analytics_events', (e, r) => resolve({k:'total_clicks', v:r?.c||0}))),
+    ];
+
+    Promise.all(queries).then(results => {
+        results.forEach(item => stats[item.k] = item.v);
+        res.json(stats);
+    }).catch(err => {
+        console.error(err);
+        res.status(500).json({error: 'Stats error'});
+    });
+});
+
+// =========================================
 // SYSTEM MONITOR API
 // =========================================
 app.get('/api/admin/system', authenticateToken, async (req, res) => {
