@@ -471,6 +471,11 @@ async function loadContent(type) {
             renderReviews(data);
             return;
         }
+
+        if (type === 'system') {
+            renderSystemStats(data);
+            return;
+        }
         
         // For generic searchable tabs
         renderItems(data);
@@ -478,6 +483,91 @@ async function loadContent(type) {
     } catch (err) {
         console.error(err);
         grid.innerHTML = '<p>Error loading data.</p>';
+    }
+}
+
+// System Stats Render
+function renderSystemStats(data) {
+    const grid = document.getElementById('content-grid');
+    grid.innerHTML = '';
+
+    // Helpers for formatting
+    const formatBytes = (bytes) => {
+        if (bytes === 0) return '0 B';
+        const k = 1024;
+        const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    const formatUptime = (seconds) => {
+        const d = Math.floor(seconds / (3600*24));
+        const h = Math.floor(seconds % (3600*24) / 3600);
+        const m = Math.floor(seconds % 3600 / 60);
+        return `${d}d ${h}h ${m}m`;
+    };
+
+    // Circular Progress Component
+    const createCircle = (percent, color, label, valueText) => `
+        <div class="stat-circle-card" style="background:var(--card-bg); padding:1.5rem; border-radius:1rem; border:1px solid rgba(255,255,255,0.05); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
+            <div style="position:relative; width:120px; height:120px; border-radius:50%; background:conic-gradient(${color} ${percent}%, rgba(255,255,255,0.05) 0);">
+                <div style="position:absolute; top:10px; left:10px; right:10px; bottom:10px; background:var(--card-bg); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-direction:column;">
+                    <span style="font-size:1.5rem; font-weight:bold; color:#fff;">${percent}%</span>
+                    <span style="font-size:0.8rem; color:var(--text-muted);">${label}</span>
+                </div>
+            </div>
+            <div style="text-align:center;">
+                <h4 style="margin:0; color:var(--text-main);">${valueText}</h4>
+            </div>
+        </div>
+    `;
+
+    // 1. Resources Row (CPU, RAM, DISK)
+    const resourcesHtml = `
+        <div style="grid-column:1/-1; display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:1.5rem; margin-bottom:2rem;">
+            ${createCircle(data.cpu.load, '#ff4757', 'CPU Load', `${data.cpu.cores} Cores - ${data.cpu.model}`)}
+            ${createCircle(data.memory.percent, '#2ed573', 'RAM Usage', `${formatBytes(data.memory.used)} / ${formatBytes(data.memory.total)}`)}
+            ${data.disk.total ? createCircle(data.disk.percent, '#ffa502', 'Disk Usage', `${formatBytes(data.disk.used)} / ${formatBytes(data.disk.total)}`) : '<div class="stat-circle-card" style="padding:2rem;">Disk Unavailable</div>'}
+        </div>
+    `;
+
+    // 2. Info Row (Network, Uptime)
+    const infoHtml = `
+        <div style="grid-column:1/-1; display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem;">
+            <!-- Network Card -->
+            <div class="admin-card">
+                <h3><i class="fa-solid fa-network-wired" style="color:#1e90ff;"></i> Network Traffic</h3>
+                <div style="display:flex; justify-content:space-between; margin-top:1.5rem;">
+                    <div style="text-align:center;">
+                        <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:0.5rem;"><i class="fa-solid fa-download"></i> Received</div>
+                        <div style="font-size:1.5rem; font-weight:bold; color:#fff;">${formatBytes(data.network.rx)}</div>
+                    </div>
+                    <div style="width:1px; background:rgba(255,255,255,0.1);"></div>
+                    <div style="text-align:center;">
+                        <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:0.5rem;"><i class="fa-solid fa-upload"></i> Sent</div>
+                        <div style="font-size:1.5rem; font-weight:bold; color:#fff;">${formatBytes(data.network.tx)}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Uptime Card -->
+             <div class="admin-card">
+                <h3><i class="fa-solid fa-clock" style="color:#a55eea;"></i> System Uptime</h3>
+                <div style="display:flex; align-items:center; justify-content:center; height:100px;">
+                    <div style="font-size:2rem; font-weight:bold; font-family:var(--font-heading); color:#fff;">${formatUptime(data.uptime)}</div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    grid.innerHTML = resourcesHtml + infoHtml;
+    
+    // Auto-refresh every 5 seconds if still on system tab
+    if (!window.systemInterval) {
+        window.systemInterval = setInterval(() => {
+            if (currentTab === 'system') loadContent('system');
+            else clearInterval(window.systemInterval), window.systemInterval = null;
+        }, 5000);
     }
 }
 
