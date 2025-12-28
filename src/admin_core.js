@@ -538,7 +538,10 @@ function renderOverview(data) {
 
     // 3. Analytics Stats
     const analyticsHtml = `
-        <h2 style="grid-column:1/-1; margin:2rem 0 1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Analytics</h2>
+        <div style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">
+            <h2 style="margin:0;">Analytics</h2>
+            <button class="btn-secondary" style="font-size:0.8rem; padding:0.3rem 0.8rem;" onclick="loadContent('overview', true)"><i class="fa-solid fa-sync"></i> Refresh</button>
+        </div>
         ${card('Total Visitors', data.total_visitors, 'fa-solid fa-users', '#1dd1a1', `Unique IPs`)}
         ${card('Visitors (7d)', data.visitors_7d, 'fa-solid fa-user-clock', '#00d2d3', 'Last 7 Days')}
         ${card('Total Clicks', data.total_clicks, 'fa-solid fa-hand-pointer', '#5f27cd', 'Projects/Certs/Articles')}
