@@ -575,9 +575,9 @@ function renderOverview(data) {
         
         <!-- Tabs -->
         <div style="grid-column:1/-1; display:flex; gap:1rem; margin-bottom:1rem;">
-            <button class="filter-btn active" onclick="switchTab('top-projects', this)">Projects</button>
-            <button class="filter-btn" onclick="switchTab('top-certifs', this)">Certifications</button>
-            <button class="filter-btn" onclick="switchTab('top-articles', this)">Articles</button>
+            <button class="filter-btn active" onclick="switchOverviewTab('top-projects', this)">Projects</button>
+            <button class="filter-btn" onclick="switchOverviewTab('top-certifs', this)">Certifications</button>
+            <button class="filter-btn" onclick="switchOverviewTab('top-articles', this)">Articles</button>
         </div>
 
         <div class="admin-card" style="grid-column:1/-1;">
