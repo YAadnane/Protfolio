@@ -544,37 +544,57 @@ function renderOverview(data) {
         ${card('Total Clicks', data.total_clicks, 'fa-solid fa-hand-pointer', '#5f27cd', 'Projects/Certs/Articles')}
     `;
 
-    // 4. Top Content List
-    const createList = (title, items, icon) => {
-        if (!items || items.length === 0) return '';
+    // 4. Top Content List with Tabs
+    const createList = (id, items, icon, visible = false) => {
+        const displayStyle = visible ? 'grid' : 'none';
+        if (!items || items.length === 0) return `<div id="${id}" style="display:${displayStyle}; color:var(--text-muted); padding:1rem;">No data available.</div>`;
+        
         return `
-            <div class="admin-card" style="grid-column:span 1;">
-                <h3 style="margin-bottom:1rem; font-size:1.1rem; color:var(--text-muted);"><i class="${icon}"></i> ${title}</h3>
-                <div style="display:flex; flex-direction:column; gap:0.8rem;">
-                    ${items.map((item, i) => `
-                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:0.5rem;">
-                            <div style="display:flex; align-items:center; gap:0.5rem;">
-                                <span style="font-weight:bold; color:var(--text-muted); width:20px;">#${i+1}</span>
-                                <span style="font-size:0.9rem; color:#fff;">${item.name}</span>
-                            </div>
-                            <span style="background:rgba(255,255,255,0.1); padding:0.2rem 0.5rem; border-radius:4px; font-size:0.8rem; font-weight:bold;">${item.clicks}</span>
+            <div id="${id}" style="display:${displayStyle}; grid-template-columns:1fr; gap:0.8rem;">
+                ${items.map((item, i) => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:0.5rem;">
+                        <div style="display:flex; align-items:center; gap:0.5rem;">
+                            <span style="font-weight:bold; color:var(--text-muted); width:20px;">#${i+1}</span>
+                            <span style="font-size:0.9rem; color:#fff;">${item.name}</span>
                         </div>
-                    `).join('')}
-                </div>
+                        <span style="background:rgba(255,255,255,0.1); padding:0.2rem 0.5rem; border-radius:4px; font-size:0.8rem; font-weight:bold;">${item.clicks}</span>
+                    </div>
+                `).join('')}
             </div>
         `;
     };
 
     const topContentHtml = `
-        <h2 style="grid-column:1/-1; margin:2rem 0 1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Top Performing Content</h2>
-        <div style="grid-column:1/-1; display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem;">
-            ${createList('Top Projects', data.top_projects, 'fa-solid fa-briefcase')}
-            ${createList('Top Certifications', data.top_certifs, 'fa-solid fa-certificate')}
-            ${createList('Top Articles', data.top_articles, 'fa-solid fa-newspaper')}
+        <h2 style="grid-column:1/-1; margin:2rem 0 0.5rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Top Performing Content</h2>
+        
+        <!-- Tabs -->
+        <div style="grid-column:1/-1; display:flex; gap:1rem; margin-bottom:1rem;">
+            <button class="filter-btn active" onclick="switchTab('top-projects', this)">Projects</button>
+            <button class="filter-btn" onclick="switchTab('top-certifs', this)">Certifications</button>
+            <button class="filter-btn" onclick="switchTab('top-articles', this)">Articles</button>
+        </div>
+
+        <div class="admin-card" style="grid-column:1/-1;">
+            ${createList('top-projects', data.top_projects, 'fa-solid fa-briefcase', true)}
+            ${createList('top-certifs', data.top_certifs, 'fa-solid fa-certificate')}
+            ${createList('top-articles', data.top_articles, 'fa-solid fa-newspaper')}
         </div>
     `;
 
     grid.innerHTML = contentHtml + interactionHtml + analyticsHtml + topContentHtml;
+
+    // Tab Switcher Logic (Global helper)
+    window.switchTab = (targetId, btn) => {
+        // Toggle Buttons
+        btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Toggle Lists
+        ['top-projects', 'top-certifs', 'top-articles'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = (id === targetId) ? 'grid' : 'none';
+        });
+    };
 }
 
 // System Stats Render

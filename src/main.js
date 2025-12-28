@@ -607,6 +607,8 @@ async function loadProjects() {
             const item = document.createElement('div');
             item.className = `bento-item ${sizeClass}`;
             item.setAttribute('data-tilt', '');
+            item.dataset.track = 'project';
+            item.dataset.id = p.id;
             
             const tagsHtml = p.tags.split(',').map(tag => `<span>${tag.trim()}</span>`).join('');
 
@@ -879,6 +881,8 @@ async function loadCertifications() {
 
                 const item = document.createElement('div');
                 item.className = 'cert-item';
+                item.dataset.track = 'certif';
+                item.dataset.id = c.id;
                 // Make item clickable for modal
                 item.style.cursor = 'pointer';
                 item.onclick = (e) => {
