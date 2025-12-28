@@ -590,7 +590,7 @@ function renderOverview(data) {
     grid.innerHTML = contentHtml + interactionHtml + analyticsHtml + topContentHtml;
 
     // Tab Switcher Logic (Global helper)
-    window.switchTab = (targetId, btn) => {
+    window.switchOverviewTab = (targetId, btn) => {
         // Toggle Buttons (if btn provided)
         if (btn && btn.parentElement) {
             btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
