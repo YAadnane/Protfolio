@@ -1345,11 +1345,31 @@ async function loadTableData(tableName, btnElement) {
 
         if (data.error) throw new Error(data.error);
 
+        // Define Clear Action
+        window.clearTable = async (tName) => {
+            if (!await showConfirm(`Clear ${tName}?`, `Are you sure you want to delete ALL data from ${tName}? This cannot be undone.`, 'Delete All', '#ff4757')) return;
+            try {
+                const delRes = await fetch(`${API_URL}/admin/database/table/${tName}`, {
+                     method: 'DELETE',
+                     headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (delRes.ok) {
+                    showNotification(`Table ${tName} cleared`, 'success');
+                    loadTableData(tName); // Reload empty
+                } else {
+                    const errData = await delRes.json();
+                     showNotification(errData.error || 'Failed to clear table', 'error');
+                }
+            } catch (e) { console.error(e); }
+        };
+
         if (data.length === 0) {
             container.innerHTML = `
                 <div class="db-header">
                     <h3 style="margin:0;">${tableName}</h3>
-                    <button onclick="renderDatabaseView()" style="background:none; border:none; color:var(--accent-color); cursor:pointer;"><i class="fa-solid fa-rotate"></i></button>
+                    <div style="display:flex; gap:1rem;">
+                         <button onclick="renderDatabaseView()" style="background:none; border:none; color:var(--accent-color); cursor:pointer;"><i class="fa-solid fa-rotate"></i></button>
+                    </div>
                 </div>
                 <div style="display:flex; flex-direction:column; justify-content:center; align-items:center; height:100%; color:var(--text-muted);">
                     <i class="fa-regular fa-folder-open" style="font-size:2rem; margin-bottom:0.5rem; opacity:0.5;"></i>
@@ -1366,7 +1386,8 @@ async function loadTableData(tableName, btnElement) {
                     <h3 style="margin:0; font-family:var(--font-heading);">${tableName}</h3>
                     <span class="badge" style="background:rgba(255,255,255,0.1);">${data.length} rows</span>
                 </div>
-                <div style="display:flex; gap:1rem;">
+                <div style="display:flex; gap:0.5rem;">
+                    <button onclick="clearTable('${tableName}')" style="background:rgba(255, 71, 87, 0.1); border:1px solid #ff4757; color:#ff4757; padding:0.4rem 0.8rem; border-radius:4px; font-weight:600; cursor:pointer; font-size:0.85rem;"><i class="fa-solid fa-trash"></i> Clear Data</button>
                     <button onclick="loadTableData('${tableName}')" style="background:var(--accent-color); border:none; color:#000; padding:0.4rem 0.8rem; border-radius:4px; font-weight:600; cursor:pointer; font-size:0.85rem;"><i class="fa-solid fa-rotate"></i> Refresh</button>
                 </div>
             </div>
