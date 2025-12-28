@@ -1420,3 +1420,13 @@ async function loadTableData(tableName, btnElement) {
         container.innerHTML = `<div style="padding:2rem; color:#ff4757;">Error loading table: ${err.message}</div>`;
     }
 }
+
+// Global Exports
+window.loadContent = loadContent;
+window.renderDatabaseView = renderDatabaseView;
+window.deleteReview = deleteReview;
+window.approveReview = approveReview;
+window.markAsRead = markAsRead;
+window.deleteMessage = deleteMessage;
+window.deleteMedia = deleteMedia;
+
