@@ -900,8 +900,9 @@ function renderItems(data) {
         
         card.innerHTML = `
             <h3>${item.title || item.name || item.degree || item.role || (item.type ? item.type.charAt(0).toUpperCase() + item.type.slice(1) + ': ' + (item.face_front || 'Untitled') : (item.face_front ? 'Cube: ' + item.face_front : 'Item'))} ${isHidden ? '<span style="font-size:0.7em; background:#333; padding:2px 5px; border-radius:4px;">(Hidden)</span>' : ''} ${isMobile ? '<span style="font-size:0.7em; background:var(--accent-color); color:#000; padding:2px 5px; border-radius:4px; margin-left:5px;"><i class="fa-solid fa-mobile-screen"></i> Mobile Hero</span>' : ''}</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">
-                ${item.category || item.issuer || item.institution || item.company || (item.size ? `Size: ${item.size}, Pos: ${item.pos_x}%, ${item.pos_y}%` : '')}
+            <p style="color: var(--text-muted); font-size: 0.9rem; display:flex; justify-content:space-between; align-items:center;">
+                <span>${item.category || item.issuer || item.institution || item.company || (item.size ? `Size: ${item.size}, Pos: ${item.pos_x}%, ${item.pos_y}%` : '')}</span>
+                ${item.clicks !== undefined ? `<span style="background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:12px; font-size:0.8rem; color:var(--text-main);"><i class="fa-solid fa-eye" style="color:var(--accent-color); margin-right:5px;"></i> ${item.clicks}</span>` : ''}
             </p>
             <div class="admin-actions">
                 <button class="btn-edit" onclick='toggleVisibility(${item.id})' style="background: rgba(255, 255, 255, 0.1); color: ${isHidden ? '#ff4757' : '#2ed573'}; border: 1px solid rgba(255, 255, 255, 0.2); padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; margin-right: 0.5rem;" title="${isHidden ? 'Show' : 'Hide'}">

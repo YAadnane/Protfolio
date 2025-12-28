@@ -241,7 +241,13 @@ app.put('/api/profile', authenticateToken, async (req, res) => {
 // --- PROJECTS ---
 app.get('/api/projects', (req, res) => {
     const lang = req.query.lang || 'en';
-    db.all("SELECT * FROM projects WHERE lang = ?", [lang], (err, rows) => {
+    const query = `
+        SELECT p.*, 
+        (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = p.id AND e.event_type = 'click_project') as clicks
+        FROM projects p 
+        WHERE p.lang = ?
+    `;
+    db.all(query, [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
@@ -293,7 +299,13 @@ app.delete('/api/projects/:id', authenticateToken, (req, res) => {
 // --- CERTIFICATIONS ---
 app.get('/api/certifications', (req, res) => {
     const lang = req.query.lang || 'en';
-    db.all("SELECT * FROM certifications WHERE lang = ?", [lang], (err, rows) => {
+    const query = `
+        SELECT c.*, 
+        (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = c.id AND e.event_type = 'click_certif') as clicks
+        FROM certifications c 
+        WHERE c.lang = ?
+    `;
+    db.all(query, [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
@@ -534,7 +546,14 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
 // --- ARTICLES ---
 app.get('/api/articles', (req, res) => {
     const lang = req.query.lang || 'en';
-    db.all("SELECT * FROM articles WHERE lang = ? ORDER BY date DESC", [lang], (err, rows) => {
+    const query = `
+        SELECT a.*, 
+        (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = a.id AND e.event_type = 'view_article') as clicks
+        FROM articles a 
+        WHERE a.lang = ? 
+        ORDER BY date DESC
+    `;
+    db.all(query, [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
