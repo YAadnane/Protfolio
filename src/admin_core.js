@@ -148,8 +148,9 @@ async function loadMedia() {
         const files = await res.json();
 
         grid.innerHTML = '';
-        if (files.length === 0) {
-            grid.innerHTML = '<p>No media files found.</p>';
+        grid.innerHTML = '';
+        if (!Array.isArray(files) || files.length === 0) {
+            grid.innerHTML = '<p>No media files found (or API error).</p>';
             return;
         }
 
@@ -417,6 +418,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load Content
 async function loadContent(type, isRefresh = false) {
+    if (!type) return; 
+    window.currentTab = type; // Keep tracker in sync
     const grid = document.getElementById('content-grid');
     if (!isRefresh) {
         grid.innerHTML = '<p>Loading...</p>';
