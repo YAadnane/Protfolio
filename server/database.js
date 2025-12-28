@@ -130,8 +130,7 @@ db.serialize(() => {
         metadata TEXT,
         date DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
-        addColumnIfNotExists('messages', 'is_read', 'INTEGER DEFAULT 0');
-    });
+
 
     // General Info Table (Single Row)
     db.run(`CREATE TABLE IF NOT EXISTS general_info (
