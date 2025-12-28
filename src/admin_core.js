@@ -550,7 +550,36 @@ function renderOverview(data) {
         ${card('Total Clicks', data.total_clicks, 'fa-solid fa-hand-pointer', '#5f27cd', 'Projects/Certs/Articles')}
     `;
 
-    // 4. Top Content List with Tabs
+    // 4. Historical Stats Graph
+    const graphHtml = `
+        <h2 style="grid-column:1/-1; margin:2rem 0 0.5rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Traffic History</h2>
+        
+        <div class="admin-card" style="grid-column:1/-1;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h3 style="margin:0;">Visits Overview</h3>
+                <div style="display:flex; gap:1rem;">
+                    <select id="stats-year" class="admin-select" style="padding:0.4rem; font-size:0.9rem;">
+                        <option value="">All Years</option>
+                        ${[2024, 2025, 2026].map(y => `<option value="${y}" ${y === new Date().getFullYear() ? 'selected' : ''}>${y}</option>`).join('')}
+                    </select>
+                    <select id="stats-month" class="admin-select" style="padding:0.4rem; font-size:0.9rem;">
+                        <option value="">All Months</option>
+                        ${Array.from({length: 12}, (_, i) => {
+                            const m = i + 1;
+                            const label = new Date(0, i).toLocaleString('default', { month: 'short' });
+                            return `<option value="${m}" ${m === new Date().getMonth() + 1 ? 'selected' : ''}>${label}</option>`;
+                        }).join('')}
+                    </select>
+                    <button class="btn-secondary" onclick="updateStatsChart()" style="padding:0.4rem 1rem;">Filter</button>
+                </div>
+            </div>
+            <div style="height:300px;">
+                <canvas id="statsChart"></canvas>
+            </div>
+        </div>
+    `;
+
+    // 5. Top Content List with Tabs
     const createList = (id, items, icon, visible = false) => {
         const displayStyle = visible ? 'grid' : 'none';
         if (!items || items.length === 0) return `<div id="${id}" style="display:${displayStyle}; color:var(--text-muted); padding:1rem;">No data available.</div>`;
@@ -587,7 +616,66 @@ function renderOverview(data) {
         </div>
     `;
 
-    grid.innerHTML = contentHtml + interactionHtml + analyticsHtml + topContentHtml;
+    grid.innerHTML = contentHtml + interactionHtml + analyticsHtml + graphHtml + topContentHtml;
+
+    // Initialize Chart
+    window.statsChart = null; // Store chart instance
+    window.updateStatsChart = async () => {
+        const year = document.getElementById('stats-year').value;
+        const month = document.getElementById('stats-month').value;
+        
+        try {
+            const res = await fetch(`${API_URL}/admin/stats/history?year=${year}&month=${month}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const historyData = await res.json();
+            
+            const ctx = document.getElementById('statsChart').getContext('2d');
+            
+            // Destroy existing if any
+            if (window.statsChart) window.statsChart.destroy();
+
+            window.statsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: historyData.map(d => d.date),
+                    datasets: [{
+                        label: 'Visits',
+                        data: historyData.map(d => d.count),
+                        borderColor: '#2ed573',
+                        backgroundColor: 'rgba(46, 213, 115, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#a4b0be' } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: 'rgba(255,255,255,0.05)' },
+                            ticks: { color: '#a4b0be' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#a4b0be' }
+                        }
+                    }
+                }
+            });
+
+        } catch (e) {
+            console.error('Failed to load chart stats', e);
+        }
+    };
+
+    // Load initial chart
+    setTimeout(updateStatsChart, 100);
 
     // Tab Switcher Logic (Global helper)
     window.switchOverviewTab = (targetId, btn) => {
