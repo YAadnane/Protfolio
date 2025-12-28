@@ -579,7 +579,26 @@ function renderOverview(data) {
         </div>
     `;
 
-    // 5. Top Content List with Tabs
+    // 5. Content Engagement Graphs
+    const contentGraphsHtml = `
+        <h2 style="grid-column:1/-1; margin:2rem 0 0.5rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Content Analytics</h2>
+        
+        <div class="admin-card">
+            <h3 style="margin:0 0 1rem;">Engagement Distribution</h3>
+            <div style="height:250px;">
+                <canvas id="contentDoughnutChart"></canvas>
+            </div>
+        </div>
+
+        <div class="admin-card">
+            <h3 style="margin:0 0 1rem;">Category Performance</h3>
+            <div style="height:250px;">
+                <canvas id="contentBarChart"></canvas>
+            </div>
+        </div>
+    `;
+
+    // 6. Top Content List with Tabs
     const createList = (id, items, icon, visible = false) => {
         const displayStyle = visible ? 'grid' : 'none';
         if (!items || items.length === 0) return `<div id="${id}" style="display:${displayStyle}; color:var(--text-muted); padding:1rem;">No data available.</div>`;
@@ -616,9 +635,9 @@ function renderOverview(data) {
         </div>
     `;
 
-    grid.innerHTML = contentHtml + interactionHtml + analyticsHtml + graphHtml + topContentHtml;
+    grid.innerHTML = contentHtml + interactionHtml + analyticsHtml + graphHtml + contentGraphsHtml + topContentHtml;
 
-    // Initialize Chart
+    // Initialize Traffic Chart
     window.statsChart = null; // Store chart instance
     window.updateStatsChart = async () => {
         const year = document.getElementById('stats-year').value;
@@ -674,8 +693,67 @@ function renderOverview(data) {
         }
     };
 
-    // Load initial chart
-    setTimeout(updateStatsChart, 100);
+    // Load initial charts
+    setTimeout(() => {
+        updateStatsChart(); // Traffic
+
+        // Calculate Content Stats
+        const calcClicks = (arr) => arr ? arr.reduce((sum, item) => sum + (item.clicks || 0), 0) : 0;
+        const projClicks = calcClicks(data.top_projects);
+        const certClicks = calcClicks(data.top_certifs);
+        const artClicks = calcClicks(data.top_articles);
+
+        // Doughnut Chart
+        new Chart(document.getElementById('contentDoughnutChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Projects', 'Certifications', 'Articles'],
+                datasets: [{
+                    data: [projClicks, certClicks, artClicks],
+                    backgroundColor: ['#ff9ff3', '#feca57', '#54a0ff'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { color: '#a4b0be' } }
+                }
+            }
+        });
+
+        // Bar Chart
+        new Chart(document.getElementById('contentBarChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Projects', 'Certifications', 'Articles'],
+                datasets: [{
+                    label: 'Total Clicks',
+                    data: [projClicks, certClicks, artClicks],
+                    backgroundColor: ['rgba(255, 159, 243, 0.5)', 'rgba(254, 202, 87, 0.5)', 'rgba(84, 160, 255, 0.5)'],
+                    borderColor: ['#ff9ff3', '#feca57', '#54a0ff'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { color: '#a4b0be' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#a4b0be' }
+                    }
+                }
+            }
+        });
+    }, 100);
 
     // Tab Switcher Logic (Global helper)
     window.switchOverviewTab = (targetId, btn) => {
