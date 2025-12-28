@@ -7,11 +7,16 @@ const __dirname = path.dirname(__filename);
 const dbPath = path.resolve(__dirname, 'server/portfolio.db');
 const db = new sqlite3.Database(dbPath);
 
-const tables = ['visits', 'analytics_events', 'projects', 'certifications'];
+const queries = [
+    'SELECT COUNT(*) as c FROM projects',
+    'SELECT COUNT(*) as c FROM messages WHERE is_read=0',
+    'SELECT COUNT(*) as c FROM reviews WHERE is_approved=0',
+    'SELECT COUNT(*) as c FROM visits WHERE date >= date("now", "-7 days")'
+];
 
-tables.forEach(table => {
-    db.get(`SELECT count(*) as c FROM ${table}`, (err, row) => {
-        if (err) console.error(`Table ${table} ERROR:`, err.message);
-        else console.log(`Table ${table} OK: ${row.c} rows`);
+queries.forEach(q => {
+    db.get(q, (err, row) => {
+        if (err) console.error(`Query "${q}" FAILED:`, err.message);
+        else console.log(`Query "${q}" OK:`, row);
     });
 });
