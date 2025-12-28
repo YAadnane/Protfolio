@@ -1052,6 +1052,35 @@ app.get('/api/admin/database/tables', authenticateToken, (req, res) => {
     });
 });
 
+// Admin History Stats (Filtered)
+app.get('/api/admin/stats/history', authenticateToken, (req, res) => {
+    const { year, month } = req.query;
+    // Group by DATE (YYYY-MM-DD)
+    let query = "SELECT DATE(date) as day, COUNT(*) as count FROM visits";
+    let params = [];
+    let conditions = [];
+
+    if (year) {
+        conditions.push("strftime('%Y', date) = ?");
+        params.push(year);
+    }
+    if (month) {
+        conditions.push("strftime('%m', date) = ?");
+        params.push(month.toString().padStart(2, '0'));
+    }
+
+    if (conditions.length > 0) {
+        query += " WHERE " + conditions.join(" AND ");
+    }
+    
+    query += " GROUP BY DATE(date) ORDER BY date ASC";
+
+    db.all(query, params, (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
 app.get('/api/admin/database/table/:name', authenticateToken, (req, res) => {
     const tableName = req.params.name;
     // Basic SQL Injection prevention: Whitelist tables

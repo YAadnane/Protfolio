@@ -648,6 +648,7 @@ function renderOverview(data) {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const historyData = await res.json();
+            console.log('Stats History Data:', historyData); // Debug log
             
             const ctx = document.getElementById('statsChart').getContext('2d');
             
@@ -657,13 +658,15 @@ function renderOverview(data) {
             window.statsChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: historyData.map(d => d.date),
+                    labels: historyData.map(d => d.day), // Updated key
                     datasets: [{
                         label: 'Visits',
                         data: historyData.map(d => d.count),
                         borderColor: '#2ed573',
                         backgroundColor: 'rgba(46, 213, 115, 0.1)',
                         borderWidth: 2,
+                        pointRadius: 4, // Make points visible
+                        pointHoverRadius: 6,
                         tension: 0.4,
                         fill: true
                     }]
