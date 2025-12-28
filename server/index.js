@@ -7,6 +7,8 @@ import fs from 'fs';
 import { fileURLToPath } from 'url';
 import db from './database.js';
 import dotenv from 'dotenv';
+import os from 'os';
+import { exec } from 'child_process';
 
 dotenv.config();
 
@@ -1109,6 +1111,97 @@ app.get('/sitemap.xml', (req, res) => {
     
     res.header('Content-Type', 'application/xml');
     res.send(xml);
+});
+
+// =========================================
+// SYSTEM MONITOR API
+// =========================================
+app.get('/api/admin/system', authenticateToken, async (req, res) => {
+    try {
+        // 1. CPU & RAM
+        const cpus = os.cpus();
+        const cpuModel = cpus[0].model;
+        const cores = cpus.length;
+        const totalMem = os.totalmem();
+        const freeMem = os.freemem();
+        const usedMem = totalMem - freeMem;
+        const memPercentage = Math.round((usedMem / totalMem) * 100);
+        const uptime = os.uptime();
+
+        // CPU Load (Simple average of recent load / cores for Linux, or fallback)
+        const loadAvg = os.loadavg();
+        const cpuLoad = Math.min(100, Math.round((loadAvg[0] / cores) * 100)); // Rough estimate %
+
+        // 2. Storage (Disk Space) - Async
+        const getDiskUsage = () => new Promise((resolve) => {
+            if (process.platform === 'win32') {
+                // Windows Fallback (mock or use wmic if strict)
+                resolve({ total: 0, used: 0, percent: 0, free: 0 }); 
+            } else {
+                // Linux: df -h /
+                exec('df -B1 /', (err, stdout) => {
+                    if (err) { resolve(null); return; }
+                    // Filesystem     1B-blocks      Used Available Use% Mounted on
+                    const lines = stdout.trim().split('\n');
+                    if (lines.length < 2) { resolve(null); return; }
+                    const parts = lines[1].replace(/\s+/g, ' ').split(' ');
+                    // parts[1]=Total, parts[2]=Used, parts[3]=Avail, parts[4]=Use%
+                    resolve({
+                        total: parseInt(parts[1]),
+                        used: parseInt(parts[2]),
+                        free: parseInt(parts[3]),
+                        percent: parseInt(parts[4].replace('%',''))
+                    });
+                });
+            }
+        });
+
+        // 3. Network Stats - Async
+        const getNetworkStats = () => new Promise((resolve) => {
+            if (process.platform === 'win32') {
+                 resolve({ rx: 0, tx: 0 });
+            } else {
+                 fs.readFile('/proc/net/dev', 'utf8', (err, data) => {
+                     if (err) { resolve(null); return; }
+                     const lines = data.split('\n');
+                     let rx = 0;
+                     let tx = 0;
+                     // Sum up all non-loopback interfaces
+                     lines.forEach(line => {
+                         if (line.includes(':') && !line.includes('lo:')) {
+                             const parts = line.split(':')[1].trim().replace(/\s+/g, ' ').split(' ');
+                             rx += parseInt(parts[0]); // bytes received
+                             tx += parseInt(parts[8]); // bytes transmitted
+                         }
+                     });
+                     resolve({ rx, tx });
+                 });
+            }
+        });
+
+        const [disk, net] = await Promise.all([getDiskUsage(), getNetworkStats()]);
+
+        res.json({
+            cpu: {
+                model: cpuModel,
+                cores: cores,
+                load: cpuLoad
+            },
+            memory: {
+                total: totalMem,
+                used: usedMem,
+                free: freeMem,
+                percent: memPercentage
+            },
+            uptime: uptime,
+            disk: disk || { error: 'Unavailable' },
+            network: net || { error: 'Unavailable' }
+        });
+
+    } catch (err) {
+        console.error('System Stats Error:', err);
+        res.status(500).json({ error: 'Failed to fetch system stats' });
+    }
 });
 
 // =========================================
