@@ -544,7 +544,7 @@
             background: rgba(255, 255, 255, 0.02);
         }
 
-    /* Custom Scrollbar for DB */
+        /* Custom Scrollbar for DB */
         .db-sidebar::-webkit-scrollbar,
         .db-data-wrapper::-webkit-scrollbar {
             width: 6px;
@@ -604,13 +604,47 @@
                 padding: 0.5rem 0.8rem;
                 font-size: 0.85rem;
             }
-            
+
             .db-table-btn span {
                 /* ensure text is visible */
             }
 
             .db-table-btn i.fa-chevron-right {
                 display: none;
+            }
+        }
+
+        /* Responsive Header Fix */
+        @media (max-width: 600px) {
+            .admin-header {
+                flex-direction: column;
+                gap: 1.5rem;
+                text-align: center;
+                background: rgba(255, 255, 255, 0.03);
+                padding: 1.5rem;
+                border-radius: 1rem;
+                border: 1px solid rgba(255, 255, 255, 0.05);
+            }
+
+            .admin-logo {
+                margin-bottom: 0.5rem;
+            }
+
+            .admin-header a {
+                /* View Site Link */
+                background: rgba(46, 213, 115, 0.1);
+                padding: 0.5rem 1rem;
+                border-radius: 2rem;
+                color: var(--accent-color);
+                width: 100%;
+                display: block;
+                border: 1px solid rgba(46, 213, 115, 0.2);
+            }
+
+            .admin-header button {
+                /* Logout */
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
