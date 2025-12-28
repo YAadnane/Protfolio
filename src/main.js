@@ -2531,7 +2531,32 @@ function initHeroCubeInteraction() {
 }
 
 // Initialize
-window.addEventListener('load', () => {
-    setTimeout(initHeroCubeInteraction, 500);
 });
+
+// =========================================
+// ANALYTICS TRACKING
+// =========================================
+function initAnalytics() {
+    // 1. Track Visit
+    fetch('/api/track/visit', { method: 'POST' }).catch(err => console.error('Tracking Error', err));
+
+    // 2. Track Clicks
+    document.addEventListener('click', (e) => {
+        // Find closest trackable element
+        const trackable = e.target.closest('[data-track]');
+        if (trackable) {
+            const type = trackable.dataset.track; // 'project', 'certif'
+            const id = trackable.dataset.id;
+            
+            fetch('/api/track/event', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: `click_${type}`, id: id })
+            }).catch(() => {});
+        }
+    });
+}
+
+// Initialize on load
+initAnalytics();
  
