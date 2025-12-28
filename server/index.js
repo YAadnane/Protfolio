@@ -1221,8 +1221,28 @@ app.post('/api/track/event', (req, res) => {
 // ADMIN STATS API
 // =========================================
 app.get('/api/admin/stats', authenticateToken, (req, res) => {
+    const { year, month } = req.query;
     const stats = {};
 
+    // 1. Build Date Filter
+    // Note: 'date' column name needs to match the table context (e.g. 'e.date' or 'date')
+    // We will build a parameterized fragment.
+    let filterParams = [];
+    let filterSql = "";
+    
+    if (year) {
+        filterSql += " AND strftime('%Y', date) = ?";
+        filterParams.push(year);
+    }
+    if (month) {
+        filterSql += " AND strftime('%m', date) = ?";
+        filterParams.push(month.toString().padStart(2, '0'));
+    }
+
+    // Filter for tables aliased as 'e' (analytics_events)
+    let eventFilterSql = filterSql.replace(/date/g, 'e.date');
+    
+    // 2. Base Counts (Inventory - usually not filtered by time, but can be if desired. Keeping static for now as "Total Inventory")
     const queries = [
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM projects', (e, r) => resolve({k:'projects', v:r?.c||0}))),
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM certifications', (e, r) => resolve({k:'certifications', v:r?.c||0}))),
@@ -1232,51 +1252,67 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM reviews', (e, r) => resolve({k:'reviews_total', v:r?.c||0}))),
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM reviews WHERE is_approved=0', (e, r) => resolve({k:'reviews_pending', v:r?.c||0}))),
         
-        // Analytics Counts
-        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM visits', (e, r) => resolve({k:'total_visitors', v:r?.c||0}))),
+        // 3. Analytics Counts (Filtered)
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM visits WHERE 1=1 ${filterSql}`, filterParams, (e, r) => resolve({k:'total_visitors', v:r?.c||0}))),
+        // visitors_7d is relative to NOW, so usually we ignore historical filter or disable it if year provided. 
+        // For simplicity, we keep it as "Recent 7 Days" regardless of filter, OR we return 0 if filter is active.
+        // Let's keep it static: "Last 7 Days from TODAY".
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM visits WHERE date >= date("now", "-7 days")', (e, r) => resolve({k:'visitors_7d', v:r?.c||0}))),
-        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM analytics_events', (e, r) => resolve({k:'total_clicks', v:r?.c||0}))),
+        
+        // Total Clicks (Filtered)
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE 1=1 ${eventFilterSql}`, filterParams, (e, r) => resolve({k:'total_clicks', v:r?.c||0}))),
 
-        // Historical Stats (Visits) - Default last 30 days
-        new Promise(resolve => db.all(`
-            SELECT DATE(date) as date, COUNT(*) as count 
-            FROM visits 
-            WHERE date >= date('now', '-30 days') 
-            GROUP BY DATE(date) 
-            ORDER BY date ASC`, (e, r) => resolve({k: 'visits_history', v: r || []}))),
+        // Category Clicks (Filtered) - FOR CHARTS
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE e.event_type = 'click_project' ${eventFilterSql}`, filterParams, (e, r) => resolve({k:'clicks_projects', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE e.event_type = 'click_certif' ${eventFilterSql}`, filterParams, (e, r) => resolve({k:'clicks_certifs', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE e.event_type = 'view_article' ${eventFilterSql}`, filterParams, (e, r) => resolve({k:'clicks_articles', v:r?.c||0}))),
 
-        // TOP ITEMS (Projects)
+        // Historical Stats (Visits) - Default last 30 days (Filtered if params exist, else default)
+        // Note: The UI has a specific endpoint for the main graph (/stats/history). This one is for the sparkline or summary.
+        // If filters are present, we return that range. If not, last 30 days.
+        new Promise(resolve => {
+            let histQuery = `SELECT DATE(date) as day, COUNT(*) as count FROM visits WHERE 1=1 ${filterSql} GROUP BY DATE(date) ORDER BY date ASC`;
+            let histParams = filterParams;
+            
+            if (!year && !month) {
+               // Default behavior if no filter
+               histQuery = `SELECT DATE(date) as day, COUNT(*) as count FROM visits WHERE date >= date('now', '-30 days') GROUP BY DATE(date) ORDER BY date ASC`;
+               histParams = [];
+            }
+
+            db.all(histQuery, histParams, (e, r) => resolve({k: 'visits_history', v: r || []}));
+        }),
+
+        // TOP ITEMS (Filtered)
         new Promise(resolve => db.all(`
             SELECT COALESCE(p.title, 'Unknown Project #' || e.target_id) as name, COUNT(e.id) as clicks 
             FROM analytics_events e 
             LEFT JOIN projects p ON e.target_id = p.id 
-            WHERE e.event_type = 'click_project' 
+            WHERE e.event_type = 'click_project' ${eventFilterSql}
             GROUP BY e.target_id 
             ORDER BY clicks DESC 
             LIMIT 5
-        `, (e, r) => resolve({k:'top_projects', v:r||[]}))),
+        `, filterParams, (e, r) => resolve({k:'top_projects', v:r||[]}))),
 
-        // TOP ITEMS (Certifications)
         new Promise(resolve => db.all(`
             SELECT COALESCE(c.name, 'Unknown Cert #' || e.target_id) as name, COUNT(e.id) as clicks 
             FROM analytics_events e 
             LEFT JOIN certifications c ON e.target_id = c.id 
-            WHERE e.event_type = 'click_certif' 
+            WHERE e.event_type = 'click_certif' ${eventFilterSql}
             GROUP BY e.target_id 
             ORDER BY clicks DESC 
             LIMIT 5
-        `, (e, r) => resolve({k:'top_certifs', v:r||[]}))),
+        `, filterParams, (e, r) => resolve({k:'top_certifs', v:r||[]}))),
 
-        // TOP ITEMS (Articles)
         new Promise(resolve => db.all(`
             SELECT COALESCE(a.title, 'Unknown Article #' || e.target_id) as name, COUNT(e.id) as clicks 
             FROM analytics_events e 
             LEFT JOIN articles a ON e.target_id = a.id 
-            WHERE e.event_type = 'view_article' 
+            WHERE e.event_type = 'view_article' ${eventFilterSql}
             GROUP BY e.target_id 
             ORDER BY clicks DESC 
             LIMIT 5
-        `, (e, r) => resolve({k:'top_articles', v:r||[]})))
+        `, filterParams, (e, r) => resolve({k:'top_articles', v:r||[]})))
     ];
 
     Promise.all(queries).then(results => {

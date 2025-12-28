@@ -451,7 +451,13 @@ async function loadContent(type, isRefresh = false) {
     }
     
     try {
-        const res = await fetch(`${endpoint}?lang=${currentAdminLang}&t=${Date.now()}`, {
+        let url = `${endpoint}?lang=${currentAdminLang}&t=${Date.now()}`;
+        if (type === 'overview' && window.overviewFilters) {
+            if (window.overviewFilters.year) url += `&year=${window.overviewFilters.year}`;
+            if (window.overviewFilters.month) url += `&month=${window.overviewFilters.month}`;
+        }
+
+        const res = await fetch(url, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -506,10 +512,25 @@ async function loadContent(type, isRefresh = false) {
 }
 
 // Overview Render
+window.overviewFilters = { year: new Date().getFullYear(), month: '' };
+
 function renderOverview(data) {
     const grid = document.getElementById('content-grid');
     grid.innerHTML = '';
     
+    // Calculate totals for charts (Use backend precise counts if available, fallback to sum if not - now backend sends them)
+    const projClicks = data.clicks_projects !== undefined ? data.clicks_projects : (data.top_projects ? data.top_projects.reduce((s,i)=>s+(i.clicks||0),0) : 0);
+    const certClicks = data.clicks_certifs !== undefined ? data.clicks_certifs : (data.top_certifs ? data.top_certifs.reduce((s,i)=>s+(i.clicks||0),0) : 0);
+    const artClicks = data.clicks_articles !== undefined ? data.clicks_articles : (data.top_articles ? data.top_articles.reduce((s,i)=>s+(i.clicks||0),0) : 0);
+
+    // Filter Handlers
+    window.applyOverviewFilter = () => {
+        const year = document.getElementById('ov-year').value;
+        const month = document.getElementById('ov-month').value;
+        window.overviewFilters = { year, month };
+        loadContent('overview', true); // Trigger refresh with new filters
+    };
+
     // Helper for Stat Card
     const card = (title, value, icon, color, sub='') => `
         <div class="admin-card" style="display:flex; align-items:center; gap:1.5rem; border-left:4px solid ${color};">
@@ -539,96 +560,70 @@ function renderOverview(data) {
         ${card('Reviews', data.reviews_total, 'fa-solid fa-star', '#48dbfb', `${data.reviews_pending} pending`)}
     `;
 
-    // 3. Analytics Stats
+    // 3. Analytics Stats (With Filters)
+    const currentYear = new Date().getFullYear();
+    const years = Array.from({length: 5}, (_, i) => currentYear - i);
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
     const analyticsHtml = `
-        <div style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">
+        <div style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem; flex-wrap:wrap; gap:10px;">
             <h2 style="margin:0;">Analytics</h2>
-            <button class="btn-secondary" style="font-size:0.8rem; padding:0.3rem 0.8rem;" onclick="loadContent('overview', true)"><i class="fa-solid fa-sync"></i> Refresh</button>
+            
+            <div style="display:flex; gap:10px; align-items:center;">
+                 <select id="ov-year" class="admin-input" style="padding:5px 10px; width:auto;">
+                    <option value="">All Years</option>
+                    ${years.map(y => `<option value="${y}" ${window.overviewFilters.year == y ? 'selected' : ''}>${y}</option>`).join('')}
+                </select>
+                <select id="ov-month" class="admin-input" style="padding:5px 10px; width:auto;">
+                    <option value="">All Months</option>
+                    ${months.map((m, i) => `<option value="${i+1}" ${window.overviewFilters.month == (i+1) ? 'selected' : ''}>${m}</option>`).join('')}
+                </select>
+                <button class="btn-primary" style="padding:0.4rem 1rem;" onclick="applyOverviewFilter()">Filter</button>
+            </div>
         </div>
+        
         ${card('Total Visitors', data.total_visitors, 'fa-solid fa-users', '#1dd1a1', `Unique IPs`)}
-        ${card('Visitors (7d)', data.visitors_7d, 'fa-solid fa-user-clock', '#00d2d3', 'Last 7 Days')}
+        ${card('Visitors (7d)', data.visitors_7d, 'fa-solid fa-user-clock', '#00d2d3', 'Last 7 Days (Recent)')}
         ${card('Total Clicks', data.total_clicks, 'fa-solid fa-hand-pointer', '#5f27cd', 'Projects/Certs/Articles')}
     `;
 
-    // 4. Historical Stats Graph
+    // 4. Graphs
     const graphHtml = `
-        <h2 style="grid-column:1/-1; margin:2rem 0 0.5rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Traffic History</h2>
-        
-        <div class="admin-card" style="grid-column:1/-1;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
-                <h3 style="margin:0;">Visits Overview</h3>
-                <div style="display:flex; gap:1rem;">
-                    <select id="stats-year" class="admin-select" style="padding:0.4rem; font-size:0.9rem;">
-                        <option value="">All Years</option>
-                        ${[2024, 2025, 2026].map(y => `<option value="${y}" ${y === new Date().getFullYear() ? 'selected' : ''}>${y}</option>`).join('')}
-                    </select>
-                    <select id="stats-month" class="admin-select" style="padding:0.4rem; font-size:0.9rem;">
-                        <option value="">All Months</option>
-                        ${Array.from({length: 12}, (_, i) => {
-                            const m = i + 1;
-                            const label = new Date(0, i).toLocaleString('default', { month: 'short' });
-                            return `<option value="${m}" ${m === new Date().getMonth() + 1 ? 'selected' : ''}>${label}</option>`;
-                        }).join('')}
-                    </select>
-                    <button class="btn-secondary" onclick="updateStatsChart()" style="padding:0.4rem 1rem;">Filter</button>
-                </div>
-            </div>
-            <div style="height:300px;">
-                <canvas id="statsChart"></canvas>
-            </div>
+        <div style="grid-column:1/-1; margin-top:2rem;">
+            <h3>Traffic History</h3>
+             <div class="admin-card" style="height:300px; position:relative;">
+                 <!-- Inner Filters for Traffic removed/simplified as main filter covers stats? 
+                      No, Traffic History endpoint is separate (/api/admin/stats/history). 
+                      We can leave its specific filter OR sync it. 
+                      Let's sync it for better UX. -->
+                 <canvas id="statsChart"></canvas>
+             </div>
         </div>
     `;
 
-    // 5. Content Engagement Graphs
     const contentGraphsHtml = `
-        <h2 style="grid-column:1/-1; margin:2rem 0 0.5rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Content Analytics</h2>
-        
-        <div class="admin-card">
-            <h3 style="margin:0 0 1rem;">Engagement Distribution</h3>
-            <div style="height:250px;">
-                <canvas id="contentDoughnutChart"></canvas>
+        <h3 style="grid-column:1/-1; margin-top:2rem;">Content Analytics</h3>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; grid-column:1/-1;">
+            <div class="admin-card" style="height:300px;">
+                <h4 style="margin-top:0;">Engagement Distribution</h4>
+                <div style="height:250px;"><canvas id="contentDoughnutChart"></canvas></div>
             </div>
-        </div>
-
-        <div class="admin-card">
-            <h3 style="margin:0 0 1rem;">Category Performance</h3>
-            <div style="height:250px;">
-                <canvas id="contentBarChart"></canvas>
+            <div class="admin-card" style="height:300px;">
+                <h4 style="margin-top:0;">Category Performance</h4>
+                 <div style="height:250px;"><canvas id="contentBarChart"></canvas></div>
             </div>
         </div>
     `;
 
-    // 6. Top Content List with Tabs
-    const createList = (id, items, icon, visible = false) => {
-        const displayStyle = visible ? 'grid' : 'none';
-        if (!items || items.length === 0) return `<div id="${id}" style="display:${displayStyle}; color:var(--text-muted); padding:1rem;">No data available.</div>`;
-        
-        return `
-            <div id="${id}" style="display:${displayStyle}; grid-template-columns:1fr; gap:0.8rem;">
-                ${items.map((item, i) => `
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:0.5rem;">
-                        <div style="display:flex; align-items:center; gap:0.5rem;">
-                            <span style="font-weight:bold; color:var(--text-muted); width:20px;">#${i+1}</span>
-                            <span style="font-size:0.9rem; color:#fff;">${item.name}</span>
-                        </div>
-                        <span style="background:rgba(255,255,255,0.1); padding:0.2rem 0.5rem; border-radius:4px; font-size:0.8rem; font-weight:bold;">${item.clicks}</span>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-    };
-
+    // 5. Top Content
     const topContentHtml = `
-        <h2 style="grid-column:1/-1; margin:2rem 0 0.5rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Top Performing Content</h2>
-        
-        <!-- Tabs -->
-        <div style="grid-column:1/-1; display:flex; gap:1rem; margin-bottom:1rem;">
-            <button class="filter-btn active" onclick="switchOverviewTab('top-projects', this)">Projects</button>
-            <button class="filter-btn" onclick="switchOverviewTab('top-certifs', this)">Certifications</button>
-            <button class="filter-btn" onclick="switchOverviewTab('top-articles', this)">Articles</button>
-        </div>
-
+        <h3 style="grid-column:1/-1; margin-top:2rem;">Top Performing Content</h3>
         <div class="admin-card" style="grid-column:1/-1;">
+             <div style="display:flex; gap:10px; margin-bottom:1rem;">
+                <button class="filter-btn active" onclick="switchOverviewTab('top-projects', this)">Projects</button>
+                <button class="filter-btn" onclick="switchOverviewTab('top-certifs', this)">Certifications</button>
+                <button class="filter-btn" onclick="switchOverviewTab('top-articles', this)">Articles</button>
+            </div>
             ${createList('top-projects', data.top_projects, 'fa-solid fa-briefcase', true)}
             ${createList('top-certifs', data.top_certifs, 'fa-solid fa-certificate')}
             ${createList('top-articles', data.top_articles, 'fa-solid fa-newspaper')}
@@ -637,35 +632,33 @@ function renderOverview(data) {
 
     grid.innerHTML = contentHtml + interactionHtml + analyticsHtml + graphHtml + contentGraphsHtml + topContentHtml;
 
-    // Initialize Traffic Chart
-    window.statsChart = null; // Store chart instance
+    // Initialize Traffic Chart (Using Global Filters)
+    window.statsChart = null; 
     window.updateStatsChart = async () => {
-        const year = document.getElementById('stats-year').value;
-        const month = document.getElementById('stats-month').value;
+        // Use global filters
+        const year = window.overviewFilters.year || '';
+        const month = window.overviewFilters.month || '';
         
         try {
             const res = await fetch(`${API_URL}/admin/stats/history?year=${year}&month=${month}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const historyData = await res.json();
-            console.log('Stats History Data:', historyData); // Debug log
             
             const ctx = document.getElementById('statsChart').getContext('2d');
-            
-            // Destroy existing if any
             if (window.statsChart) window.statsChart.destroy();
 
             window.statsChart = new Chart(ctx, {
                 type: 'line',
                 data: {
-                    labels: historyData.map(d => d.day), // Updated key
+                    labels: historyData.map(d => d.day),
                     datasets: [{
                         label: 'Visits',
                         data: historyData.map(d => d.count),
                         borderColor: '#2ed573',
                         backgroundColor: 'rgba(46, 213, 115, 0.1)',
                         borderWidth: 2,
-                        pointRadius: 4, // Make points visible
+                        pointRadius: 4, 
                         pointHoverRadius: 6,
                         tension: 0.4,
                         fill: true
@@ -674,37 +667,18 @@ function renderOverview(data) {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: { labels: { color: '#a4b0be' } }
-                    },
+                    plugins: { legend: { labels: { color: '#a4b0be' } } },
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: { color: 'rgba(255,255,255,0.05)' },
-                            ticks: { color: '#a4b0be' }
-                        },
-                        x: {
-                            grid: { display: false },
-                            ticks: { color: '#a4b0be' }
-                        }
+                        y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a4b0be' } },
+                        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a4b0be' } }
                     }
                 }
             });
-
-        } catch (e) {
-            console.error('Failed to load chart stats', e);
-        }
+        } catch(e) { console.error(e); }
     };
 
-    // Load initial charts
     setTimeout(() => {
-        updateStatsChart(); // Traffic
-
-        // Calculate Content Stats
-        const calcClicks = (arr) => arr ? arr.reduce((sum, item) => sum + (item.clicks || 0), 0) : 0;
-        const projClicks = calcClicks(data.top_projects);
-        const certClicks = calcClicks(data.top_certifs);
-        const artClicks = calcClicks(data.top_articles);
+        updateStatsChart(); // Traffic with default/global filter
 
         // Doughnut Chart
         new Chart(document.getElementById('contentDoughnutChart'), {
@@ -758,15 +732,12 @@ function renderOverview(data) {
         });
     }, 100);
 
-    // Tab Switcher Logic (Global helper)
+    // Tab Switcher for Top Content
     window.switchOverviewTab = (targetId, btn) => {
-        // Toggle Buttons (if btn provided)
         if (btn && btn.parentElement) {
             btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
         }
-        
-        // Toggle Lists
         ['top-projects', 'top-certifs', 'top-articles'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.style.display = (id === targetId) ? 'grid' : 'none';
