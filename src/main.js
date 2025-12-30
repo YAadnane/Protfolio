@@ -1174,21 +1174,45 @@ window.openArticleModal = (url, id, title, date) => {
     if (titleEl) titleEl.textContent = title;
     if (dateEl) dateEl.textContent = date;
     
-    // Set Fallback Link IMMEDIATELY
-    if (btnFallback) {
-        // VISIBLE PROOF OF UPDATE
-        btnFallback.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> Open Original (v2)';
-        
-        if (url && url !== 'undefined') {
-            btnFallback.href = url;
-            btnFallback.onclick = null; // Remove any preventing click handlers
+    // Set Fallback Link IMMEDIATELY (V3 Cache Buster)
+    let btnFallback = document.getElementById('article-fallback-link-v3');
+
+    // Auto-Recovery for Version Mismatch (Old HTML / New JS)
+    if (!btnFallback) {
+        console.warn('Fallback button (v3) missing in DOM. Attempting auto-recovery...');
+        const headerActions = document.querySelector('.article-modal-header-actions'); // Specific container
+        if (headerActions) {
+             btnFallback = document.createElement('a');
+             btnFallback.id = 'article-fallback-link-v3';
+             btnFallback.className = 'btn-secondary';
+             btnFallback.target = '_blank';
+             btnFallback.style.cssText = 'display: flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 0.8rem; padding: 0.4rem 0.8rem;';
+             // Insert before the close button (last child)
+             headerActions.insertBefore(btnFallback, headerActions.lastElementChild);
+             console.log('Auto-recovered fallback button.');
         } else {
-            btnFallback.href = '#';
-            console.error("OpenArticleModal received empty URL!");
+             console.error('Critical: Could not find modal header actions container.');
+        }
+    }
+    
+    if (btnFallback) {
+        // VISIBLE PROOF OF UPDATE (v3)
+        btnFallback.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> Open Original (v3)';
+        
+        if (url && url !== 'undefined' && url !== 'null') {
+            btnFallback.href = url;
+            btnFallback.onclick = null; // Clean handlers
+            btnFallback.style.pointerEvents = 'auto';
+            btnFallback.style.opacity = '1';
+        } else {
+            console.error(`OpenArticleModal Error: Article "${title}" (ID: ${id}) has empty URL!`);
+            btnFallback.removeAttribute('href'); // Prevent reload #
+            btnFallback.style.pointerEvents = 'none';
+            btnFallback.style.opacity = '0.5';
             btnFallback.innerHTML += ' (No Link)';
         }
     } else {
-        console.warn('Fallback button not found');
+        console.warn('Robustness failed: Fallback button still null.');
     }
 
     // Handle URL
