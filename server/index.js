@@ -292,9 +292,17 @@ app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req
 });
 
 app.delete('/api/projects/:id', authenticateToken, (req, res) => {
-    db.run("DELETE FROM projects WHERE id = ?", req.params.id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Deleted successfully" });
+    const id = req.params.id;
+    db.serialize(() => {
+        // Cascade Delete
+        db.run("DELETE FROM likes WHERE target_type = 'project' AND target_id = ?", id);
+        db.run("DELETE FROM comments WHERE target_type = 'project' AND target_id = ?", id);
+        db.run("DELETE FROM analytics_events WHERE (event_type = 'click_project' OR event_type = 'view_project') AND target_id = ?", id);
+        
+        db.run("DELETE FROM projects WHERE id = ?", id, function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "Deleted successfully" });
+        });
     });
 });
 
@@ -559,6 +567,7 @@ app.get('/api/articles', (req, res) => {
     `;
     db.all(query, [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
+        console.log('DEBUG ARTICLES FETCH:', JSON.stringify(rows, null, 2)); // Debugging Link Issue
         res.json(rows);
     });
 });
@@ -593,9 +602,17 @@ app.put('/api/articles/:id', authenticateToken, upload.single('imageFile'), (req
 });
 
 app.delete('/api/articles/:id', authenticateToken, (req, res) => {
-    db.run("DELETE FROM articles WHERE id = ?", req.params.id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Deleted successfully" });
+    const id = req.params.id;
+    db.serialize(() => {
+        // Cascade Delete
+        db.run("DELETE FROM likes WHERE target_type = 'article' AND target_id = ?", id);
+        db.run("DELETE FROM comments WHERE target_type = 'article' AND target_id = ?", id);
+        db.run("DELETE FROM analytics_events WHERE event_type = 'view_article' AND target_id = ?", id);
+        
+        db.run("DELETE FROM articles WHERE id = ?", id, function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "Deleted successfully" });
+        });
     });
 });
 
