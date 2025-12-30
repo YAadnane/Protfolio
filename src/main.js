@@ -1169,7 +1169,8 @@ window.openArticleModal = (url, id, title, date) => {
     const titleEl = document.getElementById('article-modal-title');
     const dateEl = document.getElementById('article-modal-date');
     const iframe = document.getElementById('article-iframe');
-    const btnFallback = document.getElementById('article-fallback-link');
+    // Set Fallback Link IMMEDIATELY
+    let btnFallback = document.getElementById('article-fallback-link-v3');
     
     if (titleEl) titleEl.textContent = title;
     if (dateEl) dateEl.textContent = date;
