@@ -1160,6 +1160,8 @@ async function loadCertifications() {
 
 // --- ARTICLE MODAL LOGIC ---
 window.openArticleModal = (url, id, title, date) => {
+    console.log('openArticleModal:', { url, id, title, date });
+
     const modal = document.getElementById('article-modal');
     if (!modal) return;
     
@@ -1174,7 +1176,17 @@ window.openArticleModal = (url, id, title, date) => {
     
     // Set Fallback Link IMMEDIATELY
     if (btnFallback) {
-        btnFallback.href = url;
+        // VISIBLE PROOF OF UPDATE
+        btnFallback.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> Open Original (v2)';
+        
+        if (url && url !== 'undefined') {
+            btnFallback.href = url;
+            btnFallback.onclick = null; // Remove any preventing click handlers
+        } else {
+            btnFallback.href = '#';
+            console.error("OpenArticleModal received empty URL!");
+            btnFallback.innerHTML += ' (No Link)';
+        }
     } else {
         console.warn('Fallback button not found');
     }
