@@ -592,25 +592,62 @@ async function loadShapes() {
 
 
 
+
+
+
+
+// =========================================
+// PROJECT PAGINATION
+// =========================================
+let allProjectsData = [];
+let originalProjectsData = [];
+let currentProjectPage = 0;
+const PROJECTS_PER_PAGE = 3;
+
 async function loadProjects() {
     try {
         const res = await fetch(`${API_URL}/projects?lang=${currentLang}`);
         const projects = (await res.json()).filter(p => !p.is_hidden);
-        const container = document.getElementById('projects-grid');
-        container.innerHTML = ''; 
+        allProjectsData = projects;
+        originalProjectsData = [...projects];
+        currentProjectPage = 0;
+        renderProjectsPage();
+        initializeProjectFilters();
+    } catch (err) { console.error("Failed to load projects", err); }
+}
 
-        projects.forEach((p, index) => {
+function renderProjectsPage() {
+    const container = document.getElementById('projects-grid');
+    if (!container) return;
+    container.innerHTML = ''; 
+
+    const start = currentProjectPage * PROJECTS_PER_PAGE;
+    const end = start + PROJECTS_PER_PAGE;
+    const projectsToRender = allProjectsData.slice(start, end);
+
+    projectsToRender.forEach((p, index) => {
             let sizeClass = 'medium';
             if (index === 0) sizeClass = 'large';
             if (index === 3) sizeClass = 'wide';
 
             const item = document.createElement('div');
             item.className = `bento-item ${sizeClass}`;
+            if (p.image) item.classList.add('has-media'); // Add class if image exists
             item.setAttribute('data-tilt', '');
             item.dataset.track = 'project';
             item.dataset.id = p.id;
             
-            const tagsHtml = p.tags.split(',').map(tag => `<span>${tag.trim()}</span>`).join('');
+            const tagsHtml = p.tags.split(',').map(tag => `<span class="tag-pill">${tag.trim()}</span>`).join('');
+
+            // Interaction Stats (Safe fallback)
+            const clicks = p.clicks || 0;
+            const likes = p.likes_count || 0;
+            const comments = p.comments_count || 0;
+
+            let mediaHtml = '';
+            if (p.image) {
+                  mediaHtml = `<div class="bento-bg" style="background-image: url('${p.image}')"></div>`;
+            }
 
             // Check if image is a file path (uploaded) or a class name
             let bgContent = '';
@@ -649,22 +686,38 @@ async function loadProjects() {
                 `;
             }
 
-            // Unified HTML construction
+            // Unified HTML construction - REVERTED TO BENTO STYLE WITH INTERACTIONS
             item.innerHTML = `
+                ${bgContent}
                 <div class="bento-content">
                     <h3>${p.title}</h3>
                     <p>${p.description}</p>
-                    <div class="bento-tags" style="margin-top: 1rem; margin-bottom: 1.5rem;">${tagsHtml}</div>
+                    
+                    <div class="bento-tags" style="margin-top: auto; margin-bottom: 1rem;">
+                        ${p.tags.split(',').map(tag => `<span>${tag.trim()}</span>`).join('')}
+                    </div>
+
+                    <div class="interaction-bar" style="margin-bottom: 1rem; justify-content: flex-start;">
+                         <div class="interaction-item no-pointer" title="Views">
+                            <i class="fa-solid fa-eye"></i> <span>${clicks}</span>
+                         </div>
+                         <div class="interaction-item interaction-like" onclick="window.toggleLike('project', ${p.id}, this)">
+                            <i class="fa-regular fa-heart"></i> <span class="like-count">${likes}</span>
+                         </div>
+                         <div class="interaction-item" onclick="window.openFeedbackModal('project', ${p.id})">
+                            <i class="fa-regular fa-comment"></i> <span>${comments}</span>
+                         </div>
+                    </div>
+
                     <div class="project-actions">
-                        <a href="${p.link}" class="btn-github" target="_blank" title="View Code" onclick="event.stopPropagation()">
+                        <a href="${p.link}" class="btn-github" target="_blank" title="View Code" onclick="event.stopPropagation(); window.trackEvent('click_project', ${p.id}, this)">
                             <i class="fa-brands fa-github"></i> GitHub
                         </a>
                         ${p.image && p.image.match(/\.(mp4|webm|ogg|mov|avi|mkv)$/i) ? 
-                            `<button class="btn-play" onclick="event.stopPropagation(); openVideoModal('${API_URL.replace('/api', '')}${p.image}')"><i class="fa-solid fa-play"></i> Demo</button>` 
+                            `<button class="btn-play" onclick="event.stopPropagation(); window.trackEvent('click_project', ${p.id}, this); openVideoModal('${API_URL.replace('/api', '')}${p.image}')"><i class="fa-solid fa-play"></i> Demo</button>` 
                             : ''}
                     </div>
                 </div>
-                ${bgContent}
                 ${sizeClass === 'large' ? '<div class="bento-overlay"></div>' : ''}
             `;
             
@@ -678,7 +731,7 @@ async function loadProjects() {
                 if (e.target.closest('a') || e.target.closest('button')) return;
                 
                 // Track Click
-                if(window.trackEvent) window.trackEvent('click_project', p.id);
+                if(window.trackEvent) window.trackEvent('click_project', p.id, item);
                 
                 openProjectModal(p);
             });
@@ -698,63 +751,117 @@ async function loadProjects() {
         
         // APPLY THEME STYLES after rendering
         if (window.updateProjectCardsTheme) window.updateProjectCardsTheme();
-
-
-        // Populate Filters
-        const categorySelect = document.getElementById('filter-project-category');
-        const tagSelect = document.getElementById('filter-project-tag');
-
-        // Get unique categories and tags
-        const categories = [...new Set(projects.map(p => p.category).filter(Boolean))].sort();
-        const allTags = projects.flatMap(p => p.tags.split(',').map(t => t.trim())).filter(Boolean);
-        const uniqueTags = [...new Set(allTags)].sort();
-
-        // Populate Category Select
-        if (categorySelect.options.length === 1) {
-            categories.forEach(c => {
-                const opt = document.createElement('option');
-                opt.value = c;
-                opt.textContent = c;
-                categorySelect.appendChild(opt);
-            });
-        }
-
-        // Populate Tag Select
-        if (tagSelect.options.length === 1) {
-            uniqueTags.forEach(t => {
-                const opt = document.createElement('option');
-                opt.value = t;
-                opt.textContent = t;
-                tagSelect.appendChild(opt);
-            });
-        }
-
-        // Filter Logic
-        const filterProjects = () => {
-            const selectedCategory = categorySelect.value;
-            const selectedTag = tagSelect.value;
-
-            const items = container.querySelectorAll('.bento-item');
-            items.forEach((item, index) => {
-                const project = projects[index];
-                const projectTags = project.tags.split(',').map(t => t.trim());
-                
-                const matchCategory = !selectedCategory || project.category === selectedCategory;
-                const matchTag = !selectedTag || projectTags.includes(selectedTag);
-
-                if (matchCategory && matchTag) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        };
-
-        categorySelect.onchange = filterProjects;
-        tagSelect.onchange = filterProjects;
-
-    } catch (err) { console.error("Failed to load projects", err); }
+        updateProjectNavigation();
 }
+
+function updateProjectNavigation() {
+    const container = document.getElementById('projects-grid');
+    if (!container) return;
+    
+    const section = container.parentElement;
+    const oldById = document.getElementById('project-nav-controls-unique');
+    if (oldById) oldById.remove();
+    
+    document.querySelectorAll('.project-nav-controls').forEach(ctrl => ctrl.remove());
+    
+    const navControls = document.createElement('div');
+    navControls.id = 'project-nav-controls-unique';
+    navControls.className = 'project-nav-controls';
+    section.appendChild(navControls);
+    
+    const totalPages = Math.ceil(allProjectsData.length / PROJECTS_PER_PAGE);
+    const hasPrev = currentProjectPage > 0;
+    const hasNext = currentProjectPage < totalPages - 1;
+    
+    navControls.innerHTML = `
+        <button class="btn-nav-project ${!hasPrev ? 'disabled' : ''}" onclick="window.prevProjectPage()" ${!hasPrev ? 'disabled' : ''}>
+            <i class="fa-solid fa-chevron-left"></i> Previous
+        </button>
+        <span class="page-indicator">Page ${currentProjectPage + 1} / ${totalPages}</span>
+        <button class="btn-nav-project ${!hasNext ? 'disabled' : ''}" onclick="window.nextProjectPage()" ${!hasNext ? 'disabled' : ''}>
+            Next <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    `;
+}
+
+window.prevProjectPage = () => {
+    if (currentProjectPage > 0) {
+        currentProjectPage--;
+        renderProjectsPage();
+        document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' });
+    }
+};
+
+window.nextProjectPage = () => {
+    const totalPages = Math.ceil(allProjectsData.length / PROJECTS_PER_PAGE);
+    if (currentProjectPage < totalPages - 1) {
+        currentProjectPage++;
+        renderProjectsPage();
+        document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' });
+    }
+};
+
+function initializeProjectFilters() {
+    const categorySelect = document.getElementById('filter-project-category');
+    const tagSelect = document.getElementById('filter-project-tag');
+    
+    if (!categorySelect || !tagSelect || allProjectsData.length === 0) return;
+    
+    if (originalProjectsData.length === 0) {
+        originalProjectsData = [...allProjectsData];
+    }
+    
+    const categories = [...new Set(originalProjectsData.map(p => p.category).filter(Boolean))].sort();
+    const allTags = originalProjectsData.flatMap(p => p.tags.split(',').map(t => t.trim())).filter(Boolean);
+    const uniqueTags = [...new Set(allTags)].sort();
+    
+    if (categorySelect.options.length === 1) {
+        categories.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c;
+            opt.textContent = c;
+            categorySelect.appendChild(opt);
+        });
+    }
+    
+    if (tagSelect.options.length === 1) {
+        uniqueTags.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = t;
+            tagSelect.appendChild(opt);
+        });
+    }
+    
+    categorySelect.onchange = applyProjectFilters;
+    tagSelect.onchange = applyProjectFilters;
+}
+
+function applyProjectFilters() {
+    const categorySelect = document.getElementById('filter-project-category');
+    const tagSelect = document.getElementById('filter-project-tag');
+    
+    const selectedCategory = categorySelect?.value || '';
+    const selectedTag = tagSelect?.value || '';
+    
+    let filtered = [...originalProjectsData];
+    
+    if (selectedCategory) {
+        filtered = filtered.filter(p => p.category === selectedCategory);
+    }
+    
+    if (selectedTag) {
+        filtered = filtered.filter(p => {
+            const projectTags = p.tags.split(',').map(t => t.trim());
+            return projectTags.includes(selectedTag);
+        });
+    }
+    
+    allProjectsData = filtered;
+    currentProjectPage = 0;
+    renderProjectsPage();
+}
+
 
 // Video Play Logic
 window.openVideoModal = (videoUrl) => {
@@ -1464,18 +1571,35 @@ function initAnimations() {
         });
     });
 
-    // Skill Bars Animation
-    gsap.utils.toArray(".progress").forEach(bar => {
-        gsap.to(bar, {
-            scrollTrigger: {
-                trigger: bar,
-                start: "top 85%"
-            },
-            scaleX: 1,
-            duration: 1.5,
-            ease: "power3.out"
+
+    // Skill Bars Animation - IntersectionObserver for instant trigger
+    const skillsSection = document.querySelector('#skills-grid');
+    if (skillsSection) {
+        const progressBars = document.querySelectorAll('.progress');
+        
+        // Initialize all bars to 0
+        progressBars.forEach(bar => {
+            bar.style.transform = 'scaleX(0)';
         });
-    });
+        
+        // Create observer with low threshold for immediate trigger
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Trigger all bars immediately
+                    progressBars.forEach(bar => {
+                        bar.style.transform = 'scaleX(1)';
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { 
+            threshold: 0.1,
+            rootMargin: '0px 0px -10% 0px'
+        });
+        
+        observer.observe(skillsSection);
+    }
 
     // Stats Counter Animation
 
@@ -1567,6 +1691,137 @@ async function loadStats() {
     } catch (err) { console.error("Failed to load stats", err); }
 }
 
+
+    // --- NOTION MODAL LOGIC ---
+    window.openArticleModal = async (link, id, title, date) => {
+        const modal = document.getElementById('article-modal');
+        if(!modal) return;
+        
+        // Show Modal & Load State
+        modal.style.display = 'flex';
+        document.getElementById('article-modal-title').textContent = title;
+        document.getElementById('article-modal-date').innerHTML = `<i class="fa-regular fa-calendar"></i> ${date}`;
+        document.getElementById('article-modal-original').href = link;
+        
+        const body = document.getElementById('article-modal-body');
+        body.innerHTML = '<div style="text-align:center; padding:2rem;"><i class="fa-solid fa-spinner fa-spin" style="font-size:2rem; margin-bottom:1rem;"></i><br>Loading content...</div>';
+        
+        // Extract Notion ID from Link (last 32 hex chars)
+        const match = link.match(/([a-f0-9]{32})$/);
+        let notionId = match ? match[1] : null;
+
+        // Try UUID format if simple hex failed
+        if (!notionId) {
+             const matchUUID = link.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/);
+             if (matchUUID) notionId = matchUUID[1];
+        }
+
+        if (!notionId) {
+             // Fallback: Open original link if ID parsing fails
+             window.open(link, '_blank');
+             window.closeArticleModal();
+             return;
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/notion/page/${notionId}`);
+            const blocks = await res.json();
+            
+            if (blocks.error) throw new Error(blocks.error);
+            
+            // Render Blocks
+            body.innerHTML = renderNotionBlocks(blocks);
+            
+            // Highlight Code if hljs exists (optional)
+            if (window.hljs) window.hljs.highlightAll();
+
+        } catch (err) {
+            console.error("Notion Fetch Error:", err);
+            body.innerHTML = `<div style="text-align:center; padding:2rem; color:#ff4d4d;">
+                <i class="fa-solid fa-triangle-exclamation"></i><br>
+                Failed to load content.<br>
+                <a href="${link}" target="_blank" style="color:var(--accent-color); margin-top:1rem; display:inline-block;">Open in Notion</a>
+            </div>`;
+        }
+    };
+
+    window.closeArticleModal = () => {
+        const modal = document.getElementById('article-modal');
+        if(modal) modal.style.display = 'none';
+        const body = document.getElementById('article-modal-body');
+        if(body) body.innerHTML = ''; // Clear content
+    };
+
+    function renderNotionBlocks(blocks) {
+        let html = '';
+        blocks.forEach(block => {
+             const type = block.type;
+             const value = block[type];
+             
+             switch(type) {
+                 case 'paragraph':
+                     html += `<p class="notion-p">${renderRichText(value.rich_text)}</p>`;
+                     break;
+                 case 'heading_1':
+                     html += `<h1 class="notion-h1">${renderRichText(value.rich_text)}</h1>`;
+                     break;
+                 case 'heading_2':
+                     html += `<h2 class="notion-h2">${renderRichText(value.rich_text)}</h2>`;
+                     break;
+                 case 'heading_3':
+                     html += `<h3 class="notion-h3">${renderRichText(value.rich_text)}</h3>`;
+                     break;
+                 case 'bulleted_list_item':
+                     html += `<ul class="notion-ul"><li class="notion-li">${renderRichText(value.rich_text)}</li></ul>`;
+                     break;
+                 case 'numbered_list_item':
+                     html += `<ol class="notion-ol"><li class="notion-li">${renderRichText(value.rich_text)}</li></ol>`;
+                     break;
+                 case 'quote':
+                     html += `<blockquote class="notion-quote">${renderRichText(value.rich_text)}</blockquote>`;
+                     break;
+                 case 'callout':
+                     html += `<div class="notion-callout">
+                        <span style="font-size:1.5rem;">${value.icon?.emoji || '💡'}</span>
+                        <div>${renderRichText(value.rich_text)}</div>
+                     </div>`;
+                     break;
+                 case 'code':
+                     html += `<div class="notion-code"><pre><code class="language-${value.language}">${escapeHtml(value.rich_text[0]?.plain_text || '')}</code></pre></div>`;
+                     break;
+                 case 'image':
+                     const src = value.type === 'external' ? value.external.url : value.file.url;
+                     const caption = value.caption ? renderRichText(value.caption) : '';
+                     html += `<div class="notion-image"><img src="${src}" alt="Article Image"><caption class="notion-caption" style="display:block; text-align:center; font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">${caption}</caption></div>`;
+                     break;
+             }
+        });
+        return html;
+    }
+
+    function renderRichText(textArray) {
+        if (!textArray) return '';
+        return textArray.map(t => {
+            let content = escapeHtml(t.plain_text);
+            if (t.annotations.bold) content = `<strong>${content}</strong>`;
+            if (t.annotations.italic) content = `<em>${content}</em>`;
+            if (t.annotations.strikethrough) content = `<del>${content}</del>`;
+            if (t.annotations.code) content = `<code style="background:rgba(255,255,255,0.1); padding:2px 4px; border-radius:4px; font-family:'JetBrains Mono';">${content}</code>`;
+            if (t.href) content = `<a href="${t.href}" target="_blank" style="color:var(--accent-color); text-decoration:underline;">${content}</a>`;
+            return content;
+        }).join('');
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
 async function loadArticles() {
     try {
         const res = await fetch(`${API_URL}/articles?lang=${currentLang}&t=${Date.now()}`);
@@ -1593,34 +1848,56 @@ async function loadArticles() {
             }
 
             // Render Slides
-            track.innerHTML = slides.map(group => `
+            const slidesHtml = slides.map(group => `
                 <div class="article-slide">
                     ${group.map(art => {
-                        const dateStr = art.date ? new Date(art.date).toLocaleDateString() : new Date().toLocaleDateString();
-                        // Check if date is valid
-                        const displayDate = dateStr === 'Invalid Date' ? new Date().toLocaleDateString() : dateStr;
+                        const dateStr = art.date ? new Date(art.date).toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+                        const clicks = art.clicks || 0;
+                        const likes = art.likes_count || 0;
+                        const comments = art.comments_count || 0;
 
-                        return `
-                        <div class="article-card">
+                         return `
+                        <div class="article-card" data-tilt data-id="${art.id}" data-track="article">
                             <div class="article-image">
-                                ${art.image ? `<img src="${API_URL.replace("/api", "")}${art.image}" alt="${art.title}">` : `<div style="width:100%; height:100%; background: var(--nav-border); display:flex; align-items:center; justify-content:center; color:var(--text-muted);"><i class="fa-solid fa-newspaper" style="font-size:2rem;"></i></div>`}
+                                 <div style="width:100%; height:100%; background: linear-gradient(45deg, #111, #222); display:flex; align-items:center; justify-content:center;">
+                                    <i class="fa-solid fa-newspaper" style="font-size: 3rem; color: #333;"></i>
+                                 </div>
                             </div>
                             <div class="article-content">
-                                <div class="article-date">${displayDate}</div>
-                                <h3 class="article-title">${art.title || 'Untitled'}</h3>
-                                <p class="article-summary">${art.summary || 'No summary available.'}</p>
-                                <div class="article-tags" style="margin-bottom: 1rem;">
-                                    ${art.tags ? art.tags.split(",").map(t => `<span class="tech-tag small" style="font-size:0.7rem; padding:0.2rem 0.5rem; margin-right: 5px;">${t.trim()}</span>`).join("") : ""}
+                                <div class="article-meta-top">
+                                    <span class="article-date"><i class="fa-regular fa-calendar"></i> ${dateStr}</span>
+                                    <div class="article-tags-inline">
+                                        ${art.tags ? art.tags.split(',').slice(0, 2).map(t => `<span class="tag-pill">${t.trim()}</span>`).join('') : ''}
+                                    </div>
                                 </div>
-                                <a href="${art.link || '#'}" target="_blank" class="article-link">
-                                     ${translations[currentLang]?.["articles.read"] || "Read More"} <i class="fa-solid fa-arrow-right"></i>
-                                </a>
+                                <h3 class="article-title">${art.title}</h3>
+                                <p class="article-summary">${art.summary}</p>
+                                
+                                <div class="article-footer">
+                                    <div class="interaction-bar">
+                                         <div class="interaction-item no-pointer" title="Views">
+                                            <i class="fa-solid fa-eye"></i> <span>${clicks}</span>
+                                         </div>
+                                         <div class="interaction-item interaction-like" onclick="window.toggleLike('article', ${art.id}, this)">
+                                            <i class="fa-regular fa-heart"></i> <span class="like-count">${likes}</span>
+                                         </div>
+                                         <div class="interaction-item" onclick="window.openFeedbackModal('article', ${art.id})">
+                                            <i class="fa-regular fa-comment"></i> <span>${comments}</span>
+                                         </div>
+                                    </div>
+                                    <a href="${art.link}" target="_blank" class="read-more-btn" onclick="window.trackEvent('view_article', ${art.id}, this)">
+                                        ${translations[currentLang]?.["articles.readMore"] || "Read Article"}
+                                    </a>
+                                </div>
                             </div>
                         </div>
-                    `}).join("")}
-                    ${/* Fill empty grid spots for layout consistency if needed (CSS grid handles this well usually) */ ""}
+                        `;
+                    }).join('')}
                 </div>
-            `).join("");
+            `).join('');
+
+            track.innerHTML = slidesHtml;
+            if (window.applyTranslations) window.applyTranslations();
 
             // Render Pagination
             pagination.innerHTML = slides.map((_, idx) => `
@@ -1651,9 +1928,8 @@ async function loadArticles() {
                      else if (diff < 0 && currentSlide < slides.length - 1) updateSlide(currentSlide + 1);
                 }
             };
-        };
-        
-        // Initial Render
+        }; // End of render
+
         render(articles);
 
         const filterSelect = document.getElementById("filter-article-tag");
@@ -2546,18 +2822,217 @@ function initHeroCubeInteraction() {
 
 
 // =========================================
+// INTERACTION FUNCTIONS (Likes & Comments)
+// =========================================
+
+function getOrCreateClientId() {
+    let clientId = localStorage.getItem('portfolio_client_id');
+    if (!clientId) {
+        clientId = crypto.randomUUID();
+        localStorage.setItem('portfolio_client_id', clientId);
+    }
+    return clientId;
+}
+
+window.toggleLike = async (type, id, element) => {
+    // Prevent bubbling if inside a clickable card
+    if (event) event.stopPropagation();
+
+    // Visual feedback immediately
+    const countEl = element.querySelector('.like-count'); // Use class for specificity
+    const icon = element.querySelector('i');
+    const OriginalCount = parseInt(countEl.innerText);
+    
+    // Toggle class optimistically
+    // Assuming we don't know state, but usually we just animate
+    // Ideally we track 'liked' state in DOM data attribute
+    
+    try {
+        const clientId = getOrCreateClientId();
+        const res = await fetch(`${API_URL}/interact/like`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, id, client_id: clientId })
+        });
+        const data = await res.json();
+        
+        if (data.liked) {
+            icon.classList.remove('fa-regular');
+            icon.classList.add('fa-solid');
+            element.classList.add('active'); // CSS color change
+        } else {
+            icon.classList.remove('fa-solid');
+            icon.classList.add('fa-regular');
+            element.classList.remove('active');
+        }
+        
+        countEl.innerText = data.count;
+    } catch (e) {
+        console.error("Like failed", e);
+    }
+};
+
+window.openFeedbackModal = (type, id) => {
+    if (event) event.stopPropagation();
+    const modal = document.getElementById('feedback-modal');
+    document.getElementById('feedback-type').value = type;
+    document.getElementById('feedback-id').value = id;
+    modal.style.display = 'flex';
+    
+    // Fetch and render comments
+    const commentsList = document.getElementById('comments-list');
+    if (commentsList) {
+        commentsList.innerHTML = '<p style="color:var(--text-muted); text-align:center;">Loading comments...</p>';
+        
+        fetch(`${API_URL}/comments?type=${type}&id=${id}`)
+            .then(res => res.json())
+            .then(comments => {
+                if (comments.length === 0) {
+                    commentsList.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 1rem;">No comments yet. Be the first!</p>';
+                } else {
+                    commentsList.innerHTML = comments.map(c => `
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <span class="comment-name">${c.name}</span>
+                                <span class="comment-date">${new Date(c.date).toLocaleDateString()}</span>
+                            </div>
+                            <p class="comment-body">${c.message}</p>
+                            ${c.social_link ? `<a href="${c.social_link}" target="_blank" class="comment-link"><i class="fa-solid fa-link"></i> ${c.social_platform || 'Link'}</a>` : ''}
+                        </div>
+                    `).join('');
+                }
+            })
+            .catch(err => {
+                console.error("Failed to load comments", err);
+                commentsList.innerHTML = '<p style="color:#ff4757; text-align:center;">Failed to load comments.</p>';
+            });
+    }
+};
+
+window.closeFeedbackModal = () => {
+    document.getElementById('feedback-modal').style.display = 'none';
+};
+
+// Toast Notification Helper
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    
+    // Icon based on type
+    const icon = type === 'success' ? '<i class="fa-solid fa-check-circle"></i>' : '<i class="fa-solid fa-circle-exclamation"></i>';
+    
+    toast.innerHTML = `${icon} <span>${message}</span>`;
+    container.appendChild(toast);
+
+    // Trigger animation
+    requestAnimationFrame(() => {
+        toast.classList.add('show');
+    });
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Handle Feedback Form Submission
+const feedbackForm = document.getElementById('feedback-form');
+if (feedbackForm) {
+    feedbackForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData.entries()); // type, id, name, message
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+
+        submitBtn.textContent = 'Sending...';
+        submitBtn.disabled = true;
+
+        try {
+            const res = await fetch(`${API_URL}/interact/comment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            if (res.ok) {
+                showToast(translations[currentLang]?.["feedback.success"] || "Thanks! Your feedback has been sent.", 'success');
+                window.closeFeedbackModal();
+                e.target.reset();
+                // Optional: Reload items to show new comment count
+                if (data.type === 'project') loadProjects();
+                if (data.type === 'article') loadArticles();
+            } else {
+                showToast("Failed to submit feedback.", 'error');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast("Error submitting form.", 'error');
+        } finally {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+}
+
+// Close modal on click outside
+window.onclick = function(event) {
+    const modal = document.getElementById('feedback-modal');
+    if (event.target == modal) {
+        window.closeFeedbackModal();
+    }
+};
+
+
+// =========================================
 // ANALYTICS TRACKING HELPER
 // =========================================
-window.trackEvent = (type, id) => {
-    fetch('/api/track/event', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: type, id: id })
-    }).catch(err => console.error("Tracking failed", err));
+window.trackEvent = async (type, id, element) => {
+    try {
+        const res = await fetch(`${API_URL}/track`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type, id })
+        });
+        const data = await res.json();
+        console.log('Track response:', data);
+
+        // Real-time update if element is provided
+        if (element && data.count !== undefined) {
+             console.log('Updating element:', element);
+             // Find the parent card to locate the view counter
+             const card = element.closest('.project-card') || element.closest('.article-card') || element.closest('.bento-item');
+             console.log('Found card:', card);
+             
+             if (card) {
+                 const viewCountItem = card.querySelector('.interaction-item[title="Views"] span') || 
+                                       card.querySelector('.interaction-item .fa-eye').nextElementSibling;
+                 console.log('Found viewCountItem:', viewCountItem);
+                 
+                 if (viewCountItem) {
+                     viewCountItem.innerText = data.count;
+                     // Add a small animation effect
+                     viewCountItem.style.color = '#00ff9d';
+                     setTimeout(() => viewCountItem.style.color = '', 500);
+                 }
+             }
+        }
+
+    } catch (e) { console.error("Tracking failed", e); }
 };
 
 // Track Visit on Load
 window.addEventListener('load', () => {
-    fetch('/api/track/visit', { method: 'POST' }).catch(() => {});
+    // Wait slightly to ensure currentLang is initialized if needed, though it's sync.
+    const lang = localStorage.getItem('lang') || (navigator.language.startsWith('en') ? 'en' : 'fr');
+    fetch('/api/track/visit', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lang: lang })
+    }).catch(() => {});
 });
  

@@ -119,8 +119,16 @@ db.serialize(() => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         ip_hash TEXT,
         user_agent TEXT,
+        lang TEXT DEFAULT 'en',
+        device TEXT DEFAULT 'desktop',
         date DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`);
+    )`, (err) => {
+        if (!err) {
+            addColumnIfNotExists('visits', 'date', 'DATETIME DEFAULT CURRENT_TIMESTAMP');
+            addColumnIfNotExists('visits', 'lang', "TEXT DEFAULT 'en'");
+            addColumnIfNotExists('visits', 'device', "TEXT DEFAULT 'desktop'");
+        }
+    });
 
     // ANALYTICS: Events Table (Clicks)
     db.run(`CREATE TABLE IF NOT EXISTS analytics_events (
@@ -129,8 +137,67 @@ db.serialize(() => {
         target_id INTEGER,
         metadata TEXT,
         date DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`);
+    )`, (err) => {
+        if (!err) {
+            addColumnIfNotExists('analytics_events', 'date', 'DATETIME DEFAULT CURRENT_TIMESTAMP');
+        }
+    });
 
+    // INTERACTIONS: Likes Table
+    // INTERACTIONS: Likes Table (v2 with Client ID)
+    db.get(`SELECT count(*) as count FROM pragma_table_info('likes') WHERE name='client_id'`, (err, row) => {
+        if (err || !row || row.count === 0) {
+            // Migration needed or table doesn't exist
+            db.run(`DROP TABLE IF EXISTS likes`); // Resetting likes for schema change to Client ID
+            db.run(`CREATE TABLE likes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                target_type TEXT, -- 'project', 'article'
+                target_id INTEGER,
+                client_id TEXT, -- UUID from frontend
+                date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(target_type, target_id, client_id)
+            )`);
+            console.log("Migrated 'likes' table to use client_id");
+        } else {
+             // Ensure creation if checks passed but table missing (fallback)
+             db.run(`CREATE TABLE IF NOT EXISTS likes (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                target_type TEXT,
+                target_id INTEGER,
+                client_id TEXT,
+                date DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE(target_type, target_id, client_id)
+            )`);
+        }
+    });
+
+    // INTERACTIONS: Comments Table
+    db.run(`CREATE TABLE IF NOT EXISTS comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        target_type TEXT, -- 'project', 'article'
+        target_id INTEGER,
+        name TEXT,
+        message TEXT,
+        rating INTEGER DEFAULT 0,
+        is_approved INTEGER DEFAULT 0,
+        social_platform TEXT,
+        social_link TEXT,
+        date DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`, (err) => {
+        if(!err) {
+            addColumnIfNotExists('comments', 'social_platform', 'TEXT');
+            addColumnIfNotExists('comments', 'social_link', 'TEXT');
+        }
+    });
+
+    // CHATBOT: Conversations Table
+    db.run(`CREATE TABLE IF NOT EXISTS chatbot_conversations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        question TEXT,
+        answer TEXT,
+        lang TEXT DEFAULT 'en',
+        date DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
 
     // General Info Table (Single Row)
     db.run(`CREATE TABLE IF NOT EXISTS general_info (

@@ -32,6 +32,7 @@ export const translations = {
         "stats.reviews": "Reviews",
         "articles.title": "Latest Articles",
         "articles.read": "Read More <i class='fa-solid fa-arrow-right'></i>",
+        "articles.readMore": "Read Article <i class='fa-solid fa-arrow-right'></i>",
         "articles.filter": "All Topics",
         "certs.title": "<i class='fa-solid fa-certificate'></i> Certifications",
         "skills.title": "Tech Stack",
@@ -49,7 +50,8 @@ export const translations = {
         "form.name": "Your Name",
         "form.email": "Your Email",
         "form.message": "Tell me about your project",
-        "footer.rights": "© 2025 Adnane Yadani. Crafted with <i class='fa-solid fa-heart'></i> and AI.",
+        "form.send": "Send Message",
+        "footer.rights": "© 2025 Adnane Yadani. Crafted with <i class='fa-solid fa-mug-hot'></i> and AI.",
         "chatbot.welcome": "Hello! I'm Adnane's AI assistant. Ask me anything about his projects, skills, or experience!",
         "certifications.filter.all": "All",
         "certifications.filter.obtained": "Obtained",
@@ -79,6 +81,13 @@ export const translations = {
         "review.error.title": "Error",
         "review.error.msg": "Failed to submit review. Please try again.",
         "review.validation.error": "Please fill in your Name and Review Message.",
+        "feedback.title": "Leave Feedback",
+        "feedback.name": "Name (Optional)",
+        "feedback.message": "Message",
+        "feedback.submit": "Submit Feedback",
+        "feedback.platform": "Platform",
+        "feedback.link": "Social Link",
+        "feedback.success": "Thanks! Your feedback has been sent.",
         "testimonials.form.link": "Profile Link",
         "testimonials.form.platform": "Social Network",
         // Certification Modal
@@ -93,7 +102,8 @@ export const translations = {
         "project.technologies": "Technologies",
         "project.tasks": "Tasks",
         "project.description": "Description",
-        "project.view_code": "View Code"
+        "project.view_code": "View Code",
+        "project.view_project": "View Project <i class='fa-solid fa-arrow-right'></i>"
     },
     fr: {
         "nav.about": "À propos",
@@ -129,6 +139,7 @@ export const translations = {
         "certs.title": "<i class='fa-solid fa-certificate'></i> Certifications",
         "articles.title": "Derniers Articles",
         "articles.read": "Lire la suite <i class='fa-solid fa-arrow-right'></i>",
+        "articles.readMore": "Lire l'article <i class='fa-solid fa-arrow-right'></i>",
         "articles.filter": "Tous les sujets",
         "skills.title": "Stack Technique",
         "skills.ai": "Data & IA",
@@ -142,11 +153,18 @@ export const translations = {
         "education.exp": "Expérience",
         "contact.title": "Restons Connectés",
         "contact.subtitle": "Prêt à exploiter la Data & l'IA pour votre prochain projet ?",
+        "feedback.title": "Laisser un commentaire",
+        "feedback.name": "Nom (Optionnel)",
+        "feedback.message": "Message",
+        "feedback.submit": "Envoyer",
+        "feedback.platform": "Plateforme",
+        "feedback.link": "Lien Social",
+        "feedback.success": "Merci ! Votre commentaire a été envoyé.",
         "form.name": "Votre Nom",
         "form.email": "Votre Email",
         "form.message": "Parlez-moi de votre projet",
         "form.send": "Envoyer Message",
-        "footer.rights": "© 2025 Adnane Yadani. Fait avec <i class='fa-solid fa-heart'></i> et l'IA.",
+        "footer.rights": "© 2025 Adnane Yadani. Fait avec <i class='fa-solid fa-mug-hot'></i> et l'IA.",
         "chatbot.welcome": "Bonjour ! Je suis l'assistant IA d'Adnane. Posez-moi des questions sur ses projets, compétences ou expériences !",
         "certifications.filter.all": "Toutes",
         "certifications.filter.obtained": "Obtenue",
@@ -191,6 +209,7 @@ export const translations = {
         "project.technologies": "Technologies",
         "project.tasks": "Tâches",
         "project.description": "Description",
-        "project.view_code": "Voir Code"
+        "project.view_code": "Voir Code",
+        "project.view_project": "Voir le projet <i class='fa-solid fa-arrow-right'></i>"
     }
 };

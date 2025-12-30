@@ -243,7 +243,9 @@ app.get('/api/projects', (req, res) => {
     const lang = req.query.lang || 'en';
     const query = `
         SELECT p.*, 
-        (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = p.id AND e.event_type = 'click_project') as clicks
+        (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = p.id AND e.event_type = 'click_project') as clicks,
+        (SELECT COUNT(*) FROM likes l WHERE l.target_id = p.id AND l.target_type = 'project') as likes_count,
+        (SELECT COUNT(*) FROM comments c WHERE c.target_id = p.id AND c.target_type = 'project' AND c.is_approved = 1) as comments_count
         FROM projects p 
         WHERE p.lang = ?
     `;
@@ -548,7 +550,9 @@ app.get('/api/articles', (req, res) => {
     const lang = req.query.lang || 'en';
     const query = `
         SELECT a.*, 
-        (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = a.id AND e.event_type = 'view_article') as clicks
+        (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = a.id AND e.event_type = 'view_article') as clicks,
+        (SELECT COUNT(*) FROM likes l WHERE l.target_id = a.id AND l.target_type = 'article') as likes_count,
+        (SELECT COUNT(*) FROM comments c WHERE c.target_id = a.id AND c.target_type = 'article' AND c.is_approved = 1) as comments_count
         FROM articles a 
         WHERE a.lang = ? 
         ORDER BY date DESC
@@ -594,6 +598,124 @@ app.delete('/api/articles/:id', authenticateToken, (req, res) => {
         res.json({ message: "Deleted successfully" });
     });
 });
+
+// --- INTERACTIONS (LIKES & COMMENTS) ---
+app.get('/api/comments', (req, res) => {
+    const { type, id } = req.query;
+    if (!type || !id) return res.status(400).json({ error: "Missing type or id" });
+
+    db.all(`SELECT id, name, message, social_platform, social_link, date FROM comments 
+            WHERE target_type = ? AND target_id = ? AND is_approved = 1 
+            ORDER BY date DESC`, 
+            [type, id], 
+            (err, rows) => {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json(rows);
+            });
+});
+
+app.delete('/api/comments/:id', authenticateToken, (req, res) => {
+    db.run("DELETE FROM comments WHERE id = ?", req.params.id, function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Deleted successfully" });
+    });
+});
+
+app.post('/api/interact/like', (req, res) => {
+    const { type, id, client_id } = req.body;
+    
+    if (!client_id) return res.status(400).json({ error: "Missing client_id" });
+
+    db.run(`INSERT OR IGNORE INTO likes (target_type, target_id, client_id) VALUES (?, ?, ?)`,
+        [type, id, client_id],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            // If changes == 0, it means it was ignored (already liked)
+            if (this.changes === 0) {
+                 // Toggle off (unlike)
+                 db.run(`DELETE FROM likes WHERE target_type = ? AND target_id = ? AND client_id = ?`, [type, id, client_id], (err) => {
+                     if (err) return res.status(500).json({ error: err.message });
+                     db.get(`SELECT COUNT(*) as count FROM likes WHERE target_type = ? AND target_id = ?`, [type, id], (err, row) => {
+                        res.json({ message: "Unliked", count: row.count, liked: false });
+                     });
+                 });
+            } else {
+                db.get(`SELECT COUNT(*) as count FROM likes WHERE target_type = ? AND target_id = ?`, [type, id], (err, row) => {
+                    res.json({ message: "Liked", count: row.count, liked: true });
+                });
+            }
+        }
+    );
+});
+
+app.post('/api/interact/comment', (req, res) => {
+    // Sanitization is handled globally by sanitizeMiddleware
+    const { type, id, name, message, social_platform, social_link } = req.body;
+    
+    if (!message || message.trim() === "") {
+        return res.status(400).json({ error: "Message is required" });
+    }
+
+    db.run(`INSERT INTO comments (target_type, target_id, name, message, social_platform, social_link, is_approved) VALUES (?, ?, ?, ?, ?, ?, 1)`, // Auto-approve for demo
+        [type, id, name || 'Anonymous', message, social_platform || '', social_link || ''],
+        function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "Comment submitted", id: this.lastID });
+        }
+    );
+});
+
+// --- ANALYTICS TRACKING ---
+app.post('/api/track', (req, res) => {
+    const { type, id, metadata } = req.body;
+    db.run(`INSERT INTO analytics_events (event_type, target_id, metadata) VALUES (?, ?, ?)`,
+        [type, id, metadata ? JSON.stringify(metadata) : null],
+        (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            
+            // Return updated count
+            db.get(`SELECT COUNT(*) as count FROM analytics_events WHERE event_type = ? AND target_id = ?`, 
+                [type, id], 
+                (err, row) => {
+                    if (err) return res.status(500).json({ error: err.message });
+                    res.json({ message: "Event tracked", count: row.count });
+                }
+            );
+        }
+    );
+});
+
+app.post('/api/track/visit', (req, res) => {
+    // Get IP
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '0.0.0.0';
+    // Hash IP for privacy
+    const ipHash = crypto.createHash('sha256').update(ip).digest('hex');
+    const ua = req.headers['user-agent'] || '';
+    
+    // Parse Device
+    const isMobile = /mobile|android|iphone|ipad|phone/i.test(ua);
+    const device = isMobile ? 'mobile' : 'desktop';
+
+    // Get Lang from body (default to en)
+    const lang = req.body.lang || 'en';
+
+    // Log to visits table for Unique Visitor tracking
+    db.run(`INSERT INTO visits (ip_hash, user_agent, lang, device) VALUES (?, ?, ?, ?)`, [ipHash, ua, lang, device], (err) => {
+        if (err) console.error("Visit log error:", err.message);
+    });
+
+    // Also Log generic event for consistency if needed, but 'visits' table is primary for traffic now.
+    // We can keep the event log if we want 'site_visit' in the events stream, or just rely on visits table.
+    // Let's keep strict backwards compat for any other query using analytics_events
+    db.run(`INSERT INTO analytics_events (event_type, target_id) VALUES (?, ?)`,
+        ['site_visit', 0],
+        (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ message: "Visit tracked" });
+        }
+    );
+});
+
 
 // --- DYNAMIC STATS ---
 app.get('/api/stats', (req, res) => {
@@ -699,13 +821,55 @@ app.post('/api/chat', async (req, res) => {
             const general = await new Promise((resolve, reject) => {
                  db.get("SELECT * FROM general_info WHERE lang = ?", [targetLang], (err, r) => err ? reject(err) : resolve(r));
             });
-            const projects = await getAsync("SELECT title, description, tags, category, role, year, subject, tasks FROM projects WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+            const projects = await getAsync(`
+                SELECT p.title, p.description, p.tags, p.category, p.role, p.year, p.subject, p.tasks,
+                (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = p.id AND e.event_type = 'click_project') as visits,
+                (SELECT COUNT(*) FROM likes l WHERE l.target_id = p.id AND l.target_type = 'project') as likes,
+                (SELECT COUNT(*) FROM comments c WHERE c.target_id = p.id AND c.target_type = 'project' AND c.is_approved = 1) as comments
+                FROM projects p 
+                WHERE p.is_hidden = 0 AND p.lang = ?
+            `, [targetLang]);
+            
             const skills = await getAsync("SELECT name, category, level FROM skills WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const experience = await getAsync("SELECT role, company, year, description FROM experience WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const education = await getAsync("SELECT degree, institution, year, description FROM education WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const certs = await getAsync("SELECT name, issuer, year, domain, status, description, skills, credential_id, credential_url, level FROM certifications WHERE is_hidden = 0 AND lang = ?", [targetLang]);
-            const articles = await getAsync("SELECT title, summary, tags, date FROM articles WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+            
+            const articles = await getAsync(`
+                SELECT a.title, a.summary, a.tags, a.date,
+                (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = a.id AND e.event_type = 'view_article') as views,
+                (SELECT COUNT(*) FROM likes l WHERE l.target_id = a.id AND l.target_type = 'article') as likes,
+                (SELECT COUNT(*) FROM comments c WHERE c.target_id = a.id AND c.target_type = 'article' AND c.is_approved = 1) as comments
+                FROM articles a 
+                WHERE a.is_hidden = 0 AND a.lang = ?
+            `, [targetLang]);
             const reviews = await getAsync("SELECT name, role, message, rating, social_platform FROM reviews WHERE is_approved = 1");
+
+            // Fetch Analytics/Dashboard Stats
+            const totalVisitors = await new Promise((resolve, reject) => {
+                db.get('SELECT COUNT(*) as count FROM visits', (err, row) => err ? reject(err) : resolve(row?.count || 0));
+            });
+            const totalClicks = await new Promise((resolve, reject) => {
+                db.get('SELECT COUNT(*) as count FROM analytics_events', (err, row) => err ? reject(err) : resolve(row?.count || 0));
+            });
+            const topProjects = await getAsync(`
+                SELECT p.title, COUNT(e.id) as clicks 
+                FROM projects p 
+                LEFT JOIN analytics_events e ON e.event_type='click_project' AND e.target_id=p.id 
+                WHERE p.lang = ? 
+                GROUP BY p.id 
+                ORDER BY clicks DESC 
+                LIMIT 5
+            `, [targetLang]);
+            const topCerts = await getAsync(`
+                SELECT c.name, COUNT(e.id) as clicks 
+                FROM certifications c 
+                LEFT JOIN analytics_events e ON e.event_type='click_certif' AND e.target_id=c.id 
+                WHERE c.lang = ? 
+                GROUP BY c.id 
+                ORDER BY clicks DESC 
+                LIMIT 5
+            `, [targetLang]);
 
             // 3. Construct System Prompt
             // Fix: Use explicit name instead of job title (hero_subtitle)
@@ -725,6 +889,12 @@ app.post('/api/chat', async (req, res) => {
                 Reviews/Testimonials: ${JSON.stringify(reviews)}
                 Contact: Email: ${general.email}, LinkedIn: ${general.linkedin_link}
 
+                Portfolio Analytics & Statistics:
+                - Total Visitors: ${totalVisitors}
+                - Total Clicks: ${totalClicks}
+                - Top Projects (by popularity): ${JSON.stringify(topProjects)}
+                - Top Certifications (by interest): ${JSON.stringify(topCerts)}
+
                 If the question is not related to the portfolio or professional background, politely steer it back.
                 Answer in the language of the user question (default ${targetLang}).
             `;
@@ -739,6 +909,16 @@ app.post('/api/chat', async (req, res) => {
             ]);
             
             const responseText = result.response.text();
+            
+            // Save conversation to database
+            db.run(
+                'INSERT INTO chatbot_conversations (question, answer, lang) VALUES (?, ?, ?)',
+                [message, responseText, targetLang],
+                (err) => {
+                    if (err) console.error('Failed to save chatbot conversation:', err);
+                }
+            );
+            
             res.json({ reply: responseText });
 
         } catch (error) {
@@ -746,6 +926,43 @@ app.post('/api/chat', async (req, res) => {
             // More detailed client error if possible, but keep secure
             res.status(500).json({ error: "Failed to generate response. Check API Key or Model selection." });
         }
+    });
+});
+
+// GET Chatbot History (Admin Only)
+app.get('/api/admin/chatbot-history', authenticateToken, (req, res) => {
+    const limit = req.query.limit || 50;
+    const startDate = req.query.startDate;
+    const endDate = req.query.endDate;
+    
+    let query = 'SELECT id, question, answer, lang, date FROM chatbot_conversations';
+    let whereConditions = [];
+    let params = [];
+    
+    // Add date filters if provided
+    if (startDate) {
+        whereConditions.push('date >= ?');
+        params.push(startDate);
+    }
+    if (endDate) {
+        // Add 1 day to endDate to include the entire end day
+        whereConditions.push('date < date(?, "+1 day")');
+        params.push(endDate);
+    }
+    
+    if (whereConditions.length > 0) {
+        query += ' WHERE ' + whereConditions.join(' AND ');
+    }
+    
+    query += ' ORDER BY date DESC LIMIT ?';
+    params.push(limit);
+    
+    db.all(query, params, (err, rows) => {
+        if (err) {
+            console.error('Chatbot history error:', err);
+            return res.status(500).json({ error: 'Failed to fetch chatbot history' });
+        }
+        res.json(rows || []);
     });
 });
 
@@ -1221,7 +1438,7 @@ app.post('/api/track/event', (req, res) => {
 // ADMIN STATS API
 // =========================================
 app.get('/api/admin/stats', authenticateToken, (req, res) => {
-    const { year, month } = req.query;
+    const { year, month, lang, device } = req.query;
     const stats = {};
 
     // 1. Build Date Filter
@@ -1238,26 +1455,66 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
         filterSql += " AND strftime('%m', date) = ?";
         filterParams.push(month.toString().padStart(2, '0'));
     }
+    if (lang) {
+        filterSql += " AND lang = ?";
+        filterParams.push(lang);
+    }
+    if (device) {
+        filterSql += " AND device = ?";
+        filterParams.push(device);
+    }
 
     // Filter for tables aliased as 'e' (analytics_events)
     let eventFilterSql = filterSql.replace(/date/g, 'e.date');
     
-    // 2. Base Counts (Inventory - usually not filtered by time, but can be if desired. Keeping static for now as "Total Inventory")
+    // CONTENT FILTER (Only Lang applies to inventory, usually)
+    let contentFilterSql = "";
+    let contentFilterParams = [];
+    if (lang) {
+        contentFilterSql += " WHERE lang = ?";
+        contentFilterParams.push(lang);
+    }
+
+    // 2. Base Counts
+    const { sort } = req.query; // 'views', 'likes', 'comments'
+
+    let topProjectsProm, topCertifsProm, topArticlesProm;
+
+    if (sort === 'likes') {
+         topProjectsProm = new Promise(resolve => db.all(`SELECT p.title as name, COUNT(l.id) as clicks FROM likes l JOIN projects p ON l.target_id = p.id WHERE l.target_type='project' ${filterSql} GROUP BY l.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e,r)=>resolve({k:'top_projects', v:r||[]})));
+         // Certs don't have likes yet, return empty
+         topCertifsProm = Promise.resolve({k:'top_certifs', v:[]}); 
+         topArticlesProm = new Promise(resolve => db.all(`SELECT a.title as name, COUNT(l.id) as clicks FROM likes l JOIN articles a ON l.target_id = a.id WHERE l.target_type='article' ${filterSql} GROUP BY l.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e,r)=>resolve({k:'top_articles', v:r||[]})));
+    } else if (sort === 'comments') {
+         topProjectsProm = new Promise(resolve => db.all(`SELECT p.title as name, COUNT(c.id) as clicks FROM comments c JOIN projects p ON c.target_id = p.id WHERE c.target_type='project' ${filterSql} GROUP BY c.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e,r)=>resolve({k:'top_projects', v:r||[]})));
+         // Certs don't have comments yet
+         topCertifsProm = Promise.resolve({k:'top_certifs', v:[]});
+         topArticlesProm = new Promise(resolve => db.all(`SELECT a.title as name, COUNT(c.id) as clicks FROM comments c JOIN articles a ON c.target_id = a.id WHERE c.target_type='article' ${filterSql} GROUP BY c.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e,r)=>resolve({k:'top_articles', v:r||[]})));
+    } else {
+        // Default: Views (Clicks in analytics_events)
+        topProjectsProm = new Promise(resolve => db.all(`SELECT COALESCE(p.title, 'Unknown Project #' || e.target_id) as name, COUNT(e.id) as clicks FROM analytics_events e LEFT JOIN projects p ON e.target_id = p.id WHERE e.event_type = 'click_project' ${eventFilterSql} GROUP BY e.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e, r) => resolve({k:'top_projects', v:r||[]})));
+        topCertifsProm = new Promise(resolve => db.all(`SELECT COALESCE(c.name, 'Unknown Cert #' || e.target_id) as name, COUNT(e.id) as clicks FROM analytics_events e LEFT JOIN certifications c ON e.target_id = c.id WHERE e.event_type = 'click_certif' ${eventFilterSql} GROUP BY e.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e, r) => resolve({k:'top_certifs', v:r||[]})));
+        topArticlesProm = new Promise(resolve => db.all(`SELECT COALESCE(a.title, 'Unknown Article #' || e.target_id) as name, COUNT(e.id) as clicks FROM analytics_events e LEFT JOIN articles a ON e.target_id = a.id WHERE e.event_type = 'view_article' ${eventFilterSql} GROUP BY e.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e, r) => resolve({k:'top_articles', v:r||[]})));
+    }
+
     const queries = [
-        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM projects', (e, r) => resolve({k:'projects', v:r?.c||0}))),
-        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM certifications', (e, r) => resolve({k:'certifications', v:r?.c||0}))),
-        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM articles', (e, r) => resolve({k:'articles', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM projects ${contentFilterSql}`, contentFilterParams, (e, r) => resolve({k:'projects', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM certifications ${contentFilterSql}`, contentFilterParams, (e, r) => resolve({k:'certifications', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM articles ${contentFilterSql}`, contentFilterParams, (e, r) => resolve({k:'articles', v:r?.c||0}))),
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM messages', (e, r) => resolve({k:'messages_total', v:r?.c||0}))),
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM messages WHERE is_read=0', (e, r) => resolve({k:'messages_unread', v:r?.c||0}))),
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM reviews', (e, r) => resolve({k:'reviews_total', v:r?.c||0}))),
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM reviews WHERE is_approved=0', (e, r) => resolve({k:'reviews_pending', v:r?.c||0}))),
         
-        // 3. Analytics Counts (Filtered)
-        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM visits WHERE 1=1 ${filterSql}`, filterParams, (e, r) => resolve({k:'total_visitors', v:r?.c||0}))),
-        // visitors_7d is relative to NOW, so usually we ignore historical filter or disable it if year provided. 
-        // For simplicity, we keep it as "Recent 7 Days" regardless of filter, OR we return 0 if filter is active.
-        // Let's keep it static: "Last 7 Days from TODAY".
-        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM visits WHERE date >= date("now", "-7 days")', (e, r) => resolve({k:'visitors_7d', v:r?.c||0}))),
+        // NEW: Interaction Totals (Filtered)
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM likes WHERE 1=1 ${filterSql}`, filterParams, (e, r) => resolve({k:'total_likes', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM comments WHERE 1=1 ${filterSql}`, filterParams, (e, r) => resolve({k:'total_comments', v:r?.c||0}))),
+        
+        // 4. Analytics Counts (Filtered)
+        // Visitors (Unique IPs)
+        // Note: Using 'ip_hash' as defined in visits table.
+        new Promise(resolve => db.get(`SELECT COUNT(DISTINCT ip_hash) as c FROM visits WHERE 1=1 ${filterSql}`, filterParams, (e, r) => resolve({k:'total_visitors', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(DISTINCT ip_hash) as c FROM visits WHERE date >= date('now', '-7 days')`, [], (e, r) => resolve({k:'visitors_7d', v:r?.c||0}))),
         
         // Total Clicks (Filtered)
         new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE 1=1 ${eventFilterSql}`, filterParams, (e, r) => resolve({k:'total_clicks', v:r?.c||0}))),
@@ -1267,60 +1524,30 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
         new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE e.event_type = 'click_certif' ${eventFilterSql}`, filterParams, (e, r) => resolve({k:'clicks_certifs', v:r?.c||0}))),
         new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE e.event_type = 'view_article' ${eventFilterSql}`, filterParams, (e, r) => resolve({k:'clicks_articles', v:r?.c||0}))),
 
-        // Historical Stats (Visits) - Default last 30 days (Filtered if params exist, else default)
-        // Note: The UI has a specific endpoint for the main graph (/stats/history). This one is for the sparkline or summary.
-        // If filters are present, we return that range. If not, last 30 days.
-        new Promise(resolve => {
+        // Historical Stats
+         new Promise(resolve => {
             let histQuery = `SELECT DATE(date) as day, COUNT(*) as count FROM visits WHERE 1=1 ${filterSql} GROUP BY DATE(date) ORDER BY date ASC`;
             let histParams = filterParams;
-            
             if (!year && !month) {
-               // Default behavior if no filter
                histQuery = `SELECT DATE(date) as day, COUNT(*) as count FROM visits WHERE date >= date('now', '-30 days') GROUP BY DATE(date) ORDER BY date ASC`;
                histParams = [];
             }
-
             db.all(histQuery, histParams, (e, r) => resolve({k: 'visits_history', v: r || []}));
         }),
 
-        // TOP ITEMS (Filtered)
-        new Promise(resolve => db.all(`
-            SELECT COALESCE(p.title, 'Unknown Project #' || e.target_id) as name, COUNT(e.id) as clicks 
-            FROM analytics_events e 
-            LEFT JOIN projects p ON e.target_id = p.id 
-            WHERE e.event_type = 'click_project' ${eventFilterSql}
-            GROUP BY e.target_id 
-            ORDER BY clicks DESC 
-            LIMIT 5
-        `, filterParams, (e, r) => resolve({k:'top_projects', v:r||[]}))),
-
-        new Promise(resolve => db.all(`
-            SELECT COALESCE(c.name, 'Unknown Cert #' || e.target_id) as name, COUNT(e.id) as clicks 
-            FROM analytics_events e 
-            LEFT JOIN certifications c ON e.target_id = c.id 
-            WHERE e.event_type = 'click_certif' ${eventFilterSql}
-            GROUP BY e.target_id 
-            ORDER BY clicks DESC 
-            LIMIT 5
-        `, filterParams, (e, r) => resolve({k:'top_certifs', v:r||[]}))),
-
-        new Promise(resolve => db.all(`
-            SELECT COALESCE(a.title, 'Unknown Article #' || e.target_id) as name, COUNT(e.id) as clicks 
-            FROM analytics_events e 
-            LEFT JOIN articles a ON e.target_id = a.id 
-            WHERE e.event_type = 'view_article' ${eventFilterSql}
-            GROUP BY e.target_id 
-            ORDER BY clicks DESC 
-            LIMIT 5
-        `, filterParams, (e, r) => resolve({k:'top_articles', v:r||[]})))
+        // TOP ITEMS (Sorted)
+        topProjectsProm, topCertifsProm, topArticlesProm
     ];
 
     Promise.all(queries).then(results => {
         results.forEach(item => stats[item.k] = item.v);
         res.json(stats);
     }).catch(err => {
-        console.error(err);
-        res.status(500).json({error: 'Stats error'});
+        console.error('Stats Error Stack:', err.stack);
+        res.status(500).json({
+            error: err.message, 
+            stack: process.env.NODE_ENV === 'development' ? err.stack : undefined 
+        });
     });
 });
 

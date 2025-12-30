@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Build Timestamp: 2025-12-12-Zombie-Cleanup -->
+<!-- Build Timestamp: 2025-12-30-Fix-Popup-MetaMask -->
 
 <head>
   <script>
@@ -8,12 +8,16 @@
       alert("Error: " + msg + "\nLine: " + line);
     };
     window.onunhandledrejection = function (e) {
-      alert("Promise Error: " + e.reason);
+      console.error("Promise Error: " + e.reason);
     };
   </script>
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="cache-control" content="no-cache, no-store, must-revalidate">
+  <meta name="pragma" content="no-cache">
+  <meta name="expires" content="0">
+  <meta name="build-version" content="<?php echo time(); ?>">
   <title>Adnane Yadani | Data Scientist & AI Engineer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -403,40 +407,48 @@
     </section>
 
     <!-- CONTACT SECTION -->
+    <!-- CONTACT SECTION -->
     <section class="contact section" id="contact">
-      <div class="container contact-wrapper">
-        <div class="contact-text">
-          <h2 class="" data-i18n="contact.title">Let's Connect</h2>
-          <p data-i18n="contact.subtitle">Ready to leverage Data & AI for your next project?</p>
-          <div class="contact-details">
-            <a href="mailto:yadani.adnane20@gmail.com" class="contact-link" id="contact-email"><i
-                class="fa-solid fa-envelope"></i>
-              yadani.adnane20@gmail.com</a>
-            <a href="tel:+212641681499" class="contact-link" id="contact-phone"><i class="fa-solid fa-phone"></i> +212
-              641 681 499</a>
-            <span class="contact-link" id="contact-location"><i class="fa-solid fa-location-dot"></i> Casablanca et
-              Agadir, Morocco</span>
-          </div>
-          <div class="social-links">
-            <a href="https://www.linkedin.com/in/adnane-yadani" target="_blank" id="contact-linkedin"><i
-                class="fa-brands fa-linkedin-in"></i></a>
-            <a href="https://github.com/YAadnane" target="_blank" id="contact-github"><i
-                class="fa-brands fa-github"></i></a>
-          </div>
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title" data-i18n="contact.title">Let's Connect</h2>
+          <div class="line-separator"></div>
         </div>
-        <form class="contact-form">
-          <div class="form-group">
-            <input type="text" placeholder="Your Name" required data-i18n-placeholder="form.name">
+
+        <div class="contact-wrapper">
+          <div class="contact-text">
+            <p data-i18n="contact.subtitle" style="margin-top: 0;">Ready to leverage Data & AI for your next project?
+            </p>
+            <div class="contact-details">
+              <a href="mailto:yadani.adnane20@gmail.com" class="contact-link" id="contact-email"><i
+                  class="fa-solid fa-envelope"></i>
+                yadani.adnane20@gmail.com</a>
+              <a href="tel:+212641681499" class="contact-link" id="contact-phone"><i class="fa-solid fa-phone"></i> +212
+                641 681 499</a>
+              <span class="contact-link" id="contact-location"><i class="fa-solid fa-location-dot"></i> Casablanca et
+                Agadir, Morocco</span>
+            </div>
+            <div class="social-links">
+              <a href="https://www.linkedin.com/in/adnane-yadani" target="_blank" id="contact-linkedin"><i
+                  class="fa-brands fa-linkedin-in"></i></a>
+              <a href="https://github.com/YAadnane" target="_blank" id="contact-github"><i
+                  class="fa-brands fa-github"></i></a>
+            </div>
           </div>
-          <div class="form-group">
-            <input type="email" placeholder="Your Email" required data-i18n-placeholder="form.email">
-          </div>
-          <div class="form-group">
-            <textarea placeholder="Tell me about your project" rows="5" required
-              data-i18n-placeholder="form.message"></textarea>
-          </div>
-          <button type="submit" class="btn-primary" data-i18n="form.send">Send Message</button>
-        </form>
+          <form class="contact-form">
+            <div class="form-group">
+              <input type="text" placeholder="Your Name" required data-i18n-placeholder="form.name">
+            </div>
+            <div class="form-group">
+              <input type="email" placeholder="Your Email" required data-i18n-placeholder="form.email">
+            </div>
+            <div class="form-group">
+              <textarea placeholder="Tell me about your project" rows="5" required
+                data-i18n-placeholder="form.message"></textarea>
+            </div>
+            <button type="submit" class="btn-primary" data-i18n="form.send">Send Message</button>
+          </form>
+        </div>
       </div>
     </section>
   </main>
@@ -597,8 +609,11 @@
           <div class="project-col-left">
             <h4 data-i18n="project.description">Description</h4>
             <p id="project-modal-desc">Project description...</p>
+          </div>
 
-            <div class="project-info-list" style="margin-top: 1.5rem;">
+          <div class="project-col-right">
+            <div class="project-info-list"
+              style="margin-bottom: 2rem; display: flex; gap: 2rem; align-items: flex-start;">
               <div class="info-item">
                 <i class="fa-solid fa-briefcase"></i>
                 <div>
@@ -606,7 +621,7 @@
                   <div id="project-modal-role" class="info-val">Developer</div>
                 </div>
               </div>
-              <div class="info-item" style="margin-top: 1rem;">
+              <div class="info-item">
                 <i class="fa-solid fa-tag"></i>
                 <div>
                   <label data-i18n="project.subject"
@@ -615,9 +630,7 @@
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="project-col-right">
             <h4 data-i18n="project.technologies">Technologies</h4>
             <div id="project-modal-techs" class="tech-tags"></div>
 
@@ -635,6 +648,59 @@
     </div>
   </div>
 
+  <!-- Feedback Modal -->
+  <div id="feedback-modal" class="modal-overlay" style="display: none;">
+    <div class="feedback-modal-content">
+      <div class="modal-header">
+        <h3 data-i18n="feedback.title">Leave Feedback</h3>
+        <button class="close-modal" onclick="closeFeedbackModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <form id="feedback-form">
+          <input type="hidden" id="feedback-type" name="type">
+          <input type="hidden" id="feedback-id" name="id">
+
+          <div class="form-row">
+            <div class="form-group" style="flex: 1;">
+              <label for="feedback-platform" data-i18n="feedback.platform">Platform</label>
+              <select id="feedback-platform" name="social_platform">
+                <option value="LinkedIn">LinkedIn</option>
+                <option value="GitHub">GitHub</option>
+                <option value="Twitter">Twitter / X</option>
+                <option value="Email">Email</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-group" style="flex: 2;">
+              <label for="feedback-link" data-i18n="feedback.link">Social Link / ID</label>
+              <input type="text" id="feedback-link" name="social_link" placeholder="Profile URL or Username">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="feedback-name" data-i18n="feedback.name">Name (Optional)</label>
+            <input type="text" id="feedback-name" name="name" placeholder="John Doe">
+          </div>
+
+          <div class="form-group">
+            <label for="feedback-message" data-i18n="feedback.message">Message</label>
+            <textarea id="feedback-message" name="message" required placeholder="Share your thoughts..."></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit" data-i18n="feedback.submit">Submit Feedback</button>
+        </form>
+
+        <div class="comments-section"
+          style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
+          <h4 style="color: var(--accent-color); margin-bottom: 1rem;">Recent Comments</h4>
+          <div id="comments-list" style="max-height: 200px; overflow-y: auto;">
+            <!-- Comments injected here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Video Modal -->
   <div id="video-modal" class="modal-overlay" style="display: none; justify-content: center; align-items: center;">
     <div class="video-modal-content"
@@ -647,6 +713,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Toast Container -->
+  <div id="toast-container"></div>
 
   <script type="module" src="/src/main.js"></script>
 </body>
