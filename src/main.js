@@ -1154,7 +1154,57 @@ async function loadCertifications() {
             }
         }
 
+
     } catch (err) { console.error("Failed to load certifications", err); }
+}
+
+// --- ARTICLE MODAL LOGIC ---
+window.openArticleModal = (url, id, title, date) => {
+    const modal = document.getElementById('article-modal');
+    if (!modal) return;
+    
+    // Set Header Info
+    const titleEl = document.getElementById('article-modal-title');
+    const dateEl = document.getElementById('article-modal-date');
+    const iframe = document.getElementById('article-iframe');
+    const fallbackLink = document.getElementById('article-fallback-link');
+    
+    if (titleEl) titleEl.textContent = title;
+    if (dateEl) dateEl.textContent = date;
+    
+    // Handle URL
+    let embedUrl = url;
+    // Attempt to convert notion.so to notion.site if it looks like a public page (optional optimization)
+    // But since user provides raw links, we try raw first.
+    
+    if (iframe) {
+        iframe.src = embedUrl;
+        iframe.onload = () => {
+             // Optional: Hide loader
+        };
+    }
+    
+    if (fallbackLink) fallbackLink.href = url;
+
+    modal.style.display = 'flex';
+    gsap.from('.article-modal-content', { y: 50, opacity: 0, duration: 0.3, ease: 'power2.out' });
+};
+
+window.closeArticleModal = () => {
+    const modal = document.getElementById('article-modal');
+    if (!modal) return;
+    
+    modal.style.display = 'none';
+    const iframe = document.getElementById('article-iframe');
+    if (iframe) iframe.src = ''; // Stop playback/loading
+};
+
+// Close on click outside
+const artModal = document.getElementById('article-modal');
+if (artModal) {
+    artModal.onclick = (e) => {
+        if (e.target === artModal) closeArticleModal();
+    }
 }
 
     async function loadEducation() {
@@ -1885,7 +1935,7 @@ async function loadArticles() {
                                             <i class="fa-regular fa-comment"></i> <span>${comments}</span>
                                          </div>
                                     </div>
-                                    <a href="${art.link}" target="_blank" class="read-more-btn" onclick="window.trackEvent('view_article', ${art.id}, this)">
+                                    <a href="${art.link}" class="read-more-btn" onclick="event.preventDefault(); window.trackEvent('view_article', ${art.id}, this); window.openArticleModal(this.href, '${art.id}', '${art.title.replace(/'/g, "\\'")}', '${dateStr}')">
                                         ${translations[currentLang]?.["articles.readMore"] || "Read Article"}
                                     </a>
                                 </div>
