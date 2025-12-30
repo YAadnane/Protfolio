@@ -1172,26 +1172,39 @@ window.openArticleModal = (url, id, title, date) => {
     if (titleEl) titleEl.textContent = title;
     if (dateEl) dateEl.textContent = date;
     
+    // Set Fallback Link IMMEDIATELY
+    if (fallbackLink) {
+        fallbackLink.href = url;
+    }
+
     // Handle URL
-    let embedUrl = url;
-    
-    // Notion URL Fix: Use Server Proxy to bypass X-Frame-Options
+    let useSrcDoc = false;
+    let srcDocContent = '';
+
+    // Notion URL Handling
     if (url.includes('notion.so') || url.includes('notion.site')) {
-        const match = url.match(/[a-f0-9]{32}/);
-        if (match) {
-            const pageId = match[0];
-            embedUrl = `/api/notion/page/${pageId}`;
-        }
+        // Show placeholder for Notion content
+        useSrcDoc = true;
+        srcDocContent = `
+            <html>
+            <body style="font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #fff; color: #333; text-align: center;">
+                <h2 style="margin-bottom: 1rem;">Content hosted on Notion</h2>
+                <p style="margin-bottom: 2rem; color: #666;">This article is hosted directly on Notion.</p>
+                <a href="${url}" target="_blank" style="background: #111; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500;">Read on Notion</a>
+            </body>
+            </html>
+        `;
     }
 
     if (iframe) {
-        iframe.src = embedUrl;
-        iframe.onload = () => {
-             // Optional: Hide loader
-        };
+        if (useSrcDoc) {
+             iframe.removeAttribute('src');
+             iframe.srcdoc = srcDocContent;
+        } else {
+             iframe.removeAttribute('srcdoc');
+             iframe.src = url;
+        }
     }
-    
-    if (fallbackLink) fallbackLink.href = url;
 
     modal.style.display = 'flex';
     gsap.from('.article-modal-content', { y: 50, opacity: 0, duration: 0.3, ease: 'power2.out' });
