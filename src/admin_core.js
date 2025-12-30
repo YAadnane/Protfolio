@@ -1587,41 +1587,7 @@ window.applyThemeStyles = () => {
     }
 };
 
-// Cursor Logic
-function initCursor() {
-    const cursorDot = document.querySelector("[data-cursor-dot]");
-    const cursorOutline = document.querySelector("[data-cursor-outline]");
 
-    if (!cursorDot || !cursorOutline) return;
-
-    window.addEventListener("mousemove", (e) => {
-        const posX = e.clientX;
-        const posY = e.clientY;
-
-        cursorDot.style.left = `${posX}px`;
-        cursorDot.style.top = `${posY}px`;
-
-        // Simple vanilla follow without GSAP
-        // cursorOutline.style.left = `${posX}px`;
-        // cursorOutline.style.top = `${posY}px`;
-        
-        // Or add a slight delay logic if needed, but direct assignment is safest now
-        if(cursorOutline) {
-            cursorOutline.style.transform = `translate(${posX}px, ${posY}px)`;
-            cursorOutline.style.left = '0'; // Reset since we use transform
-            cursorOutline.style.top = '0';
-        }
-    });
-
-    // Hover effects
-    document.body.addEventListener('mouseover', (e) => {
-        if (e.target.matches('a, button, .btn-edit, .btn-delete, .tab-btn, input, textarea')) {
-            document.body.classList.add("hovering");
-        } else {
-            document.body.classList.remove("hovering");
-        }
-    });
-}
 
 // Messages Actions
 // Approve Review
