@@ -2,6 +2,38 @@ console.log('%c Admin Core Loaded v3.0 (Global Fix)', 'background:#2ed573; color
 // import { gsap } from "https://cdn.skypack.dev/gsap";
 
 const API_URL = '/api';
+
+// --- CURSOR LOGIC (Old Approach) ---
+function initCursor() {
+    const cursorDot = document.querySelector("[data-cursor-dot]");
+    const cursorOutline = document.querySelector("[data-cursor-outline]");
+    
+    if (!cursorDot || !cursorOutline) return;
+
+    window.addEventListener("mousemove", (e) => {
+        const posX = e.clientX;
+        const posY = e.clientY;
+
+        cursorDot.style.left = `${posX}px`;
+        cursorDot.style.top = `${posY}px`;
+
+        gsap.to(cursorOutline, {
+            x: posX,
+            y: posY,
+            duration: 0.15,
+            ease: "power2.out"
+        });
+    });
+
+    // Hover effects
+    const interactiveElements = document.querySelectorAll("a, button, input, select, textarea, .card, .chart-container, .admin-card, .btn-icon");
+    interactiveElements.forEach(el => {
+        el.addEventListener("mouseenter", () => document.body.classList.add("hovering"));
+        el.addEventListener("mouseleave", () => document.body.classList.remove("hovering"));
+    });
+}
+initCursor();
+
 let currentTab = 'overview';
 let editingId = null;
 let currentAdminLang = localStorage.getItem('admin_lang') || 'en';
