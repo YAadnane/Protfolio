@@ -1354,6 +1354,85 @@ app.delete('/api/admin/database/table/:name', authenticateToken, (req, res) => {
     });
 });
 
+// --- NOTION PROXY ---
+import { Client } from "@notionhq/client";
+
+app.get('/api/notion/page/:id', async (req, res) => {
+    try {
+        if (!process.env.NOTION_API_KEY) {
+             return res.status(500).send("Server missing NOTION_API_KEY");
+        }
+        const notion = new Client({ auth: process.env.NOTION_API_KEY });
+        const { id } = req.params;
+        
+        // Fetch blocks
+        const response = await notion.blocks.children.list({ block_id: id });
+        
+        let html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { font-family: 'Inter', sans-serif; line-height: 1.6; color: #333; padding: 20px; max-width: 800px; margin: 0 auto; }
+                img { max-width: 100%; border-radius: 8px; margin: 1rem 0; }
+                h1, h2, h3 { color: #111; margin-top: 2rem; }
+                p { margin-bottom: 1rem; }
+                li { margin-bottom: 0.5rem; }
+                code { background: #f4f4f4; padding: 2px 5px; border-radius: 4px; font-family: monospace; }
+                pre { background: #f4f4f4; padding: 15px; border-radius: 8px; overflow-x: auto; }
+            </style>
+        </head>
+        <body>
+        `;
+        
+        // Simple Renderer Strategy
+        for (const block of response.results) {
+            try {
+                if (block.type === 'paragraph') {
+                    const text = block.paragraph.rich_text.map(t => t.plain_text).join('');
+                    if(text) html += `<p>${text}</p>`;
+                } 
+                else if (block.type === 'heading_1') {
+                    const text = block.heading_1.rich_text.map(t => t.plain_text).join('');
+                    html += `<h1>${text}</h1>`;
+                } 
+                else if (block.type === 'heading_2') {
+                     const text = block.heading_2.rich_text.map(t => t.plain_text).join('');
+                    html += `<h2>${text}</h2>`;
+                } 
+                else if (block.type === 'heading_3') {
+                     const text = block.heading_3.rich_text.map(t => t.plain_text).join('');
+                    html += `<h3>${text}</h3>`;
+                } 
+                else if (block.type === 'bulleted_list_item') {
+                     const text = block.bulleted_list_item.rich_text.map(t => t.plain_text).join('');
+                    html += `<ul><li>${text}</li></ul>`; // Should perform improved list grouping but this is MVP
+                } 
+                else if (block.type === 'numbered_list_item') {
+                     const text = block.numbered_list_item.rich_text.map(t => t.plain_text).join('');
+                    html += `<ol><li>${text}</li></ol>`;
+                }
+                else if (block.type === 'image') {
+                     const src = block.image.type === 'external' ? block.image.external.url : block.image.file.url;
+                     const caption = block.image.caption?.map(t => t.plain_text).join('') || '';
+                     html += `<figure><img src="${src}" alt="${caption}"><figcaption>${caption}</figcaption></figure>`;
+                 }
+                 else if (block.type === 'code') {
+                     const text = block.code.rich_text.map(t => t.plain_text).join('');
+                     html += `<pre><code>${text}</code></pre>`;
+                 }
+            } catch (e) { console.error('Render error for block', block.type); }
+        }
+        
+        html += '</body></html>';
+        res.send(html);
+        
+    } catch (error) {
+        console.error("Notion Fetch Error:", error);
+        res.status(500).send(`<div style="padding:20px; color:red;">Failed to load content from Notion. (${error.message})</div>`);
+    }
+});
+
 // --- SEO / SITEMAP ---
 app.get('/sitemap.xml', (req, res) => {
     const baseUrl = 'https://yadani-adnane.duckdns.org';

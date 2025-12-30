@@ -1175,12 +1175,12 @@ window.openArticleModal = (url, id, title, date) => {
     // Handle URL
     let embedUrl = url;
     
-    // Notion URL Fix: Convert standard page links to embed links
-    if (url.includes('notion.so') && !url.includes('/e/')) {
+    // Notion URL Fix: Use Server Proxy to bypass X-Frame-Options
+    if (url.includes('notion.so') || url.includes('notion.site')) {
         const match = url.match(/[a-f0-9]{32}/);
         if (match) {
             const pageId = match[0];
-            embedUrl = `https://www.notion.so/e/${pageId}`;
+            embedUrl = `/api/notion/page/${pageId}`;
         }
     }
 
