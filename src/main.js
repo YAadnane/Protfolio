@@ -1167,14 +1167,16 @@ window.openArticleModal = (url, id, title, date) => {
     const titleEl = document.getElementById('article-modal-title');
     const dateEl = document.getElementById('article-modal-date');
     const iframe = document.getElementById('article-iframe');
-    const fallbackLink = document.getElementById('article-fallback-link');
+    const btnFallback = document.getElementById('article-fallback-link');
     
     if (titleEl) titleEl.textContent = title;
     if (dateEl) dateEl.textContent = date;
     
     // Set Fallback Link IMMEDIATELY
-    if (fallbackLink) {
-        fallbackLink.href = url;
+    if (btnFallback) {
+        btnFallback.href = url;
+    } else {
+        console.warn('Fallback button not found');
     }
 
     // Handle URL
