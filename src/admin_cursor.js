@@ -11,8 +11,18 @@ export function initCursor() {
         const posY = e.clientY;
 
         // Dot follows immediately
-        cursorDot.style.left = `${posX}px`;
-        cursorDot.style.top = `${posY}px`;
+        // Dot follows immediately
+        if (window.gsap) {
+            gsap.set(cursorDot, {
+                x: posX,
+                y: posY,
+                xPercent: -50,
+                yPercent: -50
+            });
+        } else {
+            cursorDot.style.left = `${posX}px`;
+            cursorDot.style.top = `${posY}px`;
+        }
 
         // Outline follows with GSAP lag
         if (window.gsap) {
