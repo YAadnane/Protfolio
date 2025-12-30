@@ -1174,9 +1174,16 @@ window.openArticleModal = (url, id, title, date) => {
     
     // Handle URL
     let embedUrl = url;
-    // Attempt to convert notion.so to notion.site if it looks like a public page (optional optimization)
-    // But since user provides raw links, we try raw first.
     
+    // Notion URL Fix: Convert standard page links to embed links
+    if (url.includes('notion.so') && !url.includes('/e/')) {
+        const match = url.match(/[a-f0-9]{32}/);
+        if (match) {
+            const pageId = match[0];
+            embedUrl = `https://www.notion.so/e/${pageId}`;
+        }
+    }
+
     if (iframe) {
         iframe.src = embedUrl;
         iframe.onload = () => {
