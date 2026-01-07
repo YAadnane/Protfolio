@@ -453,6 +453,37 @@ async function loadGeneralInfo() {
     } catch (err) { console.error("Failed to load general info", err); }
 }
 
+// --- HELPER: Global Sync ---
+window.updateGlobalCounters = (id, type, value) => {
+    // 1. Update Data Source
+    const p1 = allProjectsData.find(p => p.id == id);
+    const p2 = originalProjectsData.find(p => p.id == id);
+    
+    if (type === 'likes') {
+         if (p1) p1.likes_count = value;
+         if (p2) p2.likes_count = value;
+         const els = document.querySelectorAll(`.like-project-count-${id}`);
+         console.log(`[SYNC] Updating ${els.length} LIKE counters for ID ${id} to ${value}`);
+         els.forEach(el => el.innerText = value);
+    } else if (type === 'comments') {
+         if (p1) p1.comments_count = value;
+         if (p2) p2.comments_count = value;
+         const els = document.querySelectorAll(`.comment-project-count-${id}`);
+         console.log(`[SYNC] Updating ${els.length} COMMENT counters for ID ${id} to ${value}`);
+         els.forEach(el => el.innerText = value);
+    } else if (type === 'views') {
+         if (p1) p1.clicks = value;
+         if (p2) p2.clicks = value;
+         const els = document.querySelectorAll(`.view-project-count-${id}`);
+         console.log(`[SYNC] Updating ${els.length} VIEW counters for ID ${id} to ${value}`);
+         els.forEach(el => {
+             el.innerText = value;
+             el.style.color = '#00ff9d';
+             setTimeout(() => el.style.color = '', 500);
+         });
+    }
+};
+
 // --- HELPER: Counter Animation ---
 function animateCounter(el, target, duration = 1500) {
     if (!el) return;
@@ -699,13 +730,13 @@ function renderProjectsPage() {
 
                     <div class="interaction-bar" style="margin-bottom: 1rem; justify-content: flex-start;">
                          <div class="interaction-item no-pointer" title="Views">
-                            <i class="fa-solid fa-eye"></i> <span>${clicks}</span>
+                            <i class="fa-solid fa-eye"></i> <span class="view-project-count-${p.id}">${clicks}</span>
                          </div>
-                         <div class="interaction-item interaction-like" onclick="window.toggleLike('project', ${p.id}, this)">
-                            <i class="fa-regular fa-heart"></i> <span class="like-count">${likes}</span>
+                         <div class="interaction-item interaction-like like-project-btn-${p.id}" onclick="window.toggleLike('project', ${p.id}, this)">
+                            <i class="fa-regular fa-heart"></i> <span class="like-count like-project-count-${p.id}">${likes}</span>
                          </div>
                          <div class="interaction-item" onclick="window.openFeedbackModal('project', ${p.id})">
-                            <i class="fa-regular fa-comment"></i> <span>${comments}</span>
+                            <i class="fa-regular fa-comment"></i> <span class="comment-project-count-${p.id}">${comments}</span>
                          </div>
                     </div>
 
@@ -811,8 +842,8 @@ function initializeProjectFilters() {
         originalProjectsData = [...allProjectsData];
     }
     
-    const categories = [...new Set(originalProjectsData.map(p => p.category).filter(Boolean))].sort();
-    const allTags = originalProjectsData.flatMap(p => p.tags.split(',').map(t => t.trim())).filter(Boolean);
+    const categories = [...new Set(originalProjectsData.map(p => p.category || '').filter(Boolean))].sort();
+    const allTags = originalProjectsData.flatMap(p => (p.tags && typeof p.tags === 'string') ? p.tags.split(',').map(t => t.trim()) : []).filter(Boolean);
     const uniqueTags = [...new Set(allTags)].sort();
     
     if (categorySelect.options.length === 1) {
@@ -2627,11 +2658,34 @@ function openProjectModal(project) {
         }
     }
 
-    // GitHub Link
-    if (linkEl) {
-        linkEl.href = project.link || '#';
-        if (!project.link) linkEl.style.display = 'none';
-        else linkEl.style.display = 'inline-flex';
+    // GitHub Link & Interactions
+    const footer = modal.querySelector('.project-modal-footer');
+    if (footer) {
+        footer.style.display = 'flex';
+        footer.style.flexDirection = 'column';
+        footer.style.gap = '1rem';
+        footer.style.alignItems = 'stretch';
+        
+        const likes = project.likes_count || 0;
+        const comments = project.comments_count || 0;
+        const clicks = project.clicks || 0;
+
+        footer.innerHTML = `
+            <div class="interaction-bar" style="margin: 0; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; width: 100%;">
+                 <div class="interaction-item no-pointer" title="Views" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid var(--accent-color); color: var(--accent-color);">
+                    <i class="fa-solid fa-eye"></i> <span class="view-project-count-${project.id}">${clicks}</span>
+                 </div>
+                 <div class="interaction-item interaction-like like-project-btn-${project.id}" onclick="window.toggleLike('project', ${project.id}, this)" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid var(--accent-color); color: var(--accent-color); cursor: pointer; transition: all 0.3s ease;">
+                    <i class="fa-regular fa-heart"></i> <span class="like-count like-project-count-${project.id}">${likes}</span>
+                 </div>
+                 <div class="interaction-item" onclick="window.openFeedbackModal('project', ${project.id})" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid var(--accent-color); color: var(--accent-color); cursor: pointer; transition: all 0.3s ease;">
+                    <i class="fa-regular fa-comment"></i> <span class="comment-project-count-${project.id}">${comments}</span>
+                 </div>
+            </div>
+            <a id="project-modal-link" href="${project.link || '#'}" target="_blank" class="btn-github-modal" style="${!project.link ? 'display:none' : 'display:flex; justify-content: center; width: 100%; box-sizing: border-box;'}">
+              <i class="fa-brands fa-github"></i> <span data-i18n="project.view_code">View Code</span>
+            </a>
+        `;
     }
 
     // Translation update for labels (Role, Subject, Techs, Tasks)
@@ -2857,16 +2911,47 @@ window.toggleLike = async (type, id, element) => {
         const data = await res.json();
         
         if (data.liked) {
-            icon.classList.remove('fa-regular');
-            icon.classList.add('fa-solid');
-            element.classList.add('active'); // CSS color change
+            // Update ALL instances
+            const icons = document.querySelectorAll(type === 'project' ? `.like-project-btn-${id} i` : ''); 
+             const btns = document.querySelectorAll(type === 'project' ? `.like-project-btn-${id}` : '');
+
+             if (btns.length > 0) {
+                 btns.forEach(btn => btn.classList.add('active'));
+                 icons.forEach(ic => {
+                     ic.classList.remove('fa-regular');
+                     ic.classList.add('fa-solid');
+                 });
+             } else {
+                 // Fallback for non-project types or legacy
+                  icon.classList.remove('fa-regular');
+                  icon.classList.add('fa-solid');
+                  element.classList.add('active');
+             }
         } else {
-            icon.classList.remove('fa-solid');
-            icon.classList.add('fa-regular');
-            element.classList.remove('active');
+             const icons = document.querySelectorAll(type === 'project' ? `.like-project-btn-${id} i` : '');
+             const btns = document.querySelectorAll(type === 'project' ? `.like-project-btn-${id}` : '');
+
+             if (btns.length > 0) {
+                 btns.forEach(btn => btn.classList.remove('active'));
+                 icons.forEach(ic => {
+                     ic.classList.remove('fa-solid');
+                     ic.classList.add('fa-regular');
+                 });
+             } else {
+                 // Fallback
+                  icon.classList.remove('fa-solid');
+                  icon.classList.add('fa-regular');
+                  element.classList.remove('active');
+             }
         }
         
-        countEl.innerText = data.count;
+        // Update Counts Everywhere
+        if (type === 'project') {
+            window.updateGlobalCounters(id, 'likes', data.count);
+        } else {
+            countEl.innerText = data.count;
+        }
+
     } catch (e) {
         console.error("Like failed", e);
     }
@@ -2877,6 +2962,7 @@ window.openFeedbackModal = (type, id) => {
     const modal = document.getElementById('feedback-modal');
     document.getElementById('feedback-type').value = type;
     document.getElementById('feedback-id').value = id;
+    modal.style.zIndex = '100000';
     modal.style.display = 'flex';
     
     // Fetch and render comments
@@ -2887,6 +2973,12 @@ window.openFeedbackModal = (type, id) => {
         fetch(`${API_URL}/comments?type=${type}&id=${id}`)
             .then(res => res.json())
             .then(comments => {
+                
+                // Self-Correct Count based on actual data
+                if (type === 'project') {
+                    window.updateGlobalCounters(id, 'comments', comments.length);
+                }
+
                 if (comments.length === 0) {
                     commentsList.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 1rem;">No comments yet. Be the first!</p>';
                 } else {
@@ -2964,7 +3056,38 @@ if (feedbackForm) {
                 window.closeFeedbackModal();
                 e.target.reset();
                 // Optional: Reload items to show new comment count
-                if (data.type === 'project') loadProjects();
+                // if (data.type === 'project') loadProjects(); // REMOVED to prevent reset
+                
+                // Optimistic UI Update for Comments
+                if (data.type === 'project') {
+                    const countEls = document.querySelectorAll(`.comment-project-count-${data.id}`);
+                    countEls.forEach(el => {
+                        const current = parseInt(el.innerText || '0');
+                        el.innerText = current + 1;
+                        el.style.color = '#00ff9d';
+                        setTimeout(() => el.style.color = '', 500);
+                        
+                        // Sync Data (Optimistic)
+                        // const p1 = allProjectsData.find(p => p.id == data.id); // Replaced by helper
+                        // We need the new count. We increment current.
+                        // Wait, helper sets absolute value.
+                        // We can read from p1 after finding it? Or just ++ blind?
+                        // Better to find P1, increment, then call helper.
+                         const proj = allProjectsData.find(p => p.id == data.id);
+                         if (proj) {
+                             const newVal = (proj.comments_count || 0) + 1;
+                             window.updateGlobalCounters(data.id, 'comments', newVal);
+                         } else {
+                             // Fallback if not found in data (rare)
+                             const countEls = document.querySelectorAll(`.comment-project-count-${data.id}`);
+                             countEls.forEach(el => {
+                                 const val = parseInt(el.innerText)||0; 
+                                 el.innerText = val + 1;
+                             });
+                         }
+                         }); // End forEach (Optimistic DOM)
+                 } // End if project
+                
                 if (data.type === 'article') loadArticles();
             } else {
                 showToast("Failed to submit feedback.", 'error');
@@ -3001,25 +3124,10 @@ window.trackEvent = async (type, id, element) => {
         const data = await res.json();
         console.log('Track response:', data);
 
-        // Real-time update if element is provided
-        if (element && data.count !== undefined) {
-             console.log('Updating element:', element);
-             // Find the parent card to locate the view counter
-             const card = element.closest('.project-card') || element.closest('.article-card') || element.closest('.bento-item');
-             console.log('Found card:', card);
-             
-             if (card) {
-                 const viewCountItem = card.querySelector('.interaction-item[title="Views"] span') || 
-                                       card.querySelector('.interaction-item .fa-eye').nextElementSibling;
-                 console.log('Found viewCountItem:', viewCountItem);
-                 
-                 if (viewCountItem) {
-                     viewCountItem.innerText = data.count;
-                     // Add a small animation effect
-                     viewCountItem.style.color = '#00ff9d';
-                     setTimeout(() => viewCountItem.style.color = '', 500);
-                 }
-             }
+        // Real-time update if element is provided or just by ID
+        if (type === 'click_project' && id && data.count !== undefined) {
+             console.log('Updating project views for ID:', id);
+             window.updateGlobalCounters(id, 'views', data.count);
         }
 
     } catch (e) { console.error("Tracking failed", e); }
