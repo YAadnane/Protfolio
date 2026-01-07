@@ -1582,10 +1582,10 @@ class Particle {
         if (this.y < 0 || this.y > height) this.vy *= -1;
     }
 
-    draw() {
+    draw(colorRgb = "0, 255, 157", opacity = 0.5) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(0, 255, 157, 0.5)";
+        ctx.fillStyle = `rgba(${colorRgb}, ${opacity})`;
         ctx.fill();
     }
 }
@@ -1600,9 +1600,13 @@ function initParticles() {
 function animateParticles() {
     ctx.clearRect(0, 0, width, height);
     
+    const isLight = document.body.classList.contains('light-mode');
+    const colorRgb = isLight ? "0, 150, 80" : "0, 255, 157"; // Darker green for light mode
+    const particleOpacity = isLight ? 0.8 : 0.5;
+
     particles.forEach((p, index) => {
         p.update();
-        p.draw();
+        p.draw(colorRgb, particleOpacity);
 
         for (let j = index + 1; j < particles.length; j++) {
             const p2 = particles[j];
@@ -1612,7 +1616,7 @@ function animateParticles() {
 
             if (dist < 150) {
                 ctx.beginPath();
-                ctx.strokeStyle = `rgba(0, 255, 157, ${1 - dist / 150})`;
+                ctx.strokeStyle = `rgba(${colorRgb}, ${1 - dist / 150})`;
                 ctx.lineWidth = 0.5;
                 ctx.moveTo(p.x, p.y);
                 ctx.lineTo(p2.x, p2.y);
