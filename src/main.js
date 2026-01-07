@@ -152,6 +152,7 @@ async function loadAllContent() {
     ]);
     // Re-trigger animations if needed, though they might be attached to elements
     ScrollTrigger.refresh();
+    initSkillAnimations(); // Re-bind skill animations to new elements
 }
 
 function updatePageLanguage() {
@@ -1664,6 +1665,36 @@ document.querySelectorAll(".scramble-text").forEach(el => {
 // =========================================
 // 3. ANIMATIONS (GSAP) - INITIALIZED AFTER LOAD
 // =========================================
+function initSkillAnimations() {
+    const skillsSection = document.querySelector('#skills-grid');
+    if (skillsSection) {
+        const progressBars = document.querySelectorAll('.progress');
+        
+        // Initialize all bars to 0
+        progressBars.forEach(bar => {
+            bar.style.transform = 'scaleX(0)';
+        });
+        
+        // Create observer with low threshold for immediate trigger
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    // Trigger all bars immediately
+                    progressBars.forEach(bar => {
+                        bar.style.transform = 'scaleX(1)';
+                    });
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { 
+            threshold: 0.1,
+            rootMargin: '0px 0px -10% 0px'
+        });
+        
+        observer.observe(skillsSection);
+    }
+}
+
 function initAnimations() {
     ScrollTrigger.refresh();
 
@@ -1715,34 +1746,8 @@ function initAnimations() {
     });
 
 
-    // Skill Bars Animation - IntersectionObserver for instant trigger
-    const skillsSection = document.querySelector('#skills-grid');
-    if (skillsSection) {
-        const progressBars = document.querySelectorAll('.progress');
-        
-        // Initialize all bars to 0
-        progressBars.forEach(bar => {
-            bar.style.transform = 'scaleX(0)';
-        });
-        
-        // Create observer with low threshold for immediate trigger
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    // Trigger all bars immediately
-                    progressBars.forEach(bar => {
-                        bar.style.transform = 'scaleX(1)';
-                    });
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { 
-            threshold: 0.1,
-            rootMargin: '0px 0px -10% 0px'
-        });
-        
-        observer.observe(skillsSection);
-    }
+    // Skill Bars Animation - In Separate Function
+    initSkillAnimations();
 
     // Stats Counter Animation
 
