@@ -721,6 +721,7 @@ function renderProjectsPage() {
             item.innerHTML = `
                 ${bgContent}
                 <div class="bento-content">
+                    ${p.category ? `<span class="project-category-badge">${p.category}</span>` : ''}
                     <h3>${p.title}</h3>
                     <p>${p.description}</p>
                     
