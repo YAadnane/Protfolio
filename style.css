@@ -932,6 +932,8 @@ h4 {
     z-index: 0;
     opacity: 0.6;
     transition: var(--transition-smooth);
+    background-color: #000;
+    /* Safety bg for white text */
 }
 
 .bento-bg.is-video {
