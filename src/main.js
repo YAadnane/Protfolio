@@ -705,14 +705,14 @@ function renderProjectsPage() {
                     `;
                 }
             } else if (p.image && p.image.trim() !== '') {
-                // It's a CSS class (or garbage text)
-                // Force dark bg to ensure visibility if class is invalid
-                console.log(`[Project Debug] ID: ${p.id}, ImageField: '${p.image}'`);
-                bgContent = `<div class="bento-bg ${p.image}" style="background-color: #1a1a1a;"></div>`;
+                // It's a CSS class or external URL - treat as media if it's not just a pattern? 
+                // Assumed media for safety if user provides custom class.
+                // But often these are gradients. Let's assume NOT media unless specified.
+                bgContent = `<div class="bento-bg ${p.image}"></div>`;
             } else {
-                // Fallback: No image/video
+                // Fallback: No image/video -> Use CSS Class for styling
                bgContent = `
-                    <div class="bento-bg bento-fallback-gradient" style="background-color: #1a1a1a;"></div>
+                    <div class="bento-bg bento-fallback-gradient"></div>
                     <div class="bento-fallback-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></div>
                 `;
             }
