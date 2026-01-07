@@ -1009,6 +1009,11 @@ body.light-mode .btn-play {
     border: 1px solid rgba(0, 255, 157, 0.2);
 }
 
+.bento-fallback-gradient {
+    background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+    opacity: 0.8;
+}
+
 /* ------------------------------- */
 
 .column-title {
