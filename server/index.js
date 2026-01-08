@@ -770,11 +770,29 @@ app.get('/api/stats', (req, res) => {
     // Use Promises for parallel DB queries
     const queries = [
         new Promise((resolve) => {
-            db.get("SELECT MIN(year) as start_year FROM experience WHERE is_hidden = 0", [], (err, row) => {
-                if (row && row.start_year) {
-                    const match = row.start_year.match(/(\d{4})/);
-                    const start = match ? parseInt(match[0]) : new Date().getFullYear();
-                    stats.years = new Date().getFullYear() - start + 1;
+            db.all("SELECT start_date, year FROM experience WHERE is_hidden = 0", [], (err, rows) => {
+                let minYear = new Date().getFullYear();
+                if (rows && rows.length > 0) {
+                    rows.forEach(r => {
+                        let y = null;
+                        // Try start_date first
+                        if (r.start_date) {
+                            const match = r.start_date.toString().match(/(\d{4})/);
+                            if (match) y = parseInt(match[0]);
+                        }
+                        // Fallback to year
+                        if (!y && r.year) {
+                            const match = r.year.toString().match(/(\d{4})/);
+                            if (match) y = parseInt(match[0]);
+                        }
+                        
+                        // Update minYear if valid (sanity check > 1950)
+                        if (y && y > 1950 && y < minYear) {
+                            minYear = y;
+                        }
+                    });
+                     // If we found a valid earlier year, calc diff
+                    stats.years = new Date().getFullYear() - minYear + 1; // Inclusive count
                 } else {
                     stats.years = 0;
                 }
