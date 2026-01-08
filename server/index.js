@@ -770,29 +770,53 @@ app.get('/api/stats', (req, res) => {
     // Use Promises for parallel DB queries
     const queries = [
         new Promise((resolve) => {
-            db.all("SELECT start_date, year FROM experience WHERE is_hidden = 0", [], (err, rows) => {
-                let minYear = new Date().getFullYear();
+            db.all("SELECT start_date, end_date, year FROM experience WHERE is_hidden = 0", [], (err, rows) => {
+                let totalMonths = 0;
+                
                 if (rows && rows.length > 0) {
                     rows.forEach(r => {
-                        let y = null;
-                        // Try start_date first
-                        if (r.start_date) {
-                            const match = r.start_date.toString().match(/(\d{4})/);
-                            if (match) y = parseInt(match[0]);
-                        }
-                        // Fallback to year
-                        if (!y && r.year) {
-                            const match = r.year.toString().match(/(\d{4})/);
-                            if (match) y = parseInt(match[0]);
-                        }
+                        let start, end;
                         
-                        // Update minYear if valid (sanity check > 1950)
-                        if (y && y > 1950 && y < minYear) {
-                            minYear = y;
+                        // Parse Start
+                        if (r.start_date) {
+                            start = new Date(r.start_date);
+                             // Handle "Sep 2020" or just "2020"
+                            if (isNaN(start.getTime())) {
+                                const m = r.start_date.toString().match(/(\d{4})/);
+                                if (m) start = new Date(parseInt(m[0]), 0, 1);
+                            }
+                        } else if (r.year) {
+                            // Fallback to year (assume Jan 1st)
+                             const m = r.year.toString().match(/(\d{4})/);
+                             if (m) start = new Date(parseInt(m[0]), 0, 1);
+                        }
+
+                        // Parse End
+                        if (!r.end_date || r.end_date.toLowerCase() === 'present' || r.end_date.trim() === '') {
+                            end = new Date();
+                        } else {
+                            end = new Date(r.end_date);
+                            if (isNaN(end.getTime())) {
+                                const m = r.end_date.toString().match(/(\d{4})/);
+                                if (m) end = new Date(parseInt(m[0]), 11, 31);
+                            }
+                        }
+
+                        // Add Duration
+                        if (start && !isNaN(start.getTime()) && end && !isNaN(end.getTime())) {
+                            let diffMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+                            // Add 1 month inclusive if dates are loose? Or usually just diff.
+                            // If Sep 2020 to Sep 2021 -> 12 months.
+                            if (diffMonths < 0) diffMonths = 0; 
+                            // If just years "2020", diff is 0? No, 2020-01-01 to 2021-01-01 is 1 year.
+                            // If "2020" to "2020" = 0, maybe assume 1 year?
+                            if (diffMonths === 0) diffMonths = 1; 
+                            
+                            totalMonths += diffMonths;
                         }
                     });
-                     // If we found a valid earlier year, calc diff
-                    stats.years = new Date().getFullYear() - minYear + 1; // Inclusive count
+                    
+                    stats.years = Math.floor(totalMonths / 12);
                 } else {
                     stats.years = 0;
                 }
