@@ -1326,7 +1326,16 @@ if (artModal) {
                         <p class="institution">${e.institution}</p>
                     </div>
                 </div>
+                </div>
                 ${e.description ? `<p class="desc">${e.description}</p>` : ''}
+                
+                ${e.brochure ? `
+                    <div class="timeline-actions">
+                        <a href="${API_URL.replace('/api', '')}${e.brochure}" target="_blank" class="btn-timeline">
+                            <i class="fa-solid fa-file-pdf"></i> Brochure
+                        </a>
+                    </div>
+                ` : ''}
             `;
             container.appendChild(card);
         });
@@ -1364,6 +1373,19 @@ async function loadExperience() {
                     </div>
                 </div>
                 <p class="desc">${e.description}</p>
+                
+                <div class="timeline-actions">
+                    ${e.website ? `
+                        <a href="${e.website}" target="_blank" class="btn-timeline">
+                            <i class="fa-solid fa-globe"></i> Website
+                        </a>
+                    ` : ''}
+                    ${e.linkedin ? `
+                        <a href="${e.linkedin}" target="_blank" class="btn-timeline">
+                            <i class="fa-brands fa-linkedin"></i> LinkedIn
+                        </a>
+                    ` : ''}
+                </div>
             `;
             container.appendChild(card);
         });
