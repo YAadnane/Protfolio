@@ -5382,3 +5382,8 @@ body.light-mode .bento-item.has-media .bento-tags span {
     color: var(--text-muted);
     margin-top: 0.5rem;
 }
+/* User Request: Black text on Project Cards in Light Mode */
+body.light-mode .bento-item h3,
+body.light-mode .bento-item p {
+    color: #000 !important;
+}
