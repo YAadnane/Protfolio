@@ -1304,13 +1304,24 @@ if (artModal) {
         const container = document.getElementById('education-content');
         container.innerHTML = '';
 
-        edu.forEach(e => {
-            const card = document.createElement('div');
-            card.className = 'timeline-card';
+            const hasLogo = e.logo && e.logo.trim() !== '';
+            const logoUrl = hasLogo ? `${API_URL.replace('/api', '')}${e.logo}` : '';
+            const initial = (e.institution || '?').charAt(0).toUpperCase();
+            
             card.innerHTML = `
-                <span class="timeline-year">${e.year}</span>
-                <h4>${e.degree}</h4>
-                <p class="institution">${e.institution}</p>
+                <div class="timeline-header">
+                    <div class="timeline-logo">
+                        ${hasLogo 
+                            ? `<img src="${logoUrl}" alt="${e.institution}" class="timeline-logo-img">` 
+                            : `<span class="timeline-initial">${initial}</span>`
+                        }
+                    </div>
+                    <div class="timeline-info">
+                        <span class="timeline-year">${e.year}</span>
+                        <h4>${e.degree}</h4>
+                        <p class="institution">${e.institution}</p>
+                    </div>
+                </div>
                 ${e.description ? `<p class="desc">${e.description}</p>` : ''}
             `;
             container.appendChild(card);
@@ -1328,10 +1339,25 @@ async function loadExperience() {
         exp.forEach(e => {
             const card = document.createElement('div');
             card.className = 'timeline-card';
+            
+            const hasLogo = e.logo && e.logo.trim() !== '';
+            const logoUrl = hasLogo ? `${API_URL.replace('/api', '')}${e.logo}` : '';
+            const initial = (e.company || '?').charAt(0).toUpperCase();
+
             card.innerHTML = `
-                <span class="timeline-year">${e.year}</span>
-                <h4>${e.role}</h4>
-                <p class="institution">${e.company}</p>
+                <div class="timeline-header">
+                     <div class="timeline-logo">
+                        ${hasLogo 
+                            ? `<img src="${logoUrl}" alt="${e.company}" class="timeline-logo-img">` 
+                            : `<span class="timeline-initial">${initial}</span>`
+                        }
+                    </div>
+                    <div class="timeline-info">
+                        <span class="timeline-year">${e.year}</span>
+                        <h4>${e.role}</h4>
+                        <p class="institution">${e.company}</p>
+                    </div>
+                </div>
                 <p class="desc">${e.description}</p>
             `;
             container.appendChild(card);
