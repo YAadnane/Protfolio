@@ -1299,8 +1299,7 @@ if (artModal) {
 
     async function loadEducation() {
         try {
-            const res = await fetch(`${API_URL}/education?lang=${currentLang}&t=${Date.now()}`);
-        const edu = (await res.json()).filter(e => !e.is_hidden);
+    const edu = await fetchWithLang('education');
         const container = document.getElementById('education-content');
         container.innerHTML = '';
 
@@ -1312,6 +1311,12 @@ if (artModal) {
             const logoUrl = hasLogo ? `${API_URL.replace('/api', '')}${e.logo}` : '';
             const initial = (e.institution || '?').charAt(0).toUpperCase();
             
+            // Date Logic
+            let dateDisplay = e.year; // Fallback
+            if (e.start_date) {
+                dateDisplay = `${e.start_date}${e.end_date ? ' - ' + e.end_date : ' - Present'}`;
+            }
+
             card.innerHTML = `
                 <div class="timeline-header">
                     <div class="timeline-logo">
@@ -1321,7 +1326,7 @@ if (artModal) {
                         }
                     </div>
                     <div class="timeline-info">
-                        <span class="timeline-year">${e.year}</span>
+                        <span class="timeline-year">${dateDisplay}</span>
                         <h4>${e.degree}</h4>
                         <p class="institution">${e.institution}</p>
                     </div>
@@ -1344,8 +1349,7 @@ if (artModal) {
 
 async function loadExperience() {
     try {
-        const res = await fetch(`${API_URL}/experience?lang=${currentLang}&t=${Date.now()}`);
-        const exp = (await res.json()).filter(e => !e.is_hidden);
+    const exp = await fetchWithLang('experience');
         const container = document.getElementById('experience-content');
         container.innerHTML = '';
 
@@ -1358,6 +1362,12 @@ async function loadExperience() {
             const logoUrl = hasLogo ? `${API_URL.replace('/api', '')}${e.logo}` : '';
             const initial = (e.company || '?').charAt(0).toUpperCase();
 
+            // Date Logic
+            let dateDisplay = e.year;
+            if (e.start_date) {
+                dateDisplay = `${e.start_date}${e.end_date ? ' - ' + e.end_date : ' - Present'}`;
+            }
+
             card.innerHTML = `
                 <div class="timeline-header">
                      <div class="timeline-logo">
@@ -1367,7 +1377,7 @@ async function loadExperience() {
                         }
                     </div>
                     <div class="timeline-info">
-                        <span class="timeline-year">${e.year}</span>
+                        <span class="timeline-year">${dateDisplay}</span>
                         <h4>${e.role}</h4>
                         <p class="institution">${e.company}</p>
                     </div>

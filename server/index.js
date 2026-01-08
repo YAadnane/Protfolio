@@ -387,10 +387,19 @@ app.get('/api/education', (req, res) => {
     });
 });
 
-app.post('/api/education', authenticateToken, (req, res) => {
-    const { degree, institution, year, description, is_hidden, lang } = req.body;
-    db.run(`INSERT INTO education (degree, institution, year, description, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?)`,
-        [degree, institution, year, description, is_hidden || 0, lang || 'en'],
+app.post('/api/education', authenticateToken, upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'brochureFile', maxCount: 1 }]), (req, res) => {
+    const { degree, institution, start_date, end_date, description, is_hidden, lang, logo, brochure } = req.body;
+    let logoPath = logo || '';
+    if (req.files && req.files['logoFile']) {
+        logoPath = `/uploads/${req.files['logoFile'][0].filename}`;
+    }
+    let brochurePath = brochure || '';
+    if (req.files && req.files['brochureFile']) {
+        brochurePath = `/uploads/${req.files['brochureFile'][0].filename}`;
+    }
+
+    db.run(`INSERT INTO education (degree, institution, start_date, end_date, description, is_hidden, lang, logo, brochure) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [degree, institution, start_date, end_date, description, is_hidden || 0, lang || 'en', logoPath, brochurePath],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
@@ -398,10 +407,19 @@ app.post('/api/education', authenticateToken, (req, res) => {
     );
 });
 
-app.put('/api/education/:id', authenticateToken, (req, res) => {
-    const { degree, institution, year, description, is_hidden } = req.body;
-    db.run(`UPDATE education SET degree = ?, institution = ?, year = ?, description = ?, is_hidden = ? WHERE id = ?`,
-        [degree, institution, year, description, is_hidden, req.params.id],
+app.put('/api/education/:id', authenticateToken, upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'brochureFile', maxCount: 1 }]), (req, res) => {
+    const { degree, institution, start_date, end_date, description, is_hidden, logo, brochure } = req.body;
+    let logoPath = logo;
+    if (req.files && req.files['logoFile']) {
+        logoPath = `/uploads/${req.files['logoFile'][0].filename}`;
+    }
+    let brochurePath = brochure;
+    if (req.files && req.files['brochureFile']) {
+        brochurePath = `/uploads/${req.files['brochureFile'][0].filename}`;
+    }
+
+    db.run(`UPDATE education SET degree = ?, institution = ?, start_date = ?, end_date = ?, description = ?, is_hidden = ?, logo = ?, brochure = ? WHERE id = ?`,
+        [degree, institution, start_date, end_date, description, is_hidden, logoPath, brochurePath, req.params.id],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });
@@ -425,10 +443,15 @@ app.get('/api/experience', (req, res) => {
     });
 });
 
-app.post('/api/experience', authenticateToken, (req, res) => {
-    const { role, company, year, description, is_hidden, lang } = req.body;
-    db.run(`INSERT INTO experience (role, company, year, description, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?)`,
-        [role, company, year, description, is_hidden || 0, lang || 'en'],
+app.post('/api/experience', authenticateToken, upload.fields([{ name: 'logoFile', maxCount: 1 }]), (req, res) => {
+    const { role, company, start_date, end_date, description, is_hidden, lang, logo, website, linkedin } = req.body;
+    let logoPath = logo || '';
+    if (req.files && req.files['logoFile']) {
+        logoPath = `/uploads/${req.files['logoFile'][0].filename}`;
+    }
+
+    db.run(`INSERT INTO experience (role, company, start_date, end_date, description, is_hidden, lang, logo, website, linkedin) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [role, company, start_date, end_date, description, is_hidden || 0, lang || 'en', logoPath, website, linkedin],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
@@ -436,10 +459,15 @@ app.post('/api/experience', authenticateToken, (req, res) => {
     );
 });
 
-app.put('/api/experience/:id', authenticateToken, (req, res) => {
-    const { role, company, year, description, is_hidden } = req.body;
-    db.run(`UPDATE experience SET role = ?, company = ?, year = ?, description = ?, is_hidden = ? WHERE id = ?`,
-        [role, company, year, description, is_hidden, req.params.id],
+app.put('/api/experience/:id', authenticateToken, upload.fields([{ name: 'logoFile', maxCount: 1 }]), (req, res) => {
+    const { role, company, start_date, end_date, description, is_hidden, logo, website, linkedin } = req.body;
+    let logoPath = logo;
+    if (req.files && req.files['logoFile']) {
+        logoPath = `/uploads/${req.files['logoFile'][0].filename}`;
+    }
+
+    db.run(`UPDATE experience SET role = ?, company = ?, start_date = ?, end_date = ?, description = ?, is_hidden = ?, logo = ?, website = ?, linkedin = ? WHERE id = ?`,
+        [role, company, start_date, end_date, description, is_hidden, logoPath, website, linkedin, req.params.id],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });
