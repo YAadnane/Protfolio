@@ -1359,7 +1359,6 @@ async function loadEducation() {
             `;
             container.appendChild(card);
         });
-        });
 
         // Trigger Animation for Cards
         gsap.from("#education-content .timeline-card", {
