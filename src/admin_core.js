@@ -328,6 +328,7 @@ const fields = {
         { name: 'link', label: 'Link URL', type: 'text' },
         { name: 'date', label: 'Date', type: 'date' },
         { name: 'tags', label: 'Theme / Tags (comma separated)', type: 'text' },
+        { name: 'image', label: 'Current Image Path (or external URL)', type: 'text' },
         { name: 'imageFile', label: 'Cover Image', type: 'file' },
         { name: 'lang', label: 'Language', type: 'select', options: ['en', 'fr'] },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
