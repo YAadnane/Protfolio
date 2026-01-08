@@ -379,6 +379,7 @@ db.serialize(() => {
             addColumnIfNotExists('articles', 'link', 'TEXT');
             addColumnIfNotExists('articles', 'is_hidden', 'INTEGER DEFAULT 0');
             addColumnIfNotExists('articles', 'lang', "TEXT DEFAULT 'en'");
+            addColumnIfNotExists('articles', 'updated_date', 'TEXT');
 
              // Seed if empty
              db.get("SELECT count(*) as count FROM articles", (err, row) => {

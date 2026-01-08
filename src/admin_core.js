@@ -327,6 +327,7 @@ const fields = {
         { name: 'summary', label: 'Summary', type: 'textarea' },
         { name: 'link', label: 'Link URL', type: 'text' },
         { name: 'date', label: 'Date', type: 'date' },
+        { name: 'updated_date', label: 'Modification Date', type: 'date' },
         { name: 'tags', label: 'Theme / Tags (comma separated)', type: 'text' },
         { name: 'image', label: 'Current Image Path (or external URL)', type: 'text' },
         { name: 'imageFile', label: 'Cover Image', type: 'file' },

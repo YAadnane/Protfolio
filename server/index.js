@@ -601,11 +601,11 @@ app.get('/api/articles', (req, res) => {
 });
 
 app.post('/api/articles', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { title, summary, link, date, tags, is_hidden, lang, image } = req.body;
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : image;
+    const { title, summary, link, date, updated_date, tags, is_hidden, lang, image } = req.body;
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : (image || null);
 
-    db.run(`INSERT INTO articles (title, summary, link, date, tags, image, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [title, summary, link, date, tags, imagePath, is_hidden || 0, lang || 'en'],
+    db.run(`INSERT INTO articles (title, summary, link, date, updated_date, tags, image, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [title, summary, link, date, updated_date, tags, imagePath, is_hidden || 0, lang || 'en'],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
@@ -614,14 +614,14 @@ app.post('/api/articles', authenticateToken, upload.single('imageFile'), (req, r
 });
 
 app.put('/api/articles/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { title, summary, link, date, tags, is_hidden, image } = req.body;
-    let imagePath = image;
+    const { title, summary, link, date, updated_date, tags, is_hidden, image } = req.body;
+    let imagePath = image || null;
     if (req.file) {
         imagePath = `/uploads/${req.file.filename}`;
     }
 
-    db.run(`UPDATE articles SET title = ?, summary = ?, link = ?, date = ?, tags = ?, image = ?, is_hidden = ? WHERE id = ?`,
-        [title, summary, link, date, tags, imagePath, is_hidden, req.params.id],
+    db.run(`UPDATE articles SET title = ?, summary = ?, link = ?, date = ?, updated_date = ?, tags = ?, image = ?, is_hidden = ? WHERE id = ?`,
+        [title, summary, link, date, updated_date, tags, imagePath, is_hidden, req.params.id],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });
