@@ -71,7 +71,12 @@ body {
     /* Active */
 }
 
-a,
+a {
+    text-decoration: none;
+    color: inherit;
+    cursor: none !important;
+}
+
 button,
 .btn,
 input,
