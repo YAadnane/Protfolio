@@ -1304,6 +1304,10 @@ if (artModal) {
         const container = document.getElementById('education-content');
         container.innerHTML = '';
 
+        edu.forEach(e => {
+            const card = document.createElement('div');
+            card.className = 'timeline-card';
+
             const hasLogo = e.logo && e.logo.trim() !== '';
             const logoUrl = hasLogo ? `${API_URL.replace('/api', '')}${e.logo}` : '';
             const initial = (e.institution || '?').charAt(0).toUpperCase();
@@ -1336,6 +1340,10 @@ async function loadExperience() {
         const container = document.getElementById('experience-content');
         container.innerHTML = '';
 
+        exp.forEach(e => {
+            const card = document.createElement('div');
+            card.className = 'timeline-card';
+            
         exp.forEach(e => {
             const card = document.createElement('div');
             card.className = 'timeline-card';
