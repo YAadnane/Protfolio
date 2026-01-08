@@ -138,6 +138,13 @@ async function toggleLanguage() {
     await loadAllContent(); 
 }
 
+async function fetchWithLang(endpoint) {
+    const res = await fetch(`${API_URL}/${endpoint}?lang=${currentLang}&t=${Date.now()}`);
+    if (!res.ok) throw new Error(`Failed to fetch ${endpoint}`);
+    const data = await res.json();
+    return data.filter(item => !item.is_hidden);
+}
+
 async function loadAllContent() {
     await Promise.all([
         loadGeneralInfo(),
