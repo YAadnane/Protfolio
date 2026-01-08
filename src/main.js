@@ -1325,8 +1325,10 @@ async function loadEducation() {
             
             // Date Logic
             const t = uiTranslations[currentLang] || uiTranslations['en'];
-            let dateDisplay = e.year; // Fallback
-            if (e.start_date) {
+            let dateDisplay = e.year || ''; 
+            if (dateDisplay === 'NULL') dateDisplay = '';
+            
+            if (e.start_date && e.start_date !== 'NULL') {
                 dateDisplay = `${e.start_date}${e.end_date ? ' - ' + e.end_date : ' - ' + t.present}`;
             }
 
@@ -1357,6 +1359,20 @@ async function loadEducation() {
             `;
             container.appendChild(card);
         });
+        });
+
+        // Trigger Animation for Cards
+        gsap.from("#education-content .timeline-card", {
+            scrollTrigger: {
+                trigger: "#education-content",
+                start: "top 80%"
+            },
+            y: 50,
+            opacity: 0,
+            duration: 0.6,
+            stagger: 0.2,
+            ease: "power2.out"
+        });
     } catch (err) { console.error("Failed to load education", err); }
 }
 
@@ -1377,8 +1393,10 @@ async function loadExperience() {
 
             // Date Logic
             const t = uiTranslations[currentLang] || uiTranslations['en'];
-            let dateDisplay = e.year;
-            if (e.start_date) {
+            let dateDisplay = e.year || '';
+            if (dateDisplay === 'NULL') dateDisplay = '';
+
+            if (e.start_date && e.start_date !== 'NULL') {
                 dateDisplay = `${e.start_date}${e.end_date ? ' - ' + e.end_date : ' - ' + t.present}`;
             }
 
@@ -1413,6 +1431,21 @@ async function loadExperience() {
             `;
             container.appendChild(card);
         });
+        });
+        
+        // Trigger Animation for Cards
+        gsap.from(".timeline-card", {
+            scrollTrigger: {
+                trigger: "#experience-content",
+                start: "top 80%"
+            },
+            y: 50,
+            opacity: 0,
+            duration: 0.6,
+            stagger: 0.2,
+            ease: "power2.out"
+        });
+
     } catch (err) { console.error("Failed to load experience", err); }
 }
 
