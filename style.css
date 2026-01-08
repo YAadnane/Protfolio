@@ -106,7 +106,7 @@ img {
     left: 0;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    z-index: 10001;
+    z-index: 9999999;
     /* Above Header (10000) */
     pointer-events: none;
     display: block !important;
