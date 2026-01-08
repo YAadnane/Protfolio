@@ -1309,6 +1309,10 @@ textarea:focus {
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    /* Spread content */
+    min-height: 220px;
+    /* Uniform height */
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     overflow: hidden;
 }
