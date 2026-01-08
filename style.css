@@ -1285,43 +1285,73 @@ textarea:focus {
 }
 
 
-/* Redesigned Timeline Card */
+/* Elegant Timeline Card */
 .timeline-card {
-    background: var(--card-bg);
-    padding: 1.5rem;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 1.75rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
     margin-bottom: 1.5rem;
     position: relative;
-    transition: transform 0.3s ease, border-color 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.timeline-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
 }
 
 .timeline-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-5px) scale(1.02);
     border-color: var(--accent-color);
-    background: rgba(255, 255, 255, 0.04);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.timeline-card:hover::before {
+    opacity: 1;
 }
 
 .timeline-header {
     display: flex;
     align-items: center;
-    gap: 1.25rem;
-    margin-bottom: 1rem;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 1rem;
 }
 
 .timeline-logo {
-    width: 50px;
-    height: 50px;
+    width: 56px;
+    height: 56px;
     flex-shrink: 0;
-    border-radius: 50%;
+    border-radius: 12px;
+    /* Soft square looks simpler/modern */
     overflow: hidden;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(0, 0, 0, 0.3);
     border: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: transform 0.3s ease;
+}
+
+.timeline-card:hover .timeline-logo {
+    transform: rotate(5deg);
+    border-color: var(--accent-color);
 }
 
 .timeline-logo-img {
@@ -1344,34 +1374,38 @@ textarea:focus {
 
 .timeline-year {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     color: var(--accent-color);
-    margin-bottom: 0.2rem;
-    display: block;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.25rem;
     opacity: 0.9;
 }
 
 .timeline-card h4 {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     margin: 0;
     color: var(--text-main);
-    line-height: 1.3;
+    line-height: 1.2;
+    font-weight: 600;
+    font-family: var(--font-heading);
 }
 
 .institution {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: var(--text-muted);
     font-weight: 400;
     margin: 0.2rem 0 0 0;
 }
 
 .desc {
-    margin-top: 0.5rem;
+    margin-top: 0.25rem;
     font-size: 0.9rem;
     color: var(--text-muted);
-    line-height: 1.6;
-    opacity: 0.9;
+    line-height: 1.7;
+    opacity: 0.85;
 }
+
 
 
 
