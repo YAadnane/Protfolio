@@ -2108,6 +2108,9 @@ async function loadArticles() {
                 <div class="article-slide">
                     ${group.map(art => {
                         const dateStr = art.date ? new Date(art.date).toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+                        const updatedStr = art.updated_date ? new Date(art.updated_date).toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
+                        const dateHtml = updatedStr ? `${dateStr} <br><span style="font-size:0.85em; opacity:0.8"><i class="fa-solid fa-rotate"></i> ${updatedStr}</span>` : `${dateStr}`;
+
                         const clicks = art.clicks || 0;
                         const likes = art.likes_count || 0;
                         const comments = art.comments_count || 0;
@@ -2121,7 +2124,7 @@ async function loadArticles() {
                             </div>
                             <div class="article-content">
                                 <div class="article-meta-top">
-                                    <span class="article-date"><i class="fa-regular fa-calendar"></i> ${dateStr}</span>
+                                    <span class="article-date"><i class="fa-regular fa-calendar"></i> ${dateHtml}</span>
                                     <div class="article-tags-inline">
                                         ${art.tags ? art.tags.split(',').slice(0, 2).map(t => `<span class="tag-pill">${t.trim()}</span>`).join('') : ''}
                                     </div>
