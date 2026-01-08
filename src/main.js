@@ -1430,7 +1430,6 @@ async function loadExperience() {
             `;
             container.appendChild(card);
         });
-        });
         
         // Trigger Animation for Cards
         gsap.from(".timeline-card", {
