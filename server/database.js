@@ -65,19 +65,51 @@ db.serialize(() => {
         degree TEXT,
         institution TEXT,
         year TEXT,
+        start_date TEXT, -- New
+        end_date TEXT, -- New
+        logo TEXT, -- New
+        brochure TEXT, -- New
         description TEXT,
-        is_hidden INTEGER DEFAULT 0
-    )`, () => addColumnIfNotExists('education', 'is_hidden', 'INTEGER DEFAULT 0'));
+        is_hidden INTEGER DEFAULT 0,
+        lang TEXT DEFAULT 'en'
+    )`, (err) => {
+        if (!err) {
+            addColumnIfNotExists('education', 'is_hidden', 'INTEGER DEFAULT 0');
+            addColumnIfNotExists('education', 'lang', "TEXT DEFAULT 'en'");
+            // Migration
+            addColumnIfNotExists('education', 'start_date', 'TEXT');
+            addColumnIfNotExists('education', 'end_date', 'TEXT');
+            addColumnIfNotExists('education', 'logo', 'TEXT');
+            addColumnIfNotExists('education', 'brochure', 'TEXT');
+        }
+    });
 
     // Experience Table
     db.run(`CREATE TABLE IF NOT EXISTS experience (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         role TEXT,
         company TEXT,
-        year TEXT,
+        year TEXT, 
+        start_date TEXT, -- New
+        end_date TEXT, -- New
+        logo TEXT, -- New
+        website TEXT, -- New
+        linkedin TEXT, -- New
         description TEXT,
-        is_hidden INTEGER DEFAULT 0
-    )`, () => addColumnIfNotExists('experience', 'is_hidden', 'INTEGER DEFAULT 0'));
+        is_hidden INTEGER DEFAULT 0,
+        lang TEXT DEFAULT 'en'
+    )`, (err) => {
+        if (!err) {
+            addColumnIfNotExists('experience', 'is_hidden', 'INTEGER DEFAULT 0');
+            addColumnIfNotExists('experience', 'lang', "TEXT DEFAULT 'en'");
+            // Migration
+            addColumnIfNotExists('experience', 'start_date', 'TEXT');
+            addColumnIfNotExists('experience', 'end_date', 'TEXT');
+            addColumnIfNotExists('experience', 'logo', 'TEXT');
+            addColumnIfNotExists('experience', 'website', 'TEXT');
+            addColumnIfNotExists('experience', 'linkedin', 'TEXT');
+        }
+    });
 
     // Skills Table
     db.run(`CREATE TABLE IF NOT EXISTS skills (

@@ -295,14 +295,30 @@ const fields = {
     education: [
         { name: 'degree', label: 'Degree', type: 'text' },
         { name: 'institution', label: 'Institution', type: 'text' },
-        { name: 'year', label: 'Year', type: 'text' },
+        // { name: 'year', label: 'Year', type: 'text' }, // Repaced by Start/End
+        { name: 'start_date', label: 'Start Date (e.g. 2020 or Sep 2020)', type: 'text' },
+        { name: 'end_date', label: 'End Date (Leave empty for Present)', type: 'text' },
+        
+        { name: 'logo', label: 'Logo Path', type: 'text' },
+        { name: 'logoFile', label: 'Upload Logo (Image)', type: 'file' },
+        { name: 'brochure', label: 'Brochure Path', type: 'text' },
+        { name: 'brochureFile', label: 'Upload Brochure (PDF)', type: 'file', accept: '.pdf' },
+
         { name: 'description', label: 'Description', type: 'textarea' },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
     ],
     experience: [
         { name: 'role', label: 'Role', type: 'text' },
         { name: 'company', label: 'Company', type: 'text' },
-        { name: 'year', label: 'Year', type: 'text' },
+        // { name: 'year', label: 'Year', type: 'text' },
+        { name: 'start_date', label: 'Start Date (e.g. 2020)', type: 'text' },
+        { name: 'end_date', label: 'End Date (Leave empty for Present)', type: 'text' },
+
+        { name: 'logo', label: 'Logo Path', type: 'text' },
+        { name: 'logoFile', label: 'Upload Logo (Image)', type: 'file' },
+        { name: 'website', label: 'Website URL', type: 'text' },
+        { name: 'linkedin', label: 'LinkedIn URL', type: 'text' },
+
         { name: 'description', label: 'Description', type: 'textarea' },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
     ],
