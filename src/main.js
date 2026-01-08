@@ -1304,7 +1304,12 @@ if (artModal) {
     }
 }
 
-    async function loadEducation() {
+const uiTranslations = {
+    en: { brochure: "Brochure", website: "Website", linkedin: "LinkedIn", present: "Present" },
+    fr: { brochure: "Brochure", website: "Site Web", linkedin: "LinkedIn", present: "Présent" }
+};
+
+async function loadEducation() {
         try {
     const edu = await fetchWithLang('education');
         const container = document.getElementById('education-content');
@@ -1319,9 +1324,10 @@ if (artModal) {
             const initial = (e.institution || '?').charAt(0).toUpperCase();
             
             // Date Logic
+            const t = uiTranslations[currentLang] || uiTranslations['en'];
             let dateDisplay = e.year; // Fallback
             if (e.start_date) {
-                dateDisplay = `${e.start_date}${e.end_date ? ' - ' + e.end_date : ' - Present'}`;
+                dateDisplay = `${e.start_date}${e.end_date ? ' - ' + e.end_date : ' - ' + t.present}`;
             }
 
             card.innerHTML = `
@@ -1344,7 +1350,7 @@ if (artModal) {
                 ${e.brochure ? `
                     <div class="timeline-actions">
                         <a href="${API_URL.replace('/api', '')}${e.brochure}" target="_blank" class="btn-timeline">
-                            <i class="fa-solid fa-file-pdf"></i> Brochure
+                            <i class="fa-solid fa-file-pdf"></i> ${t.brochure}
                         </a>
                     </div>
                 ` : ''}
@@ -1370,9 +1376,10 @@ async function loadExperience() {
             const initial = (e.company || '?').charAt(0).toUpperCase();
 
             // Date Logic
+            const t = uiTranslations[currentLang] || uiTranslations['en'];
             let dateDisplay = e.year;
             if (e.start_date) {
-                dateDisplay = `${e.start_date}${e.end_date ? ' - ' + e.end_date : ' - Present'}`;
+                dateDisplay = `${e.start_date}${e.end_date ? ' - ' + e.end_date : ' - ' + t.present}`;
             }
 
             card.innerHTML = `
@@ -1394,12 +1401,12 @@ async function loadExperience() {
                 <div class="timeline-actions">
                     ${e.website ? `
                         <a href="${e.website}" target="_blank" class="btn-timeline">
-                            <i class="fa-solid fa-globe"></i> Website
+                            <i class="fa-solid fa-globe"></i> ${t.website}
                         </a>
                     ` : ''}
                     ${e.linkedin ? `
                         <a href="${e.linkedin}" target="_blank" class="btn-timeline">
-                            <i class="fa-brands fa-linkedin"></i> LinkedIn
+                            <i class="fa-brands fa-linkedin"></i> ${t.linkedin}
                         </a>
                     ` : ''}
                 </div>
