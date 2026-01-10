@@ -669,8 +669,11 @@
             style="background: none; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer;">&times;</button>
         </div>
       </div>
-      <div class="modal-body" style="flex: 1; padding: 0; background: #fff;">
+      <div class="modal-body" style="flex: 1; padding: 0; background: #fff; position: relative;">
         <iframe id="article-iframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+        <div id="article-dynamic-content"
+          style="width:100%; height:100%; overflow-y:auto; padding:20px; display:none; background:var(--bg-card); position: absolute; top: 0; left: 0;">
+        </div>
       </div>
     </div>
   </div>
