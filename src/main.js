@@ -1200,6 +1200,7 @@ async function loadCertifications() {
 
 // --- ARTICLE MODAL LOGIC ---
 window.openArticleModal = async (url, id, title, date) => {
+    // FORCE UPDATE SYNC
     console.log('openArticleModal:', { url, id, title, date });
 
     const modal = document.getElementById('article-modal');
