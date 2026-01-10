@@ -1199,7 +1199,7 @@ async function loadCertifications() {
 }
 
 // --- ARTICLE MODAL LOGIC ---
-window.openArticleModal = (url, id, title, date) => {
+window.openArticleModal = async (url, id, title, date) => {
     console.log('openArticleModal:', { url, id, title, date });
 
     const modal = document.getElementById('article-modal');
@@ -1213,78 +1213,75 @@ window.openArticleModal = (url, id, title, date) => {
     if (titleEl) titleEl.textContent = title;
     if (dateEl) dateEl.textContent = date;
     
-    // Set Fallback Link IMMEDIATELY (V3 Cache Buster)
-    let btnFallback = document.getElementById('article-fallback-link-v3');
-
-    // Auto-Recovery for Version Mismatch (Old HTML / New JS)
-    if (!btnFallback) {
-        console.warn('Fallback button (v3) missing in DOM. Attempting auto-recovery...');
-        const headerActions = document.querySelector('.article-modal-header-actions'); // Specific container
-        if (headerActions) {
-             btnFallback = document.createElement('a');
-             btnFallback.id = 'article-fallback-link-v3';
-             btnFallback.className = 'btn-secondary';
-             btnFallback.target = '_blank';
-             btnFallback.style.cssText = 'display: flex; align-items: center; gap: 0.5rem; text-decoration: none; font-size: 0.8rem; padding: 0.4rem 0.8rem;';
-             // Insert before the close button (last child)
-             headerActions.insertBefore(btnFallback, headerActions.lastElementChild);
-             console.log('Auto-recovered fallback button.');
-        } else {
-             console.error('Critical: Could not find modal header actions container.');
-        }
+    // Reset Iframe
+    if (iframe) {
+        iframe.style.display = 'none';
+        iframe.src = '';
     }
-    
+
+    // Dynamic Container
+    let contentContainer = document.getElementById('article-dynamic-content');
+    if (!contentContainer) {
+        contentContainer = document.createElement('div');
+        contentContainer.id = 'article-dynamic-content';
+        contentContainer.style.cssText = 'width:100%; height:100%; overflow-y:auto; padding:20px; display:none; background:var(--bg-card);';
+        const modalBody = modal.querySelector('.article-modal-body') || modal.querySelector('.modal-body') || modal; 
+        if(modalBody) modalBody.appendChild(contentContainer);
+    }
+    contentContainer.innerHTML = '';
+    contentContainer.style.display = 'none';
+
+    // Fallback Link
+    let btnFallback = document.getElementById('article-fallback-link-v3');
     if (btnFallback) {
-        // VISIBLE PROOF OF UPDATE (v3)
-        btnFallback.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square"></i> Open Original (v3)';
-        
-        if (url && url !== 'undefined' && url !== 'null') {
+         if (url && url !== 'undefined') {
             btnFallback.href = url;
-            btnFallback.onclick = null; // Clean handlers
-            btnFallback.style.pointerEvents = 'auto';
-            btnFallback.style.opacity = '1';
-        } else {
-            console.error(`OpenArticleModal Error: Article "${title}" (ID: ${id}) has empty URL!`);
-            btnFallback.removeAttribute('href'); // Prevent reload #
-            btnFallback.style.pointerEvents = 'none';
-            btnFallback.style.opacity = '0.5';
-            btnFallback.innerHTML += ' (No Link)';
+            btnFallback.style.display = 'flex';
+         } else {
+            btnFallback.style.display = 'none';
+         }
+    }
+
+    // Notion Detection
+    const notionMatch = url && url.match(/([a-f0-9]{32})/);
+    
+    if (notionMatch) {
+        contentContainer.style.display = 'block';
+        contentContainer.innerHTML = '<div style="width:100%; height:200px; display:flex; align-items:center; justify-content:center;"><i class="fa-solid fa-spinner fa-spin" style="font-size:2rem;"></i></div>';
+        
+        try {
+            const pageId = notionMatch[1];
+            // Ensure API_URL is defined or use relative path
+            const apiUrl = (typeof API_URL !== 'undefined') ? API_URL : '/api';
+            const res = await fetch(`${apiUrl}/notion/page?id=${pageId}`);
+            
+            if (res.ok) {
+                const data = await res.json();
+                contentContainer.innerHTML = `<div class="notion-content" style="max-width:800px; margin:0 auto; line-height:1.6;">${data.html}</div>`;
+            } else {
+                throw new Error("API Failed");
+            }
+        } catch (e) {
+            console.error("Notion Loading Failed", e);
+            contentContainer.innerHTML = `
+                <div style="text-align:center; padding:2rem;">
+                    <p>Unable to load content.</p>
+                    <a href="${url}" target="_blank" class="btn-primary">Open in Notion</a>
+                </div>
+            `;
         }
     } else {
-        console.warn('Robustness failed: Fallback button still null.');
-    }
-
-    // Handle URL
-    let useSrcDoc = false;
-    let srcDocContent = '';
-
-    // Notion URL Handling
-    if (url.includes('notion.so') || url.includes('notion.site')) {
-        // Show placeholder for Notion content
-        useSrcDoc = true;
-        srcDocContent = `
-            <html>
-            <body style="font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #fff; color: #333; text-align: center;">
-                <h2 style="margin-bottom: 1rem;">Content hosted on Notion</h2>
-                <p style="margin-bottom: 2rem; color: #666;">This article is hosted directly on Notion.</p>
-                <a href="${url}" target="_blank" style="background: #111; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 500;">Read on Notion</a>
-            </body>
-            </html>
-        `;
-    }
-
-    if (iframe) {
-        if (useSrcDoc) {
-             iframe.removeAttribute('src');
-             iframe.srcdoc = srcDocContent;
-        } else {
-             iframe.removeAttribute('srcdoc');
-             iframe.src = url;
+        // Standard Iframe Mode
+        if (iframe) {
+            if (url) iframe.src = url;
+            iframe.style.display = 'block';
         }
     }
 
     modal.style.display = 'flex';
-    gsap.from('.article-modal-content', { y: 50, opacity: 0, duration: 0.3, ease: 'power2.out' });
+    if(typeof gsap !== 'undefined') {
+        gsap.from('.article-modal-content', { y: 50, opacity: 0, duration: 0.3, ease: 'power2.out' });
+    }
 };
 
 window.closeArticleModal = () => {

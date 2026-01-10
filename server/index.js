@@ -5,6 +5,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { Client } from '@notionhq/client';
 import db from './database.js';
 import dotenv from 'dotenv';
 import os from 'os';
@@ -1805,6 +1806,80 @@ app.get('/api/admin/system', authenticateToken, async (req, res) => {
     } catch (err) {
         console.error('System Stats Error:', err);
         res.status(500).json({ error: 'Failed to fetch system stats' });
+    }
+});
+
+// --- NOTION API ---
+const notion = new Client({ auth: process.env.NOTION_KEY });
+
+// Notion Block Renderer
+const renderNotionBlocks = (blocks) => {
+    let html = '';
+    let listType = null;
+
+    blocks.forEach(block => {
+        const type = block.type;
+        const value = block[type];
+        
+        if (type === 'bulleted_list_item' && listType !== 'ul') {
+            if (listType === 'ol') html += '</ol>';
+            html += '<ul>';
+            listType = 'ul';
+        } else if (type === 'numbered_list_item' && listType !== 'ol') {
+            if (listType === 'ul') html += '</ul>';
+            html += '<ol>';
+            listType = 'ol';
+        } else if (type !== 'bulleted_list_item' && type !== 'numbered_list_item' && listType) {
+            html += listType === 'ul' ? '</ul>' : '</ol>';
+            listType = null;
+        }
+
+        const text = value.rich_text ? value.rich_text.map(t => {
+            let content = t.text.content.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            if (t.annotations.bold) content = `<b>${content}</b>`;
+            if (t.annotations.italic) content = `<i>${content}</i>`;
+            if (t.annotations.strikethrough) content = `<s>${content}</s>`;
+            if (t.annotations.code) content = `<code>${content}</code>`;
+            if (t.href) content = `<a href='${t.href}' target='_blank'>${content}</a>`;
+            return content;
+        }).join('') : '';
+
+        switch (type) {
+            case 'paragraph': html += `<p>${text}</p>`; break;
+            case 'heading_1': html += `<h2>${text}</h2>`; break;
+            case 'heading_2': html += `<h3>${text}</h3>`; break;
+            case 'heading_3': html += `<h4>${text}</h4>`; break;
+            case 'bulleted_list_item': case 'numbered_list_item': html += `<li>${text}</li>`; break;
+            case 'image':
+                const src = value.type === 'external' ? value.external.url : value.file.url;
+                const caption = value.caption && value.caption.length > 0 ? value.caption[0].plain_text : '';
+                html += `<figure><img src='${src}' alt='${caption}' style='max-width:100%; border-radius:8px;'><figcaption>${caption}</figcaption></figure>`;
+                break;
+            case 'quote': html += `<blockquote>${text}</blockquote>`; break;
+            case 'code': html += `<pre><code class='language-${value.language}'>${text}</code></pre>`; break;
+            case 'callout':
+                const icon = block.callout.icon ? (block.callout.icon.emoji || 'bulb') : 'bulb';
+                html += `<div class='callout' style='background:#2a2a2a; padding:1rem; border-radius:8px; display:flex; gap:10px; margin:1rem 0;'><span>${icon}</span><div>${text}</div></div>`;
+                break;
+        }
+    });
+
+    if (listType) html += listType === 'ul' ? '</ul>' : '</ol>';
+    return html;
+};
+
+app.get('/api/notion/page', async (req, res) => {
+    const { id } = req.query;
+    if (!id) return res.status(400).json({ error: 'Missing page ID' });
+    if (!process.env.NOTION_KEY) return res.status(500).json({ error: 'Server Configuration Error: Missing Notion Key' });
+
+    try {
+        const response = await notion.blocks.children.list({ block_id: id, page_size: 100 });
+        const html = renderNotionBlocks(response.results);
+        res.json({ html });
+    } catch (err) {
+        console.error('Notion API Error:', err);
+        res.status(500).json({ error: 'Failed to fetch Notion page' });
     }
 });
 
