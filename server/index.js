@@ -10,6 +10,7 @@ import dotenv from 'dotenv';
 import os from 'os';
 import { exec } from 'child_process';
 import crypto from 'crypto';
+import { Client } from '@notionhq/client';
 
 dotenv.config();
 
@@ -645,8 +646,6 @@ app.delete('/api/articles/:id', authenticateToken, (req, res) => {
 });
 
 // Get Article Content from Notion
-import { Client } from '@notionhq/client';
-
 app.get('/api/articles/:id/content', async (req, res) => {
     const articleId = req.params.id;
     const lang = req.query.lang || 'en';
