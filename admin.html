@@ -848,11 +848,47 @@
 
         @media (max-width: 768px) {
 
+            /* Strict overflow prevention */
+            html,
+            body {
+                overflow-x: hidden !important;
+                max-width: 100vw !important;
+            }
+
+            * {
+                max-width: 100vw;
+            }
+
+            .admin-container {
+                max-width: 100vw !important;
+                overflow-x: hidden !important;
+            }
+
+            .admin-header {
+                max-width: 100vw !important;
+                overflow-x: hidden !important;
+                box-sizing: border-box !important;
+            }
+
+            .admin-header>div {
+                max-width: 100% !important;
+                overflow-x: hidden !important;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+
+            .admin-layout {
+                max-width: 100vw !important;
+                overflow-x: hidden !important;
+            }
+
             /* Center all content on mobile */
             .admin-content {
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                max-width: 100vw !important;
+                overflow-x: hidden !important;
             }
 
             .content-grid {
@@ -860,11 +896,30 @@
                 display: flex;
                 flex-direction: column;
                 align-items: center;
+                max-width: 100% !important;
             }
 
             .admin-card {
                 width: 100%;
                 max-width: 100%;
+                box-sizing: border-box;
+            }
+
+            /* Sidebar horizontal on mobile */
+            .sidebar {
+                flex-direction: row;
+                overflow-x: auto;
+                overflow-y: hidden;
+                gap: 0.5rem;
+                padding: 0.5rem;
+                white-space: nowrap;
+                max-width: 100vw !important;
+            }
+
+            .sidebar-btn {
+                flex-shrink: 0;
+                min-width: auto;
+                padding: 0.6rem 1rem;
             }
 
             /* Force charts to stack vertically on mobile */
@@ -872,6 +927,7 @@
                 grid-template-columns: 1fr !important;
                 gap: 1rem;
                 width: 100%;
+                max-width: 100% !important;
             }
 
             /* Make tables responsive with horizontal scroll */
