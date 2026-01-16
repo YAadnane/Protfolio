@@ -646,10 +646,10 @@ function renderOverview(data) {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     const analyticsHtml = `
-        <div style="grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem; flex-wrap:wrap; gap:10px;">
-            <h2 style="margin:0;">Analytics</h2>
+        <div style="grid-column:1/-1; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem; flex-wrap:wrap; gap:10px;">
+            <h2 style="margin:0; width:100%; text-align:center;">Analytics</h2>
             
-            <div style="display:flex; gap:10px; align-items:center;">
+            <div class="analytics-filters" style="gap:10px; align-items:center;">
                 <select id="ov-year" class="admin-input" style="padding:5px 10px; width:auto;">
                     <option value="">All Years</option>
                     ${years.map(y => `<option value="${y}" ${window.overviewFilters.year == y ? 'selected' : ''}>${y}</option>`).join('')}
