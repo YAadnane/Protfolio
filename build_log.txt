@@ -1,0 +1,25 @@
+
+> temp_portfolio@0.0.0 build
+> vite build
+
+[36mvite v7.2.6 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32mÔ£ô[39m 4 modules transformed.
+Ô£ù Build failed in 462ms
+error during build:
+[vite:build-html] src/main.js (1362:9): Expected a semicolon
+file: D:/Nouveau dossier (2)/MX/M2/S4 _PFE/portfolio/src/main.js:1362:9 (D:/Nouveau dossier (2)/MX/M2/S4 _PFE/portfolio/index.html)
+
+1360:             container.appendChild(card);
+1361:         });
+1362:         });
+               ^
+1363: 
+1364:         // Trigger Animation for Cards
+
+    at getRollupError (file:///D:/Nouveau%20dossier%20(2)/MX/M2/S4%20_PFE/portfolio/node_modules/rollup/dist/es/shared/parseAst.js:401:41)
+    at ParseError.initialise (file:///D:/Nouveau%20dossier%20(2)/MX/M2/S4%20_PFE/portfolio/node_modules/rollup/dist/es/shared/node-entry.js:14469:28)
+    at convertNode (file:///D:/Nouveau%20dossier%20(2)/MX/M2/S4%20_PFE/portfolio/node_modules/rollup/dist/es/shared/node-entry.js:16352:10)
+    at convertProgram (file:///D:/Nouveau%20dossier%20(2)/MX/M2/S4%20_PFE/portfolio/node_modules/rollup/dist/es/shared/node-entry.js:15592:12)
+    at Module.setSource (file:///D:/Nouveau%20dossier%20(2)/MX/M2/S4%20_PFE/portfolio/node_modules/rollup/dist/es/shared/node-entry.js:17352:24)
+    at async ModuleLoader.addModuleSource (file:///D:/Nouveau%20dossier%20(2)/MX/M2/S4%20_PFE/portfolio/node_modules/rollup/dist/es/shared/node-entry.js:21377:13)

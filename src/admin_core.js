@@ -614,15 +614,12 @@ function renderOverview(data) {
     };
 
     // Helper for Stat Card
-    const card = (id, title, value, icon, color, sub='') => `
-        <div class="admin-card" style="display:flex; align-items:center; gap:1.5rem; border-left:4px solid ${color};">
-            <div style="background:rgba(255,255,255,0.05); width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:${color}; font-size:1.5rem;">
-                <i class="${icon}"></i>
-            </div>
-            <div>
-                <h3 id="${id}" style="margin:0; font-size:2rem; font-weight:bold;">${value}</h3>
-                <div style="color:var(--text-muted); font-size:0.9rem;">${title}</div>
-                ${sub ? `<div style="color:${color}; font-size:0.8rem; margin-top:0.2rem;">${sub}</div>` : ''}
+    const card = (icon, value, label, id = '') => `
+        <div class="admin-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.5rem; text-align:center; min-height:120px;">
+            <i class="${icon}" style="font-size:2.5rem; color:var(--accent-color); margin-bottom:1rem;"></i>
+            <div style="display:flex; flex-direction:column; align-items:center;">
+                <div style="font-size:2rem; font-weight:600; margin-bottom:0.3rem;" ${id ? `id="${id}"` : ''}>${value}</div>
+                <div style="color:var(--text-muted); font-size:0.9rem;">${label}</div>
             </div>
         </div>
     `;
