@@ -388,7 +388,8 @@ const fields = {
                 'gemini-pro', 
                 'gemini-flash-latest'
             ] 
-        }
+        },
+        { name: 'notion_api_key', label: 'Notion API Key (Leave empty to keep current)', type: 'password' }
     ],
     profile: [
         { name: 'username', label: 'Username', type: 'text' },
