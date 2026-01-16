@@ -743,11 +743,9 @@ function renderOverview(data) {
      const graphHtml = `
         <div style="grid-column:1/-1; margin-top:2rem;">
             <h3>Traffic History</h3>
-             <div class="admin-card" style="height:350px; position:relative; overflow:hidden;">
-                 <div style="overflow-x:auto; height:100%; width:100%; padding-bottom:10px;">
-                    <div style="min-width: 1000px; height: 300px;">
-                        <canvas id="statsChart"></canvas>
-                    </div>
+             <div class="admin-card" style="height:350px; position:relative; overflow-x:auto;">
+                 <div style="width:100%; min-width:min(1000px, 100%); height:300px; padding-bottom:10px;">
+                    <canvas id="statsChart"></canvas>
                  </div>
              </div>
         </div>
@@ -756,21 +754,17 @@ function renderOverview(data) {
     const contentGraphsHtml = `
         <h3 style="grid-column:1/-1; margin-top:2rem;">Content Analytics</h3>
         <div class="content-analytics-grid">
-             <div class="admin-card" style="height:350px; overflow:hidden;">
+             <div class="admin-card" style="height:350px; overflow-x:auto;">
                 <h4 style="margin-top:0;">Engagement Distribution</h4>
-                <div style="overflow-x:auto; height:100%; width:100%; padding-bottom:10px;">
-                    <div style="min-width: 300px; height:250px;">
-                        <canvas id="contentDoughnutChart"></canvas>
-                    </div>
+                <div style="width:100%; min-width:min(300px, 100%); height:250px; padding:10px;">
+                    <canvas id="contentDoughnutChart"></canvas>
                 </div>
             </div>
-            <div class="admin-card" style="height:350px; overflow:hidden;">
+            <div class="admin-card" style="height:350px; overflow-x:auto;">
                 <h4 style="margin-top:0;">Category Performance</h4>
-                 <div style="overflow-x:auto; height:100%; width:100%; padding-bottom:10px;">
-                    <div style="min-width: 500px; height:250px;">
-                        <canvas id="contentBarChart"></canvas>
-                    </div>
-                 </div>
+                <div style="width:100%; min-width:min(500px, 100%); height:250px; padding:10px;">
+                    <canvas id="contentBarChart"></canvas>
+                </div>
             </div>
         </div>
     `;
