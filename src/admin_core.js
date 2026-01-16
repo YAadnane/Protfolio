@@ -703,9 +703,18 @@ function renderOverview(data) {
             if (q.device) params.append('device', q.device);
             if (q.sort) params.append('sort', q.sort);
             
-            const res = await fetch(`${API_URL}/admin/overview?${params.toString()}`, {
+            const res = await fetch(`${API_URL}/admin/stats?${params.toString()}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            
+            // Handle authentication errors
+            if (res.status === 401 || res.status === 403) {
+                clearInterval(window.overviewPolling);
+                localStorage.removeItem('adminToken');
+                window.location.href = 'login.html';
+                return;
+            }
+            
             const newData = await res.json();
             
             // Update Text Content Only to avoid flicker
