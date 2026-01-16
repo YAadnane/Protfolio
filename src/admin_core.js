@@ -627,16 +627,16 @@ function renderOverview(data) {
     // 1. Content Stats
     const contentHtml = `
         <h2 style="grid-column:1/-1; margin-bottom:1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Content Overview</h2>
-        ${card('stat-projects', 'Projects', data.projects, 'fa-solid fa-briefcase', '#ff9ff3')}
-        ${card('stat-certifications', 'Certifications', data.certifications, 'fa-solid fa-certificate', '#feca57')}
-        ${card('stat-articles', 'Articles', data.articles, 'fa-solid fa-newspaper', '#54a0ff')}
+        ${card('fa-solid fa-briefcase', data.projects, 'Projects', 'stat-projects')}
+        ${card('fa-solid fa-certificate', data.certifications, 'Certifications', 'stat-certifications')}
+        ${card('fa-solid fa-newspaper', data.articles, 'Articles', 'stat-articles')}
     `;
 
     // 2. Interaction Stats
     const interactionHtml = `
         <h2 style="grid-column:1/-1; margin:2rem 0 1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Interactions</h2>
-        ${card('stat-messages', 'Total Messages', data.messages_total, 'fa-solid fa-envelope', '#ff6b6b', `${data.messages_unread} unread`)}
-        ${card('stat-reviews', 'Reviews', data.reviews_total, 'fa-solid fa-star', '#48dbfb', `${data.reviews_pending} pending`)}
+        ${card('fa-solid fa-envelope', data.messages_total, `Total Messages<br><small style="color:var(--accent-color);">${data.messages_unread} unread</small>`, 'stat-messages')}
+        ${card('fa-solid fa-star', data.reviews_total, `Reviews<br><small style="color:var(--accent-color);">${data.reviews_pending} pending</small>`, 'stat-reviews')}
     `;
 
     // 3. Analytics Stats (With Filters)
@@ -675,11 +675,12 @@ function renderOverview(data) {
             </div>
         </div>
         
-        ${card('stat-visitors', 'Total Visitors', data.total_visitors, 'fa-solid fa-users', '#1dd1a1', `Unique IPs`)}
-        ${card('stat-visitors-7d', 'Visitors (7d)', data.visitors_7d, 'fa-solid fa-user-clock', '#00d2d3', 'Last 7 Days (Recent)')}
-        ${card('stat-clicks', 'Total Clicks', data.total_clicks, 'fa-solid fa-hand-pointer', '#5f27cd', 'Projects/Certs/Articles')}
-        ${card('stat-likes', 'Total Likes', data.total_likes, 'fa-regular fa-heart', '#ff9ff3', 'Projects/Articles')}
-        ${card('stat-comments', 'Total Comments', data.total_comments, 'fa-regular fa-comment', '#54a0ff', 'Projects/Articles')}
+        
+        ${card('fa-solid fa-users', data.total_visitors, `Total Visitors<br><small style="color:var(--accent-color);">Unique IPs</small>`, 'stat-visitors')}
+        ${card('fa-solid fa-user-clock', data.visitors_7d, `Visitors (7d)<br><small style="color:var(--accent-color);">Last 7 Days (Recent)</small>`, 'stat-visitors-7d')}
+        ${card('fa-solid fa-hand-pointer', data.total_clicks, `Total Clicks<br><small style="color:var(--accent-color);">Projects/Certs/Articles</small>`, 'stat-clicks')}
+        ${card('fa-regular fa-heart', data.total_likes, `Total Likes<br><small style="color:var(--accent-color);">Projects/Articles</small>`, 'stat-likes')}
+        ${card('fa-regular fa-comment', data.total_comments, `Total Comments<br><small style="color:var(--accent-color);">Projects/Articles</small>`, 'stat-comments')}
     `;
     
     // --- POLLING LOGIC ---
