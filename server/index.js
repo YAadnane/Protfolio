@@ -644,6 +644,144 @@ app.delete('/api/articles/:id', authenticateToken, (req, res) => {
     });
 });
 
+// Get Article Content from Notion
+import { Client } from '@notionhq/client';
+
+app.get('/api/articles/:id/content', async (req, res) => {
+    const articleId = req.params.id;
+    const lang = req.query.lang || 'en';
+    
+    try {
+        // 1. Get article metadata from database
+        const article = await new Promise((resolve, reject) => {
+            db.get("SELECT * FROM articles WHERE id = ?", [articleId], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        if (!article) {
+            return res.status(404).json({ error: "Article not found" });
+        }
+        
+        // 2. Get Notion API key from database
+        const config = await new Promise((resolve, reject) => {
+            db.get("SELECT notion_api_key FROM general_info WHERE lang = ? OR lang = 'en' LIMIT 1", [lang], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        if (!config || !config.notion_api_key) {
+            return res.status(500).json({ error: "Notion API key not configured" });
+        }
+        
+        // 3. Extract Notion page ID from link
+        const notionLink = article.link;
+        if (!notionLink || !notionLink.includes('notion.')) {
+            return res.status(400).json({ error: "Invalid Notion link" });
+        }
+        
+        // Extract page ID from various Notion URL formats
+        let pageId = notionLink.split('?')[0].split('/').pop().split('-').pop();
+        pageId = pageId.replace(/-/g, '');
+        
+        if (!pageId || pageId.length < 32) {
+            return res.status(400).json({ error: "Could not extract Notion page ID" });
+        }
+        
+        //  4. Fetch content from Notion
+        const notion = new Client({ auth: config.notion_api_key });
+        
+        const blocks = await notion.blocks.children.list({
+            block_id: pageId,
+            page_size: 100
+        });
+        
+        // 5. Convert blocks to HTML
+        const html = blocksToHtml(blocks.results);
+        
+        res.json({
+            id: article.id,
+            title: article.title,
+            date: article.date,
+            image: article.image,
+            tags: article.tags,
+            summary: article.summary,
+            content: html
+        });
+        
+    } catch (err) {
+        console.error("Notion fetch error:", err);
+        res.status(500).json({ error: err.message || "Failed to fetch article content" });
+    }
+});
+
+// Helper function to convert Notion blocks to HTML
+function blocksToHtml(blocks) {
+    let html = '';
+    
+    blocks.forEach(block => {
+        switch (block.type) {
+            case 'paragraph':
+                const pText = block.paragraph.rich_text.map(t => richTextToHtml(t)).join('');
+                html += `<p>${pText}</p>`;
+                break;
+            case 'heading_1':
+                const h1Text = block.heading_1.rich_text.map(t => richTextToHtml(t)).join('');
+                html += `<h1>${h1Text}</h1>`;
+                break;
+            case 'heading_2':
+                const h2Text = block.heading_2.rich_text.map(t => richTextToHtml(t)).join('');
+                html += `<h2>${h2Text}</h2>`;
+                break;
+            case 'heading_3':
+                const h3Text = block.heading_3.rich_text.map(t => richTextToHtml(t)).join('');
+                html += `<h3>${h3Text}</h3>`;
+                break;
+            case 'bulleted_list_item':
+                const liText = block.bulleted_list_item.rich_text.map(t => richTextToHtml(t)).join('');
+                html += `<li>${liText}</li>`;
+                break;
+            case 'numbered_list_item':
+                const numText = block.numbered_list_item.rich_text.map(t => richTextToHtml(t)).join('');
+                html += `<li>${numText}</li>`;
+                break;
+            case 'code':
+                const codeText = block.code.rich_text.map(t => t.plain_text).join('');
+                html += `<pre><code>${codeText}</code></pre>`;
+                break;
+            case 'image':
+                const imageUrl = block.image.type === 'external' ? block.image.external.url : block.image.file.url
+;
+                html += `<img src="${imageUrl}" alt="Image" style="max-width:100%;height:auto;" />`;
+                break;
+            case 'divider':
+                html += '<hr />';
+                break;
+            default:
+                // Skip unsupported block types
+                break;
+        }
+    });
+    
+    return html;
+}
+
+function richTextToHtml(richText) {
+    let text = richText.plain_text;
+    
+    if (richText.annotations.bold) text = `<strong>${text}</strong>`;
+    if (richText.annotations.italic) text = `<em>${text}</em>`;
+    if (richText.annotations.code) text = `<code>${text}</code>`;
+    if (richText.annotations.strikethrough) text = `<s>${text}</s>`;
+    if (richText.annotations.underline) text = `<u>${text}</u>`;
+    
+    if (richText.href) text = `<a href="${richText.href}" target="_blank">${text}</a>`;
+    
+    return text;
+}
+
 // --- INTERACTIONS (LIKES & COMMENTS) ---
 app.get('/api/comments', (req, res) => {
     const { type, id } = req.query;

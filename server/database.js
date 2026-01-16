@@ -269,6 +269,7 @@ db.serialize(() => {
             addColumnIfNotExists('general_info', 'profile_image', 'TEXT');
             addColumnIfNotExists('general_info', 'gemini_api_key', 'TEXT');
             addColumnIfNotExists('general_info', 'gemini_model', "TEXT DEFAULT 'gemini-2.5-flash'");
+            addColumnIfNotExists('general_info', 'notion_api_key', 'TEXT');
             addColumnIfNotExists('general_info', 'hero_description_2', 'TEXT');
             addColumnIfNotExists('general_info', 'hero_description_3', 'TEXT');
 

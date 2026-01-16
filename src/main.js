@@ -2959,6 +2959,9 @@ function openVideoModal(videoSrc) {
     const video = document.getElementById('modal-video-player');
     if (!modal || !video) return;
 
+    // Pause any currently playing video before setting new source
+    if (video) video.pause();
+
     video.src = videoSrc;
     modal.style.display = 'flex';
     requestAnimationFrame(() => modal.classList.add('active'));
@@ -3369,6 +3372,59 @@ window.addEventListener('load', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ lang: lang })
-    }).catch(() => {});
+    }).catch(err => console.error('Visit tracking failed', err));
 });
- 
+
+// =========================================
+// ARTICLE MODAL (Notion Content)
+// =========================================
+window.openArticleModal = async function(notionLink, articleId, title, date) {
+    const modal = document.getElementById('article-modal');
+    const loadingDiv = document.getElementById('article-loading');
+    const contentDiv = document.getElementById('article-content');
+    const errorDiv = document.getElementById('article-error');
+    const titleEl = document.getElementById('article-modal-title');
+    const dateEl = document.getElementById('article-modal-date');
+    const linkEl = document.getElementById('article-original-link');
+    
+    if (!modal) return;
+    
+    // Set title and date
+    if (titleEl) titleEl.textContent = title;
+    if (dateEl) dateEl.textContent = date;
+    if (linkEl) linkEl.href = notionLink;
+    
+    // Show modal with loading state
+    modal.style.display = 'flex';
+    loadingDiv.style.display = 'block';
+    contentDiv.style.display = 'none';
+    errorDiv.style.display = 'none';
+    
+    try {
+        // Fetch article content from Notion API
+        const response = await fetch(`${API_URL}/articles/${articleId}/content?lang=${currentLang}`);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        // Inject HTML content
+        contentDiv.innerHTML = data.content || '<p style="color: var(--text-muted);">No content available.</p>';
+        
+        // Hide loading, show content
+        loadingDiv.style.display = 'none';
+        contentDiv.style.display = 'block';
+        
+    } catch (err) {
+        console.error('Failed to load article content:', err);
+        loadingDiv.style.display = 'none';
+        errorDiv.style.display = 'block';
+    }
+};
+
+window.closeArticleModal = function() {
+    const modal = document.getElementById('article-modal');
+    if (modal) modal.style.display = 'none';
+};
