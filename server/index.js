@@ -537,7 +537,7 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
         stat_years, stat_projects, stat_companies,
         cube_front, cube_back, cube_right, cube_left, cube_top, cube_bottom,
         email, phone, location, linkedin_link, github_link,
-        cv_file, profile_image, lang, gemini_api_key, gemini_model // Added gemini_model
+        cv_file, profile_image, lang, gemini_api_key, gemini_model, notion_api_key // Added notion_api_key
     } = req.body;
     
     // console.log('PUT /api/general payload:', req.body); // Debug log
@@ -561,7 +561,8 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
         cube_front = ?, cube_back = ?, cube_right = ?, cube_left = ?, cube_top = ?, cube_bottom = ?,
         cv_file = ?, profile_image = ?, email = ?, phone = ?, location = ?, linkedin_link = ?, github_link = ?,
         gemini_api_key = COALESCE(NULLIF(?, ''), gemini_api_key),
-        gemini_model = ?
+        gemini_model = ?,
+        notion_api_key = COALESCE(NULLIF(?, ''), notion_api_key)
         WHERE lang = ?`,
         [
             hero_subtitle, hero_title, hero_description, hero_description_2, hero_description_3,
@@ -571,6 +572,7 @@ app.put('/api/general', upload.fields([{ name: 'cvFile', maxCount: 1 }, { name: 
             cvPath, imagePath, email, phone, location, linkedin_link, github_link,
             gemini_api_key,
             gemini_model || 'gemini-1.5-flash', // Default if missing
+            notion_api_key,
             targetLang
         ],
         function(err) {
