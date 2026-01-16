@@ -861,6 +861,24 @@
                 color: #f1c40f !important;
             }
 
+            /* Force charts to stack vertically on mobile */
+            .content-analytics-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1rem;
+            }
+
+            /* Make tables responsive with horizontal scroll */
+            .admin-card table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+                max-width: 100%;
+            }
+
+            .admin-card {
+                overflow-x: auto;
+            }
+
             .admin-container {
                 padding-left: 1rem;
                 padding-right: 1rem;
