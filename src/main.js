@@ -3262,9 +3262,43 @@ window.openFeedbackModal = (type, id) => {
     }
 };
 
+
 window.closeFeedbackModal = () => {
     document.getElementById('feedback-modal').style.display = 'none';
+    // Reset form state when closing
+    const form = document.getElementById('feedback-form');
+    const icon = document.getElementById('feedback-toggle-icon');
+    if (form) {
+        form.style.maxHeight = '0';
+        form.style.opacity = '0';
+    }
+    if (icon) {
+        icon.style.transform = 'rotate(0deg)';
+    }
 };
+
+// Toggle Feedback Form visibility
+window.toggleFeedbackForm = () => {
+    const form = document.getElementById('feedback-form');
+    const icon = document.getElementById('feedback-toggle-icon');
+    
+    if (!form || !icon) return;
+    
+    const isExpanded = form.style.maxHeight !== '0px' && form.style.maxHeight !== '';
+    
+    if (isExpanded) {
+        // Collapse
+        form.style.maxHeight = '0';
+        form.style.opacity = '0';
+        icon.style.transform = 'rotate(0deg)';
+    } else {
+        // Expand
+        form.style.maxHeight = '800px'; // Sufficient height for form
+        form.style.opacity = '1';
+        icon.style.transform = 'rotate(180deg)';
+    }
+};
+
 
 // Toast Notification Helper
 function showToast(message, type = 'success') {
