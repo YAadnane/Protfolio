@@ -1518,6 +1518,13 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 // =========================================
+// ARTICLES SECTION
+// =========================================
+
+// Global map to store article objects for modal access
+window.articlesMap = window.articlesMap || {};
+
+// =========================================
 // CHATBOT LOGIC
 // =========================================
 function initChatbot() {
@@ -2144,7 +2151,7 @@ async function loadArticles() {
                                             <i class="fa-regular fa-comment"></i> <span>${comments}</span>
                                          </div>
                                     </div>
-                                    <a href="${art.link}" class="read-more-btn" onclick="event.preventDefault(); window.trackEvent('view_article', ${art.id}, this); window.openArticleModal(this.href, '${art.id}', '${art.title.replace(/'/g, "\\'")}', '${dateStr}', ${JSON.stringify(art).replace(/'/g, "\\'")})">
+                                    <a href="${art.link}" class="read-more-btn" data-article-id="${art.id}" onclick="event.preventDefault(); window.trackEvent('view_article', ${art.id}, this); window.openArticleModalById('${art.id}')">
                                         ${translations[currentLang]?.["articles.readMore"] || "Read Article"}
                                     </a>
                                 </div>
@@ -3447,4 +3454,16 @@ window.openArticleModal = async function(notionLink, articleId, title, date, art
 window.closeArticleModal = function() {
     const modal = document.getElementById('article-modal');
     if (modal) modal.style.display = 'none';
+};
+
+// Helper function to open modal by article ID
+window.openArticleModalById = function(articleId) {
+    const article = window.articlesMap[articleId];
+    if (!article) {
+        console.error('Article not found:', articleId);
+        return;
+    }
+    
+    const dateStr = formatArticleDate(article.date);
+    window.openArticleModal(article.link, articleId, article.title, dateStr, article);
 };
