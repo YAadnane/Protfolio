@@ -3467,6 +3467,7 @@ window.openArticleModalById = function(articleId) {
         return;
     }
     
-    const dateStr = formatArticleDate(article.date);
+    // Format date using the same logic as in loadArticles
+    const dateStr = article.date ? new Date(article.date).toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
     window.openArticleModal(article.link, articleId, article.title, dateStr, article);
 };
