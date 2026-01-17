@@ -3280,11 +3280,29 @@ window.closeFeedbackModal = () => {
 // Toggle Feedback Form visibility - IMPROVED VERSION
 window.toggleFeedbackForm = function() {
     console.log('Toggle feedback form called'); // Debug log
-    const form = document.getElementById('feedback-form');
-    const icon = document.getElementById('feedback-toggle-icon');
+    
+    // Try multiple ways to find the elements
+    let form = document.getElementById('feedback-form');
+    let icon = document.getElementById('feedback-toggle-icon');
+    
+    console.log('Form element:', form);
+    console.log('Icon element:', icon);
+    
+    // If not found, try querySelector
+    if (!form) {
+        form = document.querySelector('#feedback-form');
+        console.log('Form found via querySelector:', form);
+    }
+    
+    if (!icon) {
+        icon = document.querySelector('#feedback-toggle-icon');
+        console.log('Icon found via querySelector:', icon);
+    }
     
     if (!form || !icon) {
         console.error('Form or icon not found');
+        console.log('Available forms:', document.querySelectorAll('form'));
+        console.log('Modal visible:', document.getElementById('feedback-modal')?.style.display);
         return;
     }
     
@@ -3292,6 +3310,7 @@ window.toggleFeedbackForm = function() {
     const currentMaxHeight = window.getComputedStyle(form).maxHeight;
     const isCollapsed = currentMaxHeight === '0px';
     
+    console.log('Current max-height:', currentMaxHeight);
     console.log('Current state:', isCollapsed ? 'collapsed' : 'expanded');
     
     if (isCollapsed) {
