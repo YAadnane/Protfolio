@@ -3226,17 +3226,6 @@ window.openFeedbackModal = (type, id) => {
     modal.style.zIndex = '100000';
     modal.style.display = 'flex';
     
-    // Open the form by default
-    setTimeout(() => {
-        const form = document.getElementById('feedback-form');
-        const icon = document.getElementById('feedback-toggle-icon');
-        if (form && icon) {
-            form.style.maxHeight = '800px';
-            form.style.opacity = '1';
-            icon.style.transform = 'rotate(180deg)';
-        }
-    }, 100);
-    
     // Fetch and render comments
     const commentsList = document.getElementById('comments-list');
     if (commentsList) {
@@ -3288,27 +3277,53 @@ window.closeFeedbackModal = () => {
     }
 };
 
-// Toggle Feedback Form visibility
-window.toggleFeedbackForm = () => {
+// Toggle Feedback Form visibility - IMPROVED VERSION
+window.toggleFeedbackForm = function() {
+    console.log('Toggle feedback form called'); // Debug log
     const form = document.getElementById('feedback-form');
     const icon = document.getElementById('feedback-toggle-icon');
     
-    if (!form || !icon) return;
+    if (!form || !icon) {
+        console.error('Form or icon not found');
+        return;
+    }
     
-    const isExpanded = form.style.maxHeight !== '0px' && form.style.maxHeight !== '';
+    // Check current state by checking computed max-height
+    const currentMaxHeight = window.getComputedStyle(form).maxHeight;
+    const isCollapsed = currentMaxHeight === '0px';
     
-    if (isExpanded) {
+    console.log('Current state:', isCollapsed ? 'collapsed' : 'expanded');
+    
+    if (isCollapsed) {
+        // Expand
+        form.style.maxHeight = '1000px';
+        form.style.opacity = '1';
+        icon.style.transform = 'rotate(180deg)';
+        console.log('Expanding form');
+    } else {
         // Collapse
         form.style.maxHeight = '0';
         form.style.opacity = '0';
         icon.style.transform = 'rotate(0deg)';
-    } else {
-        // Expand
-        form.style.maxHeight = '800px'; // Sufficient height for form
-        form.style.opacity = '1';
-        icon.style.transform = 'rotate(180deg)';
+        console.log('Collapsing form');
     }
 };
+
+// Add click event listener when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const toggleTitle = document.getElementById('feedback-toggle-title');
+    if (toggleTitle) {
+        toggleTitle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Title clicked!');
+            window.toggleFeedbackForm();
+        });
+        console.log('Event listener attached to feedback toggle title');
+    } else {
+        console.error('feedback-toggle-title not found');
+    }
+});
 
 
 // Toast Notification Helper
