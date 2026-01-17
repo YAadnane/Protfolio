@@ -42,50 +42,28 @@ function initContactForm() {
 
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
+        const formData = new FormData(form);
+        const data = Object.fromEntries(formData);
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.innerText;
-        
-        // Collect data
-        const inputs = form.querySelectorAll('input, textarea');
-        const data = {
-            name: inputs[0].value,
-            email: inputs[1].value,
-            message: inputs[2].value
-        };
 
         try {
             submitBtn.innerText = 'Sending...';
             submitBtn.disabled = true;
 
-            const res = await fetch(`${API_URL}/interact/comment`, {
+            const res = await fetch(`${API_URL}/contact`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-            const result = await res.json();
-            
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
 
-            if (result.success) {
-                showNotification('Comment Added!', 'Your feedback has been posted.');
-                e.target.reset();
-                // Assuming closeFeedbackModal() is defined elsewhere if needed
-                // closeFeedbackModal(); 
-                
-                        }
-                    });
-                    
-                    // Update modal comment count if open
-                    const modalCommentsCount = document.getElementById('article-comments-count');
-                    const modalComments = document.getElementById('article-comments');
-                    if (modalCommentsCount && modalComments && modalComments.dataset.articleId == id) {
-                        const currentCount = parseInt(modalCommentsCount.textContent) || 0;
-                        modalCommentsCount.textContent = currentCount + 1;
-                    }
-                }
+            if (res.ok) {
+                const t = translations[currentLang];
+                showNotification(t["form.success.title"], t["form.success.msg"], 'success');
+                form.reset();
             } else {
                 const t = translations[currentLang];
+                const result = await res.json();
                 showNotification(t["form.error.title"], `${t["form.error.msg"]} (${result.error})`, 'error');
             }
         } catch (err) {
@@ -3316,45 +3294,56 @@ if (feedbackForm) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
+            const result = await res.json();
             
-            if (res.ok) {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+
+            if (result.success) {
                 showToast(translations[currentLang]?.["feedback.success"] || "Thanks! Your feedback has been sent.", 'success');
                 window.closeFeedbackModal();
                 e.target.reset();
-                // Optional: Reload items to show new comment count
-                // if (data.type === 'project') loadProjects(); // REMOVED to prevent reset
                 
-                // Optimistic UI Update for Comments
-                if (data.type === 'project') {
-                    const countEls = document.querySelectorAll(`.comment-project-count-${data.id}`);
+                // Update comment counts everywhere
+                const { type, id } = data;
+                
+                if (type === 'project') {
+                    // Existing project logic
+                    const countEls = document.querySelectorAll(`.comment-project-count-${id}`);
                     countEls.forEach(el => {
                         const current = parseInt(el.innerText || '0');
                         el.innerText = current + 1;
                         el.style.color = '#00ff9d';
                         setTimeout(() => el.style.color = '', 500);
-                        
-                        // Sync Data (Optimistic)
-                        // const p1 = allProjectsData.find(p => p.id == data.id); // Replaced by helper
-                        // We need the new count. We increment current.
-                        // Wait, helper sets absolute value.
-                        // We can read from p1 after finding it? Or just ++ blind?
-                        // Better to find P1, increment, then call helper.
-                         const proj = allProjectsData.find(p => p.id == data.id);
-                         if (proj) {
-                             const newVal = (proj.comments_count || 0) + 1;
-                             window.updateGlobalCounters(data.id, 'comments', newVal);
-                         } else {
-                             // Fallback if not found in data (rare)
-                             const countEls = document.querySelectorAll(`.comment-project-count-${data.id}`);
-                             countEls.forEach(el => {
-                                 const val = parseInt(el.innerText)||0; 
-                                 el.innerText = val + 1;
-                             });
-                         }
-                         }); // End forEach (Optimistic DOM)
-                 } // End if project
-                
-                if (data.type === 'article') loadArticles();
+                    });
+                    
+                    const proj = allProjectsData.find(p => p.id == id);
+                    if (proj) {
+                        const newVal = (proj.comments_count || 0) + 1;
+                        window.updateGlobalCounters(id, 'comments', newVal);
+                    }
+                } else if (type === 'article') {
+                    // Update article card comment count
+                    const articleCards = document.querySelectorAll(`.like-article-btn-${id}`);
+                    articleCards.forEach(card => {
+                        const parent = card.closest('.article-footer') || card.closest('.interaction-bar');
+                        if (parent) {
+                            const commentSpan = parent.querySelector('.interaction-item:not(.interaction-like):not(.no-pointer) span');
+                            if (commentSpan) {
+                                const currentCount = parseInt(commentSpan.textContent) || 0;
+                                commentSpan.textContent = currentCount + 1;
+                            }
+                        }
+                    });
+                    
+                    // Update modal comment count if open
+                    const modalCommentsCount = document.getElementById('article-comments-count');
+                    const modalComments = document.getElementById('article-comments');
+                    if (modalCommentsCount && modalComments && modalComments.dataset.articleId == id) {
+                        const currentCount = parseInt(modalCommentsCount.textContent) || 0;
+                        modalCommentsCount.textContent = currentCount + 1;
+                    }
+                }
             } else {
                 showToast("Failed to submit feedback.", 'error');
             }
