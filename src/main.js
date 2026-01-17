@@ -3442,10 +3442,58 @@ window.addEventListener('load', () => {
 // =========================================
 // ARTICLE MODAL (Notion Content)
 // =========================================
+window.openArticleModal = async function(notionLink, articleId, title, date, article = {}) {
+    const modal = document.getElementById('article-modal');
+    const loadingDiv = document.getElementById('article-loading');
+    const contentDiv = document.getElementById('article-content');
+    const errorDiv = document.getElementById('article-error');
+    const titleEl = document.getElementById('article-modal-title');
+    const dateEl = document.getElementById('article-modal-date');
+    const linkEl = document.getElementById('article-original-link');
+    
+    // Analytics elements
+    const viewsCountEl = document.getElementById('article-views-count');
+    const likesCountEl = document.getElementById('article-likes-count');
+    const commentsCountEl = document.getElementById('article-comments-count');
+    const updatedEl = document.getElementById('article-modal-updated');
+    const updatedDateEl = document.getElementById('article-updated-date');
+    
+    if (!modal) return;
+    
+    // Set title and date
+    if (titleEl) titleEl.textContent = title;
+    if (dateEl) dateEl.textContent = date;
+    if (linkEl) linkEl.href = notionLink;
+    
+    // Set analytics data (initial values)
+    if (viewsCountEl) viewsCountEl.textContent = article.views_count || article.clicks || 0;
+    if (likesCountEl) likesCountEl.textContent = article.likes_count || 0;
+    if (commentsCountEl) commentsCountEl.textContent = article.comments_count || 0;
+    
+    // Show updated date if available
+    if (article.updated_date && updatedEl && updatedDateEl) {
+        updatedDateEl.textContent = article.updated_date;
+        updatedEl.style.display = 'inline';
+    } else if (updatedEl) {
+        updatedEl.style.display = 'none';
+    }
+    
+    // Store article ID for interaction handlers
+    const modalLikes = document.getElementById('article-likes');
+    const modalComments = document.getElementById('article-comments');
+    const modalViews = document.getElementById('article-views');
+    if (modalLikes) modalLikes.dataset.articleId = articleId;
+    if (modalComments) modalComments.dataset.articleId = articleId;
+    if (modalViews) modalViews.dataset.articleId = articleId;
+    
+    // Show modal with loading state
     modal.style.display = 'flex';
     loadingDiv.style.display = 'block';
     contentDiv.style.display = 'none';
     errorDiv.style.display = 'none';
+    
+    // Track view and update counter in real-time
+    window.trackEvent('article', articleId, null);
     
     try {
         // Fetch article content from Notion API
