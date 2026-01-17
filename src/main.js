@@ -3309,19 +3309,15 @@ window.toggleFeedbackForm = function() {
     }
 };
 
-// Add click event listener when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    const toggleTitle = document.getElementById('feedback-toggle-title');
+// Add click event listener using delegation (works even if DOM not ready)
+document.addEventListener('click', function(e) {
+    // Check if clicked element is the toggle title or its children
+    const toggleTitle = e.target.closest('#feedback-toggle-title');
     if (toggleTitle) {
-        toggleTitle.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Title clicked!');
-            window.toggleFeedbackForm();
-        });
-        console.log('Event listener attached to feedback toggle title');
-    } else {
-        console.error('feedback-toggle-title not found');
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Title clicked via delegation!');
+        window.toggleFeedbackForm();
     }
 });
 
