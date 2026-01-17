@@ -2144,7 +2144,7 @@ async function loadArticles() {
                                             <i class="fa-regular fa-comment"></i> <span>${comments}</span>
                                          </div>
                                     </div>
-                                    <a href="${art.link}" class="read-more-btn" onclick="event.preventDefault(); window.trackEvent('view_article', ${art.id}, this); window.openArticleModal(this.href, '${art.id}', '${art.title.replace(/'/g, "\\'")}', '${dateStr}')">
+                                    <a href="${art.link}" class="read-more-btn" onclick="event.preventDefault(); window.trackEvent('view_article', ${art.id}, this); window.openArticleModal(this.href, '${art.id}', '${art.title.replace(/'/g, "\\'")}', '${dateStr}', ${JSON.stringify(art).replace(/'/g, "\\'")})">
                                         ${translations[currentLang]?.["articles.readMore"] || "Read Article"}
                                     </a>
                                 </div>
@@ -3378,7 +3378,7 @@ window.addEventListener('load', () => {
 // =========================================
 // ARTICLE MODAL (Notion Content)
 // =========================================
-window.openArticleModal = async function(notionLink, articleId, title, date) {
+window.openArticleModal = async function(notionLink, articleId, title, date, article = {}) {
     const modal = document.getElementById('article-modal');
     const loadingDiv = document.getElementById('article-loading');
     const contentDiv = document.getElementById('article-content');
@@ -3387,12 +3387,32 @@ window.openArticleModal = async function(notionLink, articleId, title, date) {
     const dateEl = document.getElementById('article-modal-date');
     const linkEl = document.getElementById('article-original-link');
     
+    // Analytics elements
+    const viewsCountEl = document.getElementById('article-views-count');
+    const likesCountEl = document.getElementById('article-likes-count');
+    const commentsCountEl = document.getElementById('article-comments-count');
+    const updatedEl = document.getElementById('article-modal-updated');
+    const updatedDateEl = document.getElementById('article-updated-date');
+    
     if (!modal) return;
     
     // Set title and date
     if (titleEl) titleEl.textContent = title;
     if (dateEl) dateEl.textContent = date;
     if (linkEl) linkEl.href = notionLink;
+    
+    // Set analytics data
+    if (viewsCountEl) viewsCountEl.textContent = article.clicks || 0;
+    if (likesCountEl) likesCountEl.textContent = article.likes_count || 0;
+    if (commentsCountEl) commentsCountEl.textContent = article.comments_count || 0;
+    
+    // Show updated date if available
+    if (article.updated_date && updatedEl && updatedDateEl) {
+        updatedDateEl.textContent = article.updated_date;
+        updatedEl.style.display = 'inline';
+    } else if (updatedEl) {
+        updatedEl.style.display = 'none';
+    }
     
     // Show modal with loading state
     modal.style.display = 'flex';

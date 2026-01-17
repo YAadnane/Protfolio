@@ -656,9 +656,25 @@
       style="background: var(--card-bg); width: 90%; max-width: 900px; max-height: 85vh; border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255, 255, 255, 0.1);">
       <div class="modal-header"
         style="padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-        <div style="display: flex; flex-direction: column;">
+        <div style="display: flex; flex-direction: column; gap: 0.3rem;">
           <h3 id="article-modal-title" style="margin: 0; font-size: 1.2rem;">Article Title</h3>
-          <span id="article-modal-date" style="font-size: 0.8rem; color: var(--text-muted);">Date</span>
+          <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <span id="article-modal-date" style="font-size: 0.8rem; color: var(--text-muted);">Date</span>
+            <span id="article-modal-updated" style="font-size: 0.8rem; color: var(--text-muted); display: none;">
+              <i class="fa-solid fa-clock"></i> Updated: <span id="article-updated-date"></span>
+            </span>
+            <div id="article-analytics" style="display: flex; gap: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+              <span id="article-views" style="display: flex; align-items: center; gap: 0.3rem;">
+                <i class="fa-solid fa-eye"></i> <span id="article-views-count">0</span>
+              </span>
+              <span id="article-likes" style="display: flex; align-items: center; gap: 0.3rem;">
+                <i class="fa-solid fa-heart"></i> <span id="article-likes-count">0</span>
+              </span>
+              <span id="article-comments" style="display: flex; align-items: center; gap: 0.3rem;">
+                <i class="fa-solid fa-comment"></i> <span id="article-comments-count">0</span>
+              </span>
+            </div>
+          </div>
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
           <a id="article-original-link" href="#" target="_blank" class="btn-secondary"
