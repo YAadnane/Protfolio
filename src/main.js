@@ -3184,16 +3184,33 @@ window.toggleLike = async (type, id, element) => {
         // Update Counts Everywhere
         if (type === 'project') {
             window.updateGlobalCounters(id, 'likes', data.count);
-        } else {
-            // Update article card count
-            countEl.innerText = data.count;
+        } else if (type === 'article') {
+            // Update article card like count
+            const articleCards = document.querySelectorAll(`.like-article-btn-${id}`);
+            articleCards.forEach(card => {
+                const parent = card.closest('.article-footer') || card.closest('.interaction-bar');
+                if (parent) {
+                    const likeCountSpan = parent.querySelector('.interaction-like span');
+                    if (likeCountSpan) {
+                        likeCountSpan.textContent = data.count;
+                    }
+                }
+            });
             
-            // Update modal count if modal is open and showing this article
+            // Update modal like count if open
             const modalLikesCount = document.getElementById('article-likes-count');
             const modalLikes = document.getElementById('article-likes');
             if (modalLikesCount && modalLikes && modalLikes.dataset.articleId == id) {
-                modalLikesCount.innerText = data.count;
+                modalLikesCount.textContent = data.count;
             }
+            
+            // Update article data in window.articlesMap
+            if (window.articlesMap && window.articlesMap[id]) {
+                window.articlesMap[id].likes_count = data.count;
+            }
+        } else {
+            // Default: just update count element
+            countEl.innerText = data.count;
         }
 
     } catch (e) {
@@ -3379,13 +3396,36 @@ window.trackEvent = async (type, id, element) => {
         const data = await res.json();
         console.log('Track response:', data);
 
-        // Real-time update if element is provided or just by ID
-        if (type === 'click_project' && id && data.count !== undefined) {
-             console.log('Updating project views for ID:', id);
-             window.updateGlobalCounters(id, 'views', data.count);
+        // Update view counters everywhere in real-time
+        if (data.success && data.views_count !== undefined) {
+            // Update article card view count
+            if (type === 'article') {
+                const articleCards = document.querySelectorAll(`[data-id="${id}"]`);
+                articleCards.forEach(card => {
+                    const viewSpan = card.querySelector('.interaction-item.no-pointer span');
+                    if (viewSpan) {
+                        viewSpan.textContent = data.views_count;
+                    }
+                });
+                
+                // Update modal view count if open
+                const modalViewsCount = document.getElementById('article-views-count');
+                const modalViews = document.getElementById('article-views');
+                if (modalViewsCount && modalViews && modalViews.dataset.articleId == id) {
+                    modalViewsCount.textContent = data.views_count;
+                }
+            }
+            
+            // Legacy element update (if provided)
+            if (element) {
+                const countEl = element.querySelector('.views-count');
+                if (countEl) {
+                    countEl.textContent = data.views_count;
+                }
+            }
         }
-
-    } catch (e) { console.error("Tracking failed", e); }
+    } catch (err) {
+        console.error('Track event failed:', err); }
 };
 
 // Track Visit on Load
@@ -3402,43 +3442,6 @@ window.addEventListener('load', () => {
 // =========================================
 // ARTICLE MODAL (Notion Content)
 // =========================================
-window.openArticleModal = async function(notionLink, articleId, title, date, article = {}) {
-    const modal = document.getElementById('article-modal');
-    const loadingDiv = document.getElementById('article-loading');
-    const contentDiv = document.getElementById('article-content');
-    const errorDiv = document.getElementById('article-error');
-    const titleEl = document.getElementById('article-modal-title');
-    const dateEl = document.getElementById('article-modal-date');
-    const linkEl = document.getElementById('article-original-link');
-    
-    // Analytics elements
-    const viewsCountEl = document.getElementById('article-views-count');
-    const likesCountEl = document.getElementById('article-likes-count');
-    const commentsCountEl = document.getElementById('article-comments-count');
-    const updatedEl = document.getElementById('article-modal-updated');
-    const updatedDateEl = document.getElementById('article-updated-date');
-    
-    if (!modal) return;
-    
-    // Set title and date
-    if (titleEl) titleEl.textContent = title;
-    if (dateEl) dateEl.textContent = date;
-    if (linkEl) linkEl.href = notionLink;
-    
-    // Set analytics data
-    if (viewsCountEl) viewsCountEl.textContent = article.clicks || 0;
-    if (likesCountEl) likesCountEl.textContent = article.likes_count || 0;
-    if (commentsCountEl) commentsCountEl.textContent = article.comments_count || 0;
-    
-    // Show updated date if available
-    if (article.updated_date && updatedEl && updatedDateEl) {
-        updatedDateEl.textContent = article.updated_date;
-        updatedEl.style.display = 'inline';
-    } else if (updatedEl) {
-        updatedEl.style.display = 'none';
-    }
-    
-    // Show modal with loading state
     modal.style.display = 'flex';
     loadingDiv.style.display = 'block';
     contentDiv.style.display = 'none';
