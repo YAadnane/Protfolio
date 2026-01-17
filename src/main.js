@@ -2122,6 +2122,9 @@ async function loadArticles() {
                         const likes = art.likes_count || 0;
                         const comments = art.comments_count || 0;
 
+                        // Store article in global map for modal access
+                        window.articlesMap[art.id] = art;
+
                          return `
                         <div class="article-card" data-tilt data-id="${art.id}" data-track="article">
                             <div class="article-image">
