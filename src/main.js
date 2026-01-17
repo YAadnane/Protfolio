@@ -2147,7 +2147,7 @@ async function loadArticles() {
                                          <div class="interaction-item no-pointer" title="Views">
                                             <i class="fa-solid fa-eye"></i> <span>${clicks}</span>
                                          </div>
-                                         <div class="interaction-item interaction-like" onclick="window.toggleLike('article', ${art.id}, this)">
+                                         <div class="interaction-item interaction-like like-article-btn-${art.id}" onclick="window.toggleLike('article', ${art.id}, this)">
                                             <i class="fa-regular fa-heart"></i> <span class="like-count">${likes}</span>
                                          </div>
                                          <div class="interaction-item" onclick="window.openFeedbackModal('article', ${art.id})">
@@ -3153,44 +3153,54 @@ window.toggleLike = async (type, id, element) => {
         
         if (data.liked) {
             // Update ALL instances
-            const icons = document.querySelectorAll(type === 'project' ? `.like-project-btn-${id} i` : ''); 
-             const btns = document.querySelectorAll(type === 'project' ? `.like-project-btn-${id}` : '');
+            const selector = type === 'project' ? `.like-project-btn-${id}` : `.like-article-btn-${id}`;
+            const icons = document.querySelectorAll(`${selector} i`); 
+            const btns = document.querySelectorAll(selector);
 
-             if (btns.length > 0) {
-                 btns.forEach(btn => btn.classList.add('active'));
-                 icons.forEach(ic => {
-                     ic.classList.remove('fa-regular');
-                     ic.classList.add('fa-solid');
-                 });
-             } else {
-                 // Fallback for non-project types or legacy
-                  icon.classList.remove('fa-regular');
-                  icon.classList.add('fa-solid');
-                  element.classList.add('active');
-             }
+            if (btns.length > 0) {
+                btns.forEach(btn => btn.classList.add('active'));
+                icons.forEach(ic => {
+                    ic.classList.remove('fa-regular');
+                    ic.classList.add('fa-solid');
+                });
+            } else {
+                // Fallback for non-class-based elements
+                icon.classList.remove('fa-regular');
+                icon.classList.add('fa-solid');
+                element.classList.add('active');
+            }
         } else {
-             const icons = document.querySelectorAll(type === 'project' ? `.like-project-btn-${id} i` : '');
-             const btns = document.querySelectorAll(type === 'project' ? `.like-project-btn-${id}` : '');
+            const selector = type === 'project' ? `.like-project-btn-${id}` : `.like-article-btn-${id}`;
+            const icons = document.querySelectorAll(`${selector} i`);
+            const btns = document.querySelectorAll(selector);
 
-             if (btns.length > 0) {
-                 btns.forEach(btn => btn.classList.remove('active'));
-                 icons.forEach(ic => {
-                     ic.classList.remove('fa-solid');
-                     ic.classList.add('fa-regular');
-                 });
-             } else {
-                 // Fallback
-                  icon.classList.remove('fa-solid');
-                  icon.classList.add('fa-regular');
-                  element.classList.remove('active');
-             }
+            if (btns.length > 0) {
+                btns.forEach(btn => btn.classList.remove('active'));
+                icons.forEach(ic => {
+                    ic.classList.remove('fa-solid');
+                    ic.classList.add('fa-regular');
+                });
+            } else {
+                // Fallback
+                icon.classList.remove('fa-solid');
+                icon.classList.add('fa-regular');
+                element.classList.remove('active');
+            }
         }
         
         // Update Counts Everywhere
         if (type === 'project') {
             window.updateGlobalCounters(id, 'likes', data.count);
         } else {
+            // Update article card count
             countEl.innerText = data.count;
+            
+            // Update modal count if modal is open and showing this article
+            const modalLikesCount = document.getElementById('article-likes-count');
+            const modalLikes = document.getElementById('article-likes');
+            if (modalLikesCount && modalLikes && modalLikes.dataset.articleId == id) {
+                modalLikesCount.innerText = data.count;
+            }
         }
 
     } catch (e) {
@@ -3470,4 +3480,39 @@ window.openArticleModalById = function(articleId) {
     // Format date using the same logic as in loadArticles
     const dateStr = article.date ? new Date(article.date).toLocaleDateString(currentLang === 'fr' ? 'fr-FR' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '';
     window.openArticleModal(article.link, articleId, article.title, dateStr, article);
+    
+    // Store article ID in modal for interaction handlers
+    const modalLikes = document.getElementById('article-likes');
+    const modalComments = document.getElementById('article-comments');
+    if (modalLikes) modalLikes.dataset.articleId = articleId;
+    if (modalComments) modalComments.dataset.articleId = articleId;
+};
+
+// =========================================
+// MODAL INTERACTION HELPERS
+// =========================================
+window.toggleLikeInModal = function(event) {
+    event.stopPropagation();
+    const modalLikes = document.getElementById('article-likes');
+    const articleId = modalLikes ? modalLikes.dataset.articleId : null;
+    
+    if (!articleId) {
+        console.error('No article ID found in modal');
+        return;
+    }
+    
+    window.toggleLike('article', articleId, modalLikes);
+};
+
+window.openFeedbackFromModal = function(event) {
+    event.stopPropagation();
+    const modalComments = document.getElementById('article-comments');
+    const articleId = modalComments ? modalComments.dataset.articleId : null;
+    
+    if (!articleId) {
+        console.error('No article ID found in modal');
+        return;
+    }
+    
+    window.openFeedbackModal('article', articleId);
 };

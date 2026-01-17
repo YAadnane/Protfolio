@@ -664,13 +664,16 @@
               <i class="fa-solid fa-clock"></i> Updated: <span id="article-updated-date"></span>
             </span>
             <div id="article-analytics" style="display: flex; gap: 1rem; font-size: 0.85rem; color: var(--text-muted);">
-              <span id="article-views" style="display: flex; align-items: center; gap: 0.3rem;">
+              <span id="article-views" class="no-pointer" style="display: flex; align-items: center; gap: 0.3rem;">
                 <i class="fa-solid fa-eye"></i> <span id="article-views-count">0</span>
               </span>
-              <span id="article-likes" style="display: flex; align-items: center; gap: 0.3rem;">
-                <i class="fa-solid fa-heart"></i> <span id="article-likes-count">0</span>
+              <span id="article-likes" class="interaction-like" data-article-id=""
+                onclick="window.toggleLikeInModal(event)"
+                style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer; transition: all 0.3s ease;">
+                <i class="fa-regular fa-heart"></i> <span id="article-likes-count" class="like-count">0</span>
               </span>
-              <span id="article-comments" style="display: flex; align-items: center; gap: 0.3rem;">
+              <span id="article-comments" onclick="window.openFeedbackFromModal(event)"
+                style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer; transition: all 0.3s ease;">
                 <i class="fa-solid fa-comment"></i> <span id="article-comments-count">0</span>
               </span>
             </div>
