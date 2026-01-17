@@ -3226,6 +3226,17 @@ window.openFeedbackModal = (type, id) => {
     modal.style.zIndex = '100000';
     modal.style.display = 'flex';
     
+    // Open the form by default
+    setTimeout(() => {
+        const form = document.getElementById('feedback-form');
+        const icon = document.getElementById('feedback-toggle-icon');
+        if (form && icon) {
+            form.style.maxHeight = '800px';
+            form.style.opacity = '1';
+            icon.style.transform = 'rotate(180deg)';
+        }
+    }, 100);
+    
     // Fetch and render comments
     const commentsList = document.getElementById('comments-list');
     if (commentsList) {
@@ -3240,13 +3251,13 @@ window.openFeedbackModal = (type, id) => {
                     window.updateGlobalCounters(id, 'comments', comments.length);
                 }
 
-                if (comments.length === 0) {
-                    commentsList.innerHTML = '<p style="color:var(--text-muted); text-align:center; padding: 1rem;">No comments yet. Be the first!</p>';
+                if (!comments || comments.length === 0) {
+                    commentsList.innerHTML = '<p style="color:var(--text-muted); text-align:center;">No comments yet.</p>';
                 } else {
                     commentsList.innerHTML = comments.map(c => `
                         <div class="comment-item">
                             <div class="comment-header">
-                                <span class="comment-name">${c.name}</span>
+                                <span class="comment-name">${c.name || 'Anonymous'}</span>
                                 <span class="comment-date">${new Date(c.date).toLocaleDateString()}</span>
                             </div>
                             <p class="comment-body">${c.message}</p>
