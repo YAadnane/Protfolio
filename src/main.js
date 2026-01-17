@@ -57,18 +57,33 @@ function initContactForm() {
             submitBtn.innerText = 'Sending...';
             submitBtn.disabled = true;
 
-            const res = await fetch(`${API_URL}/contact`, {
+            const res = await fetch(`${API_URL}/interact/comment`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             });
-
             const result = await res.json();
+            
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
 
-            if (res.ok) {
-                const t = translations[currentLang];
-                showNotification(t["form.success.title"], t["form.success.msg"], 'success');
-                form.reset();
+            if (result.success) {
+                showNotification('Comment Added!', 'Your feedback has been posted.');
+                e.target.reset();
+                // Assuming closeFeedbackModal() is defined elsewhere if needed
+                // closeFeedbackModal(); 
+                
+                        }
+                    });
+                    
+                    // Update modal comment count if open
+                    const modalCommentsCount = document.getElementById('article-comments-count');
+                    const modalComments = document.getElementById('article-comments');
+                    if (modalCommentsCount && modalComments && modalComments.dataset.articleId == id) {
+                        const currentCount = parseInt(modalCommentsCount.textContent) || 0;
+                        modalCommentsCount.textContent = currentCount + 1;
+                    }
+                }
             } else {
                 const t = translations[currentLang];
                 showNotification(t["form.error.title"], `${t["form.error.msg"]} (${result.error})`, 'error');
