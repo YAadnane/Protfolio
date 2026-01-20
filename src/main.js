@@ -455,34 +455,84 @@ async function loadGeneralInfo() {
 }
 
 // --- HELPER: Global Sync ---
-window.updateGlobalCounters = (id, type, value) => {
+// --- HELPER: Global Sync ---
+window.updateGlobalCounters = (id, type, value, entityType = 'project') => {
     // 1. Update Data Source
-    const p1 = allProjectsData.find(p => p.id == id);
-    const p2 = originalProjectsData.find(p => p.id == id);
-    
-    if (type === 'likes') {
-         if (p1) p1.likes_count = value;
-         if (p2) p2.likes_count = value;
-         const els = document.querySelectorAll(`.like-project-count-${id}`);
-         console.log(`[SYNC] Updating ${els.length} LIKE counters for ID ${id} to ${value}`);
-         els.forEach(el => el.innerText = value);
-    } else if (type === 'comments') {
-         if (p1) p1.comments_count = value;
-         if (p2) p2.comments_count = value;
-         const els = document.querySelectorAll(`.comment-project-count-${id}`);
-         console.log(`[SYNC] Updating ${els.length} COMMENT counters for ID ${id} to ${value}`);
-         els.forEach(el => el.innerText = value);
-    } else if (type === 'views') {
-         if (p1) p1.clicks = value;
-         if (p2) p2.clicks = value;
-         const els = document.querySelectorAll(`.view-project-count-${id}`);
-         console.log(`[SYNC] Updating ${els.length} VIEW counters for ID ${id} to ${value}`);
-         els.forEach(el => {
-             el.innerText = value;
-             el.style.color = '#00ff9d';
-             setTimeout(() => el.style.color = '', 500);
-         });
+    if (entityType === 'project') {
+        const p1 = allProjectsData.find(p => p.id == id);
+        const p2 = originalProjectsData.find(p => p.id == id);
+        
+        if (type === 'likes') {
+             if (p1) p1.likes_count = value;
+             if (p2) p2.likes_count = value;
+             const els = document.querySelectorAll(`.like-project-count-${id}`);
+             els.forEach(el => {
+                 el.innerText = value;
+                 el.style.color = '#00ff9d';
+                 setTimeout(() => el.style.color = '', 500);
+             });
+        } else if (type === 'comments') {
+             if (p1) p1.comments_count = value;
+             if (p2) p2.comments_count = value;
+             const els = document.querySelectorAll(`.comment-project-count-${id}`);
+             els.forEach(el => {
+                 el.innerText = value;
+                 el.style.color = '#00ff9d';
+                 setTimeout(() => el.style.color = '', 500);
+             });
+        } else if (type === 'views') {
+             if (p1) p1.clicks = value;
+             if (p2) p2.clicks = value;
+             const els = document.querySelectorAll(`.view-project-count-${id}`);
+             els.forEach(el => {
+                 el.innerText = value;
+                 el.style.color = '#00ff9d';
+                 setTimeout(() => el.style.color = '', 500);
+             });
+        }
+    } else if (entityType === 'article') {
+        if (window.articlesMap && window.articlesMap[id]) {
+            const art = window.articlesMap[id];
+            if (type === 'likes') art.likes_count = value;
+            if (type === 'comments') art.comments_count = value;
+            if (type === 'views') art.clicks = value;
+        }
+
+        const animate = (els) => {
+            els.forEach(el => {
+                el.innerText = value;
+                el.style.color = '#00ff9d';
+                setTimeout(() => el.style.color = '', 500);
+            });
+        };
+
+        if (type === 'likes') {
+            animate(document.querySelectorAll(`.like-article-count-${id}`));
+            // Also update Modal counter if exists
+            const modalCount = document.getElementById('article-likes-count');
+            const modalLikes = document.getElementById('article-likes');
+            if (modalCount && modalLikes && modalLikes.dataset.articleId == id) {
+                modalCount.innerText = value;
+            }
+        } else if (type === 'comments') {
+            animate(document.querySelectorAll(`.comment-article-count-${id}`));
+            // Also update Modal counter if exists
+            const modalCount = document.getElementById('article-comments-count');
+            const modalComments = document.getElementById('article-comments');
+            if (modalCount && modalComments && modalComments.dataset.articleId == id) {
+                modalCount.innerText = value;
+            }
+        } else if (type === 'views') {
+            animate(document.querySelectorAll(`.view-article-count-${id}`));
+            // Also update Modal counter if exists
+            const modalCount = document.getElementById('article-views-count');
+            const modalViews = document.getElementById('article-views');
+            if (modalCount && modalViews && modalViews.dataset.articleId == id) {
+                modalCount.innerText = value;
+            }
+        }
     }
+    console.log(`[SYNC] Updated ${entityType} ${id} ${type} to ${value}`);
 };
 
 // --- HELPER: Counter Animation ---
@@ -2141,13 +2191,13 @@ async function loadArticles() {
                                 <div class="article-footer">
                                     <div class="interaction-bar">
                                          <div class="interaction-item no-pointer" title="Views">
-                                            <i class="fa-solid fa-eye"></i> <span>${clicks}</span>
+                                            <i class="fa-solid fa-eye"></i> <span class="view-article-count-${art.id}">${clicks}</span>
                                          </div>
                                          <div class="interaction-item interaction-like like-article-btn-${art.id}" onclick="window.toggleLike('article', ${art.id}, this)">
-                                            <i class="fa-regular fa-heart"></i> <span class="like-count">${likes}</span>
+                                            <i class="fa-regular fa-heart"></i> <span class="like-count like-article-count-${art.id}">${likes}</span>
                                          </div>
                                          <div class="interaction-item" onclick="window.openFeedbackModal('article', ${art.id})">
-                                            <i class="fa-regular fa-comment"></i> <span>${comments}</span>
+                                            <i class="fa-regular fa-comment"></i> <span class="comment-article-count-${art.id}">${comments}</span>
                                          </div>
                                     </div>
                                     <a href="${art.link}" class="read-more-btn" data-article-id="${art.id}" onclick="event.preventDefault(); window.trackEvent('view_article', ${art.id}, this); window.openArticleModalById('${art.id}')">
@@ -3185,36 +3235,7 @@ window.toggleLike = async (type, id, element) => {
         }
         
         // Update Counts Everywhere
-        if (type === 'project') {
-            window.updateGlobalCounters(id, 'likes', data.count);
-        } else if (type === 'article') {
-            // Update article card like count
-            const articleCards = document.querySelectorAll(`.like-article-btn-${id}`);
-            articleCards.forEach(card => {
-                const parent = card.closest('.article-footer') || card.closest('.interaction-bar');
-                if (parent) {
-                    const likeCountSpan = parent.querySelector('.interaction-like span');
-                    if (likeCountSpan) {
-                        likeCountSpan.textContent = data.count;
-                    }
-                }
-            });
-            
-            // Update modal like count if open
-            const modalLikesCount = document.getElementById('article-likes-count');
-            const modalLikes = document.getElementById('article-likes');
-            if (modalLikesCount && modalLikes && modalLikes.dataset.articleId == id) {
-                modalLikesCount.textContent = data.count;
-            }
-            
-            // Update article data in window.articlesMap
-            if (window.articlesMap && window.articlesMap[id]) {
-                window.articlesMap[id].likes_count = data.count;
-            }
-        } else {
-            // Default: just update count element
-            countEl.innerText = data.count;
-        }
+        window.updateGlobalCounters(id, 'likes', data.count, type);
 
     } catch (e) {
         console.error("Like failed", e);
@@ -3231,10 +3252,8 @@ window.loadComments = (type, id) => {
     fetch(`${API_URL}/comments?type=${type}&id=${id}`)
         .then(res => res.json())
         .then(comments => {
-            // Self-Correct Count based on actual data
-            if (type === 'project') {
-                window.updateGlobalCounters(id, 'comments', comments.length);
-            }
+            // Update Global Counters
+            window.updateGlobalCounters(id, 'comments', comments.length, type);
 
             if (!comments || comments.length === 0) {
                 const t = translations[currentLang];
@@ -3420,44 +3439,7 @@ if (feedbackForm) {
                 
                 // Update comment counts everywhere
                 const { type, id } = data;
-                
-                if (type === 'project') {
-                    // Existing project logic
-                    const countEls = document.querySelectorAll(`.comment-project-count-${id}`);
-                    countEls.forEach(el => {
-                        const current = parseInt(el.innerText || '0');
-                        el.innerText = current + 1;
-                        el.style.color = '#00ff9d';
-                        setTimeout(() => el.style.color = '', 500);
-                    });
-                    
-                    const proj = allProjectsData.find(p => p.id == id);
-                    if (proj) {
-                        const newVal = (proj.comments_count || 0) + 1;
-                        window.updateGlobalCounters(id, 'comments', newVal);
-                    }
-                } else if (type === 'article') {
-                    // Update article card comment count
-                    const articleCards = document.querySelectorAll(`.like-article-btn-${id}`);
-                    articleCards.forEach(card => {
-                        const parent = card.closest('.article-footer') || card.closest('.interaction-bar');
-                        if (parent) {
-                            const commentSpan = parent.querySelector('.interaction-item:not(.interaction-like):not(.no-pointer) span');
-                            if (commentSpan) {
-                                const currentCount = parseInt(commentSpan.textContent) || 0;
-                                commentSpan.textContent = currentCount + 1;
-                            }
-                        }
-                    });
-                    
-                    // Update modal comment count if open
-                    const modalCommentsCount = document.getElementById('article-comments-count');
-                    const modalComments = document.getElementById('article-comments');
-                    if (modalCommentsCount && modalComments && modalComments.dataset.articleId == id) {
-                        const currentCount = parseInt(modalCommentsCount.textContent) || 0;
-                        modalCommentsCount.textContent = currentCount + 1;
-                    }
-                }
+                window.updateGlobalCounters(id, 'comments', result.new_count || (parseInt(document.querySelector(`.comment-${type}-count-${id}`)?.innerText || 0) + 1), type);
             } else {
                 showToast("Failed to submit feedback.", 'error');
             }
@@ -3495,31 +3477,8 @@ window.trackEvent = async (type, id, element) => {
 
         // Update view counters everywhere in real-time
         if (data.success && data.views_count !== undefined) {
-            // Update article card view count
-            if (type === 'article') {
-                const articleCards = document.querySelectorAll(`[data-id="${id}"]`);
-                articleCards.forEach(card => {
-                    const viewSpan = card.querySelector('.interaction-item.no-pointer span');
-                    if (viewSpan) {
-                        viewSpan.textContent = data.views_count;
-                    }
-                });
-                
-                // Update modal view count if open
-                const modalViewsCount = document.getElementById('article-views-count');
-                const modalViews = document.getElementById('article-views');
-                if (modalViewsCount && modalViews && modalViews.dataset.articleId == id) {
-                    modalViewsCount.textContent = data.views_count;
-                }
-            }
-            
-            // Legacy element update (if provided)
-            if (element) {
-                const countEl = element.querySelector('.views-count');
-                if (countEl) {
-                    countEl.textContent = data.views_count;
-                }
-            }
+             const entityType = type.includes('article') ? 'article' : 'project';
+             window.updateGlobalCounters(id, 'views', data.views_count, entityType);
         }
     } catch (err) {
         console.error('Track event failed:', err); }
