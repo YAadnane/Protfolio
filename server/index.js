@@ -1581,7 +1581,6 @@ app.delete('/api/admin/database/table/:name', authenticateToken, (req, res) => {
 });
 
 // --- NOTION PROXY ---
-import { Client } from "@notionhq/client";
 
 app.get('/api/notion/page/:id', async (req, res) => {
     try {
