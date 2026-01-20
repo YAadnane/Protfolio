@@ -3221,6 +3221,43 @@ window.toggleLike = async (type, id, element) => {
     }
 };
 
+// Function to load and display comments
+window.loadComments = (type, id) => {
+    const commentsList = document.getElementById('comments-list');
+    if (!commentsList) return;
+    
+    commentsList.innerHTML = '<p style="color:var(--text-muted); text-align:center;">Loading comments...</p>';
+    
+    fetch(`${API_URL}/comments?type=${type}&id=${id}`)
+        .then(res => res.json())
+        .then(comments => {
+            // Self-Correct Count based on actual data
+            if (type === 'project') {
+                window.updateGlobalCounters(id, 'comments', comments.length);
+            }
+
+            if (!comments || comments.length === 0) {
+                const t = translations[currentLang];
+                commentsList.innerHTML = `<p style="color:var(--text-muted); text-align:center;" data-i18n="comments.empty">${t['comments.empty']}</p>`;
+            } else {
+                commentsList.innerHTML = comments.map(c => `
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <span class="comment-name">${c.name || 'Anonymous'}</span>
+                            <span class="comment-date">${new Date(c.date).toLocaleDateString()}</span>
+                        </div>
+                        <p class="comment-body">${c.message}</p>
+                        ${c.social_link ? `<a href="${c.social_link}" target="_blank" class="comment-link"><i class="fa-solid fa-link"></i> ${c.social_platform || 'Link'}</a>` : ''}
+                    </div>
+                `).join('');
+            }
+        })
+        .catch(err => {
+            console.error("Failed to load comments", err);
+            commentsList.innerHTML = '<p style="color:#ff4757; text-align:center;">Failed to load comments.</p>';
+        });
+};
+
 window.openFeedbackModal = (type, id) => {
     if (event) event.stopPropagation();
     const modal = document.getElementById('feedback-modal');
@@ -3229,41 +3266,8 @@ window.openFeedbackModal = (type, id) => {
     modal.style.zIndex = '100000';
     modal.style.display = 'flex';
     
-    // Fetch and render comments
-    const commentsList = document.getElementById('comments-list');
-    if (commentsList) {
-        commentsList.innerHTML = '<p style="color:var(--text-muted); text-align:center;">Loading comments...</p>';
-        
-        fetch(`${API_URL}/comments?type=${type}&id=${id}`)
-            .then(res => res.json())
-            .then(comments => {
-                
-                // Self-Correct Count based on actual data
-                if (type === 'project') {
-                    window.updateGlobalCounters(id, 'comments', comments.length);
-                }
-
-                if (!comments || comments.length === 0) {
-                    const t = translations[currentLang];
-                    commentsList.innerHTML = `<p style="color:var(--text-muted); text-align:center;" data-i18n="comments.empty">${t['comments.empty']}</p>`;
-                } else {
-                    commentsList.innerHTML = comments.map(c => `
-                        <div class="comment-item">
-                            <div class="comment-header">
-                                <span class="comment-name">${c.name || 'Anonymous'}</span>
-                                <span class="comment-date">${new Date(c.date).toLocaleDateString()}</span>
-                            </div>
-                            <p class="comment-body">${c.message}</p>
-                            ${c.social_link ? `<a href="${c.social_link}" target="_blank" class="comment-link"><i class="fa-solid fa-link"></i> ${c.social_platform || 'Link'}</a>` : ''}
-                        </div>
-                    `).join('');
-                }
-            })
-            .catch(err => {
-                console.error("Failed to load comments", err);
-                commentsList.innerHTML = '<p style="color:#ff4757; text-align:center;">Failed to load comments.</p>';
-            });
-    }
+    // Load comments using the new function
+    window.loadComments(type, id);
 };
 
 
@@ -3397,8 +3401,22 @@ if (feedbackForm) {
 
             if (result.success) {
                 showToast(translations[currentLang]?.["feedback.success"] || "Thanks! Your feedback has been sent.", 'success');
-                window.closeFeedbackModal();
+                // Don't close modal - reload comments to show new one
                 e.target.reset();
+                
+                // Collapse form after submission
+                const form = document.getElementById('feedback-form');
+                const icon = document.getElementById('feedback-toggle-icon');
+                if (form) {
+                    form.style.maxHeight = '0';
+                    form.style.opacity = '0';
+                }
+                if (icon) {
+                    icon.style.transform = 'rotate(0deg)';
+                }
+                
+                // Reload comments to show the new one
+                window.loadComments(data.type, data.id);
                 
                 // Update comment counts everywhere
                 const { type, id } = data;
@@ -3652,11 +3670,5 @@ window.openFeedbackFromModal = function(event) {
     window.openFeedbackModal('article', articleId);
 };
 
-// Initialize Hero Cube Interaction on load
-window.addEventListener('load', () => {
-    console.log('Initializing cube interaction...');
-    setTimeout(() => {
-        initHeroCubeInteraction();
-        console.log('Cube interaction initialized');
-    }, 100);
-});
+// Initialize Hero Cube Interaction
+initHeroCubeInteraction();
