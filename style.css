@@ -4562,8 +4562,8 @@ body.light-mode .bento-item.has-media .bento-tags span {
 .feedback-modal-content select,
 .feedback-modal-content textarea {
     width: 100%;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
+    background: var(--input-bg);
+    border: 1px solid var(--input-border);
     color: var(--text-main);
     padding: 1rem;
     border-radius: 8px;

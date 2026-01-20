@@ -737,18 +737,21 @@
             </div>
             <div class="form-group" style="flex: 2;">
               <label for="feedback-link" data-i18n="feedback.link">Social Link / ID</label>
-              <input type="text" id="feedback-link" name="social_link" placeholder="Profile URL or Username">
+              <input type="text" id="feedback-link" name="social_link" placeholder="Profile URL or Username"
+                data-i18n-placeholder="feedback.placeholder.link">
             </div>
           </div>
 
           <div class="form-group">
             <label for="feedback-name" data-i18n="feedback.name">Name (Optional)</label>
-            <input type="text" id="feedback-name" name="name" placeholder="John Doe">
+            <input type="text" id="feedback-name" name="name" placeholder="John Doe"
+              data-i18n-placeholder="feedback.placeholder.name">
           </div>
 
           <div class="form-group">
             <label for="feedback-message" data-i18n="feedback.message">Message</label>
-            <textarea id="feedback-message" name="message" required placeholder="Share your thoughts..."></textarea>
+            <textarea id="feedback-message" name="message" required placeholder="Share your thoughts..."
+              data-i18n-placeholder="feedback.placeholder.message"></textarea>
           </div>
 
           <button type="submit" class="btn-submit" data-i18n="feedback.submit">Submit Feedback</button>
