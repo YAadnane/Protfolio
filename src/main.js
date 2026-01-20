@@ -3434,12 +3434,38 @@ if (feedbackForm) {
                     icon.style.transform = 'rotate(0deg)';
                 }
                 
-                // Reload comments to show the new one
-                window.loadComments(data.type, data.id);
+                // OPTIMISTIC UI: Inject new comment immediately
+                const commentsList = document.getElementById('comments-list');
+                if (commentsList) {
+                    // Remove "empty" slogan/message if present
+                    if (commentsList.children.length === 1 && commentsList.children[0].tagName === 'P') {
+                        commentsList.innerHTML = '';
+                    }
+                    
+                    const safeName = data.name ? data.name.replace(/</g, "&lt;").replace(/>/g, "&gt;") : 'Anonymous';
+                    const safeMsg = data.message ? data.message.replace(/</g, "&lt;").replace(/>/g, "&gt;") : '';
+                    
+                    const newCommentHtml = `
+                    <div class="comment-item" style="animation: highlight 1s ease-out;">
+                        <div class="comment-header">
+                            <span class="comment-name">${safeName}</span>
+                            <span class="comment-date">${new Date().toLocaleDateString()}</span>
+                        </div>
+                        <p class="comment-body">${safeMsg}</p>
+                    </div>
+                    `;
+                    commentsList.insertAdjacentHTML('afterbegin', newCommentHtml);
+                }
                 
                 // Update comment counts everywhere
                 const { type, id } = data;
-                window.updateGlobalCounters(id, 'comments', result.new_count || (parseInt(document.querySelector(`.comment-${type}-count-${id}`)?.innerText || 0) + 1), type);
+                // Prefer server count if available, else increment local
+                 let newCount = result.new_count;
+                 if (newCount === undefined) {
+                     const currentEl = document.querySelector(`.comment-${type}-count-${id}`);
+                     newCount = (parseInt(currentEl?.innerText || '0')) + 1;
+                 }
+                window.updateGlobalCounters(id, 'comments', newCount, type);
             } else {
                 showToast("Failed to submit feedback.", 'error');
             }
