@@ -3249,7 +3249,7 @@ window.loadComments = (type, id) => {
     
     commentsList.innerHTML = '<p style="color:var(--text-muted); text-align:center;">Loading comments...</p>';
     
-    fetch(`${API_URL}/comments?type=${type}&id=${id}`)
+    fetch(`${API_URL}/comments?type=${type}&id=${id}&t=${Date.now()}`)
         .then(res => res.json())
         .then(comments => {
             // Update Global Counters
