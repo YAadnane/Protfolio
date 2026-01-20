@@ -4511,7 +4511,7 @@ body.light-mode .bento-item.has-media .bento-tags span {
 .feedback-modal-content h3 {
     font-size: 1.8rem;
     font-weight: 700;
-    color: #fff;
+    color: var(--text-main);
     text-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
     margin: 0;
 }
