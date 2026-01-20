@@ -3652,5 +3652,11 @@ window.openFeedbackFromModal = function(event) {
     window.openFeedbackModal('article', articleId);
 };
 
-// Initialize Hero Cube Interaction
-initHeroCubeInteraction();
+// Initialize Hero Cube Interaction on load
+window.addEventListener('load', () => {
+    console.log('Initializing cube interaction...');
+    setTimeout(() => {
+        initHeroCubeInteraction();
+        console.log('Cube interaction initialized');
+    }, 100);
+});
