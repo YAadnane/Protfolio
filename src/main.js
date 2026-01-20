@@ -3418,7 +3418,7 @@ if (feedbackForm) {
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
 
-            if (result.success) {
+            if (result.success || res.ok) {
                 showToast(translations[currentLang]?.["feedback.success"] || "Thanks! Your feedback has been sent.", 'success');
                 // Don't close modal - reload comments to show new one
                 e.target.reset();
