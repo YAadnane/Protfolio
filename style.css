@@ -4453,8 +4453,8 @@ body.light-mode .bento-item.has-media .bento-tags span {
 
 /* --- Feedback Modal Styling (Neon/Glassmorphism) --- */
 .feedback-modal-content {
-    background: rgba(10, 10, 10, 0.85);
-    border: 1px solid rgba(0, 255, 157, 0.2);
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     padding: 2.5rem;
@@ -4467,7 +4467,7 @@ body.light-mode .bento-item.has-media .bento-tags span {
     overflow-y: auto;
     /* Enable vertical scroll */
     box-shadow: 0 0 40px rgba(0, 255, 157, 0.1), inset 0 0 20px rgba(0, 0, 0, 0.5);
-    color: #fff;
+    color: var(--text-main);
     position: relative;
 }
 
@@ -4562,9 +4562,9 @@ body.light-mode .bento-item.has-media .bento-tags span {
 .feedback-modal-content select,
 .feedback-modal-content textarea {
     width: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #fff;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
     padding: 1rem;
     border-radius: 8px;
     font-family: inherit;
@@ -4586,7 +4586,7 @@ body.light-mode .bento-item.has-media .bento-tags span {
     outline: none;
     border-color: var(--accent-color);
     box-shadow: 0 0 15px rgba(0, 255, 157, 0.15);
-    background: rgba(0, 0, 0, 0.6);
+    background: var(--bg-secondary);
 }
 
 .feedback-modal-content textarea {
@@ -5382,11 +5382,13 @@ body.light-mode .bento-item.has-media .bento-tags span {
     color: var(--text-muted);
     margin-top: 0.5rem;
 }
+
 /* User Request: Black text on Project Cards in Light Mode */
 body.light-mode .bento-item h3,
 body.light-mode .bento-item p {
     color: #000 !important;
 }
+
 /* =========================================
    NOTION ARTICLE CONTENT STYLING
    ========================================= */
@@ -5527,8 +5529,8 @@ body.light-mode .bento-item p {
     line-height: 1.7;
 }
 
-#article-content li > ul,
-#article-content li > ol {
+#article-content li>ul,
+#article-content li>ol {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
 }
@@ -5759,6 +5761,7 @@ body.light-mode .bento-item p {
     from {
         transform: rotate(0deg);
     }
+
     to {
         transform: rotate(360deg);
     }
@@ -5769,24 +5772,25 @@ body.light-mode .bento-item p {
     #article-content {
         font-size: 1rem;
     }
-    
+
     #article-content h1 {
         font-size: 2rem;
     }
-    
+
     #article-content h2 {
         font-size: 1.75rem;
     }
-    
+
     #article-content h3 {
         font-size: 1.35rem;
     }
-    
+
     #article-content pre {
         padding: 1rem;
         font-size: 0.85rem;
     }
 }
+
 /* Article Modal Mobile Responsive */
 @media (max-width: 768px) {
     #article-modal .modal-header {
