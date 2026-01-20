@@ -3651,3 +3651,6 @@ window.openFeedbackFromModal = function(event) {
     
     window.openFeedbackModal('article', articleId);
 };
+
+// Initialize Hero Cube Interaction
+initHeroCubeInteraction();
