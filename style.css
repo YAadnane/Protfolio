@@ -4722,8 +4722,8 @@ body.light-mode .bento-item.has-media .bento-tags span {
 }
 
 .comment-item {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     padding: 1rem;
     border-radius: 8px;
     margin-bottom: 1rem;
