@@ -4629,7 +4629,7 @@ body.light-mode .bento-item.has-media .bento-tags span {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    z-index: 10000;
+    z-index: 20000;
     display: flex;
     flex-direction: column;
     gap: 15px;

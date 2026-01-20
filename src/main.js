@@ -3467,11 +3467,11 @@ if (feedbackForm) {
                  }
                 window.updateGlobalCounters(id, 'comments', newCount, type);
             } else {
-                showToast("Failed to submit feedback.", 'error');
+                showToast(translations[currentLang]?.["feedback.error"] || "Failed to submit feedback.", 'error');
             }
         } catch (err) {
             console.error(err);
-            showToast("Error submitting form.", 'error');
+            showToast(translations[currentLang]?.["feedback.error.submit"] || "Error submitting form.", 'error');
         } finally {
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;

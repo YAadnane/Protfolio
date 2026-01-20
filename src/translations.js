@@ -88,6 +88,8 @@ export const translations = {
         "feedback.platform": "Platform",
         "feedback.link": "Social Link",
         "feedback.success": "Thanks! Your feedback has been sent.",
+        "feedback.error": "Failed to submit feedback.",
+        "feedback.error.submit": "Error submitting form.",
         "testimonials.form.link": "Profile Link",
         "testimonials.form.platform": "Social Network",
         // Certification Modal
@@ -169,6 +171,8 @@ export const translations = {
         "feedback.platform": "Plateforme",
         "feedback.link": "Lien Social",
         "feedback.success": "Merci ! Votre commentaire a été envoyé.",
+        "feedback.error": "Échec de l'envoi du commentaire.",
+        "feedback.error.submit": "Erreur lors de l'envoi du formulaire.",
         "form.name": "Votre Nom",
         "form.email": "Votre Email",
         "form.message": "Parlez-moi de votre projet",
