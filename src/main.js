@@ -2174,9 +2174,12 @@ async function loadArticles() {
                          return `
                         <div class="article-card" data-tilt data-id="${art.id}" data-track="article">
                             <div class="article-image">
-                                 <div style="width:100%; height:100%; background: linear-gradient(45deg, #111, #222); display:flex; align-items:center; justify-content:center;">
-                                    <i class="fa-solid fa-newspaper" style="font-size: 3rem; color: #333;"></i>
-                                 </div>
+                                ${art.image 
+                                    ? `<img src="${art.image.startsWith('http') ? art.image : (API_URL.replace('/api', '') + art.image)}" alt="${art.title}" style="width:100%; height:100%; object-fit:cover;">`
+                                    : `<div style="width:100%; height:100%; background: linear-gradient(45deg, #111, #222); display:flex; align-items:center; justify-content:center;">
+                                        <i class="fa-solid fa-newspaper" style="font-size: 3rem; color: #333;"></i>
+                                       </div>`
+                                }
                             </div>
                             <div class="article-content">
                                 <div class="article-meta-top">
