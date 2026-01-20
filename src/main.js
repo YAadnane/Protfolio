@@ -3466,6 +3466,26 @@ window.onclick = function(event) {
 // ANALYTICS TRACKING HELPER
 // =========================================
 window.trackEvent = async (type, id, element) => {
+    // Determine Entity Type
+    const entityType = type.includes('article') ? 'article' : 'project';
+    
+    // OPTIMISTIC UPDATE
+    try {
+        let currentVal = 0;
+        if (entityType === 'project') {
+             const p = allProjectsData.find(x => x.id == id);
+             if(p) currentVal = p.clicks || 0;
+        } else {
+             if(window.articlesMap && window.articlesMap[id]) {
+                 currentVal = window.articlesMap[id].clicks || 0;
+             }
+        }
+        
+        // Immediately show +1
+        window.updateGlobalCounters(id, 'views', currentVal + 1, entityType);
+        
+    } catch(e) { console.warn("Optimistic update failed", e); }
+
     try {
         const res = await fetch(`${API_URL}/track`, {
             method: 'POST',
@@ -3475,9 +3495,8 @@ window.trackEvent = async (type, id, element) => {
         const data = await res.json();
         console.log('Track response:', data);
 
-        // Update view counters everywhere in real-time
+        // Update view counters everywhere in real-time (Server Truth)
         if (data.success && data.views_count !== undefined) {
-             const entityType = type.includes('article') ? 'article' : 'project';
              window.updateGlobalCounters(id, 'views', data.views_count, entityType);
         }
     } catch (err) {
@@ -3534,13 +3553,24 @@ window.openArticleModal = async function(notionLink, articleId, title, date, art
         updatedEl.style.display = 'none';
     }
     
-    // Store article ID for interaction handlers
+    // Store article ID for interaction handlers and add SYNC classes
     const modalLikes = document.getElementById('article-likes');
     const modalComments = document.getElementById('article-comments');
     const modalViews = document.getElementById('article-views');
-    if (modalLikes) modalLikes.dataset.articleId = articleId;
-    if (modalComments) modalComments.dataset.articleId = articleId;
-    if (modalViews) modalViews.dataset.articleId = articleId;
+    
+    // Clear old classes cleaning (optional but good)
+    if (modalViews) {
+        modalViews.dataset.articleId = articleId;
+        viewsCountEl.className = `view-article-count-${articleId}`;
+    }
+    if (modalLikes) {
+        modalLikes.dataset.articleId = articleId;
+        likesCountEl.className = `like-count like-article-count-${articleId}`;
+    }
+    if (modalComments) {
+        modalComments.dataset.articleId = articleId;
+        commentsCountEl.className = `comment-article-count-${articleId}`;
+    }
     
     // Show modal with loading state
     modal.style.display = 'flex';
