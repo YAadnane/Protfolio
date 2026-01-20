@@ -5787,3 +5787,36 @@ body.light-mode .bento-item p {
         font-size: 0.85rem;
     }
 }
+/* Article Modal Mobile Responsive */
+@media (max-width: 768px) {
+    #article-modal .modal-header {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    #article-modal .modal-header>div:first-child {
+        width: 100% !important;
+    }
+
+    #article-modal .modal-header h3 {
+        font-size: 1.2rem !important;
+        line-height: 1.4 !important;
+    }
+
+    #article-modal .modal-header>div:last-child {
+        width: 100% !important;
+        justify-content: space-between !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #article-modal .modal-header h3 {
+        font-size: 1.1rem !important;
+    }
+
+    .notion-link-btn {
+        font-size: 0.75rem !important;
+        padding: 0.4rem 0.6rem !important;
+    }
+}
