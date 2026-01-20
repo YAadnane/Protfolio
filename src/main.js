@@ -3579,7 +3579,7 @@ window.openArticleModal = async function(notionLink, articleId, title, date, art
     errorDiv.style.display = 'none';
     
     // Track view and update counter in real-time
-    window.trackEvent('article', articleId, null);
+    window.trackEvent('view_article', articleId, null);
     
     try {
         // Fetch article content from Notion API
