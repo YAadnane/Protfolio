@@ -2200,7 +2200,7 @@ async function loadArticles() {
                                             <i class="fa-regular fa-comment"></i> <span class="comment-article-count-${art.id}">${comments}</span>
                                          </div>
                                     </div>
-                                    <a href="${art.link}" class="read-more-btn" data-article-id="${art.id}" onclick="event.preventDefault(); window.trackEvent('view_article', ${art.id}, this); window.openArticleModalById('${art.id}')">
+                                    <a href="${art.link}" class="read-more-btn" data-article-id="${art.id}" onclick="event.preventDefault(); window.openArticleModalById('${art.id}')">
                                         ${translations[currentLang]?.["articles.readMore"] || "Read Article"}
                                     </a>
                                 </div>
