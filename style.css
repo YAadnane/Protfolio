@@ -4054,6 +4054,21 @@ textarea:focus {
 .project-footer .interaction-item,
 .bento-content .interaction-item {
     font-size: 0.9rem;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.3s ease;
+    cursor: pointer;
+}
+
+.article-footer .interaction-item:hover,
+.project-footer .interaction-item:hover,
+.bento-content .interaction-item:hover {
+    color: var(--accent-color);
+    transform: scale(1.1);
+}
+
+.article-footer .interaction-item:hover i,
+.project-footer .interaction-item:hover i,
+.bento-content .interaction-item:hover i {
+    color: var(--accent-color);
 }
 
 .cert-level-badge {
