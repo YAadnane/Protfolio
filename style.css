@@ -4745,7 +4745,7 @@ body.light-mode .bento-item.has-media .bento-tags span {
 
 .comment-name {
     font-weight: 700;
-    color: #fff;
+    color: var(--text-main);
     font-size: 0.95rem;
 }
 
