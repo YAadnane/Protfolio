@@ -1009,10 +1009,13 @@ async function loadCertifications() {
                 return matchStatus && matchDomain && matchIssuer;
             });
 
+
             if (filtered.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-muted); width:100%; text-align:center;">No certifications found matching criteria.</p>';
+                const t = translations[currentLang];
+                container.innerHTML = `<p style="color:var(--text-muted); width:100%; text-align:center;" data-i18n="certifications.no_results">${t['certifications.no_results']}</p>`;
                 return;
             }
+
 
             filtered.forEach(c => {
                 // Status Badge Logic
