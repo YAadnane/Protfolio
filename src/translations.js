@@ -103,7 +103,16 @@ export const translations = {
         "project.tasks": "Tasks",
         "project.description": "Description",
         "project.view_code": "View Code",
-        "project.view_project": "View Project <i class='fa-solid fa-arrow-right'></i>"
+        "project.view_project": "View Project <i class='fa-solid fa-arrow-right'></i>",
+        // Article Modal
+        "article.loading": "Loading article...",
+        "article.no_content": "No content available.",
+        "article.open_notion": "Open in Notion",
+        // Comments
+        "comments.title": "RECENT COMMENTS",
+        "comments.empty": "No comments yet.",
+        // Certifications
+        "certifications.no_results": "No certifications found matching criteria."
     },
     fr: {
         "nav.about": "À propos",
@@ -210,6 +219,15 @@ export const translations = {
         "project.tasks": "Tâches",
         "project.description": "Description",
         "project.view_code": "Voir Code",
-        "project.view_project": "Voir le projet <i class='fa-solid fa-arrow-right'></i>"
+        "project.view_project": "Voir le projet <i class='fa-solid fa-arrow-right'></i>",
+        // Article Modal
+        "article.loading": "Chargement de l'article...",
+        "article.no_content": "Aucun contenu disponible.",
+        "article.open_notion": "Ouvrir dans Notion",
+        // Comments
+        "comments.title": "COMMENTAIRES RÉCENTS",
+        "comments.empty": "Aucun commentaire pour le moment.",
+        // Certifications
+        "certifications.no_results": "Aucune certification ne correspond aux critères."
     }
 };

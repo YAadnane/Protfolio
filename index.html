@@ -682,7 +682,8 @@
         <div style="display: flex; gap: 10px; align-items: center;">
           <a id="article-original-link" href="#" target="_blank" class="btn-secondary notion-link-btn"
             style="font-size: 0.9rem; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 8px; white-space: nowrap;">
-            <i class="fa-solid fa-arrow-up-right-from-square"></i> <span>Open in Notion</span>
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> <span data-i18n="article.open_notion">Open in
+              Notion</span>
           </a>
           <button class="close-modal" onclick="closeArticleModal()"
             style="background: none; border: none; color: var(--text-main); font-size: 1.5rem; cursor: pointer;">&times;</button>
@@ -692,7 +693,7 @@
         style="flex: 1; padding: 2rem; overflow-y: auto; background: var(--bg-main); color: var(--text-main);">
         <div id="article-loading" style="text-align: center; padding: 3rem;">
           <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent-color);"></i>
-          <p style="margin-top: 1rem;">Loading article...</p>
+          <p style="margin-top: 1rem;" data-i18n="article.loading">Loading article...</p>
         </div>
         <div id="article-content" style="display: none; line-height: 1.8;">
           <!-- Notion content will be injected here -->
@@ -754,7 +755,7 @@
 
         <div class="comments-section"
           style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">
-          <h4 style="color: var(--accent-color); margin-bottom: 1rem;">Recent Comments</h4>
+          <h4 style="color: var(--accent-color); margin-bottom: 1rem;" data-i18n="comments.title">Recent Comments</h4>
           <div id="comments-list" style="max-height: 200px; overflow-y: auto;">
             <!-- Comments injected here -->
           </div>

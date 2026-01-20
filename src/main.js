@@ -3241,7 +3241,8 @@ window.openFeedbackModal = (type, id) => {
                 }
 
                 if (!comments || comments.length === 0) {
-                    commentsList.innerHTML = '<p style="color:var(--text-muted); text-align:center;">No comments yet.</p>';
+                    const t = translations[currentLang];
+                    commentsList.innerHTML = `<p style="color:var(--text-muted); text-align:center;" data-i18n="comments.empty">${t['comments.empty']}</p>`;
                 } else {
                     commentsList.innerHTML = comments.map(c => `
                         <div class="comment-item">
@@ -3581,7 +3582,8 @@ window.openArticleModal = async function(notionLink, articleId, title, date, art
         const data = await response.json();
         
         // Inject HTML content
-        contentDiv.innerHTML = data.content || '<p style="color: var(--text-muted);">No content available.</p>';
+        const t = translations[currentLang];
+        contentDiv.innerHTML = data.content || `<p style="color: var(--text-muted);" data-i18n="article.no_content">${t['article.no_content']}</p>`;
         
         // Hide loading, show content
         loadingDiv.style.display = 'none';
