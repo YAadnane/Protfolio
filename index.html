@@ -656,7 +656,7 @@
       style="background: var(--card-bg); width: 90%; max-width: 900px; max-height: 85vh; border-radius: 15px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px rgba(0,0,0,0.5); border: 1px solid rgba(255, 255, 255, 0.1);">
       <div class="modal-header"
         style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; gap: 1rem;">
-        <div style="flex: 1; min-width: 200px;">
+        <div style="flex: 1; min-width: 100%; order: 1;">
           <h3 id="article-modal-title"
             style="margin: 0; font-size: 1.2rem; word-wrap: break-word; overflow-wrap: break-word;">Article Title</h3>
           <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
@@ -680,7 +680,7 @@
             </div>
           </div>
         </div>
-        <div style="display: flex; gap: 10px; align-items: center;">
+        <div style="display: flex; gap: 10px; align-items: center; width: 100%; justify-content: flex-end; order: -1;">
           <a id="article-original-link" href="#" target="_blank" class="btn-secondary notion-link-btn"
             style="font-size: 0.9rem; padding: 0.5rem 1rem; display: flex; align-items: center; gap: 8px; white-space: nowrap;">
             <i class="fa-solid fa-arrow-up-right-from-square"></i> <span data-i18n="article.open_notion">Open in
