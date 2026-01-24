@@ -2538,6 +2538,10 @@ textarea:focus {
     right: 2rem;
     z-index: 10000;
     font-family: 'Space Grotesk', sans-serif;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
 }
 
 .chat-toggle-btn {
