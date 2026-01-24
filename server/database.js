@@ -448,7 +448,18 @@ db.serialize(() => {
         email TEXT,
         date DATETIME DEFAULT CURRENT_TIMESTAMP
     )`, () => {
-        db.run("CREATE UNIQUE INDEX IF NOT EXISTS idx_subscribers_email ON subscribers(email)");
+        // Clean up duplicates before creating index
+        db.run(`DELETE FROM subscribers WHERE id NOT IN (SELECT MIN(id) FROM subscribers GROUP BY email)`, (err) => {
+            if (!err) {
+                 db.run("CREATE UNIQUE INDEX IF NOT EXISTS idx_subscribers_email ON subscribers(email)", (err) => {
+                     if (err && err.code !== 'SQLITE_CONSTRAINT') {
+                         console.error("Index creation error:", err);
+                     }
+                 });
+            } else {
+                console.error("Clean duplicates error:", err);
+            }
+        });
     });
 
     console.log("Database initialized successfully.");
