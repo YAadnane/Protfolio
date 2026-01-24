@@ -124,7 +124,8 @@ export const translations = {
         "subscribe.btn": "Subscribe Now",
         "subscribe.name_placeholder": "Your Name",
         "subscribe.email_placeholder": "Your Email",
-        "subscribe.footer": "No spam, just tech. Unsubscribe anytime."
+        "subscribe.footer": "No spam, just tech. Unsubscribe anytime.",
+        "footer.subscribe": "Subscribe to Newsletter"
     },
     fr: {
         "nav.about": "À propos",
@@ -252,6 +253,7 @@ export const translations = {
         "subscribe.btn": "S'abonner maintenant",
         "subscribe.name_placeholder": "Votre Nom",
         "subscribe.email_placeholder": "Votre Email",
-        "subscribe.footer": "Pas de spam. Désabonnement à tout moment."
+        "subscribe.footer": "Pas de spam. Désabonnement à tout moment.",
+        "footer.subscribe": "S'abonner à la Newsletter"
     }
 };

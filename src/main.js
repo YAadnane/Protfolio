@@ -3714,6 +3714,18 @@ window.initSubscriptionPopup = function() {
     }, 5000); // 5 seconds
 };
 
+window.openSubscribeModal = function() {
+    const modal = document.getElementById('subscribe-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.style.opacity = '0';
+        requestAnimationFrame(() => {
+            modal.style.transition = 'opacity 0.5s ease';
+            modal.style.opacity = '1';
+        });
+    }
+};
+
 window.closeSubscribeModal = function() {
     const modal = document.getElementById('subscribe-modal');
     if (modal) {

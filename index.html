@@ -454,8 +454,13 @@
   </main>
 
   <footer class="footer">
-    <div class="container">
+    <div class="container" style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
       <p data-i18n="footer.rights">&copy; 2025 Adnane Yadani. Crafted with <i class="fa-solid fa-heart"></i> and AI.</p>
+      <button onclick="openSubscribeModal()"
+        style="background: none; border: none; color: var(--accent-color); font-size: 0.9rem; cursor: pointer; text-decoration: underline; opacity: 0.8; transition: opacity 0.3s;"
+        onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.8">
+        <i class="fa-solid fa-envelope"></i> <span data-i18n="footer.subscribe">Subscribe to Newsletter</span>
+      </button>
     </div>
   </footer>
 
