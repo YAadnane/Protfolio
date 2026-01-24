@@ -108,9 +108,34 @@ const authenticateToken = (req, res, next) => {
     });
 };
 
+// Subscribe Endpoint
+app.post('/api/subscribe', async (req, res) => {
+    const { email } = req.body;
+
+    if (!email) {
+        return res.status(400).json({ error: "Email is required." });
+    }
+
+    // Basic email format validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return res.status(400).json({ error: "Invalid email format." });
+    }
+
+    db.run("INSERT OR IGNORE INTO subscribers (email) VALUES (?)", [email], function(err) {
+        if (err) {
+            console.error("Database error during subscription:", err.message);
+            return res.status(500).json({ error: "Failed to subscribe due to a server error." });
+        }
+        if (this.changes > 0) {
+            res.status(201).json({ message: "Successfully subscribed!" });
+        } else {
+            res.status(200).json({ message: "You are already subscribed." });
+        }
+    });
+});
+
 // Login Endpoint
 app.post('/api/login', (req, res) => {
-    // ... existing logic ...
     const { email, password } = req.body;
     console.log('Login attempt:', email); 
 
@@ -238,6 +263,25 @@ app.put('/api/profile', authenticateToken, async (req, res) => {
 // =========================================
 // API ENDPOINTS
 // =========================================
+
+// --- SUBSCRIBE ---
+app.post('/api/subscribe', (req, res) => {
+    const { name, email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    db.run(`INSERT INTO subscribers (name, email) VALUES (?, ?)`, [name, email], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ message: "Subscribed successfully" });
+    });
+});
+
+// --- CONTACT FORM ---
+app.post('/api/contact', (req, res) => {
+    // Placeholder for contact form logic
+    // The provided snippet for contact form was incomplete and syntactically incorrect.
+    // Please provide the full and correct implementation for the contact form if needed.
+    res.status(501).json({ error: "Contact form endpoint not fully implemented." });
+});
 
 // --- PROJECTS ---
 app.get('/api/projects', (req, res) => {

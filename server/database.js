@@ -441,6 +441,14 @@ db.serialize(() => {
         }
     });
 
+    // SUBSCRIBERS Table
+    db.run(`CREATE TABLE IF NOT EXISTS subscribers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        email TEXT,
+        date DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
+
     console.log("Database initialized successfully.");
 });
 

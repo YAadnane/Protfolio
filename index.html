@@ -767,6 +767,42 @@
     </div>
   </div>
 
+  <!-- Subscription Modal -->
+  <div id="subscribe-modal" class="modal-overlay"
+    style="display: none; align-items: center; justify-content: center; z-index: 10005;">
+    <div class="modal-content"
+      style="max-width: 500px; text-align: center; padding: 2.5rem; border-radius: 16px; background: var(--card-bg); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 25px 50px rgba(0,0,0,0.5);">
+      <button class="close-modal" onclick="closeSubscribeModal()"
+        style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.5rem;">&times;</button>
+
+      <div style="margin-bottom: 1.5rem;">
+        <i class="fa-solid fa-envelope-open-text"
+          style="font-size: 3rem; color: var(--accent-color); margin-bottom: 1rem;"></i>
+        <h3 data-i18n="subscribe.title"
+          style="font-size: 1.8rem; margin-bottom: 0.5rem; font-family: var(--font-heading);">Stay Updated!</h3>
+        <p data-i18n="subscribe.subtitle" style="color: var(--text-muted);">Subscribe to get notified about my latest
+          projects and articles.</p>
+      </div>
+
+      <form id="subscribe-form" onsubmit="handleSubscribe(event)"
+        style="display: flex; flex-direction: column; gap: 1rem;">
+        <input type="text" id="sub-name" placeholder="Your Name" required
+          style="padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); font-family: var(--font-body);">
+
+        <input type="email" id="sub-email" placeholder="Your Email" required
+          style="padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); font-family: var(--font-body);">
+
+        <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
+          <span data-i18n="subscribe.btn">Subscribe Now</span> <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </form>
+
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem; opacity: 0.7;">
+        No spam, just tech. Unsubscribe anytime.
+      </p>
+    </div>
+  </div>
+
   <!-- Video Modal -->
   <div id="video-modal" class="modal-overlay" style="display: none; justify-content: center; align-items: center;">
     <div class="video-modal-content"
