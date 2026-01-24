@@ -3758,8 +3758,8 @@ window.handleSubscribe = async function(e) {
 
         if (res.status === 201) {
             // Created (New)
-            const msg = window.translations && window.translations[currentLang] && window.translations[currentLang]["subscribe.success"] 
-                ? window.translations[currentLang]["subscribe.success"] 
+            const msg = translations && translations[currentLang] && translations[currentLang]["subscribe.success"] 
+                ? translations[currentLang]["subscribe.success"] 
                 : "Welcome to the community! 🚀";
             showToast(msg, 'success');
             
@@ -3771,8 +3771,8 @@ window.handleSubscribe = async function(e) {
             document.getElementById('subscribe-form').reset();
         } else if (res.status === 200) {
             // OK (Already exists)
-            const msg = window.translations && window.translations[currentLang] && window.translations[currentLang]["subscribe.exists"] 
-                ? window.translations[currentLang]["subscribe.exists"] 
+            const msg = translations && translations[currentLang] && translations[currentLang]["subscribe.exists"] 
+                ? translations[currentLang]["subscribe.exists"] 
                 : "You are already subscribed.";
             showToast(msg, 'info'); // Info style for duplicate
             
