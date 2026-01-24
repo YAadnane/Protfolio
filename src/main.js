@@ -3690,3 +3690,77 @@ window.openFeedbackFromModal = function(event) {
 
 // Initialize Hero Cube Interaction
 initHeroCubeInteraction();
+
+// =========================================
+// SUBSCRIPTION POPUP LOGIC
+// =========================================
+window.initSubscriptionPopup = function() {
+    // Check if already subscribed or dismissed recently (optional, here we check 'subscribed' flag)
+    if (localStorage.getItem('portfolio_subscribed') === 'true') {
+        return;
+    }
+
+    setTimeout(() => {
+        const modal = document.getElementById('subscribe-modal');
+        if (modal) {
+            modal.style.display = 'flex';
+            // Simple animation
+            modal.style.opacity = '0';
+            requestAnimationFrame(() => {
+                modal.style.transition = 'opacity 0.5s ease';
+                modal.style.opacity = '1';
+            });
+        }
+    }, 5000); // 5 seconds
+};
+
+window.closeSubscribeModal = function() {
+    const modal = document.getElementById('subscribe-modal');
+    if (modal) {
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 500);
+    }
+};
+
+window.handleSubscribe = async function(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    const originalText = btn.innerHTML;
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+    const name = document.getElementById('sub-name').value;
+    const email = document.getElementById('sub-email').value;
+
+    try {
+        const res = await fetch(`${API_URL}/subscribe`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email })
+        });
+        
+        const data = await res.json();
+
+        if (res.ok) {
+            showToast("Welcome to the community! 🚀", 'success');
+            localStorage.setItem('portfolio_subscribed', 'true');
+            window.closeSubscribeModal();
+        } else {
+            showToast(data.error || "Subscription failed.", 'error');
+        }
+    } catch (err) {
+        console.error(err);
+        showToast("Network error. Please try again.", 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+};
+
+// Initialize Subscription Popup
+window.addEventListener('load', () => {
+    initSubscriptionPopup();
+});

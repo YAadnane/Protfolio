@@ -117,7 +117,11 @@ export const translations = {
         "comments.title": "RECENT COMMENTS",
         "comments.empty": "No comments yet.",
         // Certifications
-        "certifications.no_results": "No certifications found matching criteria."
+        "certifications.no_results": "No certifications found matching criteria.",
+        // Subscribe
+        "subscribe.title": "Stay Updated!",
+        "subscribe.subtitle": "Subscribe to get notified about my latest projects and articles.",
+        "subscribe.btn": "Subscribe Now"
     },
     fr: {
         "nav.about": "À propos",
@@ -238,6 +242,10 @@ export const translations = {
         "comments.title": "COMMENTAIRES RÉCENTS",
         "comments.empty": "Aucun commentaire pour le moment.",
         // Certifications
-        "certifications.no_results": "Aucune certification ne correspond aux critères."
+        "certifications.no_results": "Aucune certification ne correspond aux critères.",
+        // Subscribe
+        "subscribe.title": "Restez informé !",
+        "subscribe.subtitle": "Abonnez-vous pour être notifié de mes derniers projets et articles.",
+        "subscribe.btn": "S'abonner maintenant"
     }
 };
