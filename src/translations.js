@@ -254,6 +254,8 @@ export const translations = {
         "subscribe.name_placeholder": "Votre Nom",
         "subscribe.email_placeholder": "Votre Email",
         "subscribe.footer": "Pas de spam. Désabonnement à tout moment.",
+        "subscribe.success": "Bienvenue dans la communauté ! 🚀",
+        "subscribe.exists": "Vous êtes déjà abonné.",
         "footer.subscribe": "S'abonner à la Newsletter"
     }
 };

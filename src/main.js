@@ -3756,12 +3756,30 @@ window.handleSubscribe = async function(e) {
         
         const data = await res.json();
 
-        if (res.ok) {
-            showToast("Welcome to the community! 🚀", 'success');
+        if (res.status === 201) {
+            // Created (New)
+            const msg = window.translations && window.translations[currentLang] && window.translations[currentLang]["subscribe.success"] 
+                ? window.translations[currentLang]["subscribe.success"] 
+                : "Welcome to the community! 🚀";
+            showToast(msg, 'success');
+            
+            // Close modal
+            closeSubscribeModal();
+            // Store preference
             localStorage.setItem('portfolio_subscribed', 'true');
-            window.closeSubscribeModal();
+            // Reset form
+            document.getElementById('subscribe-form').reset();
+        } else if (res.status === 200) {
+            // OK (Already exists)
+            const msg = window.translations && window.translations[currentLang] && window.translations[currentLang]["subscribe.exists"] 
+                ? window.translations[currentLang]["subscribe.exists"] 
+                : "You are already subscribed.";
+            showToast(msg, 'info'); // Info style for duplicate
+            
+             // Close modal
+            closeSubscribeModal();
         } else {
-            showToast(data.error || "Subscription failed.", 'error');
+            showToast(data.error || 'Something went wrong.', 'error');
         }
     } catch (err) {
         console.error(err);
