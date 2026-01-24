@@ -110,7 +110,7 @@ const authenticateToken = (req, res, next) => {
 
 // Subscribe Endpoint
 app.post('/api/subscribe', async (req, res) => {
-    const { email } = req.body;
+    const { name, email } = req.body;
 
     if (!email) {
         return res.status(400).json({ error: "Email is required." });
@@ -121,7 +121,8 @@ app.post('/api/subscribe', async (req, res) => {
         return res.status(400).json({ error: "Invalid email format." });
     }
 
-    db.run("INSERT OR IGNORE INTO subscribers (email) VALUES (?)", [email], function(err) {
+    // Use INSERT OR IGNORE, relying on the UNIQUE index we will add
+    db.run("INSERT OR IGNORE INTO subscribers (name, email) VALUES (?, ?)", [name, email], function(err) {
         if (err) {
             console.error("Database error during subscription:", err.message);
             return res.status(500).json({ error: "Failed to subscribe due to a server error." });
@@ -129,6 +130,7 @@ app.post('/api/subscribe', async (req, res) => {
         if (this.changes > 0) {
             res.status(201).json({ message: "Successfully subscribed!" });
         } else {
+            // changes == 0 means it was ignored, so it's a duplicate
             res.status(200).json({ message: "You are already subscribed." });
         }
     });
@@ -264,16 +266,7 @@ app.put('/api/profile', authenticateToken, async (req, res) => {
 // API ENDPOINTS
 // =========================================
 
-// --- SUBSCRIBE ---
-app.post('/api/subscribe', (req, res) => {
-    const { name, email } = req.body;
-    if (!email) return res.status(400).json({ error: "Email is required" });
 
-    db.run(`INSERT INTO subscribers (name, email) VALUES (?, ?)`, [name, email], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Subscribed successfully" });
-    });
-});
 
 // --- CONTACT FORM ---
 app.post('/api/contact', (req, res) => {

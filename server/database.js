@@ -447,7 +447,9 @@ db.serialize(() => {
         name TEXT,
         email TEXT,
         date DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`);
+    )`, () => {
+        db.run("CREATE UNIQUE INDEX IF NOT EXISTS idx_subscribers_email ON subscribers(email)");
+    });
 
     console.log("Database initialized successfully.");
 });
