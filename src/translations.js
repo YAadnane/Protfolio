@@ -121,7 +121,10 @@ export const translations = {
         // Subscribe
         "subscribe.title": "Stay Updated!",
         "subscribe.subtitle": "Subscribe to get notified about my latest projects and articles.",
-        "subscribe.btn": "Subscribe Now"
+        "subscribe.btn": "Subscribe Now",
+        "subscribe.name_placeholder": "Your Name",
+        "subscribe.email_placeholder": "Your Email",
+        "subscribe.footer": "No spam, just tech. Unsubscribe anytime."
     },
     fr: {
         "nav.about": "À propos",
@@ -246,6 +249,9 @@ export const translations = {
         // Subscribe
         "subscribe.title": "Restez informé !",
         "subscribe.subtitle": "Abonnez-vous pour être notifié de mes derniers projets et articles.",
-        "subscribe.btn": "S'abonner maintenant"
+        "subscribe.btn": "S'abonner maintenant",
+        "subscribe.name_placeholder": "Votre Nom",
+        "subscribe.email_placeholder": "Votre Email",
+        "subscribe.footer": "Pas de spam. Désabonnement à tout moment."
     }
 };

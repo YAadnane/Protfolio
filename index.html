@@ -787,17 +787,20 @@
       <form id="subscribe-form" onsubmit="handleSubscribe(event)"
         style="display: flex; flex-direction: column; gap: 1rem;">
         <input type="text" id="sub-name" placeholder="Your Name" required
-          style="padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); font-family: var(--font-body);">
+          data-i18n-placeholder="subscribe.name_placeholder"
+          style="padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-main); font-family: var(--font-body); font-size: 1rem;">
 
         <input type="email" id="sub-email" placeholder="Your Email" required
-          style="padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-main); color: var(--text-main); font-family: var(--font-body);">
+          data-i18n-placeholder="subscribe.email_placeholder"
+          style="padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(255,255,255,0.05); color: var(--text-main); font-family: var(--font-body); font-size: 1rem;">
 
         <button type="submit" class="btn-primary" style="width: 100%; justify-content: center; padding: 12px;">
           <span data-i18n="subscribe.btn">Subscribe Now</span> <i class="fa-solid fa-paper-plane"></i>
         </button>
       </form>
 
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem; opacity: 0.7;">
+      <p data-i18n="subscribe.footer"
+        style="font-size: 0.8rem; color: var(--text-muted); margin-top: 1rem; opacity: 0.7;">
         No spam, just tech. Unsubscribe anytime.
       </p>
     </div>
