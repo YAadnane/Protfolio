@@ -124,7 +124,14 @@ export const translations = {
         "subscribe.btn": "Subscribe Now",
         "subscribe.name_placeholder": "Your Name",
         "subscribe.email_placeholder": "Your Email",
-        "subscribe.footer": "No spam, just tech. Unsubscribe anytime.",
+        "subscribe.footer": "No spam, just tech. <span class='link-text' onclick='openUnsubscribeModal()'>Unsubscribe anytime.</span>",
+        "subscribe.success": "Welcome to the community! 🚀",
+        "subscribe.exists": "You are already subscribed.",
+        "unsubscribe.title": "Unsubscribe",
+        "unsubscribe.subtitle": "We're sad to see you go.",
+        "unsubscribe.btn": "Confirm Unsubscribe",
+        "unsubscribe.success": "Unsubscribed successfully.",
+        "unsubscribe.error": "Email not found or error.",
         "footer.subscribe": "Subscribe to Newsletter"
     },
     fr: {
@@ -253,9 +260,14 @@ export const translations = {
         "subscribe.btn": "S'abonner maintenant",
         "subscribe.name_placeholder": "Votre Nom",
         "subscribe.email_placeholder": "Votre Email",
-        "subscribe.footer": "Pas de spam. Désabonnement à tout moment.",
+        "subscribe.footer": "Pas de spam. <span class='link-text' onclick='openUnsubscribeModal()'>Désabonnement à tout moment.</span>",
         "subscribe.success": "Bienvenue dans la communauté ! 🚀",
         "subscribe.exists": "Vous êtes déjà abonné.",
+        "unsubscribe.title": "Se désabonner",
+        "unsubscribe.subtitle": "Nous sommes tristes de vous voir partir.",
+        "unsubscribe.btn": "Confirmer le désabonnement",
+        "unsubscribe.success": "Désabonné avec succès.",
+        "unsubscribe.error": "Email introuvable ou erreur.",
         "footer.subscribe": "S'abonner à la Newsletter"
     }
 };

@@ -134,7 +134,28 @@ app.post('/api/subscribe', async (req, res) => {
             res.status(200).json({ message: "You are already subscribed." });
         }
     });
+    });
 });
+
+// Unsubscribe Endpoint
+app.delete('/api/subscribe', (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email required." });
+
+    db.run("DELETE FROM subscribers WHERE email = ?", [email], function(err) {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Server error." });
+        }
+        if (this.changes > 0) {
+            res.json({ message: "Unsubscribed successfully." });
+        } else {
+            res.status(404).json({ error: "Email not found." });
+        }
+    });
+});
+
+// Login Endpoint
 
 // Login Endpoint
 app.post('/api/login', (req, res) => {

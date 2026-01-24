@@ -3783,10 +3783,68 @@ window.handleSubscribe = async function(e) {
         }
     } catch (err) {
         console.error(err);
-        showToast("Network error. Please try again.", 'error');
+        showToast("Server error. Please try again later.", 'error');
     } finally {
         btn.disabled = false;
         btn.innerHTML = originalText;
+    }
+};
+
+// --- Unsubscribe Logic ---
+window.openUnsubscribeModal = () => {
+    closeSubscribeModal(); // Close the other one if open
+    const modal = document.getElementById('unsubscribe-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        // Auto-focus email input if possible
+        setTimeout(() => document.getElementById('unsub-email').focus(), 100);
+    }
+    // Update placeholders based on language
+    updatePageLanguage();
+};
+
+window.closeUnsubscribeModal = () => {
+    const modal = document.getElementById('unsubscribe-modal');
+    if (modal) {
+        modal.classList.add('fade-out'); // Optional animation class if you have it
+        modal.style.display = 'none';
+        modal.classList.remove('fade-out');
+    }
+}
+
+window.handleUnsubscribe = async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('unsub-email').value;
+    
+    if (!email) return;
+
+    try {
+        const res = await fetch(`${API_URL}/subscribe`, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        
+        const data = await res.json();
+
+        if (res.ok) {
+             const msg = translations && translations[currentLang] && translations[currentLang]["unsubscribe.success"] 
+                ? translations[currentLang]["unsubscribe.success"] 
+                : "Unsubscribed successfully.";
+            showToast(msg, 'success');
+            
+            closeUnsubscribeModal();
+            localStorage.removeItem('portfolio_subscribed');
+            document.getElementById('unsubscribe-form').reset();
+        } else {
+             const msg = translations && translations[currentLang] && translations[currentLang]["unsubscribe.error"] 
+                ? translations[currentLang]["unsubscribe.error"] 
+                : "Error unsubscribing.";
+            showToast(data.error || msg, 'error');
+        }
+    } catch (err) {
+        console.error(err);
+        showToast("Server error.", 'error');
     }
 };
 
