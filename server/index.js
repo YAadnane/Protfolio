@@ -134,7 +134,6 @@ app.post('/api/subscribe', async (req, res) => {
             res.status(200).json({ message: "You are already subscribed." });
         }
     });
-    });
 });
 
 // Unsubscribe Endpoint
