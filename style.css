@@ -4795,6 +4795,28 @@ body.light-mode .bento-item.has-media .bento-tags span {
     text-decoration: underline;
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;700&display=swap');
+
+/* Unsubscribe Link - Flourishing Green */
+.link-text {
+    cursor: pointer;
+    text-decoration: underline;
+    color: var(--accent-color) !important;
+    /* Force Neon Green */
+    font-weight: 600;
+    text-shadow: 0 0 5px var(--accent-color), 0 0 10px rgba(0, 255, 157, 0.4);
+    /* Glow effect */
+    transition: all 0.3s ease;
+}
+
+.link-text:hover {
+    opacity: 1;
+    text-shadow: 0 0 8px var(--accent-color), 0 0 15px rgba(0, 255, 157, 0.6);
+    transform: scale(1.02);
+    display: inline-block;
+    /* Needed for transform */
+}
+
 /* =========================================
    PROJECT MODAL RESTYLING (GLASSMORPHISM)
    ========================================= */
