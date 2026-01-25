@@ -6106,3 +6106,71 @@ body.light-mode .bento-item p {
     #project-notion-content h3 { font-size: 1.1rem !important; }
 }
 
+
+/* =========================================
+   14. PROJECT INFO & MOBILE CENTERING
+   ========================================= */
+/* Base Desktop Styles (restored from inline) */
+.project-info-list {
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+/* Ensure tech tags wrap nicely */
+.tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* Mobile Centering Override */
+@media (max-width: 768px) {
+    /* Center the right column container */
+    .project-col-right {
+        display: flex;
+        flex-direction: column;
+        align-items: center; 
+        text-align: center;
+        width: 100%;
+    }
+
+    /* Center the Info List (Role / Subject) */
+    .project-info-list {
+        justify-content: center;
+        width: 100%;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    /* Stack Icon and Text for better centering */
+    .info-item {
+        display: flex;
+        flex-direction: row; 
+        align-items: center;
+        gap: 0.8rem;
+        text-align: left; /* Keep left alignment for text block */
+    }
+
+    /* Center Chips/Tags */
+    .tech-tags {
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Center Headings in Right Column */
+    .project-col-right h4 {
+        justify-content: center;
+        display: flex;
+    }
+    
+    /* Maintain List readability */
+    .task-list {
+        text-align: left;
+        width: 100%; /* Full width */
+        padding-left: 0; 
+        list-style-position: inside;
+    }
+}
+
