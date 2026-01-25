@@ -5864,7 +5864,9 @@ body.light-mode .bento-item p {
         font-size: 0.75rem !important;
         padding: 0.4rem 0.6rem !important;
     }
-}/* =========================================
+}
+
+/* =========================================
    PROJECT MODAL SCROLL FIX
    ========================================= */
 #project-modal .project-modal-content {
@@ -5898,12 +5900,151 @@ body.light-mode .bento-item p {
     border-radius: 3px;
 }
 
-/* Notion Section Styling */
+/* =========================================
+   12. NOTION CONTENT STYLING (FULL)
+   ========================================= */
 #project-notion-section {
     margin-top: 3rem;
     padding-top: 2rem;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
     animation: fadeIn 0.5s ease-in-out;
+}
+
+#project-notion-section h3.notion-header {
+    font-size: 1.2rem;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#project-notion-content {
+    color: var(--text-main);
+    font-family: var(--font-body);
+    line-height: 1.8;
+    font-size: 1rem;
+}
+
+/* Headings within Notion Content */
+#project-notion-content h1,
+#project-notion-content h2,
+#project-notion-content h3 {
+    color: #fff;
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+#project-notion-content h1 {
+    font-size: 2.2rem;
+    background: linear-gradient(90deg, #fff, var(--text-muted));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 0.5rem;
+}
+
+#project-notion-content h2 {
+    font-size: 1.75rem;
+    color: var(--accent-secondary);
+}
+
+#project-notion-content h3 {
+    font-size: 1.4rem;
+    color: var(--text-muted);
+}
+
+/* Text & Paragraphs */
+#project-notion-content p {
+    margin-bottom: 1.25rem;
+    color: #d1d5db;
+    /* Light gray */
+    max-width: 70ch;
+}
+
+/* Lists */
+#project-notion-content ul,
+#project-notion-content ol {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+}
+
+#project-notion-content li {
+    margin-bottom: 0.5rem;
+    color: #cccccc;
+    padding-left: 0.5rem;
+}
+
+#project-notion-content ul li::marker {
+    color: var(--accent-color);
+}
+
+/* Code Blocks */
+#project-notion-content pre {
+    background: #0f0f0f;
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow-x: auto;
+    margin: 2rem 0;
+    font-size: 0.9rem;
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+#project-notion-content code {
+    font-family: 'Fira Code', 'Consolas', monospace;
+    color: #a5b4fc;
+    /* Soft purple/blue for code */
+}
+
+/* Inline Code */
+#project-notion-content p code,
+#project-notion-content li code {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    color: var(--accent-color);
+    font-size: 0.85em;
+    font-weight: 500;
+}
+
+/* Images */
+#project-notion-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin: 2rem 0;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Links */
+#project-notion-content a {
+    color: var(--accent-color);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent-color);
+    transition: all 0.2s;
+}
+
+#project-notion-content a:hover {
+    background: rgba(0, 255, 157, 0.1);
+    border-bottom-style: solid;
+}
+
+/* Blockquotes */
+#project-notion-content blockquote {
+    border-left: 4px solid var(--accent-color);
+    margin: 2rem 0;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(90deg, rgba(0, 255, 157, 0.05) 0%, transparent 100%);
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: #fff;
 }
 
 @keyframes fadeIn {
