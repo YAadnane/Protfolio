@@ -459,15 +459,23 @@ app.get('/api/projects/:id/notion-content', async (req, res) => {
 
             // Extract ID from URL
             let pageId = null;
-            const match = project.notion_url.match(/([a-f0-9]{32})$/);
+            // Improved Regex to handle query params and various formats (32 hex chars)
+            // It matches 32 hex chars that are followed by ?, #, /, or end of string
+            const match = project.notion_url.match(/([a-f0-9]{32})(\?|$|#|\/)/);
             if (match) {
                 pageId = match[1];
             } else {
+                // Try UUID with dashes
                 const matchUuid = project.notion_url.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
                 if(matchUuid) pageId = matchUuid[1].replace(/-/g, '');
             }
 
-            if (!pageId) return res.status(400).json({ error: "Invalid Notion URL format" });
+            console.log(`[Notion] Fetching content for project ${projectId}. URL: ${project.notion_url} -> Extracted ID: ${pageId}`);
+
+            if (!pageId) {
+                console.error(`[Notion] Failed to extract ID from URL: ${project.notion_url}`);
+                return res.status(400).json({ error: "Invalid Notion URL format" });
+            }
             
             // Initialize Notion client
             const notion = new Client({ auth: process.env.NOTION_API_KEY });
