@@ -6059,3 +6059,50 @@ body.light-mode .bento-item p {
         transform: translateY(0);
     }
 }
+/* =========================================
+   13. MOBILE RESPONSIVE FIXES (MODAL & NOTION)
+   ========================================= */
+@media (max-width: 768px) {
+    /* 1. Modal Container Fit */
+    #project-modal .project-modal-content {
+        width: 95% !important; /* Wider on mobile */
+        margin: 1rem auto;
+        max-height: 85vh;
+    }
+
+    /* 2. Reduce Modal Padding */
+    #project-modal .project-modal-header,
+    #project-modal .project-modal-scroll {
+        padding: 1rem 1.25rem !important; /* Compact padding */
+    }
+
+    /* 3. Force Notion Content Width Constraint */
+    #project-notion-content {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden; /* Prevent horizontal scroll on body */
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+
+    #project-notion-content img,
+    #project-notion-content video,
+    #project-notion-content iframe {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+
+    /* 4. Allow Code Blocks to Scroll internally, not break layout */
+    #project-notion-content pre {
+        max-width: 100vw; /* Hard constraint */
+        width: 100%;
+        white-space: pre; /* Keep formatting */
+        overflow-x: auto;
+    }
+
+    /* 5. Headings Size Adjustment */
+    #project-notion-content h1 { font-size: 1.5rem !important; }
+    #project-notion-content h2 { font-size: 1.25rem !important; }
+    #project-notion-content h3 { font-size: 1.1rem !important; }
+}
+
