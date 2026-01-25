@@ -448,86 +448,99 @@ app.get('/api/projects/:id/notion-content', async (req, res) => {
     
     try {
         // Get project from database
-        db.get('SELECT notion_url FROM projects WHERE id = ?', [projectId], async (err, project) => {
-            if (err) {
-                return res.status(500).json({ error: 'Database error' });
-            }
-            
-            if (!project || !project.notion_url) {
-                return res.status(404).json({  error: 'No Notion URL linked to this project' });
-            }
-
-            // Extract ID from URL
-            let pageId = null;
-            // Improved Regex to handle query params and various formats (32 hex chars)
-            // It matches 32 hex chars that are followed by ?, #, /, or end of string
-            const match = project.notion_url.match(/([a-f0-9]{32})(\?|$|#|\/)/);
-            if (match) {
-                pageId = match[1];
-            } else {
-                // Try UUID with dashes
-                const matchUuid = project.notion_url.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
-                if(matchUuid) pageId = matchUuid[1].replace(/-/g, '');
-            }
-
-            console.log(`[Notion] Fetching content for project ${projectId}. URL: ${project.notion_url} -> Extracted ID: ${pageId}`);
-
-            if (!pageId) {
-                console.error(`[Notion] Failed to extract ID from URL: ${project.notion_url}`);
-                return res.status(400).json({ error: "Invalid Notion URL format" });
-            }
-            
-            // Initialize Notion client
-            const notion = new Client({ auth: process.env.NOTION_API_KEY });
-            
-            try {
-                // Fetch page blocks from Notion
-                const blocks = await notion.blocks.children.list({
-                    block_id: pageId,
-                    page_size: 100
-                });
-                
-                // Convert blocks to HTML (simple conversion)
-                let html = '';
-                for (const block of blocks.results) {
-                    if (block.type === 'paragraph') {
-                        const text = block.paragraph.rich_text.map(t => t.plain_text).join('');
-                        html += `<p>${text}</p>`;
-                    } else if (block.type === 'heading_1') {
-                        const text = block.heading_1.rich_text.map(t => t.plain_text).join('');
-                        html += `<h1>${text}</h1>`;
-                    } else if (block.type === 'heading_2') {
-                        const text = block.heading_2.rich_text.map(t => t.plain_text).join('');
-                        html += `<h2>${text}</h2>`;
-                    } else if (block.type === 'heading_3') {
-                        const text = block.heading_3.rich_text.map(t => t.plain_text).join('');
-                        html += `<h3>${text}</h3>`;
-                    } else if (block.type === 'bulleted_list_item') {
-                        const text = block.bulleted_list_item.rich_text.map(t => t.plain_text).join('');
-                        html += `<ul><li>${text}</li></ul>`;
-                    } else if (block.type === 'numbered_list_item') {
-                        const text = block.numbered_list_item.rich_text.map(t => t.plain_text).join('');
-                        html += `<ol><li>${text}</li></ol>`;
-                    } else if (block.type === 'code') {
-                        const text = block.code.rich_text.map(t => t.plain_text).join('');
-                       html += `<pre><code>${text}</code></pre>`;
-                    } else if (block.type === 'image') {
-                        const url = block.image.type === 'external' ? block.image.external.url : block.image.file.url;
-                        html += `<img src="${url}" style="max-width:100%;" />`;
-                    }
-                }
-                
-                res.json({ content: html });
-            } catch (notionError) {
-                console.error('[Notion] API Error Details:', {
-                    message: notionError.message,
-                    code: notionError.code,
-                    status: notionError.status,
-                    body: notionError.body
-                });
-                res.status(500).json({ error: 'Failed to fetch Notion content', details: notionError.message });
-            }
+        const project = await new Promise((resolve, reject) => {
+            db.get('SELECT notion_url FROM projects WHERE id = ?', [projectId], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
         });
+        
+        if (!project || !project.notion_url) {
+            return res.status(404).json({ error: 'No Notion URL linked to this project' });
+        }
+
+        // Get Notion API key from database (same as articles)
+        const config = await new Promise((resolve, reject) => {
+            db.get("SELECT notion_api_key FROM general_info LIMIT 1", [], (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+        
+        if (!config || !config.notion_api_key) {
+            return res.status(500).json({ error: "Notion API key not configured in database" });
+        }
+
+        // Extract ID from URL
+        let pageId = null;
+        // Improved Regex to handle query params and various formats (32 hex chars)
+        // It matches 32 hex chars that are followed by ?, #, /, or end of string
+        const match = project.notion_url.match(/([a-f0-9]{32})(\?|$|#|\/)/);
+        if (match) {
+            pageId = match[1];
+        } else {
+            // Try UUID with dashes
+            const matchUuid = project.notion_url.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+            if(matchUuid) pageId = matchUuid[1].replace(/-/g, '');
+        }
+
+        console.log(`[Notion] Fetching content for project ${projectId}. URL: ${project.notion_url} -> Extracted ID: ${pageId}`);
+
+        if (!pageId) {
+            console.error(`[Notion] Failed to extract ID from URL: ${project.notion_url}`);
+            return res.status(400).json({ error: "Invalid Notion URL format" });
+        }
+        
+        // Initialize Notion client with DB API key
+        const notion = new Client({ auth: config.notion_api_key });
+        
+        try {
+            // Fetch page blocks from Notion
+            const blocks = await notion.blocks.children.list({
+                block_id: pageId,
+                page_size: 100
+            });
+            
+            // Convert blocks to HTML (simple conversion)
+            let html = '';
+            for (const block of blocks.results) {
+                if (block.type === 'paragraph') {
+                    const text = block.paragraph.rich_text.map(t => t.plain_text).join('');
+                    html += `<p>${text}</p>`;
+                } else if (block.type === 'heading_1') {
+                    const text = block.heading_1.rich_text.map(t => t.plain_text).join('');
+                    html += `<h1>${text}</h1>`;
+                } else if (block.type === 'heading_2') {
+                    const text = block.heading_2.rich_text.map(t => t.plain_text).join('');
+                    html += `<h2>${text}</h2>`;
+                } else if (block.type === 'heading_3') {
+                    const text = block.heading_3.rich_text.map(t => t.plain_text).join('');
+                    html += `<h3>${text}</h3>`;
+                } else if (block.type === 'bulleted_list_item') {
+                    const text = block.bulleted_list_item.rich_text.map(t => t.plain_text).join('');
+                    html += `<ul><li>${text}</li></ul>`;
+                } else if (block.type === 'numbered_list_item') {
+                    const text = block.numbered_list_item.rich_text.map(t => t.plain_text).join('');
+                    html += `<ol><li>${text}</li></ol>`;
+                } else if (block.type === 'code') {
+                    const text = block.code.rich_text.map(t => t.plain_text).join('');
+                   html += `<pre><code>${text}</code></pre>`;
+                } else if (block.type === 'image') {
+                    const url = block.image.type === 'external' ? block.image.external.url : block.image.file.url;
+                    html += `<img src="${url}" style="max-width:100%;" />`;
+                }
+            }
+            
+            res.json({ content: html });
+        } catch (notionError) {
+            console.error('[Notion] API Error Details:', {
+                message: notionError.message,
+                code: notionError.code,
+                status: notionError.status,
+                body: notionError.body
+            });
+            res.status(500).json({ error: 'Failed to fetch Notion content', details: notionError.message });
+        }
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: 'Server error' });
