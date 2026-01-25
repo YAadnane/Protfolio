@@ -3048,9 +3048,26 @@ function openProjectModal(project) {
         `;
     }
 
+
     // Translation update for labels (Role, Subject, Techs, Tasks)
     if (typeof updatePageLanguage === 'function') {
         updatePageLanguage();
+    }
+
+    // Reset and Load Notion Content if available
+    const notionSection = document.getElementById('project-notion-section');
+    const notionLoading = document.getElementById('project-notion-loading');
+    const notionContent = document.getElementById('project-notion-content');
+    const notionError = document.getElementById('project-notion-error');
+    
+    if (notionSection) {
+        notionSection.style.display = 'none';
+        if (notionLoading) notionLoading.style.display = 'none';
+        if (notionContent) {
+            notionContent.style.display = 'none';
+            notionContent.innerHTML = '';
+        }
+        if (notionError) notionError.style.display = 'none';
     }
 
     // Show Modal
@@ -3060,6 +3077,30 @@ function openProjectModal(project) {
     });
     
     document.body.style.overflow = 'hidden';
+
+    // Fetch Notion content asynchronously (don't block modal opening)
+    if (project.id && notionSection) {
+        fetch(`${API_URL}/projects/${project.id}/notion-content`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.content && data.content.trim()) {
+                    notionSection.style.display = 'block';
+                    notionLoading.style.display = 'flex';
+                    
+                    setTimeout(() => {
+                        if (notionContent) {
+                            notionContent.innerHTML = data.content;
+                            notionLoading.style.display = 'none';
+                            notionContent.style.display = 'block';
+                        }
+                    }, 300);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching Notion content:', error);
+                // Silently fail - don't show error to user
+            });
+    }
 
     // Close Handler
     const closeBtn = modal.querySelector('.project-modal-close');
