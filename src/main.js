@@ -3080,7 +3080,7 @@ function openProjectModal(project) {
 
     // Fetch Notion content asynchronously (don't block modal opening)
     if (project.id && notionSection) {
-        fetch(`${API_URL}/projects/${project.id}/notion-content`)
+        fetch(`/api/projects/${project.id}/notion-content`)
             .then(response => response.json())
             .then(data => {
                 if (data.content && data.content.trim()) {
