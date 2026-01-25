@@ -872,10 +872,71 @@
     </div>
   </div>
 
-  <!-- Toast Container -->
   <div id="toast-container"></div>
 
-  <script type="module" src="/src/main.js"></script>
+  <!-- EMERGENCY SCRIPT: Force Notion Loading override -->
+  <script>
+    // Wait for main module to load, then override or attach
+    window.addEventListener('load', function () {
+      console.log("⚠️ Emergency Script Loaded: Checking Project Modal...");
+
+      // We preserve the original function if it exists
+      const originalOpen = window.openProjectModal;
+
+      window.openProjectModal = function (project) {
+        console.log("🔥 Emergency OpenProjectModal called for:", project.id);
+
+        // Call original if it exists to do the UI stuff
+        if (originalOpen) {
+          try {
+            originalOpen(project);
+          } catch (e) {
+            console.error("Original open failed:", e);
+            // Minimal fallback UI if original fails completely
+            const modal = document.getElementById('project-modal');
+            if (modal) {
+              modal.style.display = 'flex';
+              modal.classList.add('active');
+              document.getElementById('project-modal-title').innerText = project.title;
+            }
+          }
+        }
+
+        // FORCE LOAD NOTION CONTENT
+        const notionSection = document.getElementById('project-notion-section');
+        const notionLoading = document.getElementById('project-notion-loading');
+        const notionContent = document.getElementById('project-notion-content');
+
+        if (project.id && notionSection) {
+          console.log("🚀 Fetching Notion Content directly via Emergency Script...");
+
+          // Reset UI
+          notionSection.style.display = 'none';
+          if (notionContent) notionContent.innerHTML = '';
+
+          fetch('/api/projects/' + project.id + '/notion-content')
+            .then(r => r.json())
+            .then(data => {
+              console.log("✅ Notion Data Received:", data);
+              if (data.content && data.content.trim()) {
+                notionSection.style.display = 'block';
+                if (notionLoading) notionLoading.style.display = 'none';
+                if (notionContent) {
+                  notionContent.innerHTML = data.content;
+                  notionContent.style.display = 'block';
+                }
+              }
+            })
+            .catch(e => console.error("❌ Notion Fetch Failed:", e));
+        } else {
+          console.warn("⚠️ No notion section or project ID missing");
+        }
+      };
+      console.log("✅ openProjectModal has been patched by Emergency Script");
+    });
+  </script>
+
+  <script type="module" src="/src/main.js?v=20260125"></script>
 </body>
 
 </html>
