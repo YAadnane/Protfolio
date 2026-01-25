@@ -519,8 +519,13 @@ app.get('/api/projects/:id/notion-content', async (req, res) => {
                 
                 res.json({ content: html });
             } catch (notionError) {
-                console.error('Notion API Error:', notionError);
-                res.status(500).json({ error: 'Failed to fetch Notion content' });
+                console.error('[Notion] API Error Details:', {
+                    message: notionError.message,
+                    code: notionError.code,
+                    status: notionError.status,
+                    body: notionError.body
+                });
+                res.status(500).json({ error: 'Failed to fetch Notion content', details: notionError.message });
             }
         });
     } catch (error) {
