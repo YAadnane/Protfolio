@@ -261,6 +261,8 @@ const fields = {
         { name: 'image', label: 'Image Class (or upload file)', type: 'text' }, // Keep for fallback
         { name: 'imageFile', label: 'Upload Image/Video', type: 'file' }, // New file input
         { name: 'link', label: 'Link', type: 'text' },
+        { name: 'github_link', label: 'GitHub Link', type: 'text' },
+        { name: 'notion_url', label: 'Notion Page URL', type: 'text' },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
     ],
     certifications: [

@@ -11,6 +11,7 @@ import os from 'os';
 import { exec } from 'child_process';
 import crypto from 'crypto';
 import { Client } from '@notionhq/client';
+import nodemailer from 'nodemailer';
 
 dotenv.config();
 
@@ -18,6 +19,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// Email Transporter
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.ADMIN_EMAIL || 'adani.yanis@gmail.com', // Fallback or Env
+        pass: process.env.EMAIL_PASS // App Password
+    }
+});
 const PORT = process.env.PORT || 3000;
 
 // Ensure uploads directory exists
@@ -128,6 +138,23 @@ app.post('/api/subscribe', async (req, res) => {
             return res.status(500).json({ error: "Failed to subscribe due to a server error." });
         }
         if (this.changes > 0) {
+            // Send email notification to admin about new subscription
+            const mailOptions = {
+                from: process.env.ADMIN_EMAIL,
+                to: process.env.ADMIN_EMAIL,
+                subject: '🎉 New Newsletter Subscription',
+                html: `
+                    <h3>New Subscriber!</h3>
+                    <p><strong>Name:</strong> ${name || 'Not provided'}</p>
+                    <p><strong>Email:</strong> ${email}</p>
+                    <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+                `
+            };
+            
+            transporter.sendMail(mailOptions, (error) => {
+                if (error) console.error('Failed to send subscription notification:', error);
+            });
+            
             res.status(201).json({ message: "Successfully subscribed!" });
         } else {
             // changes == 0 means it was ignored, so it's a duplicate
@@ -147,6 +174,22 @@ app.delete('/api/subscribe', (req, res) => {
             return res.status(500).json({ error: "Server error." });
         }
         if (this.changes > 0) {
+            // Send email notification to admin about unsubscription
+            const mailOptions = {
+                from: process.env.ADMIN_EMAIL,
+                to: process.env.ADMIN_EMAIL,
+                subject: '👋 Newsletter Unsubscription',
+                html: `
+                    <h3>Someone Unsubscribed</h3>
+                    <p><strong>Email:</strong> ${email}</p>
+                    <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+                `
+            };
+            
+            transporter.sendMail(mailOptions, (error) => {
+                if (error) console.error('Failed to send unsubscription notification:', error);
+            });
+            
             res.json({ message: "Unsubscribed successfully." });
         } else {
             res.status(404).json({ error: "Email not found." });
@@ -289,11 +332,47 @@ app.put('/api/profile', authenticateToken, async (req, res) => {
 
 
 // --- CONTACT FORM ---
-app.post('/api/contact', (req, res) => {
-    // Placeholder for contact form logic
-    // The provided snippet for contact form was incomplete and syntactically incorrect.
-    // Please provide the full and correct implementation for the contact form if needed.
-    res.status(501).json({ error: "Contact form endpoint not fully implemented." });
+app.post('/api/contact', async (req, res) => {
+    const { name, email, message } = req.body;
+
+    if (!name || !email || !message) {
+        return res.status(400).json({ error: "All fields are required." });
+    }
+
+    try {
+        const mailOptions = {
+            from: process.env.ADMIN_EMAIL || 'adani.yanis@gmail.com', // Sender address
+            to: process.env.ADMIN_EMAIL || 'adani.yanis@gmail.com', // Receiver address (yourself)
+            subject: `New Contact Form Submission from ${name}`,
+            text: `
+                Name: ${name}
+                Email: ${email}
+                Message: ${message}
+            `,
+            html: `
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Email:</strong> ${email}</p>
+                <p><strong>Message:</strong></p>
+                <p>${message}</p>
+            `
+        };
+
+        // 1. Store in Database
+        await new Promise((resolve, reject) => {
+             db.run(`INSERT INTO messages (name, email, message) VALUES (?, ?, ?)`, [name, email, message], function(err) {
+                 if (err) reject(err);
+                 else resolve();
+             });
+        });
+
+        // 2. Send Email
+        await transporter.sendMail(mailOptions);
+        
+        res.status(200).json({ success: "Message sent successfully!" });
+    } catch (error) {
+        console.error("Error sending message:", error);
+        res.status(500).json({ error: "Failed to send message. Please try again later." });
+    }
 });
 
 // --- PROJECTS ---
@@ -315,14 +394,14 @@ app.get('/api/projects', (req, res) => {
 
 app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, res) => {
     console.log('POST /api/projects hit');
-    const { title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks } = req.body;
+    const { title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks, notion_url } = req.body;
     let imagePath = image;
     if (req.file) {
         imagePath = `/uploads/${req.file.filename}`;
     }
 
-    db.run(`INSERT INTO projects (title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [title, description, tags, category, imagePath, link, is_hidden || 0, lang || 'en', role, year, subject, tasks],
+    db.run(`INSERT INTO projects (title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks, notion_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [title, description, tags, category, imagePath, link, is_hidden || 0, lang || 'en', role, year, subject, tasks, notion_url],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
@@ -332,16 +411,15 @@ app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, r
 
 app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
     console.log(`PUT /api/projects/${req.params.id} hit`);
-    const { title, description, tags, category, image, link, is_hidden, role, year, subject, tasks } = req.body;
-    // If a new file is uploaded, use it. Otherwise, keep the old one (passed as 'image' body param or handled via logic)
-    // Note: In a real app, we might want to delete the old file.
+    const { title, description, tags, category, image, link, is_hidden, role, year, subject, tasks, notion_url } = req.body;
+    
     let imagePath = image;
     if (req.file) {
         imagePath = `/uploads/${req.file.filename}`;
     }
 
-    db.run(`UPDATE projects SET title = ?, description = ?, tags = ?, image = ?, link = ?, category = ?, is_hidden = ?, role = ?, year = ?, subject = ?, tasks = ? WHERE id = ?`,
-        [title, description, tags, imagePath, link, category, is_hidden, role, year, subject, tasks, req.params.id],
+    db.run(`UPDATE projects SET title = ?, description = ?, tags = ?, image = ?, link = ?, category = ?, is_hidden = ?, role = ?, year = ?, subject = ?, tasks = ?, notion_url = ? WHERE id = ?`,
+        [title, description, tags, imagePath, link, category, is_hidden, role, year, subject, tasks, notion_url, req.params.id],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });
@@ -362,9 +440,88 @@ app.delete('/api/projects/:id', authenticateToken, (req, res) => {
             res.json({ message: "Deleted successfully" });
         });
     });
+}); 
+
+// Get Notion Content for Project
+app.get('/api/projects/:id/notion-content', async (req, res) => {
+    const projectId = req.params.id;
+    
+    try {
+        // Get project from database
+        db.get('SELECT notion_url FROM projects WHERE id = ?', [projectId], async (err, project) => {
+            if (err) {
+                return res.status(500).json({ error: 'Database error' });
+            }
+            
+            if (!project || !project.notion_url) {
+                return res.status(404).json({  error: 'No Notion URL linked to this project' });
+            }
+
+            // Extract ID from URL
+            let pageId = null;
+            const match = project.notion_url.match(/([a-f0-9]{32})$/);
+            if (match) {
+                pageId = match[1];
+            } else {
+                const matchUuid = project.notion_url.match(/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+                if(matchUuid) pageId = matchUuid[1].replace(/-/g, '');
+            }
+
+            if (!pageId) return res.status(400).json({ error: "Invalid Notion URL format" });
+            
+            // Initialize Notion client
+            const notion = new Client({ auth: process.env.NOTION_API_KEY });
+            
+            try {
+                // Fetch page blocks from Notion
+                const blocks = await notion.blocks.children.list({
+                    block_id: pageId,
+                    page_size: 100
+                });
+                
+                // Convert blocks to HTML (simple conversion)
+                let html = '';
+                for (const block of blocks.results) {
+                    if (block.type === 'paragraph') {
+                        const text = block.paragraph.rich_text.map(t => t.plain_text).join('');
+                        html += `<p>${text}</p>`;
+                    } else if (block.type === 'heading_1') {
+                        const text = block.heading_1.rich_text.map(t => t.plain_text).join('');
+                        html += `<h1>${text}</h1>`;
+                    } else if (block.type === 'heading_2') {
+                        const text = block.heading_2.rich_text.map(t => t.plain_text).join('');
+                        html += `<h2>${text}</h2>`;
+                    } else if (block.type === 'heading_3') {
+                        const text = block.heading_3.rich_text.map(t => t.plain_text).join('');
+                        html += `<h3>${text}</h3>`;
+                    } else if (block.type === 'bulleted_list_item') {
+                        const text = block.bulleted_list_item.rich_text.map(t => t.plain_text).join('');
+                        html += `<ul><li>${text}</li></ul>`;
+                    } else if (block.type === 'numbered_list_item') {
+                        const text = block.numbered_list_item.rich_text.map(t => t.plain_text).join('');
+                        html += `<ol><li>${text}</li></ol>`;
+                    } else if (block.type === 'code') {
+                        const text = block.code.rich_text.map(t => t.plain_text).join('');
+                       html += `<pre><code>${text}</code></pre>`;
+                    } else if (block.type === 'image') {
+                        const url = block.image.type === 'external' ? block.image.external.url : block.image.file.url;
+                        html += `<img src="${url}" style="max-width:100%;" />`;
+                    }
+                }
+                
+                res.json({ content: html });
+            } catch (notionError) {
+                console.error('Notion API Error:', notionError);
+                res.status(500).json({ error: 'Failed to fetch Notion content' });
+            }
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
-// --- CERTIFICATIONS ---
+// ---CERTIFICATIONS ---
 app.get('/api/certifications', (req, res) => {
     const lang = req.query.lang || 'en';
     const query = `
@@ -1337,50 +1494,7 @@ app.delete('/api/shapes/:id', authenticateToken, (req, res) => {
     });
 });
 
-// --- CONTACT / MESSAGES ---
-import nodemailer from 'nodemailer';
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.ADMIN_EMAIL || 'admin@example.com', // User's email from Env
-        pass: process.env.EMAIL_PASS // App Password from Env
-    }
-});
-
-app.post('/api/contact', sanitizeMiddleware, (req, res) => {
-    const { name, email, message } = req.body;
-    
-    if (!name || !email || !message) {
-        return res.status(400).json({ error: "All fields are required" });
-    }
-
-    db.run(`INSERT INTO messages (name, email, message) VALUES (?, ?, ?)`,
-        [name, email, message],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            
-            // Send Email Notification
-            const mailOptions = {
-                from: process.env.ADMIN_EMAIL || 'admin@example.com',
-                to: process.env.ADMIN_EMAIL || 'admin@example.com',
-                subject: `New Portfolio Message from ${name}`,
-                text: `You have a new message from your portfolio:\n\nName: ${name}\nEmail: ${email}\n\nMessage:\n${message}`
-            };
-
-            transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    console.log('Error sending email:', error);
-                    // Don't fail the request if email fails, just log it
-                } else {
-                    console.log('Email sent: ' + info.response);
-                }
-            });
-
-            res.json({ message: "Message sent successfully", id: this.lastID });
-        }
-    );
-});
 
 // Admin: Get Messages
 app.get('/api/messages', authenticateToken, (req, res) => {

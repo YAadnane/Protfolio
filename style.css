@@ -5864,4 +5864,56 @@ body.light-mode .bento-item p {
         font-size: 0.75rem !important;
         padding: 0.4rem 0.6rem !important;
     }
+}/* =========================================
+   PROJECT MODAL SCROLL FIX
+   ========================================= */
+#project-modal .project-modal-content {
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0 !important;
+    /* Move padding to scroll area */
+}
+
+/* Ensure the scroll container has the padding and handles overflow */
+.project-modal-scroll {
+    overflow-y: auto;
+    flex: 1;
+    padding: 2rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-color) rgba(255, 255, 255, 0.05);
+}
+
+.project-modal-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.project-modal-scroll::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.project-modal-scroll::-webkit-scrollbar-thumb {
+    background-color: var(--accent-color);
+    border-radius: 3px;
+}
+
+/* Notion Section Styling */
+#project-notion-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

@@ -59,17 +59,17 @@ function initContactForm() {
 
             if (res.ok) {
                 const t = translations[currentLang];
-                showNotification(t["form.success.title"], t["form.success.msg"], 'success');
+                showToast(t["form.success.msg"], 'success');
                 form.reset();
             } else {
                 const t = translations[currentLang];
                 const result = await res.json();
-                showNotification(t["form.error.title"], `${t["form.error.msg"]} (${result.error})`, 'error');
+                showToast(`${t["form.error.msg"]} (${result.error})`, 'error');
             }
         } catch (err) {
             console.error(err);
             const t = translations[currentLang];
-            showNotification(t["form.error.title"], t["form.error.msg"], 'error');
+            showToast(t["form.error.title"], t["form.error.msg"], 'error');
         } finally {
             submitBtn.innerText = originalText;
             submitBtn.disabled = false;
@@ -944,6 +944,79 @@ function applyProjectFilters() {
     currentProjectPage = 0;
     renderProjectsPage();
 }
+
+// Open Project Modal with Notion Content Support
+window.openProjectModal = async function(project) {
+    const modal = document.getElementById('project-modal');
+    if (!modal) return;
+    
+    // Populate modal with project data
+    document.getElementById('project-modal-title').textContent = project.title || '';
+    document.getElementById('project-modal-img').src = project.image ? `${API_URL.replace('/api', '')}${project.image}` : '';
+    document.getElementById('project-modal-desc').textContent = project.description || '';
+    document.getElementById('project-modal-role').textContent = project.role || 'Developer';
+    document.getElementById('project-modal-subject').textContent = project.category || 'General';
+    
+    // Technologies
+    const techsContainer = document.getElementById('project-modal-techs');
+    if (project.tags) {
+        const tags = project.tags.split(',').map(t => t.trim());
+        techsContainer.innerHTML = tags.map(tag => `<span class="tech-tag">${tag}</span>`).join('');
+    } else {
+        techsContainer.innerHTML = '';
+    }
+    
+    // Tasks
+    const tasksContainer = document.getElementById('project-modal-tasks');
+    tasksContainer.innerHTML = '<li>Development and implementation</li>';
+    
+    // Reset Notion section
+    const notionSection = document.getElementById('project-notion-section');
+    const notionLoading = document.getElementById('project-notion-loading');
+    const notionContent = document.getElementById('project-notion-content');
+    const notionError = document.getElementById('project-notion-error');
+    
+    notionSection.style.display = 'none';
+    notionLoading.style.display = 'none';
+    notionContent.style.display = 'none';
+    notionError.style.display = 'none';
+    notionContent.innerHTML = '';
+    
+    // Show modal
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('active'), 10);
+    
+    // Fetch Notion content if available
+    try {
+        const response = await fetch(`${API_URL}/projects/${project.id}/notion-content`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            if (data.content && data.content.trim()) {
+                notionSection.style.display = 'block';
+                notionLoading.style.display = 'flex';
+                
+                setTimeout(() => {
+                    notionContent.innerHTML = data.content;
+                    notionLoading.style.display = 'none';
+                    notionContent.style.display = 'block';
+                }, 300);
+            }
+        }
+    } catch (error) {
+        console.error('Error fetching Notion content:', error);
+    }
+};
+
+// Close Project Modal
+window.closeProjectModal = function() {
+    const modal = document.getElementById('project-modal');
+    if (modal) {
+        modal.classList.remove('active');
+        setTimeout(() => modal.style.display = 'none', 300);
+    }
+};
 
 
 // Video Play Logic

@@ -33,7 +33,9 @@ db.serialize(() => {
         link TEXT,
         category TEXT,
         is_hidden INTEGER DEFAULT 0
-    )`, () => addColumnIfNotExists('projects', 'is_hidden', 'INTEGER DEFAULT 0'));
+    )`, () => {
+        addColumnIfNotExists('projects', 'is_hidden', 'INTEGER DEFAULT 0');
+    });
 
     // Certifications Table
     db.run(`CREATE TABLE IF NOT EXISTS certifications (
@@ -415,6 +417,12 @@ db.serialize(() => {
     )`, (err) => {
         if (!err) {
             // Migration: Ensure columns exist
+            addColumnIfNotExists('projects', 'role', 'TEXT');
+            addColumnIfNotExists('projects', 'year', 'TEXT');
+            addColumnIfNotExists('projects', 'subject', 'TEXT');
+            addColumnIfNotExists('projects', 'tasks', 'TEXT');
+            // notion_page_id removed
+            addColumnIfNotExists('projects', 'notion_url', 'TEXT'); // NEW: Store full URL
             addColumnIfNotExists('reviews', 'name', 'TEXT');
             addColumnIfNotExists('reviews', 'role', 'TEXT');
             addColumnIfNotExists('reviews', 'message', 'TEXT');

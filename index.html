@@ -437,13 +437,13 @@
           </div>
           <form class="contact-form">
             <div class="form-group">
-              <input type="text" placeholder="Your Name" required data-i18n-placeholder="form.name">
+              <input type="text" name="name" placeholder="Your Name" required data-i18n-placeholder="form.name">
             </div>
             <div class="form-group">
-              <input type="email" placeholder="Your Email" required data-i18n-placeholder="form.email">
+              <input type="email" name="email" placeholder="Your Email" required data-i18n-placeholder="form.email">
             </div>
             <div class="form-group">
-              <textarea placeholder="Tell me about your project" rows="5" required
+              <textarea name="message" placeholder="Tell me about your project" rows="5" required
                 data-i18n-placeholder="form.message"></textarea>
             </div>
             <button type="submit" class="btn-primary" data-i18n="form.send">Send Message</button>
@@ -645,6 +645,20 @@
 
             <h4 data-i18n="project.tasks" style="margin-top: 1.5rem;">Tasks</h4>
             <ul id="project-modal-tasks" class="task-list"></ul>
+          </div>
+        </div>
+
+        <!-- Notion Content Section -->
+        <div id="project-notion-section"
+          style="display:none; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1);">
+          <div id="project-notion-loading" style="text-align: center; padding: 2rem;">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 2rem; color: var(--accent-color);"></i>
+            <p style="margin-top: 1rem; color: var(--text-muted);">Loading detailed content...</p>
+          </div>
+          <div id="project-notion-content" style="display:none; line-height: 1.8;"></div>
+          <div id="project-notion-error" style="display:none; text-align: center; padding: 2rem; color: #ff6b6b;">
+            <i class="fa-solid fa-exclamation-triangle" style="font-size: 2rem;"></i>
+            <p style="margin-top: 1rem;">Failed to load detailed content.</p>
           </div>
         </div>
       </div>
