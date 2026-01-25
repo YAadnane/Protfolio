@@ -5901,12 +5901,12 @@ body.light-mode .bento-item p {
 }
 
 /* =========================================
-   12. NOTION CONTENT STYLING (FULL)
+   12. NOTION CONTENT STYLING (FULL - THEME AWARE)
    ========================================= */
 #project-notion-section {
     margin-top: 3rem;
     padding-top: 2rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid var(--nav-border);
     animation: fadeIn 0.5s ease-in-out;
 }
 
@@ -5932,7 +5932,7 @@ body.light-mode .bento-item p {
 #project-notion-content h1,
 #project-notion-content h2,
 #project-notion-content h3 {
-    color: #fff;
+    color: var(--text-main);
     margin-top: 2.5rem;
     margin-bottom: 1rem;
     font-family: var(--font-heading);
@@ -5942,10 +5942,7 @@ body.light-mode .bento-item p {
 
 #project-notion-content h1 {
     font-size: 2.2rem;
-    background: linear-gradient(90deg, #fff, var(--text-muted));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--nav-border);
     padding-bottom: 0.5rem;
 }
 
@@ -5962,8 +5959,8 @@ body.light-mode .bento-item p {
 /* Text & Paragraphs */
 #project-notion-content p {
     margin-bottom: 1.25rem;
-    color: #d1d5db;
-    /* Light gray */
+    color: var(--text-main);
+    opacity: 0.95;
     max-width: 70ch;
 }
 
@@ -5976,7 +5973,7 @@ body.light-mode .bento-item p {
 
 #project-notion-content li {
     margin-bottom: 0.5rem;
-    color: #cccccc;
+    color: var(--text-muted);
     padding-left: 0.5rem;
 }
 
@@ -5990,27 +5987,29 @@ body.light-mode .bento-item p {
     padding: 1.5rem;
     border-radius: 12px;
     border: 1px solid rgba(255, 255, 255, 0.08);
+    /* Maybe use var(--nav-border) */
     overflow-x: auto;
     margin: 2rem 0;
     font-size: 0.9rem;
     box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    color: #e0e0e0;
 }
 
 #project-notion-content code {
     font-family: 'Fira Code', 'Consolas', monospace;
     color: #a5b4fc;
-    /* Soft purple/blue for code */
 }
 
 /* Inline Code */
 #project-notion-content p code,
 #project-notion-content li code {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--control-bg);
     padding: 0.2rem 0.4rem;
     border-radius: 4px;
     color: var(--accent-color);
     font-size: 0.85em;
     font-weight: 500;
+    border: 1px solid var(--nav-border);
 }
 
 /* Images */
@@ -6019,8 +6018,10 @@ body.light-mode .bento-item p {
     height: auto;
     border-radius: 12px;
     margin: 2rem 0;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    /* Lighter shadow */
+    border: 1px solid var(--nav-border);
+    opacity: 0.95;
 }
 
 /* Links */
@@ -6032,7 +6033,7 @@ body.light-mode .bento-item p {
 }
 
 #project-notion-content a:hover {
-    background: rgba(0, 255, 157, 0.1);
+    background: var(--accent-glow);
     border-bottom-style: solid;
 }
 
@@ -6041,10 +6042,10 @@ body.light-mode .bento-item p {
     border-left: 4px solid var(--accent-color);
     margin: 2rem 0;
     padding: 1rem 1.5rem;
-    background: linear-gradient(90deg, rgba(0, 255, 157, 0.05) 0%, transparent 100%);
+    background: var(--control-bg);
     border-radius: 0 8px 8px 0;
     font-style: italic;
-    color: #fff;
+    color: var(--text-muted);
 }
 
 @keyframes fadeIn {
