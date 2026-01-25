@@ -6174,3 +6174,11 @@ body.light-mode .bento-item p {
     }
 }
 
+
+/* =========================================
+   15. GLOBAL TEXT WIDTH OVERRIDE
+   ========================================= */
+#project-notion-content p {
+    max-width: 100% !important;
+}
+
