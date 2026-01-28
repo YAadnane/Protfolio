@@ -1922,7 +1922,7 @@ async function fetchAndRenderSubscribers() {
                 </td>
                 <td style="color:var(--text-main);">${sub.email || 'N/A'}</td>
                 <td style="color:var(--text-muted);">${sub.name || '-'}</td>
-                <td style="color:var(--text-muted);">${new Date(sub.created_at).toLocaleDateString()}</td>
+                <td style="color:var(--text-muted);">${new Date(sub.created_at || sub.date).toLocaleDateString()}</td>
             </tr>
         `).join('');
 
@@ -1931,3 +1931,47 @@ async function fetchAndRenderSubscribers() {
         tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#ff4757; padding:2rem;">Error loading data.</td></tr>';
     }
 }
+
+// CSV Export Logic
+window.downloadSubscribersCSV = async () => {
+    try {
+        const res = await fetch(`${API_URL}/admin/subscribers`, {
+             headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) throw new Error('Failed to fetch data');
+        const data = await res.json();
+        
+        if (data.length === 0) {
+            showNotification('No subscribers to export', 'error');
+            return;
+        }
+
+        // CSV Header
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "ID,Email,Name,Status,Joined Date\n";
+
+        // CSV Rows
+        data.forEach(sub => {
+            const status = sub.is_active ? 'Active' : 'Unsubscribed';
+            const date = new Date(sub.created_at || sub.date).toLocaleDateString();
+            // Escape commas in fields
+            const cleanName = (sub.name || '').replace(/,/g, '');
+            const row = `${sub.id},${sub.email},${cleanName},${status},${date}`;
+            csvContent += row + "\n";
+        });
+
+        // Trigger Download
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "subscribers_list.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+    } catch (err) {
+        console.error(err);
+        showNotification('Failed to export CSV', 'error');
+    }
+};

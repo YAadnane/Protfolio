@@ -1200,15 +1200,21 @@
     <div class="modal" id="subscribers-modal">
         <div class="modal-content" style="width: 700px; max-width: 90vw;">
             <span class="close-modal" onclick="closeSubscribersModal()">&times;</span>
-            <h2>Subscriber List</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2 style="margin-bottom: 0;">Subscriber List</h2>
+                <button onclick="downloadSubscribersCSV()" class="btn-secondary"
+                    style="font-size: 0.9rem; padding: 0.5rem 1rem;">
+                    <i class="fa-solid fa-file-csv"></i> Export CSV
+                </button>
+            </div>
             <div style="overflow-x: auto;">
-                <table class="admin-table">
+                <table class="db-table" style="width: 100%;">
                     <thead>
                         <tr>
-                            <th>Status.</th>
-                            <th>Email</th>
-                            <th>Name</th>
-                            <th>Date</th>
+                            <th style="padding: 1rem;">Status</th>
+                            <th style="padding: 1rem;">Email</th>
+                            <th style="padding: 1rem;">Name</th>
+                            <th style="padding: 1rem;">Joined Date</th>
                         </tr>
                     </thead>
                     <tbody id="subscribers-table-body">
