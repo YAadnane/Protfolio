@@ -654,6 +654,10 @@ function renderOverview(data) {
         <h2 style="grid-column:1/-1; margin:2rem 0 1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Audience</h2>
         ${card('fa-solid fa-users-viewfinder', data.subscribers_active !== undefined ? data.subscribers_active : 0, 'Active Subscribers', 'stat-subscribers-active')}
         ${card('fa-solid fa-user-xmark', data.subscribers_unsubscribed !== undefined ? data.subscribers_unsubscribed : 0, 'Unsubscribed', 'stat-subscribers-unsubscribed')}
+        <div class="admin-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.5rem; text-align:center; min-height:120px; cursor:pointer; background:rgba(255, 255, 255, 0.03); transition: background 0.2s;" onclick="openSubscribersModal()" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
+            <i class="fa-solid fa-list-ul" style="font-size:2rem; color:var(--text-muted); margin-bottom:0.5rem;"></i>
+           <div style="font-weight:600; color:var(--text-main);">Manage List</div>
+        </div>
     `;
 
     // 3. Analytics Stats (With Filters)
@@ -1866,4 +1870,64 @@ window.toggleSidebar = () => {
 // Init Sidebar State
 if (localStorage.getItem('sidebar_collapsed') === 'true') {
     document.body.classList.add('sidebar-collapsed');
+}
+
+// --- SUBSCRIBER MANAGMENT ---
+window.openSubscribersModal = () => {
+    const modal = document.getElementById('subscribers-modal');
+    if(modal) {
+        modal.classList.add('open');
+        modal.style.display = 'flex';
+        fetchAndRenderSubscribers();
+    }
+};
+
+window.closeSubscribersModal = () => {
+    const modal = document.getElementById('subscribers-modal');
+    if(modal) {
+        modal.classList.remove('open');
+        modal.style.display = 'none';
+    }
+};
+
+async function fetchAndRenderSubscribers() {
+    const tbody = document.getElementById('subscribers-table-body');
+    if(!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--text-muted);">Loading...</td></tr>';
+
+    try {
+        const res = await fetch(`${API_URL}/admin/subscribers`, {
+             headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (res.status === 401 || res.status === 403) {
+             window.location.href = '/login.html';
+             return;
+        }
+
+        if(!res.ok) throw new Error('Failed to fetch subscribers');
+        const subscribers = await res.json();
+
+        if(subscribers.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:2rem; color:var(--text-muted);">No subscribers found.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML = subscribers.map(sub => `
+            <tr>
+                <td>
+                    <span style="padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; background: ${sub.is_active ? 'rgba(46, 213, 115, 0.1)' : 'rgba(255, 71, 87, 0.1)'}; color: ${sub.is_active ? '#2ed573' : '#ff4757'}; border: 1px solid ${sub.is_active ? 'rgba(46, 213, 115, 0.2)' : 'rgba(255, 71, 87, 0.2)'};">
+                        ${sub.is_active ? 'Active' : 'Unsubscribed'}
+                    </span>
+                </td>
+                <td style="color:var(--text-main);">${sub.email || 'N/A'}</td>
+                <td style="color:var(--text-muted);">${sub.name || '-'}</td>
+                <td style="color:var(--text-muted);">${new Date(sub.created_at).toLocaleDateString()}</td>
+            </tr>
+        `).join('');
+
+    } catch(err) {
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#ff4757; padding:2rem;">Error loading data.</td></tr>';
+    }
 }

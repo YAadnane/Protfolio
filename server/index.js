@@ -2038,6 +2038,15 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
         contentParams.push(lang);
     }
 
+    // --- SUBSCRIBER MANAGEMENT ---
+app.get('/api/admin/subscribers', authenticateToken, (req, res) => {
+    db.all("SELECT * FROM subscribers ORDER BY date DESC", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// --- ADMIN STATS ---
     const getAllContent = (table, metricTable, metricTypeField, metricTypeValue, labelField) => {
         // Construct Query
         // SELECT T.label, COUNT(M.id) as clicks FROM Table T LEFT JOIN Metric M ON T.id = M.target_id AND M.target_type = ... AND [MetricFilters] [ContentFilters] GROUP BY T.id ORDER BY clicks DESC
