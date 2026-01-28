@@ -470,6 +470,37 @@ db.serialize(() => {
         });
     });
 
+    // Seed French Education if missing
+    db.get("SELECT count(*) as count FROM education WHERE lang='fr'", (err, row) => {
+        if (!err && row.count === 0) {
+            const educationFR = [
+                { degree: "Master en Big Data & Cloud Computing", institution: "Faculté des Sciences et Techniques de Tanger", year: "2023 - Présent", description: "", lang: "fr" },
+                { degree: "Licence en Génie Informatique", institution: "Université Moulay Ismaïl", year: "2022 - 2023", description: "", lang: "fr" },
+                { degree: "Technicien Spécialisé en Développement Informatique", institution: "ISTA NTIC", year: "2021 - 2022", description: "", lang: "fr" },
+                { degree: "DUT en Génie Informatique", institution: "Université Moulay Ismaïl", year: "2020 - 2022", description: "", lang: "fr" }
+            ];
+            const stmtEdu = db.prepare("INSERT INTO education (degree, institution, year, description, lang, is_hidden) VALUES (?, ?, ?, ?, ?, 0)");
+            educationFR.forEach(e => stmtEdu.run(e.degree, e.institution, e.year, e.description, e.lang));
+            stmtEdu.finalize();
+            console.log("Seeded French Education.");
+        }
+    });
+
+    // Seed French Experience if missing
+    db.get("SELECT count(*) as count FROM experience WHERE lang='fr'", (err, row) => {
+        if (!err && row.count === 0) {
+            const experienceFR = [
+                { role: "Développeur Web Full Stack", company: "UNIVERSHIGHTECH", year: "02/2023 - 04/2023", description: "Direction de la conception et du déploiement d'un site web immobilier.", lang: "fr" },
+                { role: "Développeur Web Full Stack", company: "OSPRO", year: "06/2022 - 07/2022", description: "Ingénierie d'une plateforme de candidature à l'emploi.", lang: "fr" },
+                { role: "Développeur Web Front End", company: "JAWDA BOIS", year: "04/2021 - 05/2021", description: "Conception d'un site vitrine pour une entreprise de construction.", lang: "fr" }
+            ];
+            const stmtExp = db.prepare("INSERT INTO experience (role, company, year, description, lang, is_hidden) VALUES (?, ?, ?, ?, ?, 0)");
+            experienceFR.forEach(e => stmtExp.run(e.role, e.company, e.year, e.description, e.lang));
+            stmtExp.finalize();
+            console.log("Seeded French Experience.");
+        }
+    });
+
     console.log("Database initialized successfully.");
 });
 

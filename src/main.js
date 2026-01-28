@@ -1431,6 +1431,7 @@ const uiTranslations = {
 async function loadEducation() {
         try {
     const edu = await fetchWithLang('education');
+    console.log('[DEBUG] Education data received:', edu);
         const container = document.getElementById('education-content');
         container.innerHTML = '';
 
@@ -1497,6 +1498,7 @@ async function loadEducation() {
 async function loadExperience() {
     try {
     const exp = await fetchWithLang('experience');
+    console.log('[DEBUG] Experience data received:', exp);
         const container = document.getElementById('experience-content');
         container.innerHTML = '';
 
