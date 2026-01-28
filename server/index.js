@@ -176,7 +176,8 @@ app.delete('/api/subscribe', (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "Email required." });
 
-    db.run("DELETE FROM subscribers WHERE email = ?", [email], function(err) {
+    // Instead of deleting, update the status to mark as unsubscribed
+    db.run("UPDATE subscribers SET unsubscribed_at = CURRENT_TIMESTAMP, is_active = 0 WHERE email = ?", [email], function(err) {
         if (err) {
             console.error(err);
             return res.status(500).json({ error: "Server error." });
@@ -191,6 +192,7 @@ app.delete('/api/subscribe', (req, res) => {
                     <h3>Someone Unsubscribed</h3>
                     <p><strong>Email:</strong> ${email}</p>
                     <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+                    <p><em>Note: The subscriber record has been kept in the database but marked as inactive.</em></p>
                 `
             };
             
