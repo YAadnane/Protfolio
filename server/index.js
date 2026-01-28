@@ -1979,25 +1979,78 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
     }
 
     // 2. Base Counts
+    // 2. Base Counts
     const { sort } = req.query; // 'views', 'likes', 'comments'
+
+    // Separate Filters
+    // Metric Filters (Year, Month) -> Apply to the JOIN (Event/Like/Comment)
+    // Content Filters (Lang) -> Apply to the Main Table (Project/Article/Cert)
+    let metricFilterParams = [];
+    let metricFilterSql = "";
+    if (year) {
+        metricFilterSql += " AND strftime('%Y', metric.date) = ?";
+        metricFilterParams.push(year);
+    }
+    if (month) {
+        metricFilterSql += " AND strftime('%m', metric.date) = ?";
+        metricFilterParams.push(month.toString().padStart(2, '0'));
+    }
+
+    let contentSql = ""; 
+    let contentParams = [];
+    if (lang) {
+        contentSql += " WHERE lang = ?";
+        contentParams.push(lang);
+    }
+
+    const getAllContent = (table, metricTable, metricTypeField, metricTypeValue, labelField) => {
+        // Construct Query
+        // SELECT T.label, COUNT(M.id) as clicks FROM Table T LEFT JOIN Metric M ON T.id = M.target_id AND M.target_type = ... AND [MetricFilters] [ContentFilters] GROUP BY T.id ORDER BY clicks DESC
+        
+        // Handle Analytics Events (views) which uses 'event_type' instead of 'target_type'
+        let joinCondition = "";
+        if (metricTable === 'analytics_events') {
+             joinCondition = `T.id = metric.target_id AND metric.event_type = '${metricTypeValue}' ${metricFilterSql.replace(/metric\.date/g, 'metric.date')}`;
+        } else {
+             // Likes / Comments
+             joinCondition = `T.id = metric.target_id AND metric.target_type = '${metricTypeValue}' ${metricFilterSql}`;
+        }
+
+        const query = `
+            SELECT T.${labelField} as name, COUNT(metric.id) as clicks 
+            FROM ${table} T 
+            LEFT JOIN ${metricTable} metric ON ${joinCondition}
+            ${contentSql}
+            GROUP BY T.id 
+            ORDER BY clicks DESC
+        `;
+        
+        // Combine params: metric params inside join (if any) + content params (where)
+        // Wait, params order matters?
+        // SQLite: Params are bound in order. 
+        // Metric params are in JOIN ON. Content params are in WHERE.
+        // JOIN comes before WHERE. So Metric Params then Content Params.
+        const params = [...metricFilterParams, ...contentParams];
+
+        return new Promise(resolve => db.all(query, params, (e, r) => resolve({k: `top_${table}`, v: r || []})));
+    };
 
     let topProjectsProm, topCertifsProm, topArticlesProm;
 
     if (sort === 'likes') {
-         topProjectsProm = new Promise(resolve => db.all(`SELECT p.title as name, COUNT(l.id) as clicks FROM likes l JOIN projects p ON l.target_id = p.id WHERE l.target_type='project' ${filterSql} GROUP BY l.target_id ORDER BY clicks DESC`, filterParams, (e,r)=>resolve({k:'top_projects', v:r||[]})));
-         // Certs don't have likes yet, return empty
-         topCertifsProm = Promise.resolve({k:'top_certifs', v:[]}); 
-         topArticlesProm = new Promise(resolve => db.all(`SELECT a.title as name, COUNT(l.id) as clicks FROM likes l JOIN articles a ON l.target_id = a.id WHERE l.target_type='article' ${filterSql} GROUP BY l.target_id ORDER BY clicks DESC`, filterParams, (e,r)=>resolve({k:'top_articles', v:r||[]})));
+         topProjectsProm = getAllContent('projects', 'likes', 'target_type', 'project', 'title');
+         // Certs don't have likes, just return all certs with 0
+         topCertifsProm = new Promise(resolve => db.all(`SELECT name, 0 as clicks FROM certifications ${contentSql}`, contentParams, (e,r)=>resolve({k:'top_certifications', v:r||[]})));
+         topArticlesProm = getAllContent('articles', 'likes', 'target_type', 'article', 'title');
     } else if (sort === 'comments') {
-         topProjectsProm = new Promise(resolve => db.all(`SELECT p.title as name, COUNT(c.id) as clicks FROM comments c JOIN projects p ON c.target_id = p.id WHERE c.target_type='project' ${filterSql} GROUP BY c.target_id ORDER BY clicks DESC`, filterParams, (e,r)=>resolve({k:'top_projects', v:r||[]})));
-         // Certs don't have comments yet
-         topCertifsProm = Promise.resolve({k:'top_certifs', v:[]});
-         topArticlesProm = new Promise(resolve => db.all(`SELECT a.title as name, COUNT(c.id) as clicks FROM comments c JOIN articles a ON c.target_id = a.id WHERE c.target_type='article' ${filterSql} GROUP BY c.target_id ORDER BY clicks DESC`, filterParams, (e,r)=>resolve({k:'top_articles', v:r||[]})));
+         topProjectsProm = getAllContent('projects', 'comments', 'target_type', 'project', 'title');
+         topCertifsProm = new Promise(resolve => db.all(`SELECT name, 0 as clicks FROM certifications ${contentSql}`, contentParams, (e,r)=>resolve({k:'top_certifications', v:r||[]})));
+         topArticlesProm = getAllContent('articles', 'comments', 'target_type', 'article', 'title');
     } else {
         // Default: Views (Clicks in analytics_events)
-        topProjectsProm = new Promise(resolve => db.all(`SELECT COALESCE(p.title, 'Unknown Project #' || e.target_id) as name, COUNT(e.id) as clicks FROM analytics_events e LEFT JOIN projects p ON e.target_id = p.id WHERE e.event_type = 'click_project' ${eventFilterSql} GROUP BY e.target_id ORDER BY clicks DESC`, filterParams, (e, r) => resolve({k:'top_projects', v:r||[]})));
-        topCertifsProm = new Promise(resolve => db.all(`SELECT COALESCE(c.name, 'Unknown Cert #' || e.target_id) as name, COUNT(e.id) as clicks FROM analytics_events e LEFT JOIN certifications c ON e.target_id = c.id WHERE e.event_type = 'click_certif' ${eventFilterSql} GROUP BY e.target_id ORDER BY clicks DESC`, filterParams, (e, r) => resolve({k:'top_certifs', v:r||[]})));
-        topArticlesProm = new Promise(resolve => db.all(`SELECT COALESCE(a.title, 'Unknown Article #' || e.target_id) as name, COUNT(e.id) as clicks FROM analytics_events e LEFT JOIN articles a ON e.target_id = a.id WHERE e.event_type = 'view_article' ${eventFilterSql} GROUP BY e.target_id ORDER BY clicks DESC`, filterParams, (e, r) => resolve({k:'top_articles', v:r||[]})));
+        topProjectsProm = getAllContent('projects', 'analytics_events', 'event_type', 'click_project', 'title');
+        topCertifsProm = getAllContent('certifications', 'analytics_events', 'event_type', 'click_certif', 'name');
+        topArticlesProm = getAllContent('articles', 'analytics_events', 'event_type', 'view_article', 'title');
     }
 
     const queries = [
