@@ -813,6 +813,7 @@ function renderOverview(data) {
                 </div>
                 <button class="btn-primary" style="padding:0.4rem 1rem;" onclick="applyChatbotDateFilter()">Filter</button>
                 <button class="btn-secondary" style="padding:0.4rem 1rem;" onclick="clearChatbotDateFilter()">Clear</button>
+                <button class="btn-primary" style="padding:0.4rem 1rem; background-color:#1e90ff;" onclick="exportChatbotCSV()"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
             </div>
             <div id="chatbot-history-container" style="max-height:500px; overflow-y:auto;">
                 <div style="text-align:center; color:var(--text-muted); padding:2rem;">Loading...</div>
@@ -976,6 +977,61 @@ window.clearChatbotDateFilter = () => {
     document.getElementById('chatbot-start-date').value = '';
     document.getElementById('chatbot-end-date').value = '';
     loadChatbotHistory();
+};
+
+// Export Chatbot CSV
+window.exportChatbotCSV = async () => {
+    const startDate = document.getElementById('chatbot-start-date').value;
+    const endDate = document.getElementById('chatbot-end-date').value;
+    
+    try {
+        let url = `${API_URL}/admin/chatbot-history?limit=10000`; // High limit for export
+        if (startDate) url += `&startDate=${startDate}`;
+        if (endDate) url += `&endDate=${endDate}`;
+        
+        const res = await fetch(url, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!res.ok) throw new Error('Failed to fetch data for export');
+        
+        const conversations = await res.json();
+        
+        if (!conversations || conversations.length === 0) {
+            showNotification('No data to export', 'error');
+            return;
+        }
+
+        // Generate CSV
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Date,Language,Question,Response\n";
+
+        conversations.forEach(conv => {
+            const date = new Date(conv.date).toLocaleString().replace(/,/g, '');
+            const lang = conv.lang || 'en';
+            // Escape quotes and handle newlines
+            const question = `"${(conv.question || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`;
+            const answer = `"${(conv.answer || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`;
+            
+            csvContent += `${date},${lang},${question},${answer}\n`;
+        });
+
+        // Download
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        const fileName = startDate && endDate ? `chatbot_history_${startDate}_to_${endDate}.csv` : 'chatbot_history_all.csv';
+        link.setAttribute("download", fileName);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showNotification('CSV Exported Successfully', 'success');
+
+    } catch (err) {
+        console.error('Export Error:', err);
+        showNotification('Failed to export CSV', 'error');
+    }
 };
 
 // System Stats Render
