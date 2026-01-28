@@ -571,6 +571,13 @@ async function loadContent(type, isRefresh = false) {
 // Helper functions
 const createList = (id, items, icon, visible = false) => {
     if (!items || items.length === 0) return `<div id="${id}" style="display:${visible?'block':'none'}; color:var(--text-muted); padding:1rem;">No data available.</div>`;
+    
+    // Determine unit label
+    let unit = 'Views';
+    const sort = window.overviewFilters ? window.overviewFilters.sort : 'views';
+    if (sort === 'likes') unit = 'Likes';
+    else if (sort === 'comments') unit = 'Comments';
+
     return `
         <div id="${id}" style="display:${visible?'block':'none'}; max-height:400px; overflow-y:auto; padding-right:5px;">
             ${items.map((item, i) => `
@@ -582,7 +589,7 @@ const createList = (id, items, icon, visible = false) => {
                         </div>
                         <div>
                             <div style="font-weight:bold;">${item.name || item.title}</div>
-                            <div style="font-size:0.8rem; color:var(--text-muted);">${item.clicks||0} clicks</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted);">${item.clicks||0} ${unit}</div>
                         </div>
                     </div>
                     <div style="color:var(--primary-color); font-weight:bold;">${item.clicks||0}</div>
