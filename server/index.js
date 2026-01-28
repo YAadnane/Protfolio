@@ -1291,7 +1291,8 @@ app.post('/api/chat', async (req, res) => {
                 SELECT p.title, p.description, p.tags, p.category, p.role, p.year, p.subject, p.tasks,
                 (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = p.id AND e.event_type = 'click_project') as visits,
                 (SELECT COUNT(*) FROM likes l WHERE l.target_id = p.id AND l.target_type = 'project') as likes,
-                (SELECT COUNT(*) FROM comments c WHERE c.target_id = p.id AND c.target_type = 'project' AND c.is_approved = 1) as comments
+                (SELECT COUNT(*) FROM comments c WHERE c.target_id = p.id AND c.target_type = 'project' AND c.is_approved = 1) as comments_count,
+                (SELECT GROUP_CONCAT(c.name || ' said: ' || c.message, ' | ') FROM comments c WHERE c.target_id = p.id AND c.target_type = 'project' AND c.is_approved = 1) as visitor_comments
                 FROM projects p 
                 WHERE p.is_hidden = 0 AND p.lang = ?
             `, [targetLang]);
@@ -1305,7 +1306,8 @@ app.post('/api/chat', async (req, res) => {
                 SELECT a.title, a.summary, a.tags, a.date,
                 (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = a.id AND e.event_type = 'view_article') as views,
                 (SELECT COUNT(*) FROM likes l WHERE l.target_id = a.id AND l.target_type = 'article') as likes,
-                (SELECT COUNT(*) FROM comments c WHERE c.target_id = a.id AND c.target_type = 'article' AND c.is_approved = 1) as comments
+                (SELECT COUNT(*) FROM comments c WHERE c.target_id = a.id AND c.target_type = 'article' AND c.is_approved = 1) as comments_count,
+                (SELECT GROUP_CONCAT(c.name || ' said: ' || c.message, ' | ') FROM comments c WHERE c.target_id = a.id AND c.target_type = 'article' AND c.is_approved = 1) as visitor_comments
                 FROM articles a 
                 WHERE a.is_hidden = 0 AND a.lang = ?
             `, [targetLang]);
