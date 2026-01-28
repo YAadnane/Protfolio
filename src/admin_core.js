@@ -570,9 +570,9 @@ async function loadContent(type, isRefresh = false) {
 
 // Helper functions
 const createList = (id, items, icon, visible = false) => {
-    if (!items || items.length === 0) return `<div id="${id}" style="display:${visible?'block':'none'}; color:var(--text-muted);">No data available.</div>`;
+    if (!items || items.length === 0) return `<div id="${id}" style="display:${visible?'block':'none'}; color:var(--text-muted); padding:1rem;">No data available.</div>`;
     return `
-        <div id="${id}" style="display:${visible?'block':'none'};">
+        <div id="${id}" style="display:${visible?'block':'none'}; max-height:400px; overflow-y:auto; padding-right:5px;">
             ${items.map((item, i) => `
                 <div style="display:flex; align-items:center; justify-content:space-between; padding:0.8rem 0; border-bottom:1px solid rgba(255,255,255,0.05);">
                     <div style="display:flex; align-items:center; gap:1rem;">
@@ -756,7 +756,7 @@ function renderOverview(data) {
 
     // 5. Top Content
     const topContentHtml = `
-        <h3 style="grid-column:1/-1; margin-top:2rem;">Top Performing Content</h3>
+        <h3 style="grid-column:1/-1; margin-top:2rem;">Content Performance</h3>
         <div class="admin-card" style="grid-column:1/-1;">
              <div style="display:flex; gap:10px; margin-bottom:1rem; flex-wrap:wrap; align-items:center;">
                 <div style="display:flex; gap:10px;">

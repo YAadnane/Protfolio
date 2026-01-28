@@ -1984,20 +1984,20 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
     let topProjectsProm, topCertifsProm, topArticlesProm;
 
     if (sort === 'likes') {
-         topProjectsProm = new Promise(resolve => db.all(`SELECT p.title as name, COUNT(l.id) as clicks FROM likes l JOIN projects p ON l.target_id = p.id WHERE l.target_type='project' ${filterSql} GROUP BY l.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e,r)=>resolve({k:'top_projects', v:r||[]})));
+         topProjectsProm = new Promise(resolve => db.all(`SELECT p.title as name, COUNT(l.id) as clicks FROM likes l JOIN projects p ON l.target_id = p.id WHERE l.target_type='project' ${filterSql} GROUP BY l.target_id ORDER BY clicks DESC`, filterParams, (e,r)=>resolve({k:'top_projects', v:r||[]})));
          // Certs don't have likes yet, return empty
          topCertifsProm = Promise.resolve({k:'top_certifs', v:[]}); 
-         topArticlesProm = new Promise(resolve => db.all(`SELECT a.title as name, COUNT(l.id) as clicks FROM likes l JOIN articles a ON l.target_id = a.id WHERE l.target_type='article' ${filterSql} GROUP BY l.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e,r)=>resolve({k:'top_articles', v:r||[]})));
+         topArticlesProm = new Promise(resolve => db.all(`SELECT a.title as name, COUNT(l.id) as clicks FROM likes l JOIN articles a ON l.target_id = a.id WHERE l.target_type='article' ${filterSql} GROUP BY l.target_id ORDER BY clicks DESC`, filterParams, (e,r)=>resolve({k:'top_articles', v:r||[]})));
     } else if (sort === 'comments') {
-         topProjectsProm = new Promise(resolve => db.all(`SELECT p.title as name, COUNT(c.id) as clicks FROM comments c JOIN projects p ON c.target_id = p.id WHERE c.target_type='project' ${filterSql} GROUP BY c.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e,r)=>resolve({k:'top_projects', v:r||[]})));
+         topProjectsProm = new Promise(resolve => db.all(`SELECT p.title as name, COUNT(c.id) as clicks FROM comments c JOIN projects p ON c.target_id = p.id WHERE c.target_type='project' ${filterSql} GROUP BY c.target_id ORDER BY clicks DESC`, filterParams, (e,r)=>resolve({k:'top_projects', v:r||[]})));
          // Certs don't have comments yet
          topCertifsProm = Promise.resolve({k:'top_certifs', v:[]});
-         topArticlesProm = new Promise(resolve => db.all(`SELECT a.title as name, COUNT(c.id) as clicks FROM comments c JOIN articles a ON c.target_id = a.id WHERE c.target_type='article' ${filterSql} GROUP BY c.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e,r)=>resolve({k:'top_articles', v:r||[]})));
+         topArticlesProm = new Promise(resolve => db.all(`SELECT a.title as name, COUNT(c.id) as clicks FROM comments c JOIN articles a ON c.target_id = a.id WHERE c.target_type='article' ${filterSql} GROUP BY c.target_id ORDER BY clicks DESC`, filterParams, (e,r)=>resolve({k:'top_articles', v:r||[]})));
     } else {
         // Default: Views (Clicks in analytics_events)
-        topProjectsProm = new Promise(resolve => db.all(`SELECT COALESCE(p.title, 'Unknown Project #' || e.target_id) as name, COUNT(e.id) as clicks FROM analytics_events e LEFT JOIN projects p ON e.target_id = p.id WHERE e.event_type = 'click_project' ${eventFilterSql} GROUP BY e.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e, r) => resolve({k:'top_projects', v:r||[]})));
-        topCertifsProm = new Promise(resolve => db.all(`SELECT COALESCE(c.name, 'Unknown Cert #' || e.target_id) as name, COUNT(e.id) as clicks FROM analytics_events e LEFT JOIN certifications c ON e.target_id = c.id WHERE e.event_type = 'click_certif' ${eventFilterSql} GROUP BY e.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e, r) => resolve({k:'top_certifs', v:r||[]})));
-        topArticlesProm = new Promise(resolve => db.all(`SELECT COALESCE(a.title, 'Unknown Article #' || e.target_id) as name, COUNT(e.id) as clicks FROM analytics_events e LEFT JOIN articles a ON e.target_id = a.id WHERE e.event_type = 'view_article' ${eventFilterSql} GROUP BY e.target_id ORDER BY clicks DESC LIMIT 5`, filterParams, (e, r) => resolve({k:'top_articles', v:r||[]})));
+        topProjectsProm = new Promise(resolve => db.all(`SELECT COALESCE(p.title, 'Unknown Project #' || e.target_id) as name, COUNT(e.id) as clicks FROM analytics_events e LEFT JOIN projects p ON e.target_id = p.id WHERE e.event_type = 'click_project' ${eventFilterSql} GROUP BY e.target_id ORDER BY clicks DESC`, filterParams, (e, r) => resolve({k:'top_projects', v:r||[]})));
+        topCertifsProm = new Promise(resolve => db.all(`SELECT COALESCE(c.name, 'Unknown Cert #' || e.target_id) as name, COUNT(e.id) as clicks FROM analytics_events e LEFT JOIN certifications c ON e.target_id = c.id WHERE e.event_type = 'click_certif' ${eventFilterSql} GROUP BY e.target_id ORDER BY clicks DESC`, filterParams, (e, r) => resolve({k:'top_certifs', v:r||[]})));
+        topArticlesProm = new Promise(resolve => db.all(`SELECT COALESCE(a.title, 'Unknown Article #' || e.target_id) as name, COUNT(e.id) as clicks FROM analytics_events e LEFT JOIN articles a ON e.target_id = a.id WHERE e.event_type = 'view_article' ${eventFilterSql} GROUP BY e.target_id ORDER BY clicks DESC`, filterParams, (e, r) => resolve({k:'top_articles', v:r||[]})));
     }
 
     const queries = [
