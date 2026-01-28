@@ -649,6 +649,13 @@ function renderOverview(data) {
         ${card('fa-solid fa-star', data.reviews_total, `Reviews<br><small style="color:var(--accent-color);">${data.reviews_pending} pending</small>`, 'stat-reviews')}
     `;
 
+    // 2.5 Audience Stats (Subscribers)
+    const audienceHtml = `
+        <h2 style="grid-column:1/-1; margin:2rem 0 1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Audience</h2>
+        ${card('fa-solid fa-users-viewfinder', data.subscribers_active !== undefined ? data.subscribers_active : 0, 'Active Subscribers', 'stat-subscribers-active')}
+        ${card('fa-solid fa-user-xmark', data.subscribers_unsubscribed !== undefined ? data.subscribers_unsubscribed : 0, 'Unsubscribed', 'stat-subscribers-unsubscribed')}
+    `;
+
     // 3. Analytics Stats (With Filters)
     const currentYear = new Date().getFullYear();
     // Use backend provided years or fallback to current year
@@ -733,6 +740,8 @@ function renderOverview(data) {
             update('stat-articles', newData.articles);
             update('stat-messages', newData.messages_total);
             update('stat-reviews', newData.reviews_total);
+            update('stat-subscribers-active', newData.subscribers_active);
+            update('stat-subscribers-unsubscribed', newData.subscribers_unsubscribed);
             update('stat-visitors', newData.total_visitors);
             update('stat-visitors-7d', newData.visitors_7d);
             update('stat-clicks', newData.total_clicks);
@@ -807,7 +816,7 @@ function renderOverview(data) {
         </div>
     `;
 
-    grid.innerHTML = contentHtml + interactionHtml + analyticsHtml + graphHtml + topContentHtml + chatbotHistoryHtml;
+    grid.innerHTML = contentHtml + interactionHtml + audienceHtml + analyticsHtml + graphHtml + topContentHtml + chatbotHistoryHtml;
 
     // Load chatbot history
     loadChatbotHistory();

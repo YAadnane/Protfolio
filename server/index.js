@@ -1142,6 +1142,45 @@ app.post('/api/track/visit', (req, res) => {
 
 
 // --- DYNAMIC STATS ---
+// --- SUBSCRIPTION API ---
+app.post('/api/subscribe', (req, res) => {
+    const { name, email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    // UPSERT Logic: Insert or Update if exists
+    // SQLite doesn't have standard UPSERT until newer versions, but we can try INSERT OR IGNORE then UPDATE
+    // Or just check first.
+    db.get("SELECT id FROM subscribers WHERE email = ?", [email], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        
+        if (row) {
+            // Exists -> Reactivate
+            db.run("UPDATE subscribers SET is_active = 1, name = COALESCE(?, name) WHERE id = ?", [name, row.id], (err) => {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json({ message: "Subscribed successfully (Welcome back!)" });
+            });
+        } else {
+            // New -> Insert
+            db.run("INSERT INTO subscribers (name, email, is_active) VALUES (?, ?, 1)", [name, email], function(err) {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json({ message: "Subscribed successfully" });
+            });
+        }
+    });
+});
+
+app.post('/api/unsubscribe', (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    db.run("UPDATE subscribers SET is_active = 0 WHERE email = ?", [email], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: "Email not found" });
+        res.json({ message: "Unsubscribed successfully" });
+    });
+});
+
+
 app.get('/api/stats', (req, res) => {
     const lang = req.query.lang || 'en';
     const stats = {};
@@ -1184,11 +1223,7 @@ app.get('/api/stats', (req, res) => {
                         // Add Duration
                         if (start && !isNaN(start.getTime()) && end && !isNaN(end.getTime())) {
                             let diffMonths = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
-                            // Add 1 month inclusive if dates are loose? Or usually just diff.
-                            // If Sep 2020 to Sep 2021 -> 12 months.
                             if (diffMonths < 0) diffMonths = 0; 
-                            // If just years "2020", diff is 0? No, 2020-01-01 to 2021-01-01 is 1 year.
-                            // If "2020" to "2020" = 0, maybe assume 1 year?
                             if (diffMonths === 0) diffMonths = 1; 
                             
                             totalMonths += diffMonths;
@@ -2061,6 +2096,10 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM messages WHERE is_read=0', (e, r) => resolve({k:'messages_unread', v:r?.c||0}))),
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM reviews', (e, r) => resolve({k:'reviews_total', v:r?.c||0}))),
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM reviews WHERE is_approved=0', (e, r) => resolve({k:'reviews_pending', v:r?.c||0}))),
+        
+        // SUBSCRIBERS
+        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM subscribers WHERE is_active=1', (e, r) => resolve({k:'subscribers_active', v:r?.c||0}))),
+        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM subscribers WHERE is_active=0', (e, r) => resolve({k:'subscribers_unsubscribed', v:r?.c||0}))),
         
         // NEW: Interaction Totals (Filtered)
         new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM likes WHERE 1=1 ${filterSql}`, filterParams, (e, r) => resolve({k:'total_likes', v:r?.c||0}))),

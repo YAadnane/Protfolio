@@ -454,8 +454,12 @@ db.serialize(() => {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT,
         email TEXT,
-        date DATETIME DEFAULT CURRENT_TIMESTAMP
+        date DATETIME DEFAULT CURRENT_TIMESTAMP,
+        is_active INTEGER DEFAULT 1
     )`, () => {
+        // Migration: Add is_active if missing
+        addColumnIfNotExists('subscribers', 'is_active', 'INTEGER DEFAULT 1');
+
         // Clean up duplicates before creating index
         db.run(`DELETE FROM subscribers WHERE id NOT IN (SELECT MIN(id) FROM subscribers GROUP BY email)`, (err) => {
             if (!err) {
