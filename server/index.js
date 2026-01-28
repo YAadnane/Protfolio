@@ -24,7 +24,7 @@ const app = express();
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.ADMIN_EMAIL || 'adani.yanis@gmail.com', // Fallback or Env
+        user: process.env.ADMIN_EMAIL || 'yadani.adnane20@gmail.com', // Fallback or Env
         pass: process.env.EMAIL_PASS // App Password
     }
 });
@@ -235,6 +235,66 @@ app.post('/api/login', (req, res) => {
     });
 });
 
+// Helper: Send Subscriber Notification
+const sendSubscriberNotification = async (type, item) => {
+    try {
+        // Fetch all active subscribers
+        db.all("SELECT email FROM subscribers", [], async (err, subscribers) => {
+            if (err) {
+                console.error("Error fetching subscribers for notification:", err);
+                return;
+            }
+
+            if (subscribers.length === 0) return;
+
+            console.log(`Sending notifications to ${subscribers.length} subscribers for new ${type}: ${item.title || item.name || item.role}`);
+
+            const subject = `New ${type.charAt(0).toUpperCase() + type.slice(1)} Added: ${item.title || item.name || item.role}`;
+            
+            // Construct Email Content based on Type
+            let contentHtml = `<h2>New Update: ${item.title || item.name || item.role}</h2>`;
+            
+            if (type === 'project') {
+                contentHtml += `<p>${item.description}</p>`;
+                if (item.link) contentHtml += `<p><a href="${item.link}">View Project</a></p>`;
+            } else if (type === 'article') {
+                contentHtml += `<p>${item.summary}</p>`;
+                if (item.link) contentHtml += `<p><a href="${item.link}">Read Article</a></p>`;
+            } else if (type === 'certification') {
+                contentHtml += `<p>Just earned a new certification from <strong>${item.issuer}</strong>!</p>`;
+            } else if (type === 'education') {
+                contentHtml += `<p>New education milestone achieved!</p>`;
+                if (item.description) contentHtml += `<p>${item.description}</p>`;
+            } else if (type === 'experience') {
+                contentHtml += `<p>Excited to announce a new position!</p>`;
+                if (item.description) contentHtml += `<p>${item.description}</p>`;
+            } else if (type === 'start') {
+                // Generic fallback
+            }
+
+            contentHtml += `<br><p>Check it out on my portfolio!</p>`;
+
+            // Send in loop (or use BCC for privacy if huge list, but loop is safer for delivery stats if implemented later)
+            // For now, simple loop.
+            for (const sub of subscribers) {
+                 const mailOptions = {
+                    from: process.env.ADMIN_EMAIL,
+                    to: sub.email,
+                    subject: subject,
+                    html: contentHtml
+                };
+                
+                // Fire and forget
+                transporter.sendMail(mailOptions, (error) => {
+                    if (error) console.error(`Failed to send to ${sub.email}:`, error);
+                });
+            }
+        });
+    } catch (e) {
+        console.error("Notification System Error:", e);
+    }
+};
+
 // Forgot Password Endpoint
 app.post('/api/forgot-password', (req, res) => {
     const { email } = req.body;
@@ -341,8 +401,8 @@ app.post('/api/contact', async (req, res) => {
 
     try {
         const mailOptions = {
-            from: process.env.ADMIN_EMAIL || 'adani.yanis@gmail.com', // Sender address
-            to: process.env.ADMIN_EMAIL || 'adani.yanis@gmail.com', // Receiver address (yourself)
+            from: process.env.ADMIN_EMAIL || 'yadani.adnane20@gmail.com', // Sender address
+            to: process.env.ADMIN_EMAIL || 'yadani.adnane20@gmail.com', // Receiver address (yourself)
             subject: `New Contact Form Submission from ${name}`,
             text: `
                 Name: ${name}
@@ -404,6 +464,11 @@ app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, r
         [title, description, tags, category, imagePath, link, is_hidden || 0, lang || 'en', role, year, subject, tasks, notion_url],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
+            
+            const newItem = { id: this.lastID, title, description, link };
+            if (req.body.notifySubscribers === 'true' || req.body.notifySubscribers === true) {
+                sendSubscriberNotification('project', newItem);
+            }
             res.json({ id: this.lastID });
         }
     );
@@ -578,6 +643,12 @@ app.post('/api/certifications', upload.fields([{ name: 'pdfFile', maxCount: 1 },
         ],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
+
+            const newItem = { id: this.lastID, name, issuer, description };
+            if (req.body.notifySubscribers === 'true' || req.body.notifySubscribers === true) {
+                sendSubscriberNotification('certification', newItem);
+            }
+
             res.json({ id: this.lastID });
         }
     );
@@ -643,6 +714,12 @@ app.post('/api/education', authenticateToken, upload.fields([{ name: 'logoFile',
         [degree, institution, start_date, end_date, description, is_hidden || 0, lang || 'en', logoPath, brochurePath],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
+
+            const newItem = { id: this.lastID, title: `${degree} at ${institution}`, description };
+            if (req.body.notifySubscribers === 'true' || req.body.notifySubscribers === true) {
+                sendSubscriberNotification('education', newItem);
+            }
+            
             res.json({ id: this.lastID });
         }
     );
@@ -695,6 +772,12 @@ app.post('/api/experience', authenticateToken, upload.fields([{ name: 'logoFile'
         [role, company, start_date, end_date, description, is_hidden || 0, lang || 'en', logoPath, website, linkedin],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
+
+            const newItem = { id: this.lastID, role: `${role} at ${company}`, description };
+            if (req.body.notifySubscribers === 'true' || req.body.notifySubscribers === true) {
+                sendSubscriberNotification('experience', newItem);
+            }
+
             res.json({ id: this.lastID });
         }
     );
@@ -838,33 +921,42 @@ app.get('/api/articles', (req, res) => {
     `;
     db.all(query, [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
-        console.log('DEBUG ARTICLES FETCH:', JSON.stringify(rows, null, 2)); // Debugging Link Issue
         res.json(rows);
     });
 });
 
 app.post('/api/articles', authenticateToken, upload.single('imageFile'), (req, res) => {
     const { title, summary, link, date, updated_date, tags, is_hidden, lang, image } = req.body;
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : (image || null);
+    let imagePath = image || null;
+    if (req.file) {
+        imagePath = `/uploads/${req.file.filename}`;
+    }
 
     db.run(`INSERT INTO articles (title, summary, link, date, updated_date, tags, image, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [title, summary, link, date, updated_date, tags, imagePath, is_hidden || 0, lang || 'en'],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
+
+            const newItem = { id: this.lastID, title, summary, link };
+            // Notification Logic
+            if (req.body.notifySubscribers === 'true' || req.body.notifySubscribers === true) {
+                sendSubscriberNotification('article', newItem);
+            }
+
             res.json({ id: this.lastID });
         }
     );
 });
 
 app.put('/api/articles/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { title, summary, link, date, updated_date, tags, is_hidden, image } = req.body;
+    const { title, summary, link, date, updated_date, tags, is_hidden, lang, image } = req.body;
     let imagePath = image || null;
     if (req.file) {
         imagePath = `/uploads/${req.file.filename}`;
     }
 
-    db.run(`UPDATE articles SET title = ?, summary = ?, link = ?, date = ?, updated_date = ?, tags = ?, image = ?, is_hidden = ? WHERE id = ?`,
-        [title, summary, link, date, updated_date, tags, imagePath, is_hidden, req.params.id],
+    db.run(`UPDATE articles SET title = ?, summary = ?, link = ?, date = ?, updated_date = ?, tags = ?, image = ?, is_hidden = ?, lang = ? WHERE id = ?`,
+        [title, summary, link, date, updated_date, tags, imagePath, is_hidden, lang, req.params.id],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });
@@ -1583,55 +1675,7 @@ app.delete('/api/messages/:id', authenticateToken, (req, res) => {
     });
 });
 
-// --- ARTICLES ---
-app.get('/api/articles', (req, res) => {
-    const lang = req.query.lang || 'en';
-    const limit = req.query.limit ? `LIMIT ${parseInt(req.query.limit)}` : '';
-    // Select all columns including image
-    db.all(`SELECT * FROM articles WHERE is_hidden = 0 AND lang = ? ORDER BY date DESC ${limit}`, [lang], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
 
-app.post('/api/articles', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { title, summary, tags, image, link, is_hidden, lang, date } = req.body;
-    let imagePath = image;
-    if (req.file) {
-        imagePath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`INSERT INTO articles (title, summary, tags, image, link, is_hidden, lang, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [title, summary, tags, imagePath, link, is_hidden || 0, lang || 'en', date || new Date().toISOString()],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID });
-        }
-    );
-});
-
-app.put('/api/articles/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { title, summary, tags, image, link, is_hidden, lang, date } = req.body;
-    let imagePath = image;
-    if (req.file) {
-        imagePath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`UPDATE articles SET title = ?, summary = ?, tags = ?, image = ?, link = ?, is_hidden = ?, lang = ?, date = ? WHERE id = ?`,
-        [title, summary, tags, imagePath, link, is_hidden, lang, date, req.params.id],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Updated successfully" });
-        }
-    );
-});
-
-app.delete('/api/articles/:id', authenticateToken, (req, res) => {
-    db.run("DELETE FROM articles WHERE id = ?", req.params.id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Deleted successfully" });
-    });
-});
 
 // --- REVIEWS ---
 app.get('/api/reviews', (req, res) => {

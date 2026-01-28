@@ -1445,18 +1445,34 @@ function setupModal() {
 
         const formData = new FormData(e.target);
         
-        
         let method = (editingId || currentTab === 'general') ? 'PUT' : 'POST';
         let url = '';
         if (currentTab === 'general') {
             url = `${API_URL}/general`;
         } else if (currentTab === 'profile') {
-            // Profile is always PUT
              url = `${API_URL}/profile`;
              method = 'PUT';
         } else {
             url = editingId ? `${API_URL}/${currentTab}/${editingId}` : `${API_URL}/${currentTab}`;
         }
+
+        // --- NOTIFICATION CONFIRMATION ---
+        // Only for NEW items in specific categories
+        if (!editingId && ['projects', 'certifications', 'experience', 'education', 'articles'].includes(currentTab)) {
+            const wantsToNotify = await showConfirm(
+                'Notify Subscribers?', 
+                'Do you want to send an email notification to all subscribers about this new item?', 
+                'Yes, Notify', 
+                '#1e90ff' // Blue for info/action
+            );
+            
+            if (wantsToNotify) {
+                formData.set('notifySubscribers', 'true');
+            } else {
+                formData.set('notifySubscribers', 'false');
+            }
+        }
+        // ---------------------------------
 
         // Handle checkboxes explicitly
         const checkboxFields = document.querySelectorAll('input[type="checkbox"]');
@@ -1464,23 +1480,17 @@ function setupModal() {
             formData.set(cb.name, cb.checked ? 1 : 0);
         });
         
-        // Append current language to form data or json
-        // For FormData, we set it directly.
         formData.set('lang', currentAdminLang);
 
         let body;
         let headers = {};
 
         if (currentTab === 'projects' || currentTab === 'general' || currentTab === 'certifications' || currentTab === 'articles' || currentTab === 'education' || currentTab === 'experience') {
-            // Send FormData directly
             body = formData;
-            // Do NOT set Content-Type header, browser sets it with boundary
         } else {
-            // Convert to JSON for other tabs
             const data = Object.fromEntries(formData.entries());
-            data.lang = currentAdminLang; // Explicitly ensure lang is in data object from formData entries (though formData.set above handles it, Object.fromEntries uses it)
+            data.lang = currentAdminLang; 
             
-            // Ensure is_hidden is 0 if not present (safety check)
             if (!editingId && data.is_hidden === undefined) data.is_hidden = 0;
 
             body = JSON.stringify(data);
@@ -1488,8 +1498,6 @@ function setupModal() {
         }
 
         headers['Authorization'] = `Bearer ${token}`;
-
-
 
         try {
             const res = await fetch(url, {
@@ -2035,3 +2043,40 @@ window.downloadSubscribersCSV = async () => {
         showNotification("Failed to export CSV", "error");
     }
 };
+
+// --- INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('Initializing Admin Core...');
+    
+    // Initialize Theme
+    if (typeof initThemeAdmin === 'function') {
+        initThemeAdmin();
+    }
+
+    // Initialize Modal Listeners (CRITICAL for Popups)
+    if (typeof setupModal === 'function') {
+        setupModal();
+    } else {
+        console.error('setupModal function not found!');
+    }
+
+    // Initialize Content
+    if (typeof loadContent === 'function') {
+        loadContent(currentTab);
+    }
+
+    // Setup Sidebar Toggle
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    if (sidebarToggle && typeof window.toggleSidebar === 'function') {
+        sidebarToggle.onclick = window.toggleSidebar;
+    }
+
+    // Setup Language Selector
+    const langSelect = document.getElementById('admin-lang-select');
+    if (langSelect && typeof window.updateAdminLang === 'function') {
+        langSelect.addEventListener('change', (e) => {
+             window.updateAdminLang(e.target.value);
+        });
+        langSelect.value = currentAdminLang;
+    }
+});
