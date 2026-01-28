@@ -752,23 +752,7 @@ function renderOverview(data) {
         </div>
     `;
 
-    const contentGraphsHtml = `
-        <h3 style="grid-column:1/-1; margin-top:2rem;">Content Analytics</h3>
-        <div class="content-analytics-grid">
-             <div class="admin-card" style="height:350px; overflow-x:auto;">
-                <h4 style="margin-top:0;">Engagement Distribution</h4>
-                <div style="width:100%; min-width:min(300px, 100%); height:250px; padding:10px;">
-                    <canvas id="contentDoughnutChart"></canvas>
-                </div>
-            </div>
-            <div class="admin-card" style="height:350px; overflow-x:auto;">
-                <h4 style="margin-top:0;">Category Performance</h4>
-                <div style="width:100%; min-width:min(500px, 100%); height:250px; padding:10px;">
-                    <canvas id="contentBarChart"></canvas>
-                </div>
-            </div>
-        </div>
-    `;
+
 
     // 5. Top Content
     const topContentHtml = `
@@ -816,7 +800,7 @@ function renderOverview(data) {
         </div>
     `;
 
-    grid.innerHTML = contentHtml + interactionHtml + analyticsHtml + graphHtml + contentGraphsHtml + topContentHtml + chatbotHistoryHtml;
+    grid.innerHTML = contentHtml + interactionHtml + analyticsHtml + graphHtml + topContentHtml + chatbotHistoryHtml;
 
     // Load chatbot history
     loadChatbotHistory();
@@ -869,56 +853,7 @@ function renderOverview(data) {
     setTimeout(() => {
         updateStatsChart(); // Traffic with default/global filter
 
-        // Doughnut Chart
-        new Chart(document.getElementById('contentDoughnutChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Projects', 'Certifications', 'Articles'],
-                datasets: [{
-                    data: [projClicks, certClicks, artClicks],
-                    backgroundColor: ['#ff9ff3', '#feca57', '#54a0ff'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { position: 'right', labels: { color: '#a4b0be' } }
-                }
-            }
-        });
 
-        // Bar Chart
-        new Chart(document.getElementById('contentBarChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Projects', 'Certifications', 'Articles'],
-                datasets: [{
-                    label: 'Total Clicks',
-                    data: [projClicks, certClicks, artClicks],
-                    backgroundColor: ['rgba(255, 159, 243, 0.5)', 'rgba(254, 202, 87, 0.5)', 'rgba(84, 160, 255, 0.5)'],
-                    borderColor: ['#ff9ff3', '#feca57', '#54a0ff'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(255,255,255,0.05)' },
-                        ticks: { color: '#a4b0be' }
-                    },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: '#a4b0be' }
-                    }
-                }
-            }
-        });
     }, 100);
 
     // Tab Switcher for Top Content
