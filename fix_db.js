@@ -20,7 +20,8 @@ CREATE TABLE IF NOT EXISTS subscribers (
     name TEXT,
     email TEXT,
     date DATETIME DEFAULT CURRENT_TIMESTAMP,
-    is_active INTEGER DEFAULT 1
+    is_active INTEGER DEFAULT 1,
+    unsubscribed_at DATETIME
 );
 `;
 
@@ -38,6 +39,22 @@ db.serialize(() => {
             db.run(createIndexSQL, (err) => {
                  if (err) console.error("Error creating index:", err);
                  else console.log("Index created.");
+                 
+                 // Migration: Add columns if they don't exist
+                db.all("PRAGMA table_info(subscribers)", (err, rows) => {
+                    if (!err) {
+                        const hasUnsub = rows.some(r => r.name === 'unsubscribed_at');
+                        if (!hasUnsub) {
+                            db.run("ALTER TABLE subscribers ADD COLUMN unsubscribed_at DATETIME");
+                            console.log("Added unsubscribed_at column.");
+                        }
+                         const hasActive = rows.some(r => r.name === 'is_active');
+                        if (!hasActive) {
+                            db.run("ALTER TABLE subscribers ADD COLUMN is_active INTEGER DEFAULT 1");
+                             console.log("Added is_active column.");
+                        }
+                    }
+                });
             });
 
             // Insert a test subscriber

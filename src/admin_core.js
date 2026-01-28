@@ -1923,6 +1923,9 @@ async function fetchAndRenderSubscribers() {
                 <td style="color:var(--text-main);">${sub.email || 'N/A'}</td>
                 <td style="color:var(--text-muted);">${sub.name || '-'}</td>
                 <td style="color:var(--text-muted);">${new Date(sub.created_at || sub.date).toLocaleDateString()}</td>
+                <td style="color:var(--text-muted); font-size:0.9rem;">
+                    ${!sub.is_active && sub.unsubscribed_at ? new Date(sub.unsubscribed_at).toLocaleDateString() : '-'}
+                </td>
             </tr>
         `).join('');
 
@@ -1949,15 +1952,16 @@ window.downloadSubscribersCSV = async () => {
 
         // CSV Header
         let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "ID,Email,Name,Status,Joined Date\n";
+        csvContent += "ID,Email,Name,Status,Joined Date,Unsubscribed Date\n";
 
         // CSV Rows
         data.forEach(sub => {
             const status = sub.is_active ? 'Active' : 'Unsubscribed';
             const date = new Date(sub.created_at || sub.date).toLocaleDateString();
+            const unsubscribed = !sub.is_active && sub.unsubscribed_at ? new Date(sub.unsubscribed_at).toLocaleDateString() : '';
             // Escape commas in fields
             const cleanName = (sub.name || '').replace(/,/g, '');
-            const row = `${sub.id},${sub.email},${cleanName},${status},${date}`;
+            const row = `${sub.id},${sub.email},${cleanName},${status},${date},${unsubscribed}`;
             csvContent += row + "\n";
         });
 
@@ -1970,8 +1974,8 @@ window.downloadSubscribersCSV = async () => {
         link.click();
         document.body.removeChild(link);
 
-    } catch (err) {
-        console.error(err);
-        showNotification('Failed to export CSV', 'error');
+    } catch (e) {
+        console.error("Export Error:", e);
+        showNotification("Failed to export CSV", "error");
     }
 };

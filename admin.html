@@ -162,18 +162,30 @@
             overflow-y: auto;
         }
 
-        /* Custom Scrollbar for Modal */
-        .modal-content::-webkit-scrollbar {
+        /* --- GLOBAL SCROLLBAR STYLES --- */
+        ::-webkit-scrollbar {
             width: 8px;
+            height: 8px;
         }
 
-        .modal-content::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
         }
 
-        .modal-content::-webkit-scrollbar-thumb {
-            background: var(--accent-color);
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
             border-radius: 4px;
+            transition: background 0.2s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-color);
+        }
+
+        /* Firefox Support */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.15) rgba(255, 255, 255, 0.02);
         }
 
         .modal h2 {
@@ -496,23 +508,7 @@
             background: rgba(255, 255, 255, 0.02);
         }
 
-        /* Custom Scrollbar for DB */
-        .db-sidebar::-webkit-scrollbar,
-        .db-data-wrapper::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
 
-        .db-sidebar::-webkit-scrollbar-thumb,
-        .db-data-wrapper::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-        }
-
-        .db-sidebar::-webkit-scrollbar-thumb:hover,
-        .db-data-wrapper::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-color);
-        }
 
         /* Responsive DB Viewer */
         .db-table-list {
@@ -661,12 +657,7 @@
             background: rgba(0, 0, 0, 0.03) !important;
         }
 
-        body.light-mode .db-sidebar::-webkit-scrollbar-thumb,
-        body.light-mode .db-data-wrapper::-webkit-scrollbar-thumb,
-        html.light-mode .db-sidebar::-webkit-scrollbar-thumb,
-        html.light-mode .db-data-wrapper::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2) !important;
-        }
+
 
         /* 2. Project Cards (High Specificity) */
         body.light-mode #content-grid .admin-card,
@@ -726,26 +717,6 @@
             color: var(--text-muted);
             pointer-events: none;
         }
-
-        /* Custom Scrollbar for Chatbot History */
-        #chatbot-history-container::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        #chatbot-history-container::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 4px;
-        }
-
-        #chatbot-history-container::-webkit-scrollbar-thumb {
-            background: var(--accent-color);
-            border-radius: 4px;
-            transition: background 0.3s ease;
-        }
-
-        #chatbot-history-container::-webkit-scrollbar-thumb:hover {
-            background: #1ed760;
-        }
     </style>
     <style>
         /* --- SIDEBAR LAYOUT REFACTOR --- */
@@ -768,9 +739,6 @@
             top: 100px;
             max-height: calc(100vh - 120px);
             overflow-y: auto;
-            /* Custom Scrollbar */
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
         }
 
         .sidebar::-webkit-scrollbar {
@@ -1215,6 +1183,7 @@
                             <th style="padding: 1rem;">Email</th>
                             <th style="padding: 1rem;">Name</th>
                             <th style="padding: 1rem;">Joined Date</th>
+                            <th style="padding: 1rem;">Unsubscribed</th>
                         </tr>
                     </thead>
                     <tbody id="subscribers-table-body">

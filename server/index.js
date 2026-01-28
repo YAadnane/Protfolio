@@ -1973,6 +1973,45 @@ app.post('/api/track/event', (req, res) => {
 });
 
 // --- SUBSCRIBER MANAGEMENT ---
+app.post('/api/subscribe', (req, res) => {
+    const { email, name } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    // Check if exists
+    db.get("SELECT * FROM subscribers WHERE email = ?", [email], (err, row) => {
+        if (err) return res.status(500).json({ error: err.message });
+        
+        if (row) {
+             if (row.is_active === 1) {
+                 return res.json({ message: "Already subscribed", status: 'exists' });
+             } else {
+                 // Reactivate and clear unsubscribed_at
+                 db.run("UPDATE subscribers SET is_active = 1, unsubscribed_at = NULL, name = ? WHERE email = ?", [name || row.name, email], (err) => {
+                     if (err) return res.status(500).json({ error: err.message });
+                     return res.json({ message: "Welcome back!", status: 'reactivated' });
+                 });
+             }
+        } else {
+             // New Subscriber
+             db.run("INSERT INTO subscribers (email, name, is_active) VALUES (?, ?, 1)", [email, name || ''], function(err) {
+                 if (err) return res.status(500).json({ error: err.message });
+                 res.json({ message: "Subscribed successfully", id: this.lastID, status: 'new' });
+             });
+        }
+    });
+});
+
+app.post('/api/unsubscribe', (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
+
+    db.run("UPDATE subscribers SET is_active = 0, unsubscribed_at = CURRENT_TIMESTAMP WHERE email = ?", [email], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: "Subscriber not found" });
+        res.json({ message: "Unsubscribed successfully" });
+    });
+});
+
 app.get('/api/admin/subscribers', authenticateToken, (req, res) => {
     db.all("SELECT * FROM subscribers ORDER BY date DESC", [], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
