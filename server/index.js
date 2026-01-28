@@ -163,6 +163,14 @@ app.post('/api/subscribe', async (req, res) => {
     });
 });
 
+// Serve Unsubscribe Page
+app.get('/unsubscribe', (req, res) => {
+    res.sendFile(path.join(__dirname, '../unsubscribe.html'));
+});
+app.get('/unsubscribe.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '../unsubscribe.html'));
+});
+
 // Unsubscribe Endpoint
 app.delete('/api/subscribe', (req, res) => {
     const { email } = req.body;
@@ -238,8 +246,8 @@ app.post('/api/login', (req, res) => {
 // Helper: Send Subscriber Notification
 const sendSubscriberNotification = async (type, item) => {
     try {
-        // Fetch all active subscribers
-        db.all("SELECT email FROM subscribers", [], async (err, subscribers) => {
+        // Fetch only active subscribers who haven't unsubscribed
+        db.all("SELECT email, name FROM subscribers WHERE unsubscribed_at IS NULL AND is_active = 1", [], async (err, subscribers) => {
             if (err) {
                 console.error("Error fetching subscribers for notification:", err);
                 return;
@@ -249,42 +257,122 @@ const sendSubscriberNotification = async (type, item) => {
 
             console.log(`Sending notifications to ${subscribers.length} subscribers for new ${type}: ${item.title || item.name || item.role}`);
 
-            const subject = `New ${type.charAt(0).toUpperCase() + type.slice(1)} Added: ${item.title || item.name || item.role}`;
+            const subject = `Update: New ${type.charAt(0).toUpperCase() + type.slice(1)} Added`;
             
-            // Construct Email Content based on Type
-            let contentHtml = `<h2>New Update: ${item.title || item.name || item.role}</h2>`;
-            
-            if (type === 'project') {
-                contentHtml += `<p>${item.description}</p>`;
-                if (item.link) contentHtml += `<p><a href="${item.link}">View Project</a></p>`;
-            } else if (type === 'article') {
-                contentHtml += `<p>${item.summary}</p>`;
-                if (item.link) contentHtml += `<p><a href="${item.link}">Read Article</a></p>`;
-            } else if (type === 'certification') {
-                contentHtml += `<p>Just earned a new certification from <strong>${item.issuer}</strong>!</p>`;
-            } else if (type === 'education') {
-                contentHtml += `<p>New education milestone achieved!</p>`;
-                if (item.description) contentHtml += `<p>${item.description}</p>`;
-            } else if (type === 'experience') {
-                contentHtml += `<p>Excited to announce a new position!</p>`;
-                if (item.description) contentHtml += `<p>${item.description}</p>`;
-            } else if (type === 'start') {
-                // Generic fallback
+            // --- EMAIL STYLES ---
+            const styles = {
+                container: "font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; color: #333333; line-height: 1.6;",
+                header: "background-color: #0a0a0a; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0;",
+                logo: "color: #ffffff; font-size: 24px; font-weight: bold; text-decoration: none; letter-spacing: 1px;",
+                body: "padding: 30px 20px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;",
+                title: "color: #111111; font-size: 24px; font-weight: 700; margin-bottom: 10px; margin-top: 0;",
+                subtitle: "font-size: 16px; color: #666666; margin-bottom: 20px; font-weight: 500;",
+                tag: "display: inline-block; background-color: #f3f4f6; color: #374151; font-size: 12px; padding: 4px 8px; border-radius: 4px; margin-right: 5px; margin-bottom: 5px;",
+                image: "width: 100%; max-height: 300px; object-fit: cover; border-radius: 6px; margin-bottom: 20px; display: block;",
+                button: "display: inline-block; background-color: #2563eb; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 25px; text-align: center;",
+                footer: "margin-top: 30px; text-align: center; font-size: 12px; color: #888888;"
+            };
+
+            const portfolioUrl = process.env.BASE_URL || 'http://localhost:3000'; // Replace with actual domain in prod
+            const serverUrl = process.env.SERVER_URL || portfolioUrl;
+
+            // --- CONTENT GENERATION ---
+            let contentHtml = '';
+            let imageUrl = '';
+            let mainLink = portfolioUrl; // Default link
+
+            // Prepare Image URL
+            if (item.image) {
+                // Handle relative paths from DB
+                if (item.image.startsWith('http')) imageUrl = item.image;
+                else imageUrl = `${serverUrl}${item.image}`;
+            } else if (item.logo) {
+                if (item.logo.startsWith('http')) imageUrl = item.logo;
+                else imageUrl = `${serverUrl}${item.logo}`;
             }
 
-            contentHtml += `<br><p>Check it out on my portfolio!</p>`;
+            // --- TYPE SPECIFIC TEMPLATES ---
+            if (type === 'project') {
+                mainLink = item.link || portfolioUrl;
+                contentHtml = `
+                    <h2 style="${styles.title}">${item.title}</h2>
+                    <p style="${styles.subtitle}">${item.category || 'Portfolio Project'} • ${item.year || new Date().getFullYear()}</p>
+                    ${imageUrl ? `<img src="${imageUrl}" alt="${item.title}" style="${styles.image}" />` : ''}
+                    <p>${item.description}</p>
+                    ${item.tags ? `<div style="margin-top: 15px;">${item.tags.split(',').map(tag => `<span style="${styles.tag}">${tag.trim()}</span>`).join('')}</div>` : ''}
+                    <div style="text-align: center;">
+                        <a href="${mainLink}" style="${styles.button}">View Project</a>
+                    </div>
+                `;
+            } else if (type === 'article') {
+                mainLink = item.link || portfolioUrl;
+                contentHtml = `
+                    <h2 style="${styles.title}">${item.title}</h2>
+                    <p style="${styles.subtitle}">Published on ${new Date().toLocaleDateString()}</p>
+                    ${imageUrl ? `<img src="${imageUrl}" alt="${item.title}" style="${styles.image}" />` : ''}
+                    <p>${item.summary}</p>
+                    <div style="text-align: center;">
+                        <a href="${mainLink}" style="${styles.button}">Read Article</a>
+                    </div>
+                `;
+            } else if (type === 'certification') {
+                contentHtml = `
+                    <h2 style="${styles.title}">${item.name}</h2>
+                    <p style="${styles.subtitle}">Issued by ${item.issuer} • ${item.year || item.date || ''}</p>
+                    ${imageUrl ? `<img src="${imageUrl}" alt="${item.name}" style="width: 100px; height: 100px; object-fit: contain; margin: 0 auto 20px auto; display: block;" />` : ''}
+                    <p>${item.description || 'Verified certification.'}</p>
+                    <div style="text-align: center;">
+                        ${item.credential_url ? `<a href="${item.credential_url}" style="${styles.button}">View Credential</a>` : `<a href="${portfolioUrl}" style="${styles.button}">View on Portfolio</a>`}
+                    </div>
+                `;
+            } else if (type === 'education') {
+                contentHtml = `
+                    <h2 style="${styles.title}">${item.degree}</h2>
+                    <p style="${styles.subtitle}">${item.institution} • ${item.start_date || ''} - ${item.end_date || 'Present'}</p>
+                     ${imageUrl ? `<img src="${imageUrl}" alt="${item.institution}" style="width: 80px; height: 80px; object-fit: contain; display: block; margin-bottom: 15px;" />` : ''}
+                    <p>${item.description || 'New academic milestone achieved.'}</p>
+                    <div style="text-align: center;">
+                        <a href="${portfolioUrl}" style="${styles.button}">Visit Portfolio</a>
+                    </div>
+                `;
+            } else if (type === 'experience') {
+                contentHtml = `
+                    <h2 style="${styles.title}">${item.role}</h2>
+                    <p style="${styles.subtitle}">${item.company} • ${item.start_date || ''} - ${item.end_date || 'Present'}</p>
+                     ${imageUrl ? `<img src="${imageUrl}" alt="${item.company}" style="width: 80px; height: 80px; object-fit: contain; display: block; margin-bottom: 15px;" />` : ''}
+                    <p>${item.description || 'New professional chapter.'}</p>
+                    <div style="text-align: center;">
+                        <a href="${portfolioUrl}" style="${styles.button}">Visit Portfolio</a>
+                    </div>
+                `;
+            }
 
-            // Send in loop (or use BCC for privacy if huge list, but loop is safer for delivery stats if implemented later)
-            // For now, simple loop.
+            // Send in loop with customized unsubscribe link
             for (const sub of subscribers) {
+                 // --- FINAL HTML ASSEMBLY ---
+                 const finalHtml = `
+                    <div style="${styles.container}">
+                        <div style="${styles.header}">
+                            <a href="${portfolioUrl}" style="${styles.logo}">Adnane's Portfolio</a>
+                        </div>
+                        <div style="${styles.body}">
+                            ${contentHtml}
+                        </div>
+                        <div style="${styles.footer}">
+                            <p>You are receiving this email because you subscribed to my portfolio updates.</p>
+                            <p><a href="${portfolioUrl}/unsubscribe.html?email=${encodeURIComponent(sub.email)}" style="color: #999;">Unsubscribe</a></p>
+                        </div>
+                    </div>
+                `;
+
                  const mailOptions = {
                     from: process.env.ADMIN_EMAIL,
                     to: sub.email,
                     subject: subject,
-                    html: contentHtml
+                    html: finalHtml
                 };
                 
-                // Fire and forget
+                // Fire and forget, but maybe log failures
                 transporter.sendMail(mailOptions, (error) => {
                     if (error) console.error(`Failed to send to ${sub.email}:`, error);
                 });
@@ -465,7 +553,16 @@ app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, r
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             
-            const newItem = { id: this.lastID, title, description, link };
+            const newItem = { 
+                id: this.lastID, 
+                title, 
+                description, 
+                link, 
+                image: imagePath,
+                tags,
+                category,
+                year
+            };
             if (req.body.notifySubscribers === 'true' || req.body.notifySubscribers === true) {
                 sendSubscriberNotification('project', newItem);
             }
@@ -644,7 +741,16 @@ app.post('/api/certifications', upload.fields([{ name: 'pdfFile', maxCount: 1 },
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
 
-            const newItem = { id: this.lastID, name, issuer, description };
+            const newItem = { 
+                id: this.lastID, 
+                name, 
+                issuer, 
+                description,
+                year,
+                credential_url,
+                image: imagePath,
+                pdf: pdfPath
+            };
             if (req.body.notifySubscribers === 'true' || req.body.notifySubscribers === true) {
                 sendSubscriberNotification('certification', newItem);
             }
@@ -715,7 +821,15 @@ app.post('/api/education', authenticateToken, upload.fields([{ name: 'logoFile',
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
 
-            const newItem = { id: this.lastID, title: `${degree} at ${institution}`, description };
+            const newItem = { 
+                id: this.lastID, 
+                degree,
+                institution, 
+                start_date,
+                end_date,
+                description,
+                logo: logoPath 
+            };
             if (req.body.notifySubscribers === 'true' || req.body.notifySubscribers === true) {
                 sendSubscriberNotification('education', newItem);
             }
@@ -773,7 +887,15 @@ app.post('/api/experience', authenticateToken, upload.fields([{ name: 'logoFile'
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
 
-            const newItem = { id: this.lastID, role: `${role} at ${company}`, description };
+            const newItem = { 
+                id: this.lastID, 
+                role,
+                company, 
+                start_date,
+                end_date,
+                description,
+                logo: logoPath 
+            };
             if (req.body.notifySubscribers === 'true' || req.body.notifySubscribers === true) {
                 sendSubscriberNotification('experience', newItem);
             }
@@ -937,7 +1059,15 @@ app.post('/api/articles', authenticateToken, upload.single('imageFile'), (req, r
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
 
-            const newItem = { id: this.lastID, title, summary, link };
+            const newItem = { 
+                id: this.lastID, 
+                title, 
+                summary, 
+                link, 
+                image: imagePath, 
+                tags, 
+                date 
+            };
             // Notification Logic
             if (req.body.notifySubscribers === 'true' || req.body.notifySubscribers === true) {
                 sendSubscriberNotification('article', newItem);
