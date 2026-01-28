@@ -257,33 +257,89 @@ const sendSubscriberNotification = async (type, item) => {
 
             console.log(`Sending notifications to ${subscribers.length} subscribers for new ${type}: ${item.title || item.name || item.role}`);
 
-            const subject = `Update: New ${type.charAt(0).toUpperCase() + type.slice(1)} Added`;
+            // --- DYNAMIC SUBJECT LINES ---
+            const subjects = {
+                project: `🚀 New Project Alert: ${item.title || 'Check it out!'}`,
+                article: `📝 Fresh Article: ${item.title || 'New insights available'}`,
+                certification: `🏆 New Achievement Unlocked: ${item.name || 'Certification earned'}`,
+                education: `🎓 Academic Update: ${item.degree || 'New milestone'}`,
+                experience: `💼 Professional Journey: ${item.role || 'New experience'}`
+            };
+            const subject = subjects[type] || `✨ Portfolio Update: New ${type}`;
             
-            // --- EMAIL STYLES ---
+            // --- PREMIUM EMAIL STYLES (Portfolio Theme Colors) ---
             const styles = {
-                container: "font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; color: #333333; line-height: 1.6;",
-                header: "background-color: #0a0a0a; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0;",
-                logo: "color: #ffffff; font-size: 24px; font-weight: bold; text-decoration: none; letter-spacing: 1px;",
-                body: "padding: 30px 20px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 8px 8px;",
-                title: "color: #111111; font-size: 24px; font-weight: 700; margin-bottom: 10px; margin-top: 0;",
-                subtitle: "font-size: 16px; color: #666666; margin-bottom: 20px; font-weight: 500;",
-                tag: "display: inline-block; background-color: #f3f4f6; color: #374151; font-size: 12px; padding: 4px 8px; border-radius: 4px; margin-right: 5px; margin-bottom: 5px;",
-                image: "width: 100%; max-height: 300px; object-fit: cover; border-radius: 6px; margin-bottom: 20px; display: block;",
-                button: "display: inline-block; background-color: #2563eb; color: #ffffff; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin-top: 25px; text-align: center;",
-                footer: "margin-top: 30px; text-align: center; font-size: 12px; color: #888888;"
+                // Outer container - dark background with gradient
+                outerContainer: "background: linear-gradient(135deg, #050505 0%, #0a0a0a 100%); padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;",
+                
+                // Inner container - glassmorphism card effect
+                container: "max-width: 600px; margin: 0 auto; background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(10px); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 1px rgba(0, 255, 157, 0.3);",
+                
+                // Header with neon accent
+                header: "background: linear-gradient(135deg, #0a0a0a 0%, #111111 100%); padding: 40px 30px; text-align: center; border-bottom: 2px solid rgba(0, 255, 157, 0.3); position: relative;",
+                
+                // Animated neon line
+                neonLine: "position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, #00ff9d, #00b8ff, transparent); animation: pulse 2s ease-in-out infinite;",
+                
+                // Logo with gradient text effect
+                logo: "color: #ffffff; font-size: 28px; font-weight: 800; text-decoration: none; letter-spacing: 2px; background: linear-gradient(135deg, #00ff9d, #00b8ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: inline-block;",
+                
+                // Subtitle with emoji and accent
+                badge: "display: inline-block; background: linear-gradient(135deg, rgba(0, 255, 157, 0.15), rgba(0, 184, 255, 0.15)); border: 1px solid rgba(0, 255, 157, 0.3); color: #00ff9d; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; letter-spacing: 1px; margin-top: 15px; text-transform: uppercase;",
+                
+                // Body content
+                body: "padding: 40px 30px; background: #0f0f0f; color: #e0e0e0;",
+                
+                // Title with glow effect
+                title: "color: #ffffff; font-size: 28px; font-weight: 700; margin: 0 0 15px 0; line-height: 1.3; text-shadow: 0 0 20px rgba(0, 255, 157, 0.2);",
+                
+                // Subtitle
+                subtitle: "font-size: 15px; color: #888888; margin-bottom: 25px; font-weight: 500; display: flex; align-items: center; gap: 8px;",
+                
+                // Tag styling with neon accent
+                tag: "display: inline-block; background: rgba(0, 255, 157, 0.1); border: 1px solid rgba(0, 255, 157, 0.3); color: #00ff9d; font-size: 12px; padding: 6px 12px; border-radius: 20px; margin-right: 8px; margin-bottom: 8px; font-weight: 500;",
+                
+                // Image with border and shadow
+                image: "width: 100%; max-height: 350px; object-fit: cover; border-radius: 12px; margin: 25px 0; display: block; border: 1px solid rgba(0, 255, 157, 0.2); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);",
+                
+                // Description text
+                description: "color: #cccccc; font-size: 16px; line-height: 1.7; margin: 20px 0;",
+                
+                // Premium CTA button with gradient and glow
+                button: "display: inline-block; background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%); color: #050505; padding: 16px 40px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 16px; margin-top: 30px; text-align: center; box-shadow: 0 10px 30px rgba(0, 255, 157, 0.3), 0 0 20px rgba(0, 255, 157, 0.2); transition: all 0.3s ease; letter-spacing: 0.5px; text-transform: uppercase;",
+                
+                // Button hover (note: limited support in emails)
+                buttonHover: "box-shadow: 0 15px 40px rgba(0, 255, 157, 0.4), 0 0 30px rgba(0, 255, 157, 0.3); transform: translateY(-2px);",
+                
+                // Divider
+                divider: "height: 1px; background: linear-gradient(90deg, transparent, rgba(0, 255, 157, 0.2), transparent); margin: 35px 0;",
+                
+                // Call-to-action section
+                ctaSection: "text-align: center; padding: 30px 30px 20px; background: rgba(0, 255, 157, 0.03); border-top: 1px solid rgba(0, 255, 157, 0.1);",
+                
+                ctaText: "color: #aaaaaa; font-size: 14px; margin-bottom: 20px; line-height: 1.6;",
+                
+                // Footer
+                footer: "padding: 30px; text-align: center; font-size: 13px; color: #666666; background: #050505; border-top: 1px solid rgba(255, 255, 255, 0.05);",
+                
+                footerLink: "color: #00b8ff; text-decoration: none; transition: color 0.3s ease;",
+                
+                // Social icons placeholder
+                socialIcons: "margin: 20px 0; display: flex; justify-content: center; gap: 15px;"
             };
 
-            const portfolioUrl = process.env.BASE_URL || 'http://localhost:3000'; // Replace with actual domain in prod
+            const portfolioUrl = 'https://yadani-adnane.duckdns.org';
             const serverUrl = process.env.SERVER_URL || portfolioUrl;
 
             // --- CONTENT GENERATION ---
             let contentHtml = '';
             let imageUrl = '';
-            let mainLink = portfolioUrl; // Default link
+            let mainLink = portfolioUrl;
+            let badgeText = '';
+            let emoji = '';
 
             // Prepare Image URL
             if (item.image) {
-                // Handle relative paths from DB
                 if (item.image.startsWith('http')) imageUrl = item.image;
                 else imageUrl = `${serverUrl}${item.image}`;
             } else if (item.logo) {
@@ -294,56 +350,69 @@ const sendSubscriberNotification = async (type, item) => {
             // --- TYPE SPECIFIC TEMPLATES ---
             if (type === 'project') {
                 mainLink = item.link || portfolioUrl;
+                badgeText = '🚀 New Project';
+                emoji = '💻';
                 contentHtml = `
                     <h2 style="${styles.title}">${item.title}</h2>
-                    <p style="${styles.subtitle}">${item.category || 'Portfolio Project'} • ${item.year || new Date().getFullYear()}</p>
+                    <p style="${styles.subtitle}">
+                        <span style="color: #00ff9d;">■</span> ${item.category || 'Portfolio Project'} 
+                        <span style="color: #666;">•</span> 
+                        <span style="color: #00b8ff;">${item.year || new Date().getFullYear()}</span>
+                    </p>
                     ${imageUrl ? `<img src="${imageUrl}" alt="${item.title}" style="${styles.image}" />` : ''}
-                    <p>${item.description}</p>
-                    ${item.tags ? `<div style="margin-top: 15px;">${item.tags.split(',').map(tag => `<span style="${styles.tag}">${tag.trim()}</span>`).join('')}</div>` : ''}
-                    <div style="text-align: center;">
-                        <a href="${mainLink}" style="${styles.button}">View Project</a>
-                    </div>
+                    <p style="${styles.description}">${item.description}</p>
+                    ${item.tags ? `<div style="margin-top: 20px;">${item.tags.split(',').map(tag => `<span style="${styles.tag}">#${tag.trim()}</span>`).join('')}</div>` : ''}
                 `;
             } else if (type === 'article') {
                 mainLink = item.link || portfolioUrl;
+                badgeText = '📝 New Article';
+                emoji = '✍️';
                 contentHtml = `
                     <h2 style="${styles.title}">${item.title}</h2>
-                    <p style="${styles.subtitle}">Published on ${new Date().toLocaleDateString()}</p>
+                    <p style="${styles.subtitle}">
+                        <span style="color: #00ff9d;">■</span> Published ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    </p>
                     ${imageUrl ? `<img src="${imageUrl}" alt="${item.title}" style="${styles.image}" />` : ''}
-                    <p>${item.summary}</p>
-                    <div style="text-align: center;">
-                        <a href="${mainLink}" style="${styles.button}">Read Article</a>
-                    </div>
+                    <p style="${styles.description}">${item.summary}</p>
                 `;
             } else if (type === 'certification') {
+                badgeText = '🏆 New Achievement';
+                emoji = '🎖️';
                 contentHtml = `
                     <h2 style="${styles.title}">${item.name}</h2>
-                    <p style="${styles.subtitle}">Issued by ${item.issuer} • ${item.year || item.date || ''}</p>
-                    ${imageUrl ? `<img src="${imageUrl}" alt="${item.name}" style="width: 100px; height: 100px; object-fit: contain; margin: 0 auto 20px auto; display: block;" />` : ''}
-                    <p>${item.description || 'Verified certification.'}</p>
-                    <div style="text-align: center;">
-                        ${item.credential_url ? `<a href="${item.credential_url}" style="${styles.button}">View Credential</a>` : `<a href="${portfolioUrl}" style="${styles.button}">View on Portfolio</a>`}
-                    </div>
+                    <p style="${styles.subtitle}">
+                        <span style="color: #00ff9d;">■</span> Issued by ${item.issuer}
+                        ${item.year ? `<span style="color: #666;"> • </span><span style="color: #00b8ff;">${item.year}</span>` : ''}
+                    </p>
+                    ${imageUrl ? `<div style="text-align: center; margin: 30px 0;"><img src="${imageUrl}" alt="${item.name}" style="width: 120px; height: 120px; object-fit: contain; border-radius: 12px; border: 2px solid rgba(0, 255, 157, 0.3); padding: 10px; background: rgba(0, 255, 157, 0.05);" /></div>` : ''}
+                    <p style="${styles.description}">${item.description || 'A new professional certification has been earned, demonstrating continued commitment to excellence and skill development.'}</p>
                 `;
+                if (item.credential_url) mainLink = item.credential_url;
             } else if (type === 'education') {
+                badgeText = '🎓 Academic Update';
+                emoji = '📚';
                 contentHtml = `
                     <h2 style="${styles.title}">${item.degree}</h2>
-                    <p style="${styles.subtitle}">${item.institution} • ${item.start_date || ''} - ${item.end_date || 'Present'}</p>
-                     ${imageUrl ? `<img src="${imageUrl}" alt="${item.institution}" style="width: 80px; height: 80px; object-fit: contain; display: block; margin-bottom: 15px;" />` : ''}
-                    <p>${item.description || 'New academic milestone achieved.'}</p>
-                    <div style="text-align: center;">
-                        <a href="${portfolioUrl}" style="${styles.button}">Visit Portfolio</a>
-                    </div>
+                    <p style="${styles.subtitle}">
+                        <span style="color: #00ff9d;">■</span> ${item.institution}
+                        <span style="color: #666;"> • </span>
+                        <span style="color: #00b8ff;">${item.start_date || ''} - ${item.end_date || 'Present'}</span>
+                    </p>
+                    ${imageUrl ? `<div style="text-align: center; margin: 30px 0;"><img src="${imageUrl}" alt="${item.institution}" style="width: 100px; height: 100px; object-fit: contain; border-radius: 50%; border: 2px solid rgba(0, 255, 157, 0.3); padding: 5px; background: rgba(0, 255, 157, 0.05);" /></div>` : ''}
+                    <p style="${styles.description}">${item.description || 'A new academic milestone representing dedication to continuous learning and professional growth.'}</p>
                 `;
             } else if (type === 'experience') {
+                badgeText = '💼 New Experience';
+                emoji = '🚀';
                 contentHtml = `
                     <h2 style="${styles.title}">${item.role}</h2>
-                    <p style="${styles.subtitle}">${item.company} • ${item.start_date || ''} - ${item.end_date || 'Present'}</p>
-                     ${imageUrl ? `<img src="${imageUrl}" alt="${item.company}" style="width: 80px; height: 80px; object-fit: contain; display: block; margin-bottom: 15px;" />` : ''}
-                    <p>${item.description || 'New professional chapter.'}</p>
-                    <div style="text-align: center;">
-                        <a href="${portfolioUrl}" style="${styles.button}">Visit Portfolio</a>
-                    </div>
+                    <p style="${styles.subtitle}">
+                        <span style="color: #00ff9d;">■</span> ${item.company}
+                        <span style="color: #666;"> • </span>
+                        <span style="color: #00b8ff;">${item.start_date || ''} - ${item.end_date || 'Present'}</span>
+                    </p>
+                    ${imageUrl ? `<div style="text-align: center; margin: 30px 0;"><img src="${imageUrl}" alt="${item.company}" style="width: 100px; height: 100px; object-fit: contain; border-radius: 12px; border: 2px solid rgba(0, 255, 157, 0.3); padding: 10px; background: rgba(0, 255, 157, 0.05);" /></div>` : ''}
+                    <p style="${styles.description}">${item.description || 'A new chapter in the professional journey, bringing fresh challenges and opportunities for growth.'}</p>
                 `;
             }
 
@@ -351,22 +420,60 @@ const sendSubscriberNotification = async (type, item) => {
             for (const sub of subscribers) {
                  // --- FINAL HTML ASSEMBLY ---
                  const finalHtml = `
-                    <div style="${styles.container}">
-                        <div style="${styles.header}">
-                            <a href="${portfolioUrl}" style="${styles.logo}">Adnane's Portfolio</a>
+                    <!DOCTYPE html>
+                    <html lang="en">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>${subject}</title>
+                    </head>
+                    <body style="margin: 0; padding: 0; background-color: #000000;">
+                        <div style="${styles.outerContainer}">
+                            <div style="${styles.container}">
+                                <!-- Header -->
+                                <div style="${styles.header}">
+                                    <a href="${portfolioUrl}" style="${styles.logo}">ADNANE.DEV</a>
+                                    <div style="${styles.badge}">${badgeText}</div>
+                                </div>
+                                
+                                <!-- Main Content -->
+                                <div style="${styles.body}">
+                                    ${contentHtml}
+                                    
+                                    <div style="${styles.divider}"></div>
+                                    
+                                    <!-- CTA Section -->
+                                    <div style="${styles.ctaSection}">
+                                        <p style="${styles.ctaText}">
+                                            ${emoji} Explore the full portfolio to discover more projects, articles, and professional achievements.
+                                        </p>
+                                        <a href="${portfolioUrl}" style="${styles.button}">Visit Portfolio →</a>
+                                    </div>
+                                </div>
+                                
+                                <!-- Footer -->
+                                <div style="${styles.footer}">
+                                    <p style="margin: 0 0 15px 0; color: #888888;">
+                                        You're receiving this because you subscribed to portfolio updates.<br>
+                                        ${sub.name ? `Hey ${sub.name}! ` : ''}Stay updated with the latest projects and achievements.
+                                    </p>
+                                    <p style="margin: 10px 0;">
+                                        <a href="${portfolioUrl}" style="${styles.footerLink}">Visit Website</a>
+                                        <span style="color: #333; margin: 0 10px;">|</span>
+                                        <a href="${portfolioUrl}/unsubscribe.html?email=${encodeURIComponent(sub.email)}" style="color: #666; text-decoration: none;">Unsubscribe</a>
+                                    </p>
+                                    <p style="margin: 15px 0 0 0; font-size: 11px; color: #555555;">
+                                        © ${new Date().getFullYear()} Adnane Yadani. All rights reserved.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
-                        <div style="${styles.body}">
-                            ${contentHtml}
-                        </div>
-                        <div style="${styles.footer}">
-                            <p>You are receiving this email because you subscribed to my portfolio updates.</p>
-                            <p><a href="${portfolioUrl}/unsubscribe.html?email=${encodeURIComponent(sub.email)}" style="color: #999;">Unsubscribe</a></p>
-                        </div>
-                    </div>
+                    </body>
+                    </html>
                 `;
 
                  const mailOptions = {
-                    from: process.env.ADMIN_EMAIL,
+                    from: `"Adnane's Portfolio" <${process.env.ADMIN_EMAIL}>`,
                     to: sub.email,
                     subject: subject,
                     html: finalHtml
@@ -375,6 +482,7 @@ const sendSubscriberNotification = async (type, item) => {
                 // Fire and forget, but maybe log failures
                 transporter.sendMail(mailOptions, (error) => {
                     if (error) console.error(`Failed to send to ${sub.email}:`, error);
+                    else console.log(`✓ Email sent successfully to ${sub.email}`);
                 });
             }
         });
