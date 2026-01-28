@@ -1972,6 +1972,14 @@ app.post('/api/track/event', (req, res) => {
     );
 });
 
+// --- SUBSCRIBER MANAGEMENT ---
+app.get('/api/admin/subscribers', authenticateToken, (req, res) => {
+    db.all("SELECT * FROM subscribers ORDER BY date DESC", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
 // =========================================
 // ADMIN STATS API
 // =========================================
@@ -2038,13 +2046,7 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
         contentParams.push(lang);
     }
 
-    // --- SUBSCRIBER MANAGEMENT ---
-app.get('/api/admin/subscribers', authenticateToken, (req, res) => {
-    db.all("SELECT * FROM subscribers ORDER BY date DESC", [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
+
 
 // --- ADMIN STATS ---
     const getAllContent = (table, metricTable, metricTypeField, metricTypeValue, labelField) => {
