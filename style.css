@@ -2506,24 +2506,19 @@ textarea:focus {
     /* Equal height */
 }
 
-/* Custom Scrollbar for the sections */
+/* Custom Scrollbar for the sections - HIDDEN for dot navigation */
 #education-content::-webkit-scrollbar,
 #experience-content::-webkit-scrollbar {
-    height: 8px;
+    display: none;
+    /* Hide scrollbar */
 }
 
-#education-content::-webkit-scrollbar-track,
-#experience-content::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 4px;
+#education-content,
+#experience-content {
+    scrollbar-width: none;
+    /* Firefox */
 }
 
-#education-content::-webkit-scrollbar-thumb,
-#experience-content::-webkit-scrollbar-thumb {
-    background: var(--accent-color);
-    border-radius: 4px;
-    cursor: pointer;
-}
 
 /* Mobile Adjustment: 1 card per view on small screens */
 @media (max-width: 768px) {

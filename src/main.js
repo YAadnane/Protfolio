@@ -1428,6 +1428,83 @@ const uiTranslations = {
     fr: { brochure: "Brochure", website: "Site Web", linkedin: "LinkedIn", present: "Présent" }
 };
 
+// Helper for Horizontal Pagination Dots
+function setupPaginationDots(contentId, paginationId, cardSelector) {
+    const content = document.getElementById(contentId);
+    const pagination = document.getElementById(paginationId);
+    if (!content || !pagination) return;
+
+    const cards = content.querySelectorAll(cardSelector);
+    if (cards.length === 0) {
+        pagination.innerHTML = ''; // Hide if no items
+        return;
+    }
+
+    // Determine items per view based on screen width (match CSS)
+    const getItemsPerView = () => window.innerWidth > 768 ? 2 : 1;
+    let itemsPerView = getItemsPerView();
+    let numPages = Math.ceil(cards.length / itemsPerView);
+
+    // Create Dots
+    const createDots = () => {
+        pagination.innerHTML = '';
+        if (numPages <= 1) return; // No dots if only 1 page
+
+        for (let i = 0; i < numPages; i++) {
+            const dot = document.createElement('div');
+            dot.className = `slider-dot ${i === 0 ? 'active' : ''}`;
+            dot.dataset.page = i;
+            dot.onclick = () => scrollToPage(i);
+            pagination.appendChild(dot);
+        }
+    };
+
+    // Scroll to Page
+    const scrollToPage = (pageIndex) => {
+        const scrollAmount = content.offsetWidth * pageIndex;
+        content.scrollTo({
+            left: scrollAmount,
+            behavior: 'smooth'
+        });
+        updateActiveDot(pageIndex);
+    };
+
+    // Update Active Dot
+    const updateActiveDot = (activeIndex) => {
+        const dots = pagination.querySelectorAll('.slider-dot');
+        dots.forEach((dot, index) => {
+            if (index === activeIndex) dot.classList.add('active');
+            else dot.classList.remove('active');
+        });
+    };
+
+    // Listen for Scroll to update dots (debounced)
+    let isScrolling;
+    content.addEventListener('scroll', () => {
+        window.clearTimeout(isScrolling);
+        isScrolling = setTimeout(() => {
+            const scrollLeft = content.scrollLeft;
+            const containerWidth = content.offsetWidth;
+            const currentPage = Math.round(scrollLeft / containerWidth);
+            updateActiveDot(currentPage);
+        }, 66);
+    });
+
+    // Handle Resize
+    window.addEventListener('resize', () => {
+        const newItemsPerView = getItemsPerView();
+        if (newItemsPerView !== itemsPerView) {
+            itemsPerView = newItemsPerView;
+            numPages = Math.ceil(cards.length / itemsPerView);
+            createDots();
+            scrollToPage(0); // Reset to start
+        }
+    });
+
+    // Initial Setup
+    createDots();
+}
+
 async function loadEducation() {
         try {
     const edu = await fetchWithLang('education');
@@ -1492,6 +1569,12 @@ async function loadEducation() {
             stagger: 0.2,
             ease: "power2.out"
         });
+
+        // Initialize Pagination Dots
+        setTimeout(() => {
+            setupPaginationDots('education-content', 'education-pagination', '.timeline-card');
+        }, 100); // Delay slightly to ensure DOM render
+
     } catch (err) { console.error("Failed to load education", err); }
 }
 
@@ -1564,6 +1647,11 @@ async function loadExperience() {
             stagger: 0.2,
             ease: "power2.out"
         });
+
+        // Initialize Pagination Dots
+        setTimeout(() => {
+            setupPaginationDots('experience-content', 'experience-pagination', '.timeline-card');
+        }, 100);
 
     } catch (err) { console.error("Failed to load experience", err); }
 }
