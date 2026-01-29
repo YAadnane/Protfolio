@@ -227,6 +227,14 @@ app.get('/unsubscribe.html', (req, res) => {
     res.sendFile(path.join(__dirname, '../unsubscribe.html'));
 });
 
+// Serve Subscribe Page
+app.get('/subscribe', (req, res) => {
+    res.sendFile(path.join(__dirname, '../subscribe.html'));
+});
+app.get('/subscribe.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '../subscribe.html'));
+});
+
 // Unsubscribe Endpoint
 app.delete('/api/subscribe', (req, res) => {
     const { email } = req.body;
@@ -879,7 +887,7 @@ const sendGoodbyeEmail = async (email, name) => {
                             <p style="margin: 10px 0;">
                                 <a href="${portfolioUrl}" style="${styles.footerLink}">Visiter le Site</a>
                                 <span style="color: #333; margin: 0 10px;">|</span>
-                                <a href="${portfolioUrl}#newsletter" style="${styles.footerLink}">Se réabonner</a>
+                                <a href="${portfolioUrl}/subscribe.html?email=${encodeURIComponent(email)}" style="${styles.footerLink}">Se réabonner</a>
                             </p>
                             <p style="margin: 15px 0 0 0; font-size: 11px; color: #555555;">
                                 © ${new Date().getFullYear()} Adnane Yadani. Tous droits réservés.
