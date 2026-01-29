@@ -597,7 +597,53 @@
         }
     </style>
     <style id="light-mode-styles">
-        /* --- ISOLATED LIGHT MODE OVERRIDES --- */
+        /* --- COMPREHENSIVE LIGHT MODE OVERRIDES --- */
+
+        /* Global Background */
+        body.light-mode,
+        html.light-mode {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+        }
+
+        /* Sidebar */
+        body.light-mode .sidebar,
+        html.light-mode .sidebar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
+        }
+
+        body.light-mode .tab-btn,
+        html.light-mode .tab-btn {
+            color: #1a1a1a !important;
+        }
+
+        body.light-mode .tab-btn.active,
+        html.light-mode .tab-btn.active {
+            color: var(--accent-color) !important;
+            background: rgba(0, 0, 0, 0.05) !important;
+        }
+
+        /* Header */
+        body.light-mode .header,
+        html.light-mode .header {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+        }
+
+        body.light-mode .header h1,
+        body.light-mode .header button,
+        body.light-mode .header select,
+        html.light-mode .header h1,
+        html.light-mode .header button,
+        html.light-mode .header select {
+            color: #1a1a1a !important;
+        }
+
+        /* Content Area */
+        body.light-mode .content,
+        html.light-mode .content {
+            background: rgba(245, 245, 245, 0.5) !important;
+        }
 
         /* 1. Database Viewer */
         body.light-mode .db-sidebar,

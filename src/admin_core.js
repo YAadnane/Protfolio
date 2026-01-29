@@ -1526,166 +1526,29 @@ function setupModal() {
 
 
 // Theme Logic
-// Theme Logic
 function initThemeAdmin() {
     const themeBtn = document.getElementById('admin-theme-switch');
     const savedTheme = localStorage.getItem('theme') || 'dark';
     
+    // Apply saved theme
     if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
+        document.documentElement.classList.add('light-mode');
         if(themeBtn) themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
-        applyThemeStyles();
     }
 
     if (themeBtn) {
         themeBtn.addEventListener('click', () => {
-             document.body.classList.toggle('light-mode');
-             const isLight = document.body.classList.contains('light-mode');
-             localStorage.setItem('theme', isLight ? 'light' : 'dark');
-             themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-             applyThemeStyles();
+            document.body.classList.toggle('light-mode');
+            document.documentElement.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
         });
     }
 }
 
-// Force apply styles if CSS fails
-window.applyThemeStyles = () => {
-    const isLight = document.body.classList.contains('light-mode');
-    
-    // Apply to HTML element as well for comprehensive coverage
-    if (isLight) {
-        document.documentElement.classList.add('light-mode');
-    } else {
-        document.documentElement.classList.remove('light-mode');
-    }
-    
-    // 1. Sidebar
-    const sidebar = document.querySelector('.sidebar');
-    if (sidebar) {
-        if (isLight) {
-            sidebar.style.background = 'rgba(255, 255, 255, 0.95)';
-            sidebar.style.borderRight = '1px solid rgba(0, 0, 0, 0.1)';
-            sidebar.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.style.color = '#1a1a1a';
-                if (btn.classList.contains('active')) {
-                    btn.style.background = 'rgba(0, 0, 0, 0.08)';
-                    btn.style.color = '#000';
-                }
-            });
-        } else {
-            sidebar.style.background = '';
-            sidebar.style.borderRight = '';
-            sidebar.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.style.color = '';
-                btn.style.background = '';
-            });
-        }
-    }
-    
-    // 2. Header
-    const header = document.querySelector('.header');
-    if (header) {
-        if (isLight) {
-            header.style.background = 'rgba(255, 255, 255, 0.95)';
-            header.style.borderBottom = '1px solid rgba(0, 0, 0, 0.1)';
-            header.querySelectorAll('h1, button, select').forEach(el => {
-                el.style.color = '#1a1a1a';
-            });
-        } else {
-            header.style.background = '';
-            header.style.borderBottom = '';
-            header.querySelectorAll('h1, button, select').forEach(el => {
-                el.style.color = '';
-            });
-        }
-    }
-    
-    // 3. Content Area
-    const content = document.querySelector('.content');
-    if (content) {
-        if (isLight) {
-            content.style.background = 'rgba(245, 245, 245, 0.95)';
-        } else {
-            content.style.background = '';
-        }
-    }
-    
-    // 4. Project Cards - ONLY modify color properties
-    const cards = document.querySelectorAll('.admin-card');
-    cards.forEach(card => {
-        if (isLight) {
-            card.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
-            card.style.border = '1px solid rgba(0, 0, 0, 0.1)';
-            card.style.color = '#1a1a1a';
-            card.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.05)';
-            
-            card.querySelectorAll('h3, p, h2').forEach(el => {
-                el.style.color = (el.tagName === 'H3' || el.tagName === 'H2' ? '#1a1a1a' : '#555');
-                el.style.textShadow = 'none';
-            });
-            
-            card.querySelectorAll('.tag').forEach(el => {
-                el.style.backgroundColor = 'rgba(0,0,0,0.05)';
-                el.style.color = '#333';
-            });
 
-        } else {
-            card.style.backgroundColor = '';
-            card.style.border = '';
-            card.style.color = '';
-            card.style.boxShadow = '';
-            
-            card.querySelectorAll('h3, p, h2').forEach(el => {
-                el.style.color = '';
-                el.style.textShadow = '';
-            });
-            
-            card.querySelectorAll('.tag').forEach(el => {
-                el.style.backgroundColor = '';
-                el.style.color = '';
-            });
-        }
-    });
-
-    // 5. Database Viewer (if active)
-    const dbSidebar = document.querySelector('.db-sidebar');
-    const dbContent = document.querySelector('.db-content');
-    if (dbSidebar && dbContent) {
-        if (isLight) {
-            dbSidebar.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
-            dbContent.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
-            dbSidebar.style.borderColor = 'rgba(0,0,0,0.1)';
-            dbContent.style.borderColor = 'rgba(0,0,0,0.1)';
-            document.querySelectorAll('.db-table-btn').forEach(btn => btn.style.color = '#1a1a1a');
-            document.querySelectorAll('.db-header, .db-table thead th').forEach(el => {
-                el.style.backgroundColor = 'rgba(255,255,255,0.9)';
-                el.style.color = '#000';
-            });
-            document.querySelectorAll('.db-table tbody td').forEach(el => el.style.color = '#333');
-        } else {
-            dbSidebar.style.backgroundColor = '';
-            dbContent.style.backgroundColor = '';
-            dbSidebar.style.borderColor = '';
-            dbContent.style.borderColor = '';
-            document.querySelectorAll('.db-table-btn').forEach(btn => btn.style.color = '');
-            document.querySelectorAll('.db-header, .db-table thead th').forEach(el => {
-                el.style.backgroundColor = '';
-                el.style.color = '';
-            });
-            document.querySelectorAll('.db-table tbody td').forEach(el => el.style.color = '');
-        }
-    }
-    
-    // 6. Buttons and Inputs
-    const buttons = document.querySelectorAll('.btn-primary, .btn-secondary, .btn-delete, .admin-input');
-    buttons.forEach(btn => {
-        if (isLight && !btn.classList.contains('btn-delete')) {
-            btn.style.color = '#1a1a1a';
-        } else if (!isLight) {
-            btn.style.color = '';
-        }
-    });
-};
 
 
 
