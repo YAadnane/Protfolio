@@ -4024,8 +4024,8 @@ window.handleUnsubscribe = async (e) => {
     if (!email) return;
 
     try {
-        const res = await fetch(`${API_URL}/unsubscribe`, {
-            method: 'POST',
+        const res = await fetch(`${API_URL}/subscribe`, {
+            method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email })
         });
