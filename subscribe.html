@@ -43,9 +43,17 @@
         }
 
         @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(46, 213, 115, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(46, 213, 115, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(46, 213, 115, 0); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(46, 213, 115, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(46, 213, 115, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(46, 213, 115, 0);
+            }
         }
 
         h1 {
@@ -103,7 +111,8 @@
     <div class="subscribe-card" id="card-confirm">
         <div class="icon-box"><i class="fa-solid fa-envelope-open-text"></i></div>
         <h1>Welcome Back!</h1>
-        <p>We missed you! Click below to reactivate your subscription for <strong id="user-email" style="color:white;">...</strong></p>
+        <p>We missed you! Click below to reactivate your subscription for <strong id="user-email"
+                style="color:white;">...</strong></p>
         <button class="btn-confirm" onclick="confirmResubscribe()">
             <i class="fa-solid fa-paper-plane"></i> Reactivate Subscription
         </button>
@@ -130,28 +139,179 @@
         <a href="/" class="btn-home">Return Home</a>
     </div>
 
+    <!-- Controls -->
+    <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
+        <button onclick="toggleTheme()" class="btn-control" title="Toggle Theme">
+            <i class="fa-solid fa-moon" id="theme-icon"></i>
+        </button>
+        <button onclick="toggleLang()" class="btn-control" title="Switch Language">
+            <span id="lang-text">EN</span>
+        </button>
+    </div>
+
+    <style>
+        .btn-control {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-main, #fff);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .btn-control:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+    </style>
+
     <script>
+        // --- Translations ---
+        const i18n = {
+            en: {
+                title: "Welcome Back!",
+                message: "We missed you! Click below to reactivate your subscription for <strong id='user-email' style='color:var(--text-main)'>...</strong>",
+                confirm: '<i class="fa-solid fa-paper-plane"></i> Reactivate Subscription',
+                cancel: "Cancel",
+                invalid_title: "Invalid Link",
+                invalid_msg: "No email address found in the link. Please subscribe directly on the homepage.",
+                invalid_btn: "Go to Homepage",
+                success_title: "Subscription Active",
+                success_msg: "You have successfully re-subscribed! Welcome back to the community.",
+                return_home: "Go to Portfolio",
+                error_title: "Notification",
+                error_msg: "Processing...",
+                already_title: "Already Subscribed",
+                already_msg: "You are already actively subscribed.",
+                processing: "Processing..."
+            },
+            fr: {
+                title: "Re-bienvenue !",
+                message: "Vous nous avez manqué ! Cliquez ci-dessous pour réactiver votre abonnement pour <strong id='user-email' style='color:var(--text-main)'>...</strong>",
+                confirm: '<i class="fa-solid fa-paper-plane"></i> Réactiver l\'abonnement',
+                cancel: "Annuler",
+                invalid_title: "Lien Invalide",
+                invalid_msg: "Aucune adresse email trouvée. Veuillez vous abonner depuis la page d'accueil.",
+                invalid_btn: "Aller à l'accueil",
+                success_title: "Abonnement Actif",
+                success_msg: "Réabonnement réussi ! Bienvenue à nouveau dans la communauté.",
+                return_home: "Aller au Portfolio",
+                error_title: "Notification",
+                error_msg: "Traitement...",
+                already_title: "Déjà Abonné",
+                already_msg: "Vous êtes déjà activement abonné.",
+                processing: "Traitement..."
+            }
+        };
+
+        // --- State ---
+        let currentLang = localStorage.getItem('language') || (navigator.language.startsWith('fr') ? 'fr' : 'en');
+        let currentTheme = localStorage.getItem('theme') || 'dark';
+
+        // --- Initialization ---
+        function init() {
+            setTheme(currentTheme);
+            setLang(currentLang);
+        }
+
+        // --- Theme Logic ---
+        function setTheme(theme) {
+            currentTheme = theme;
+            document.body.classList.toggle('light-mode', theme === 'light');
+            document.getElementById('theme-icon').className = theme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+            localStorage.setItem('theme', theme);
+        }
+
+        function toggleTheme() {
+            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+        }
+
+        // --- Language Logic ---
+        function setLang(lang) {
+            currentLang = lang;
+            document.getElementById('lang-text').innerText = lang.toUpperCase();
+            localStorage.setItem('language', lang);
+            updateContent();
+        }
+
+        function toggleLang() {
+            setLang(currentLang === 'en' ? 'fr' : 'en');
+        }
+
+        function updateContent() {
+            const t = i18n[currentLang];
+
+            // Dynamic elements
+            const emailEl = document.getElementById('user-email');
+            const emailVal = emailEl ? emailEl.innerText : '...';
+
+            if (document.getElementById('card-confirm').style.display !== 'none') {
+                // Check if it's the valid or invalid state
+                if (document.querySelector('#card-confirm h1').innerText === i18n.en.invalid_title || document.querySelector('#card-confirm h1').innerText === i18n.fr.invalid_title) {
+                    // Invalid State
+                    document.querySelector('#card-confirm h1').innerText = t.invalid_title;
+                    document.querySelector('#card-confirm p').innerText = t.invalid_msg;
+                    document.querySelector('#card-confirm .btn-home').innerText = t.invalid_btn;
+                } else {
+                    // Normal State
+                    document.querySelector('#card-confirm h1').innerText = t.title;
+                    document.querySelector('#card-confirm p').innerHTML = t.message.replace('...', emailVal);
+                    document.querySelector('.btn-confirm').innerHTML = t.confirm;
+                    document.querySelector('#card-confirm a').innerText = t.cancel;
+                }
+            }
+
+            document.querySelector('#card-success h1').innerText = t.success_title;
+            document.querySelector('#card-success p').innerText = t.success_msg;
+            document.querySelectorAll('.btn-home').forEach(btn => btn.innerText = t.return_home);
+
+            // Error Card Handling (Generic Error or Already Subscribed)
+            const errorTitle = document.querySelector('#card-error h1');
+            const errorMsg = document.getElementById('error-msg');
+
+            // Check if it matches "Already Subscribed" or "Notification"
+            if (errorTitle.innerText === i18n.en.already_title || errorTitle.innerText === i18n.fr.already_title) {
+                errorTitle.innerText = t.already_title;
+                errorMsg.innerText = t.already_msg;
+            } else {
+                errorTitle.innerText = t.error_title;
+                // If it's a server error message, we might leave it or attempt to translate common ones
+                // For now, if strictly equals generic placeholder, translate it
+                if (errorMsg.innerText === i18n.en.error_msg || errorMsg.innerText === i18n.fr.error_msg) {
+                    errorMsg.innerText = t.error_msg;
+                }
+            }
+        }
+
+        // --- Main Logic ---
         const params = new URLSearchParams(window.location.search);
         const email = params.get('email');
 
         if (email) {
             document.getElementById('user-email').innerText = email;
         } else {
-            // No email provided
+            // No email provided - Update UI immediately to invalid state
+            const t = i18n[currentLang]; // Use current lang
             document.getElementById('card-confirm').innerHTML = `
                 <div class="icon-box" style="background: rgba(255, 165, 2, 0.1); color: #ffa502;"><i class="fa-solid fa-link-slash"></i></div>
-                <h1>Invalid Link</h1>
-                <p>No email address found in the link. Please subscribe directly on the homepage.</p>
-                <a href="/" class="btn-home">Go to Homepage</a>
+                <h1>${t ? t.invalid_title : 'Invalid Link'}</h1>
+                <p>${t ? t.invalid_msg : 'No email address found.'}</p>
+                <a href="/" class="btn-home">${t ? t.invalid_btn : 'Go to Homepage'}</a>
              `;
         }
 
         async function confirmResubscribe() {
             if (!email) return;
 
+            const t = i18n[currentLang];
             const btn = document.querySelector('.btn-confirm');
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${t.processing}`;
             btn.disabled = true;
 
             try {
@@ -168,6 +328,7 @@
                     // Success (Reactivated or New)
                     document.getElementById('card-confirm').style.display = 'none';
                     document.getElementById('card-success').style.display = 'block';
+                    updateContent();
                 } else if (res.status === 409) {
                     // Already active
                     document.getElementById('card-confirm').style.display = 'none';
@@ -175,8 +336,10 @@
                     document.getElementById('card-error').querySelector('.icon-box').innerHTML = '<i class="fa-solid fa-info-circle"></i>';
                     document.getElementById('card-error').querySelector('.icon-box').style.color = '#3b82f6';
                     document.getElementById('card-error').querySelector('.icon-box').style.background = 'rgba(59, 130, 246, 0.1)';
-                    document.getElementById('card-error').querySelector('h1').innerText = 'Already Subscribed';
-                    document.getElementById('error-msg').innerText = "You are already actively subscribed.";
+                    // Pre-set English (updateContent will translate)
+                    document.getElementById('card-error').querySelector('h1').innerText = i18n.en.already_title;
+                    document.getElementById('error-msg').innerText = i18n.en.already_msg;
+                    updateContent();
                 } else {
                     throw new Error(data.error || 'Failed to resubscribe');
                 }
@@ -185,11 +348,19 @@
                 document.getElementById('card-confirm').style.display = 'none';
                 document.getElementById('card-error').style.display = 'block';
                 document.getElementById('error-msg').innerText = error.message;
+                updateContent();
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = originalText;
+                // Only restore text if card-confirm is still visible (it isn't on success/error so this might be redundant but safe)
+                if (document.getElementById('card-confirm').style.display !== 'none') {
+                    btn.innerHTML = originalText; // Will be updated by updateContent anyway if lang changed
+                    updateContent();
+                }
             }
         }
+
+        // Start
+        init();
     </script>
 </body>
 
