@@ -1,7 +1,9 @@
 # ⚡ Adnane Yadani - Data Scientist Portfolio v5.0
 
-![Status](https://img.shields.io/badge/Status-Live-success?style=for-the-badge)
-![Version](https://img.shields.io/badge/Version-5.0-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Live-success?style=for-the-badge&logo=statuspage&logoColor=white)
+![Version](https://img.shields.io/badge/Version-5.0-blue?style=for-the-badge&logo=semver&logoColor=white)
+![CI/CD](https://img.shields.io/badge/CI%2FCD-Automated-brightgreen?style=for-the-badge&logo=github-actions&logoColor=white)
+![Uptime](https://img.shields.io/badge/Uptime-99.9%25-green?style=for-the-badge&logo=instructure&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)
 
 > *Replacing generic templates with a handcrafted, high-performance Data Science showcase.*
@@ -133,6 +135,13 @@ graph LR
 ![Node.js](https://img.shields.io/badge/Node.js-Backend-339933?style=flat&logo=nodedotjs&logoColor=white)
 ![Express](https://img.shields.io/badge/Express.js-Framework-000000?style=flat&logo=express&logoColor=white)
 ![SQLite](https://img.shields.io/badge/SQLite-Database-003B57?style=flat&logo=sqlite&logoColor=white)
+![HTML5](https://img.shields.io/badge/HTML5-Structure-E34F26?style=flat&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-Styling-1572B6?style=flat&logo=css3&logoColor=white)
+![Three.js](https://img.shields.io/badge/Three.js-3D_Visuals-000000?style=flat&logo=three.js&logoColor=white)
+![Nodemailer](https://img.shields.io/badge/Nodemailer-Email_Service-007ACC?style=flat&logo=gmail&logoColor=white)
+![JWT](https://img.shields.io/badge/JWT-Auth-000000?style=flat&logo=jsonwebtokens&logoColor=white)
+![PM2](https://img.shields.io/badge/PM2-Process_Manager-2B037B?style=flat&logo=pm2&logoColor=white)
+![Git](https://img.shields.io/badge/Git-Version_Control-F05032?style=flat&logo=git&logoColor=white)
 ![Oracle Cloud](https://img.shields.io/badge/Oracle_Cloud-Infrastructure-F80000?style=flat&logo=oracle&logoColor=white)
 ![Nginx](https://img.shields.io/badge/Nginx-Proxy-009639?style=flat&logo=nginx&logoColor=white)
 ![Gemini](https://img.shields.io/badge/Google_Gemini-AI-8E75B2?style=flat&logo=google&logoColor=white)
