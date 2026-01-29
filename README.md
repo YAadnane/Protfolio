@@ -110,6 +110,15 @@ graph LR
 *   **Headless CMS via Notion**: Articles and Project details are fetched dynamically from Notion, allowing content updates without code changes.
 *   **Intelligent Email System**: Automated flows for Welcome, Goodbye (with re-subscription logic), and "Welcome Back" emails handled via Nodemailer.
 
+### 🔔 **Advanced Notification System**
+*   **For Subscribers**: Instant email alerts when new **Projects, Certifications, Education, or Experience** are added.
+*   **For Admin**: Real-time notifications for **New Subscriptions, Contact Messages, and Reviews**.
+
+### 📈 **Engagement & Analytics**
+*   **Interactive Content**: Visitors can **Like** and **Comment** on Projects and Articles.
+*   **Granular Tracking**: Detailed logging of **Views (IP-based)**, Click events, and User Interactions.
+*   **Content Moderation**: Admin dashboard to approve/reject comments and reviews before they go live.
+
 ### 🛡️ **Secure Admin Dashboard**
 *   **Full CMS**: Update Projects, Skills, and Experience without touching code.
 *   **Database Viewer**: Direct read/write access to SQLite tables from the UI.
@@ -211,6 +220,27 @@ erDiagram
         datetime created_at
         datetime unsubscribed_at
     }
+    LIKES {
+        int id PK
+        string target_type
+        int target_id
+        string ip_hash
+    }
+    COMMENTS {
+        int id PK
+        string target_type
+        int target_id
+        string content
+        string author_name
+        boolean is_approved
+    }
+    ANALYTICS_EVENTS {
+        int id PK
+        string event_type
+        int target_id
+        string metadata
+        datetime date
+    }
 
     PROJECTS }|--|{ SKILLS : "conceptual tag match"
 ```
@@ -247,7 +277,16 @@ npm run dev
 
 ## ☁️ Deployment Implementation
 
-The project uses a **Continuous Integration-like Webhook Workflow** (simulated via SSH commands).
+The project uses a custom **Auto-Deployment Pipeline** that eliminates manual server updates.
+
+### 🔄 CI/CD Automation Flow
+1.  **Local Development**: Code is pushed to `main` branch.
+2.  **Trigger**: A webhook or SSH command triggers the remote server.
+3.  **Server Actions**:
+    *   `git pull origin main` (Fetch latest code)
+    *   `npm install` (Update dependencies)
+    *   `npm run build` (Rebuild frontend assets)
+    *   `pm2 restart portfolio` (Zero-downtime restart)
 
 ```mermaid
 sequenceDiagram
@@ -256,11 +295,11 @@ sequenceDiagram
     participant Server as ☁️ Oracle VM
     
     Dev->>Git: Push Code (Main)
-    Dev->>Server: SSH Trigger Command
+    Dev->>Server: Trigger Auto-Deploy (SSH/Webhook)
     Server->>Git: git pull origin main
-    Server->>Server: npm install & npm run build
+    Server->>Server: npm install & Build
     Server->>Server: pm2 restart portfolio
-    Server-->>Dev: Deployment Success ✅
+    Server-->>Dev: 🚀 Production Updated!
 ```
 
 ---
