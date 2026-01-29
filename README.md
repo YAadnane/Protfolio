@@ -27,6 +27,7 @@ graph TD
         subgraph "Application Layer"
             Node[🟢 Node.js Server]
             Gemini[🤖 Google Gemini API]
+            Notion[📝 Notion API]
             SMTP[📧 Gmail SMTP]
         end
         
@@ -43,6 +44,7 @@ graph TD
     Node <-->|Read/Write| SQLite
     Node <-->|Store Images| FS
     Node <-->|Chat Context| Gemini
+    Node <-->|Fetch Content| Notion
     Node -->|Send Alerts| SMTP
 ```
 
@@ -104,6 +106,10 @@ graph LR
 *   **Smart Chatbot (Gemini 2.5)**: Context-aware AI assistant that answers questions about *me* in real-time.
 *   **Bilingual Engine**: Instant English/French switching without page reloads.
 
+### 🔮 **Smart Integrations**
+*   **Headless CMS via Notion**: Articles and Project details are fetched dynamically from Notion, allowing content updates without code changes.
+*   **Intelligent Email System**: Automated flows for Welcome, Goodbye (with re-subscription logic), and "Welcome Back" emails handled via Nodemailer.
+
 ### 🛡️ **Secure Admin Dashboard**
 *   **Full CMS**: Update Projects, Skills, and Experience without touching code.
 *   **Database Viewer**: Direct read/write access to SQLite tables from the UI.
@@ -121,6 +127,7 @@ graph LR
 ![Oracle Cloud](https://img.shields.io/badge/Oracle_Cloud-Infrastructure-F80000?style=flat&logo=oracle&logoColor=white)
 ![Nginx](https://img.shields.io/badge/Nginx-Proxy-009639?style=flat&logo=nginx&logoColor=white)
 ![Gemini](https://img.shields.io/badge/Google_Gemini-AI-8E75B2?style=flat&logo=google&logoColor=white)
+![Notion](https://img.shields.io/badge/Notion-CMS-000000?style=flat&logo=notion&logoColor=white)
 
 ### 📊 Database Schema (Entity Relationship)
 
@@ -130,6 +137,7 @@ erDiagram
         int id PK
         string hero_title
         string email
+        string notion_api_key
         string lang
     }
     PROJECTS {
@@ -137,6 +145,7 @@ erDiagram
         string title
         string category
         string tags
+        string notion_url
         string lang
         boolean is_hidden
     }
