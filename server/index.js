@@ -154,7 +154,7 @@ app.post('/api/subscribe', async (req, res) => {
                         }
 
                         // Send welcome back email
-                        sendWelcomeEmail(email, name || subscriber.name);
+                        sendWelcomeBackEmail(email, name || subscriber.name);
 
                         // Notify admin
                         const mailOptions = {
@@ -673,6 +673,125 @@ const sendWelcomeEmail = async (email, name) => {
         });
     } catch (e) {
         console.error("Welcome Email Error:", e);
+    }
+};
+
+// Helper: Send Welcome Back Email (Re-subscription)
+const sendWelcomeBackEmail = async (email, name) => {
+    try {
+        const portfolioUrl = 'https://yadani-adnane.duckdns.org';
+        
+        const styles = {
+            outerContainer: "background: linear-gradient(135deg, #050505 0%, #0a0a0a 100%); padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;",
+            container: "max-width: 600px; margin: 0 auto; background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(10px); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 1px rgba(0, 255, 157, 0.3);",
+            header: "background: linear-gradient(135deg, #0a0a0a 0%, #111111 100%); padding: 50px 30px; text-align: center; border-bottom: 2px solid rgba(0, 255, 157, 0.3);",
+            logo: "color: #ffffff; font-size: 32px; font-weight: 800; text-decoration: none; letter-spacing: 2px; background: linear-gradient(135deg, #00ff9d, #00b8ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: inline-block; margin-bottom: 15px;",
+            badge: "display: inline-block; background: linear-gradient(135deg, rgba(0, 255, 157, 0.15), rgba(0, 184, 255, 0.15)); border: 1px solid rgba(0, 255, 157, 0.3); color: #00ff9d; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;",
+            body: "padding: 50px 30px; background: #0f0f0f; color: #e0e0e0;",
+            greeting: "color: #ffffff; font-size: 32px; font-weight: 700; margin: 0 0 20px 0; text-align: center; text-shadow: 0 0 20px rgba(0, 255, 157, 0.2);",
+            message: "color: #cccccc; font-size: 17px; line-height: 1.8; margin: 25px 0; text-align: center;",
+            highlight: "color: #00ff9d; font-weight: 600;",
+            list: "background: rgba(0, 255, 157, 0.05); border-left: 3px solid #00ff9d; padding: 25px 30px; margin: 30px 0; border-radius: 8px;",
+            listItem: "color: #e0e0e0; font-size: 16px; line-height: 1.8; margin: 12px 0; padding-left: 25px; position: relative;",
+            bullet: "color: #00ff9d; position: absolute; left: 0; font-weight: bold;",
+            button: "display: inline-block; background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%); color: #050505; padding: 18px 45px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 17px; margin-top: 35px; text-align: center; box-shadow: 0 10px 30px rgba(0, 255, 157, 0.3); letter-spacing: 0.5px; text-transform: uppercase;",
+            divider: "height: 1px; background: linear-gradient(90deg, transparent, rgba(0, 255, 157, 0.2), transparent); margin: 40px 0;",
+            footer: "padding: 35px 30px; text-align: center; font-size: 13px; color: #666666; background: #050505; border-top: 1px solid rgba(255, 255, 255, 0.05);",
+            footerLink: "color: #00b8ff; text-decoration: none;"
+        };
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html lang="fr">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Re-bienvenue - Adnane Yadani Portfolio</title>
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #000000;">
+                <div style="${styles.outerContainer}">
+                    <div style="${styles.container}">
+                        <!-- Header -->
+                        <div style="${styles.header}">
+                            <a href="${portfolioUrl}" style="${styles.logo}">ADNANE YADANI</a>
+                            <div style="${styles.badge}">✨ Re-bienvenue !</div>
+                        </div>
+                        
+                        <!-- Main Content -->
+                        <div style="${styles.body}">
+                            <h1 style="${styles.greeting}">🎉 Ravi de vous revoir${name ? ', ' + name : ''} !</h1>
+                            
+                            <p style="${styles.message}">
+                                C'est un plaisir de constater votre retour. Votre abonnement a été réactivé avec succès.
+                                J'ai de nouvelles choses passionnantes à partager avec vous.
+                            </p>
+
+                            <div style="${styles.list}">
+                                <div style="${styles.listItem}">
+                                    <span style="${styles.bullet}">🔄</span>
+                                    Abonnement réactivé instantanément
+                                </div>
+                                <div style="${styles.listItem}">
+                                    <span style="${styles.bullet}">🚀</span>
+                                    Reprise des notifications de projets
+                                </div>
+                                <div style="${styles.listItem}">
+                                    <span style="${styles.bullet}">💡</span>
+                                    Accès continu aux contenus exclusifs
+                                </div>
+                            </div>
+
+                            <p style="${styles.message}">
+                                N'hésitez pas à jeter un coup d'œil à ce que vous avez manqué pendant votre absence.
+                            </p>
+
+                            <div style="text-align: center;">
+                                <a href="${portfolioUrl}" style="${styles.button}">Retourner au Portfolio →</a>
+                            </div>
+
+                            <div style="${styles.divider}"></div>
+
+                            <p style="${styles.message}; font-size: 15px; color: #999999;">
+                                Merci de renouveler votre confiance !
+                            </p>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div style="${styles.footer}">
+                            <p style="margin: 0 0 15px 0; color: #888888;">
+                                Vous recevez cet email car vous avez réactivé votre abonnement.
+                            </p>
+                            <p style="margin: 10px 0;">
+                                <a href="${portfolioUrl}" style="${styles.footerLink}">Visiter le Site</a>
+                                <span style="color: #333; margin: 0 10px;">|</span>
+                                <a href="${portfolioUrl}/unsubscribe.html?email=${encodeURIComponent(email)}" style="color: #666; text-decoration: none;">Se désabonner</a>
+                            </p>
+                            <p style="margin: 15px 0 0 0; font-size: 11px; color: #555555;">
+                                © ${new Date().getFullYear()} Adnane Yadani. Tous droits réservés.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </body>
+            </html>
+                `;
+
+        const mailOptions = {
+            from: `"Adnane's Portfolio" <${SENDER_EMAIL}>`,
+            to: email,
+            subject: '🎉 Re-bienvenue dans la communauté !',
+            html: htmlContent
+        };
+
+        transporter.sendMail(mailOptions, (error) => {
+            if (error) {
+                console.error(`Failed to send welcome back email to ${email}:`, error);
+            } else {
+                console.log(`✓ Welcome back email sent successfully to ${email}`);
+            }
+        });
+    } catch (e) {
+        console.error("Welcome Back Email Error:", e);
     }
 };
 
