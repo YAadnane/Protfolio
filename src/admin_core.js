@@ -1527,26 +1527,38 @@ function setupModal() {
 
 // Theme Logic
 function initThemeAdmin() {
+    console.log('🎨 initThemeAdmin called');
     const themeBtn = document.getElementById('admin-theme-switch');
+    console.log('🎨 Theme button found:', themeBtn);
     const savedTheme = localStorage.getItem('theme') || 'dark';
+    console.log('🎨 Saved theme:', savedTheme);
     
     // Apply saved theme
     if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
         document.documentElement.classList.add('light-mode');
         if(themeBtn) themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        console.log('🎨 Applied light mode on load');
     }
 
     if (themeBtn) {
         themeBtn.addEventListener('click', () => {
+            console.log('🎨 Theme button clicked!');
             document.body.classList.toggle('light-mode');
             document.documentElement.classList.toggle('light-mode');
             const isLight = document.body.classList.contains('light-mode');
+            console.log('🎨 Is light mode:', isLight);
+            console.log('🎨 Body classes:', document.body.className);
+            console.log('🎨 HTML classes:', document.documentElement.className);
             localStorage.setItem('theme', isLight ? 'light' : 'dark');
             themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
         });
+        console.log('🎨 Event listener attached successfully');
+    } else {
+        console.error('❌ Theme button NOT found! Check if element exists.');
     }
 }
+
 
 
 
