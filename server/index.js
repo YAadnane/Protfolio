@@ -434,7 +434,7 @@ const sendSubscriberNotification = async (type, item) => {
                             <div style="${styles.container}">
                                 <!-- Header -->
                                 <div style="${styles.header}">
-                                    <a href="${portfolioUrl}" style="${styles.logo}">ADNANE.DEV</a>
+                                    <a href="${portfolioUrl}" style="${styles.logo}">ADNANE YADANI</a>
                                     <div style="${styles.badge}">${badgeText}</div>
                                 </div>
                                 
@@ -490,6 +490,245 @@ const sendSubscriberNotification = async (type, item) => {
         });
     } catch (e) {
         console.error("Notification System Error:", e);
+    }
+};
+
+// Helper: Send Welcome Email to New Subscribers
+const sendWelcomeEmail = async (email, name) => {
+    try {
+        const portfolioUrl = 'https://yadani-adnane.duckdns.org';
+        
+        const styles = {
+            outerContainer: "background: linear-gradient(135deg, #050505 0%, #0a0a0a 100%); padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;",
+            container: "max-width: 600px; margin: 0 auto; background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(10px); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 1px rgba(0, 255, 157, 0.3);",
+            header: "background: linear-gradient(135deg, #0a0a0a 0%, #111111 100%); padding: 50px 30px; text-align: center; border-bottom: 2px solid rgba(0, 255, 157, 0.3);",
+            logo: "color: #ffffff; font-size: 32px; font-weight: 800; text-decoration: none; letter-spacing: 2px; background: linear-gradient(135deg, #00ff9d, #00b8ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: inline-block; margin-bottom: 15px;",
+            badge: "display: inline-block; background: linear-gradient(135deg, rgba(0, 255, 157, 0.15), rgba(0, 184, 255, 0.15)); border: 1px solid rgba(0, 255, 157, 0.3); color: #00ff9d; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;",
+            body: "padding: 50px 30px; background: #0f0f0f; color: #e0e0e0;",
+            greeting: "color: #ffffff; font-size: 32px; font-weight: 700; margin: 0 0 20px 0; text-align: center; text-shadow: 0 0 20px rgba(0, 255, 157, 0.2);",
+            message: "color: #cccccc; font-size: 17px; line-height: 1.8; margin: 25px 0; text-align: center;",
+            highlight: "color: #00ff9d; font-weight: 600;",
+            list: "background: rgba(0, 255, 157, 0.05); border-left: 3px solid #00ff9d; padding: 25px 30px; margin: 30px 0; border-radius: 8px;",
+            listItem: "color: #e0e0e0; font-size: 16px; line-height: 1.8; margin: 12px 0; padding-left: 25px; position: relative;",
+            bullet: "color: #00ff9d; position: absolute; left: 0; font-weight: bold;",
+            button: "display: inline-block; background: linear-gradient(135deg, #00ff9d 0%, #00b8ff 100%); color: #050505; padding: 18px 45px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 17px; margin-top: 35px; text-align: center; box-shadow: 0 10px 30px rgba(0, 255, 157, 0.3); letter-spacing: 0.5px; text-transform: uppercase;",
+            divider: "height: 1px; background: linear-gradient(90deg, transparent, rgba(0, 255, 157, 0.2), transparent); margin: 40px 0;",
+            footer: "padding: 35px 30px; text-align: center; font-size: 13px; color: #666666; background: #050505; border-top: 1px solid rgba(255, 255, 255, 0.05);",
+            footerLink: "color: #00b8ff; text-decoration: none;"
+        };
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html lang="fr">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Bienvenue - Adnane Yadani Portfolio</title>
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #000000;">
+                <div style="${styles.outerContainer}">
+                    <div style="${styles.container}">
+                        <!-- Header -->
+                        <div style="${styles.header}">
+                            <a href="${portfolioUrl}" style="${styles.logo}">ADNANE YADANI</a>
+                            <div style="${styles.badge}">✨ Bienvenue !</div>
+                        </div>
+                        
+                        <!-- Main Content -->
+                        <div style="${styles.body}">
+                            <h1 style="${styles.greeting}">🎉 Merci de vous être abonné${name ? ', ' + name : ''} !</h1>
+                            
+                            <p style="${styles.message}">
+                                Je suis ravi de vous compter parmi mes abonnés. Vous recevrez désormais des notifications 
+                                exclusives sur mes dernières réalisations, articles et accomplissements professionnels.
+                            </p>
+
+                            <div style="${styles.list}">
+                                <div style="${styles.listItem}">
+                                    <span style="${styles.bullet}">🚀</span>
+                                    Nouveaux projets innovants et passionnants
+                                </div>
+                                <div style="${styles.listItem}">
+                                    <span style="${styles.bullet}">📝</span>
+                                    Articles techniques et insights professionnels
+                                </div>
+                                <div style="${styles.listItem}">
+                                    <span style="${styles.bullet}">🏆</span>
+                                    Certifications et accomplissements
+                                </div>
+                                <div style="${styles.listItem}">
+                                    <span style="${styles.bullet}">💡</span>
+                                    Contenus exclusifs et mises à jour
+                                </div>
+                            </div>
+
+                            <p style="${styles.message}">
+                                Explorez dès maintenant mon portfolio pour découvrir mes projets, 
+                                mon parcours académique et professionnel, ainsi que mes dernières réalisations.
+                            </p>
+
+                            <div style="text-align: center;">
+                                <a href="${portfolioUrl}" style="${styles.button}">Découvrir le Portfolio →</a>
+                            </div>
+
+                            <div style="${styles.divider}"></div>
+
+                            <p style="${styles.message}; font-size: 15px; color: #999999;">
+                                Restez connecté pour ne rien manquer de mes prochaines aventures professionnelles et créatives !
+                            </p>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div style="${styles.footer}">
+                            <p style="margin: 0 0 15px 0; color: #888888;">
+                                Vous recevez cet email car vous vous êtes abonné aux mises à jour du portfolio.
+                            </p>
+                            <p style="margin: 10px 0;">
+                                <a href="${portfolioUrl}" style="${styles.footerLink}">Visiter le Site</a>
+                                <span style="color: #333; margin: 0 10px;">|</span>
+                                <a href="${portfolioUrl}/unsubscribe.html?email=${encodeURIComponent(email)}" style="color: #666; text-decoration: none;">Se désabonner</a>
+                            </p>
+                            <p style="margin: 15px 0 0 0; font-size: 11px; color: #555555;">
+                                © ${new Date().getFullYear()} Adnane Yadani. Tous droits réservés.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const mailOptions = {
+            from: `"Adnane's Portfolio" <${process.env.ADMIN_EMAIL}>`,
+            to: email,
+            subject: '🎉 Bienvenue dans ma communauté !',
+            html: htmlContent
+        };
+
+        transporter.sendMail(mailOptions, (error) => {
+            if (error) {
+                console.error(`Failed to send welcome email to ${email}:`, error);
+            } else {
+                console.log(`✓ Welcome email sent successfully to ${email}`);
+            }
+        });
+    } catch (e) {
+        console.error("Welcome Email Error:", e);
+    }
+};
+
+// Helper: Send Goodbye Email to Unsubscribed Users
+const sendGoodbyeEmail = async (email, name) => {
+    try {
+        const portfolioUrl = 'https://yadani-adnane.duckdns.org';
+        
+        const styles = {
+            outerContainer: "background: linear-gradient(135deg, #050505 0%, #0a0a0a 100%); padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;",
+            container: "max-width: 600px; margin: 0 auto; background: rgba(15, 15, 15, 0.95); backdrop-filter: blur(10px); border-radius: 16px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 1px rgba(59, 130, 246, 0.3);",
+            header: "background: linear-gradient(135deg, #0a0a0a 0%, #111111 100%); padding: 50px 30px; text-align: center; border-bottom: 2px solid rgba(59, 130, 246, 0.3);",
+            logo: "color: #ffffff; font-size: 32px; font-weight: 800; text-decoration: none; letter-spacing: 2px; background: linear-gradient(135deg, #00b8ff, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: inline-block; margin-bottom: 15px;",
+            badge: "display: inline-block; background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(0, 184, 255, 0.15)); border: 1px solid rgba(59, 130, 246, 0.3); color: #00b8ff; padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;",
+            body: "padding: 50px 30px; background: #0f0f0f; color: #e0e0e0;",
+            greeting: "color: #ffffff; font-size: 30px; font-weight: 700; margin: 0 0 20px 0; text-align: center; text-shadow: 0 0 20px rgba(59, 130, 246, 0.2);",
+            message: "color: #cccccc; font-size: 17px; line-height: 1.8; margin: 25px 0; text-align: center;",
+            highlight: "color: #00b8ff; font-weight: 600;",
+            quote: "background: rgba(59, 130, 246, 0.05); border-left: 3px solid #00b8ff; padding: 25px 30px; margin: 30px 0; border-radius: 8px; font-style: italic; color: #aaaaaa; font-size: 16px; line-height: 1.7;",
+            button: "display: inline-block; background: linear-gradient(135deg, #00b8ff 0%, #3b82f6 100%); color: #ffffff; padding: 18px 45px; border-radius: 30px; text-decoration: none; font-weight: 700; font-size: 17px; margin-top: 35px; text-align: center; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3); letter-spacing: 0.5px; text-transform: uppercase;",
+            divider: "height: 1px; background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.2), transparent); margin: 40px 0;",
+            footer: "padding: 35px 30px; text-align: center; font-size: 13px; color: #666666; background: #050505; border-top: 1px solid rgba(255, 255, 255, 0.05);",
+            footerLink: "color: #00b8ff; text-decoration: none;"
+        };
+
+        const htmlContent = `
+            <!DOCTYPE html>
+            <html lang="fr">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Au revoir - Adnane Yadani Portfolio</title>
+            </head>
+            <body style="margin: 0; padding: 0; background-color: #000000;">
+                <div style="${styles.outerContainer}">
+                    <div style="${styles.container}">
+                        <!-- Header -->
+                        <div style="${styles.header}">
+                            <a href="${portfolioUrl}" style="${styles.logo}">ADNANE YADANI</a>
+                            <div style="${styles.badge}">👋 Au revoir</div>
+                        </div>
+                        
+                        <!-- Main Content -->
+                        <div style="${styles.body}">
+                            <h1 style="${styles.greeting}">Merci d'avoir été avec nous${name ? ', ' + name : ''}</h1>
+                            
+                            <p style="${styles.message}">
+                                Vous avez été désabonné avec succès de nos notifications. 
+                                Je tiens à vous remercier sincèrement pour le temps que vous avez passé 
+                                à suivre mon parcours professionnel et mes réalisations.
+                            </p>
+
+                            <div style="${styles.quote}">
+                                "Chaque fin marque le début d'une nouvelle aventure. 
+                                Merci d'avoir fait partie de la mienne, même brièvement."
+                            </div>
+
+                            <p style="${styles.message}">
+                                Même si vous ne recevrez plus de notifications par email, 
+                                mon portfolio reste <span style="${styles.highlight}">toujours ouvert</span> 
+                                pour vous. N'hésitez pas à revenir découvrir mes nouveaux projets 
+                                et réalisations quand vous le souhaitez.
+                            </p>
+
+                            <div style="${styles.divider}"></div>
+
+                            <p style="${styles.message}">
+                                Si vous changez d'avis, vous êtes toujours le bienvenu pour vous réabonner !
+                            </p>
+
+                            <div style="text-align: center;">
+                                <a href="${portfolioUrl}" style="${styles.button}">Visiter le Portfolio →</a>
+                            </div>
+
+                            <p style="${styles.message}; font-size: 15px; color: #999999; margin-top: 40px;">
+                                Je vous souhaite le meilleur dans toutes vos futures entreprises ! 🚀
+                            </p>
+                        </div>
+                        
+                        <!-- Footer -->
+                        <div style="${styles.footer}">
+                            <p style="margin: 0 0 15px 0; color: #888888;">
+                                Vous avez été désabonné des mises à jour du portfolio.
+                            </p>
+                            <p style="margin: 10px 0;">
+                                <a href="${portfolioUrl}" style="${styles.footerLink}">Visiter le Site</a>
+                                <span style="color: #333; margin: 0 10px;">|</span>
+                                <a href="${portfolioUrl}#newsletter" style="${styles.footerLink}">Se réabonner</a>
+                            </p>
+                            <p style="margin: 15px 0 0 0; font-size: 11px; color: #555555;">
+                                © ${new Date().getFullYear()} Adnane Yadani. Tous droits réservés.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        const mailOptions = {
+            from: `"Adnane's Portfolio" <${process.env.ADMIN_EMAIL}>`,
+            to: email,
+            subject: '👋 Merci et à bientôt !',
+            html: htmlContent
+        };
+
+        transporter.sendMail(mailOptions, (error) => {
+            if (error) {
+                console.error(`Failed to send goodbye email to ${email}:`, error);
+            } else {
+                console.log(`✓ Goodbye email sent successfully to ${email}`);
+            }
+        });
+    } catch (e) {
+        console.error("Goodbye Email Error:", e);
     }
 };
 
