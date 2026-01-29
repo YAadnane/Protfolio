@@ -15,15 +15,15 @@
             min-height: 100vh;
             text-align: center;
             background-color: var(--bg-color, #0a0a0a);
-            /* Fallback */
         }
 
         .unsubscribe-card {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--card-bg);
+            /* Use variable */
             backdrop-filter: blur(10px);
             padding: 3rem;
             border-radius: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--nav-border, rgba(255, 255, 255, 0.1));
             max-width: 400px;
             width: 90%;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -44,11 +44,11 @@
 
         h1 {
             margin-bottom: 1rem;
-            color: var(--text-main, #fff);
+            color: var(--text-main, #e0e0e0);
         }
 
         p {
-            color: var(--text-muted, #aaa);
+            color: var(--text-muted, #888);
             margin-bottom: 2rem;
             line-height: 1.6;
         }
@@ -74,8 +74,8 @@
 
         .btn-home {
             background: transparent;
-            color: var(--text-main, #fff);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-main, #e0e0e0);
+            border: 1px solid var(--nav-border, rgba(255, 255, 255, 0.2));
             padding: 0.8rem 2rem;
             border-radius: 0.5rem;
             margin-top: 1rem;
@@ -88,6 +88,18 @@
             border-color: var(--accent-color, #2ed573);
             color: var(--accent-color, #2ed573);
         }
+
+        /* Control Button Style Update */
+        .btn-control {
+            background: var(--control-bg, rgba(255, 255, 255, 0.1));
+            border: 1px solid var(--input-border, rgba(255, 255, 255, 0.2));
+            color: var(--text-main, #fff);
+            /* ... rest is fine ... */
+        }
+
+        .btn-control:hover {
+            background: var(--nav-bg, rgba(255, 255, 255, 0.2));
+        }
     </style>
 </head>
 
@@ -96,216 +108,204 @@
         <div class="icon-box"><i class="fa-solid fa-heart-crack"></i></div>
         <h1>Unsubscribe</h1>
         <p>We're sorry to see you go. Click below to confirm unsubscription for <strong id="user-email"
-                style="color:white;">...</strong></p>
-        <button class="btn-confirm" onclick="confirmUnsubscribe()">
-            <i class="fa-solid fa-user-xmark"></i> Confirm Unsubscribe
-        </button>
-        <div style="margin-top: 20px;">
-            <a href="/" style="color: #666; font-size: 0.9rem; text-decoration: none;">Cancel</a>
-        </div>
+                style="color:white;">...</strong></p><button class="btn-confirm" onclick="confirmUnsubscribe()"><i
+                class="fa-solid fa-user-xmark"></i>Confirm Unsubscribe </button>
+        <div style="margin-top: 20px;"><a href="/"
+                style="color: #666; font-size: 0.9rem; text-decoration: none;">Cancel</a></div>
     </div>
-
     <div class="unsubscribe-card" id="card-success" style="display: none;">
         <div class="icon-box" style="background: rgba(46, 213, 115, 0.1); color: #2ed573;"><i
                 class="fa-solid fa-check"></i></div>
         <h1>Unsubscribed</h1>
-        <p>You have been successfully removed from the mailing list.</p>
-        <a href="/" class="btn-home">Return to Portfolio</a>
+        <p>You have been successfully removed from the mailing list.</p><a href="/" class="btn-home">Return to
+            Portfolio</a>
     </div>
-
     <div class="unsubscribe-card" id="card-error" style="display: none;">
         <div class="icon-box" style="background: rgba(255, 165, 2, 0.1); color: #ffa502;"><i
                 class="fa-solid fa-triangle-exclamation"></i></div>
         <h1>Error</h1>
-        <p id="error-msg">Something went wrong.</p>
-        <a href="/" class="btn-home">Return Home</a>
+        <p id="error-msg">Something went wrong.</p><a href="/" class="btn-home">Return Home</a>
     </div>
-
-    <!-- Controls -->
-    <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;">
-        <button onclick="toggleTheme()" class="btn-control" title="Toggle Theme">
-            <i class="fa-solid fa-moon" id="theme-icon"></i>
-        </button>
-        <button onclick="toggleLang()" class="btn-control" title="Switch Language">
-            <span id="lang-text">EN</span>
-        </button>
-    </div>
-
-    <style>
-        .btn-control {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: var(--text-main, #fff);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.3s;
-        }
-
-        .btn-control:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1);
-        }
-    </style>
-
-    <script>
-        // --- Translations ---
-        const i18n = {
-            en: {
-                title: "Unsubscribe",
-                message: "We're sorry to see you go. Click below to confirm unsubscription for <strong id='user-email' style='color:var(--text-main)'>...</strong>",
-                confirm: '<i class="fa-solid fa-user-xmark"></i> Confirm Unsubscribe',
-                cancel: "Cancel",
-                invalid_title: "Invalid Link",
-                invalid_msg: "No email address found in the link.",
-                success_title: "Unsubscribed",
-                success_msg: "You have been successfully removed from the mailing list.",
-                return_home: "Return to Portfolio",
-                error_title: "Error",
-                error_msg: "Something went wrong.",
-                processing: "Processing..."
-            },
-            fr: {
-                title: "Se désabonner",
-                message: "Nous sommes tristes de vous voir partir. Cliquez ci-dessous pour confirmer le désabonnement de <strong id='user-email' style='color:var(--text-main)'>...</strong>",
-                confirm: '<i class="fa-solid fa-user-xmark"></i> Confirmer',
-                cancel: "Annuler",
-                invalid_title: "Lien Invalide",
-                invalid_msg: "Aucune adresse email trouvée dans le lien.",
-                success_title: "Désabonné",
-                success_msg: "Vous avez été retiré de la liste de diffusion avec succès.",
-                return_home: "Retour au Portfolio",
-                error_title: "Erreur",
-                error_msg: "Une erreur est survenue.",
-                processing: "Traitement..."
+    < !-- Controls -->
+        <div style="position: absolute; top: 20px; right: 20px; display: flex; gap: 10px;"><button
+                onclick="toggleTheme()" class="btn-control" title="Toggle Theme"><i class="fa-solid fa-moon"
+                    id="theme-icon"></i></button><button onclick="toggleLang()" class="btn-control"
+                title="Switch Language"><span id="lang-text">EN</span></button></div>
+        <style>
+            .btn-control {
+                background: rgba(255, 255, 255, 0.1);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                color: var(--text-main, #fff);
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: 0.3s;
             }
-        };
 
-        // --- State ---
-        let currentLang = localStorage.getItem('language') || (navigator.language.startsWith('fr') ? 'fr' : 'en');
-        let currentTheme = localStorage.getItem('theme') || 'dark';
+            .btn-control:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: scale(1.1);
+            }
+        </style>
 
-        // --- Initialization ---
-        function init() {
-            setTheme(currentTheme);
-            setLang(currentLang);
-        }
+        <script>
+            // --- Translations ---
+            const i18n = {
+                en: {
+                    title: "Unsubscribe",
+                    message: "We're sorry to see you go. Click below to confirm unsubscription for <strong id='user-email' style='color:var(--text-main)'>...</strong>",
+                    confirm: '<i class="fa-solid fa-user-xmark"></i> Confirm Unsubscribe',
+                    cancel: "Cancel",
+                    invalid_title: "Invalid Link",
+                    invalid_msg: "No email address found in the link.",
+                    success_title: "Unsubscribed",
+                    success_msg: "You have been successfully removed from the mailing list.",
+                    return_home: "Return to Portfolio",
+                    error_title: "Error",
+                    error_msg: "Something went wrong.",
+                    processing: "Processing..."
+                },
+                fr: {
+                    title: "Se désabonner",
+                    message: "Nous sommes tristes de vous voir partir. Cliquez ci-dessous pour confirmer le désabonnement de <strong id='user-email' style='color:var(--text-main)'>...</strong>",
+                    confirm: '<i class="fa-solid fa-user-xmark"></i> Confirmer',
+                    cancel: "Annuler",
+                    invalid_title: "Lien Invalide",
+                    invalid_msg: "Aucune adresse email trouvée dans le lien.",
+                    success_title: "Désabonné",
+                    success_msg: "Vous avez été retiré de la liste de diffusion avec succès.",
+                    return_home: "Retour au Portfolio",
+                    error_title: "Erreur",
+                    error_msg: "Une erreur est survenue.",
+                    processing: "Traitement..."
+                }
+            };
 
-        // --- Theme Logic ---
-        function setTheme(theme) {
-            currentTheme = theme;
-            document.body.classList.toggle('light-mode', theme === 'light');
-            document.getElementById('theme-icon').className = theme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-            localStorage.setItem('theme', theme);
-        }
+            // --- State ---
+            let currentLang = localStorage.getItem('language') || (navigator.language.startsWith('fr') ? 'fr' : 'en');
+            let currentTheme = localStorage.getItem('theme') || 'dark';
 
-        function toggleTheme() {
-            setTheme(currentTheme === 'dark' ? 'light' : 'dark');
-        }
+            // --- Initialization ---
+            function init() {
+                setTheme(currentTheme);
+                setLang(currentLang);
+            }
 
-        // --- Language Logic ---
-        function setLang(lang) {
-            currentLang = lang;
-            document.getElementById('lang-text').innerText = lang.toUpperCase();
-            localStorage.setItem('language', lang);
-            updateContent();
-        }
+            // --- Theme Logic ---
+            function setTheme(theme) {
+                currentTheme = theme;
+                document.body.classList.toggle('light-mode', theme === 'light');
+                document.getElementById('theme-icon').className = theme === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+                localStorage.setItem('theme', theme);
+            }
 
-        function toggleLang() {
-            setLang(currentLang === 'en' ? 'fr' : 'en');
-        }
+            function toggleTheme() {
+                setTheme(currentTheme === 'dark' ? 'light' : 'dark');
+            }
 
-        function updateContent() {
-            const t = i18n[currentLang];
+            // --- Language Logic ---
+            function setLang(lang) {
+                currentLang = lang;
+                document.getElementById('lang-text').innerText = lang.toUpperCase();
+                localStorage.setItem('language', lang);
+                updateContent();
+            }
 
-            // Dynamic elements
-            const emailEl = document.getElementById('user-email');
-            const emailVal = emailEl ? emailEl.innerText : '...';
+            function toggleLang() {
+                setLang(currentLang === 'en' ? 'fr' : 'en');
+            }
 
-            if (document.getElementById('card-confirm').style.display !== 'none') {
-                // Check if it's the valid or invalid state
-                if (document.querySelector('#card-confirm h1').innerText === i18n.en.invalid_title || document.querySelector('#card-confirm h1').innerText === i18n.fr.invalid_title) {
-                    // Invalid State
-                    document.querySelector('#card-confirm h1').innerText = t.invalid_title;
-                    document.querySelector('#card-confirm p').innerText = t.invalid_msg;
-                    document.querySelector('#card-confirm .btn-home').innerText = t.return_home;
-                } else {
-                    // Normal State
-                    document.querySelector('#card-confirm h1').innerText = t.title;
-                    document.querySelector('#card-confirm p').innerHTML = t.message.replace('...', emailVal);
-                    document.querySelector('.btn-confirm').innerHTML = t.confirm;
-                    document.querySelector('#card-confirm a').innerText = t.cancel;
+            function updateContent() {
+                const t = i18n[currentLang];
+
+                // Dynamic elements
+                const emailEl = document.getElementById('user-email');
+                const emailVal = emailEl ? emailEl.innerText : '...';
+
+                if (document.getElementById('card-confirm').style.display !== 'none') {
+                    // Check if it's the valid or invalid state
+                    if (document.querySelector('#card-confirm h1').innerText === i18n.en.invalid_title || document.querySelector('#card-confirm h1').innerText === i18n.fr.invalid_title) {
+                        // Invalid State
+                        document.querySelector('#card-confirm h1').innerText = t.invalid_title;
+                        document.querySelector('#card-confirm p').innerText = t.invalid_msg;
+                        document.querySelector('#card-confirm .btn-home').innerText = t.return_home;
+                    } else {
+                        // Normal State
+                        document.querySelector('#card-confirm h1').innerText = t.title;
+                        document.querySelector('#card-confirm p').innerHTML = t.message.replace('...', emailVal);
+                        document.querySelector('.btn-confirm').innerHTML = t.confirm;
+                        document.querySelector('#card-confirm a').innerText = t.cancel;
+                    }
+                }
+
+                document.querySelector('#card-success h1').innerText = t.success_title;
+                document.querySelector('#card-success p').innerText = t.success_msg;
+                document.querySelectorAll('.btn-home').forEach(btn => btn.innerText = t.return_home);
+
+                document.querySelector('#card-error h1').innerText = t.error_title;
+                // Error msg is usually dynamic from server but we can translate default
+                if (document.getElementById('error-msg').innerText === i18n.en.error_msg || document.getElementById('error-msg').innerText === i18n.fr.error_msg) {
+                    document.getElementById('error-msg').innerText = t.error_msg;
                 }
             }
 
-            document.querySelector('#card-success h1').innerText = t.success_title;
-            document.querySelector('#card-success p').innerText = t.success_msg;
-            document.querySelectorAll('.btn-home').forEach(btn => btn.innerText = t.return_home);
+            // --- Main Logic ---
+            const params = new URLSearchParams(window.location.search);
+            const email = params.get('email');
 
-            document.querySelector('#card-error h1').innerText = t.error_title;
-            // Error msg is usually dynamic from server but we can translate default
-            if (document.getElementById('error-msg').innerText === i18n.en.error_msg || document.getElementById('error-msg').innerText === i18n.fr.error_msg) {
-                document.getElementById('error-msg').innerText = t.error_msg;
-            }
-        }
-
-        // --- Main Logic ---
-        const params = new URLSearchParams(window.location.search);
-        const email = params.get('email');
-
-        if (email) {
-            document.getElementById('user-email').innerText = email;
-        } else {
-            // No email provided - Update UI immediately to invalid state
-            const t = i18n[currentLang]; // Use current lang (init hasn't run yet but default is set)
-            document.getElementById('card-confirm').innerHTML = `
+            if (email) {
+                document.getElementById('user-email').innerText = email;
+            } else {
+                // No email provided - Update UI immediately to invalid state
+                const t = i18n[currentLang]; // Use current lang (init hasn't run yet but default is set)
+                document.getElementById('card-confirm').innerHTML = `
                 <div class="icon-box" style="background: rgba(255, 165, 2, 0.1); color: #ffa502;"><i class="fa-solid fa-link-slash"></i></div>
                 <h1>${t ? t.invalid_title : 'Invalid Link'}</h1>
                 <p>${t ? t.invalid_msg : 'No email address found.'}</p>
                 <a href="/" class="btn-home">${t ? t.return_home : 'Return Home'}</a>
              `;
-        }
-
-        async function confirmUnsubscribe() {
-            if (!email) return;
-
-            const t = i18n[currentLang];
-            const btn = document.querySelector('.btn-confirm');
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${t.processing}`;
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('/api/subscribe', {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: email })
-                });
-
-                if (res.ok) {
-                    document.getElementById('card-confirm').style.display = 'none';
-                    document.getElementById('card-success').style.display = 'block';
-                    // Re-run updateContent to ensure success card is translated
-                    updateContent();
-                } else {
-                    const err = await res.json();
-                    throw new Error(err.error || 'Failed to unsubscribe');
-                }
-            } catch (error) {
-                console.error(error);
-                document.getElementById('card-confirm').style.display = 'none';
-                document.getElementById('card-error').style.display = 'block';
-                document.getElementById('error-msg').innerText = error.message;
-                updateContent();
             }
-        }
 
-        // Start
-        init();
-    </script>
+            async function confirmUnsubscribe() {
+                if (!email) return;
+
+                const t = i18n[currentLang];
+                const btn = document.querySelector('.btn-confirm');
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${t.processing}`;
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('/api/subscribe', {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: email })
+                    });
+
+                    if (res.ok) {
+                        document.getElementById('card-confirm').style.display = 'none';
+                        document.getElementById('card-success').style.display = 'block';
+                        // Re-run updateContent to ensure success card is translated
+                        updateContent();
+                    } else {
+                        const err = await res.json();
+                        throw new Error(err.error || 'Failed to unsubscribe');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    document.getElementById('card-confirm').style.display = 'none';
+                    document.getElementById('card-error').style.display = 'block';
+                    document.getElementById('error-msg').innerText = error.message;
+                    updateContent();
+                }
+            }
+
+            // Start
+            init();
+        </script>
 </body>
 
 </html>

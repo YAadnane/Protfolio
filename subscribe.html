@@ -18,11 +18,12 @@
         }
 
         .subscribe-card {
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--card-bg);
+            /* Use variable */
             backdrop-filter: blur(10px);
             padding: 3rem;
             border-radius: 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--nav-border, rgba(255, 255, 255, 0.1));
             max-width: 400px;
             width: 90%;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -91,7 +92,7 @@
         .btn-home {
             background: transparent;
             color: var(--text-main, #fff);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid var(--nav-border, rgba(255, 255, 255, 0.2));
             padding: 0.8rem 2rem;
             border-radius: 0.5rem;
             margin-top: 1rem;
@@ -151,8 +152,8 @@
 
     <style>
         .btn-control {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: var(--control-bg, rgba(255, 255, 255, 0.1));
+            border: 1px solid var(--input-border, rgba(255, 255, 255, 0.2));
             color: var(--text-main, #fff);
             width: 40px;
             height: 40px;
@@ -165,7 +166,7 @@
         }
 
         .btn-control:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--nav-bg, rgba(255, 255, 255, 0.2));
             transform: scale(1.1);
         }
     </style>
