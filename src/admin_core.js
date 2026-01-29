@@ -1550,54 +1550,112 @@ function initThemeAdmin() {
 
 // Force apply styles if CSS fails
 window.applyThemeStyles = () => {
-    // console.log('Applying Theme Styles... Light Mode:', document.body.classList.contains('light-mode'));
     const isLight = document.body.classList.contains('light-mode');
     
-    // Project Cards
+    // Apply to HTML element as well for comprehensive coverage
+    if (isLight) {
+        document.documentElement.classList.add('light-mode');
+    } else {
+        document.documentElement.classList.remove('light-mode');
+    }
+    
+    // 1. Sidebar
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        if (isLight) {
+            sidebar.style.cssText = `
+                background: rgba(255, 255, 255, 0.95) !important;
+                border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
+            `;
+            sidebar.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.style.color = '#1a1a1a';
+                if (btn.classList.contains('active')) {
+                    btn.style.background = 'rgba(0, 0, 0, 0.08)';
+                    btn.style.color = '#000';
+                }
+            });
+        } else {
+            sidebar.style.cssText = '';
+            sidebar.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.style.color = '';
+                btn.style.background = '';
+            });
+        }
+    }
+    
+    // 2. Header
+    const header = document.querySelector('.header');
+    if (header) {
+        if (isLight) {
+            header.style.cssText = `
+                background: rgba(255, 255, 255, 0.95) !important;
+                border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+            `;
+            header.querySelectorAll('h1, button, select').forEach(el => {
+                el.style.color = '#1a1a1a';
+            });
+        } else {
+            header.style.cssText = '';
+            header.querySelectorAll('h1, button, select').forEach(el => {
+                el.style.color = '';
+            });
+        }
+    }
+    
+    // 3. Content Area
+    const content = document.querySelector('.content');
+    if (content) {
+        if (isLight) {
+            content.style.background = 'rgba(245, 245, 245, 0.95)';
+        } else {
+            content.style.background = '';
+        }
+    }
+    
+    // 4. Project Cards
     const cards = document.querySelectorAll('.admin-card');
-    // console.log('Found cards:', cards.length);
-
     cards.forEach(card => {
         if (isLight) {
-            // Nuke existing inline styles to ensure clean slate, then apply overrides
-            // We use !important in JS by manipulating cssText
             card.style.cssText = `
                 background-color: rgba(255, 255, 255, 0.9) !important;
                 border: 1px solid rgba(0, 0, 0, 0.1) !important;
                 color: #1a1a1a !important;
                 box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
                 backdrop-filter: blur(10px) !important;
-                opacity: ${card.style.opacity || 1}; /* Preserve opacity if set */
-                grid-column: ${card.style.gridColumn || 'auto'}; /* Preserve grid */
+                opacity: ${card.style.opacity || 1};
+                grid-column: ${card.style.gridColumn || 'auto'};
             `;
             
-            card.querySelectorAll('h3, p').forEach(el => {
-                el.style.color = (el.tagName === 'H3' ? '#1a1a1a' : '#555');
+            card.querySelectorAll('h3, p, h2').forEach(el => {
+                el.style.color = (el.tagName === 'H3' || el.tagName === 'H2' ? '#1a1a1a' : '#555');
                 el.style.textShadow = 'none';
             });
             
-             card.querySelectorAll('.tag').forEach(el => {
+            card.querySelectorAll('.tag').forEach(el => {
                 el.style.backgroundColor = 'rgba(0,0,0,0.05)';
                 el.style.color = '#333';
             });
 
         } else {
-            // Revert to stylesheet
             card.style.cssText = '';
-            // Restore functional styles if needed (opacity/grid) - complicating factor.
-            // Simplified: Just clear background/color/border
             card.style.backgroundColor = '';
             card.style.borderColor = ''; 
             card.style.color = '';
             card.style.boxShadow = '';
-            // We might lose opacity setting if we nuked cssText above? 
-            // Actually, in the 'else' block, we assume 'dark' is default CSS.
-            // But we need to be careful not to break opacity logic for hidden items.
-            // Better to NOT nuke cssText in dark mode, just remove specific overrides.
+            
+            card.querySelectorAll('h3, p, h2').forEach(el => {
+                el.style.color = '';
+                el.style.textShadow = '';
+            });
+            
+            card.querySelectorAll('.tag').forEach(el => {
+                el.style.backgroundColor = '';
+                el.style.color = '';
+            });
         }
     });
 
-    // Database Viewer (if active)
+    // 5. Database Viewer (if active)
     const dbSidebar = document.querySelector('.db-sidebar');
     const dbContent = document.querySelector('.db-content');
     if (dbSidebar && dbContent) {
@@ -1607,25 +1665,34 @@ window.applyThemeStyles = () => {
             dbSidebar.style.borderColor = 'rgba(0,0,0,0.1)';
             dbContent.style.borderColor = 'rgba(0,0,0,0.1)';
             document.querySelectorAll('.db-table-btn').forEach(btn => btn.style.color = '#1a1a1a');
-             document.querySelectorAll('.db-header, .db-table thead th').forEach(el => {
-                 el.style.backgroundColor = 'rgba(255,255,255,0.9)';
-                 el.style.color = '#000';
+            document.querySelectorAll('.db-header, .db-table thead th').forEach(el => {
+                el.style.backgroundColor = 'rgba(255,255,255,0.9)';
+                el.style.color = '#000';
             });
-             document.querySelectorAll('.db-table tbody td').forEach(el => el.style.color = '#333');
+            document.querySelectorAll('.db-table tbody td').forEach(el => el.style.color = '#333');
         } else {
-             // Reset
             dbSidebar.style.backgroundColor = '';
             dbContent.style.backgroundColor = '';
             dbSidebar.style.borderColor = '';
             dbContent.style.borderColor = '';
             document.querySelectorAll('.db-table-btn').forEach(btn => btn.style.color = '');
-             document.querySelectorAll('.db-header, .db-table thead th').forEach(el => {
-                 el.style.backgroundColor = '';
-                 el.style.color = '';
+            document.querySelectorAll('.db-header, .db-table thead th').forEach(el => {
+                el.style.backgroundColor = '';
+                el.style.color = '';
             });
-             document.querySelectorAll('.db-table tbody td').forEach(el => el.style.color = '');
+            document.querySelectorAll('.db-table tbody td').forEach(el => el.style.color = '');
         }
     }
+    
+    // 6. Buttons and Inputs
+    const buttons = document.querySelectorAll('.btn-primary, .btn-secondary, .btn-delete, .admin-input');
+    buttons.forEach(btn => {
+        if (isLight && !btn.classList.contains('btn-delete')) {
+            btn.style.color = '#1a1a1a';
+        } else if (!isLight) {
+            btn.style.color = '';
+        }
+    });
 };
 
 
