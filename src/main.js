@@ -3960,8 +3960,8 @@ window.handleSubscribe = async function(e) {
         
         const data = await res.json();
 
-        if (res.status === 201 || res.status === 200) {
-            // Created (New) or Reactivated (200)
+        if (res.status === 201) {
+            // Created (New)
             const msg = data.message || (translations && translations[currentLang] && translations[currentLang]["subscribe.success"] 
                 ? translations[currentLang]["subscribe.success"] 
                 : "Welcome to the community! 🚀");
@@ -3974,6 +3974,17 @@ window.handleSubscribe = async function(e) {
             localStorage.setItem('portfolio_subscribed', 'true');
             // Reset form
             document.getElementById('subscribe-form').reset();
+        } else if (res.status === 200) {
+             // Reactivated (200) - Use specific message
+            const msg = data.message || (translations && translations[currentLang] && translations[currentLang]["subscribe.reactivated"] 
+                ? translations[currentLang]["subscribe.reactivated"] 
+                : "Welcome back! Your subscription has been reactivated. 🚀");
+            
+            showToast(msg, 'success');
+            
+            closeSubscribeModal();
+            localStorage.setItem('portfolio_subscribed', 'true');
+            document.getElementById('subscribe-form').reset();
         } else if (res.status === 409) {
             // Already exists
             const msg = data.error || (translations && translations[currentLang] && translations[currentLang]["subscribe.exists"] 
@@ -3984,11 +3995,17 @@ window.handleSubscribe = async function(e) {
              // Close modal
             closeSubscribeModal();
         } else {
-            showToast(data.error || 'Something went wrong.', 'error');
+            const msg = (translations && translations[currentLang] && translations[currentLang]["error.generic"] 
+                ? translations[currentLang]["error.generic"] 
+                : "Something went wrong.");
+            showToast(data.error || msg, 'error');
         }
     } catch (err) {
         console.error(err);
-        showToast("Server error. Please try again later.", 'error');
+        const msg = (translations && translations[currentLang] && translations[currentLang]["error.server"] 
+            ? translations[currentLang]["error.server"] 
+            : "Server error. Please try again later.");
+        showToast(msg, 'error');
     } finally {
         btn.disabled = false;
         btn.innerHTML = originalText;
@@ -4049,7 +4066,10 @@ window.handleUnsubscribe = async (e) => {
         }
     } catch (err) {
         console.error(err);
-        showToast("Server error.", 'error');
+        const msg = (translations && translations[currentLang] && translations[currentLang]["error.server"] 
+            ? translations[currentLang]["error.server"] 
+            : "Server error.");
+        showToast(msg, 'error');
     }
 };
 

@@ -126,12 +126,15 @@ export const translations = {
         "subscribe.email_placeholder": "Your Email",
         "subscribe.footer": "No spam, just tech. <button class='link-text' onclick='openUnsubscribeModal()' style='background:none;border:none;padding:0;font:inherit;cursor:pointer;text-decoration:underline;color:inherit;'>Unsubscribe anytime.</button>",
         "subscribe.success": "Welcome to the community! 🚀",
+        "subscribe.reactivated": "Welcome back! Your subscription has been reactivated. 🚀",
         "subscribe.exists": "You are already subscribed.",
         "unsubscribe.title": "Unsubscribe",
         "unsubscribe.subtitle": "We're sad to see you go.",
         "unsubscribe.btn": "Confirm Unsubscribe",
         "unsubscribe.success": "Unsubscribed successfully.",
         "unsubscribe.error": "Email not found or error.",
+        "error.server": "Server error. Please try again later.",
+        "error.generic": "Something went wrong.",
         "footer.subscribe": "Subscribe to Newsletter"
     },
     fr: {
@@ -262,12 +265,15 @@ export const translations = {
         "subscribe.email_placeholder": "Votre Email",
         "subscribe.footer": "Pas de spam. <button class='link-text' onclick='openUnsubscribeModal()' style='background:none;border:none;padding:0;font:inherit;cursor:pointer;text-decoration:underline;color:inherit;'>Désabonnement à tout moment.</button>",
         "subscribe.success": "Bienvenue dans la communauté ! 🚀",
+        "subscribe.reactivated": "Re-bienvenue ! Votre abonnement est réactivé. 🚀",
         "subscribe.exists": "Vous êtes déjà abonné.",
         "unsubscribe.title": "Se désabonner",
         "unsubscribe.subtitle": "Nous sommes tristes de vous voir partir.",
         "unsubscribe.btn": "Confirmer le désabonnement",
         "unsubscribe.success": "Désabonné avec succès.",
         "unsubscribe.error": "Email introuvable ou erreur.",
+        "error.server": "Erreur serveur. Veuillez réessayer.",
+        "error.generic": "Une erreur est survenue.",
         "footer.subscribe": "S'abonner à la Newsletter"
     }
 };
