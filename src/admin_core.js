@@ -1563,10 +1563,8 @@ window.applyThemeStyles = () => {
     const sidebar = document.querySelector('.sidebar');
     if (sidebar) {
         if (isLight) {
-            sidebar.style.cssText = `
-                background: rgba(255, 255, 255, 0.95) !important;
-                border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
-            `;
+            sidebar.style.background = 'rgba(255, 255, 255, 0.95)';
+            sidebar.style.borderRight = '1px solid rgba(0, 0, 0, 0.1)';
             sidebar.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.style.color = '#1a1a1a';
                 if (btn.classList.contains('active')) {
@@ -1575,7 +1573,8 @@ window.applyThemeStyles = () => {
                 }
             });
         } else {
-            sidebar.style.cssText = '';
+            sidebar.style.background = '';
+            sidebar.style.borderRight = '';
             sidebar.querySelectorAll('.tab-btn').forEach(btn => {
                 btn.style.color = '';
                 btn.style.background = '';
@@ -1587,15 +1586,14 @@ window.applyThemeStyles = () => {
     const header = document.querySelector('.header');
     if (header) {
         if (isLight) {
-            header.style.cssText = `
-                background: rgba(255, 255, 255, 0.95) !important;
-                border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
-            `;
+            header.style.background = 'rgba(255, 255, 255, 0.95)';
+            header.style.borderBottom = '1px solid rgba(0, 0, 0, 0.1)';
             header.querySelectorAll('h1, button, select').forEach(el => {
                 el.style.color = '#1a1a1a';
             });
         } else {
-            header.style.cssText = '';
+            header.style.background = '';
+            header.style.borderBottom = '';
             header.querySelectorAll('h1, button, select').forEach(el => {
                 el.style.color = '';
             });
@@ -1612,19 +1610,14 @@ window.applyThemeStyles = () => {
         }
     }
     
-    // 4. Project Cards
+    // 4. Project Cards - ONLY modify color properties
     const cards = document.querySelectorAll('.admin-card');
     cards.forEach(card => {
         if (isLight) {
-            card.style.cssText = `
-                background-color: rgba(255, 255, 255, 0.9) !important;
-                border: 1px solid rgba(0, 0, 0, 0.1) !important;
-                color: #1a1a1a !important;
-                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
-                backdrop-filter: blur(10px) !important;
-                opacity: ${card.style.opacity || 1};
-                grid-column: ${card.style.gridColumn || 'auto'};
-            `;
+            card.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+            card.style.border = '1px solid rgba(0, 0, 0, 0.1)';
+            card.style.color = '#1a1a1a';
+            card.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.05)';
             
             card.querySelectorAll('h3, p, h2').forEach(el => {
                 el.style.color = (el.tagName === 'H3' || el.tagName === 'H2' ? '#1a1a1a' : '#555');
@@ -1637,9 +1630,8 @@ window.applyThemeStyles = () => {
             });
 
         } else {
-            card.style.cssText = '';
             card.style.backgroundColor = '';
-            card.style.borderColor = ''; 
+            card.style.border = '';
             card.style.color = '';
             card.style.boxShadow = '';
             
