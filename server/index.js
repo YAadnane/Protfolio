@@ -131,34 +131,88 @@ app.post('/api/subscribe', async (req, res) => {
         return res.status(400).json({ error: "Invalid email format." });
     }
 
-    // Use INSERT OR IGNORE, relying on the UNIQUE index we will add
-    db.run("INSERT OR IGNORE INTO subscribers (name, email) VALUES (?, ?)", [name, email], function(err) {
+    // First, check if email already exists
+    db.get("SELECT * FROM subscribers WHERE email = ?", [email], function(err, subscriber) {
         if (err) {
-            console.error("Database error during subscription:", err.message);
+            console.error("Database error during subscription check:", err.message);
             return res.status(500).json({ error: "Failed to subscribe due to a server error." });
         }
-        if (this.changes > 0) {
-            // Send email notification to admin about new subscription
-            const mailOptions = {
-                from: process.env.ADMIN_EMAIL,
-                to: process.env.ADMIN_EMAIL,
-                subject: '🎉 New Newsletter Subscription',
-                html: `
-                    <h3>New Subscriber!</h3>
-                    <p><strong>Name:</strong> ${name || 'Not provided'}</p>
-                    <p><strong>Email:</strong> ${email}</p>
-                    <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
-                `
-            };
-            
-            transporter.sendMail(mailOptions, (error) => {
-                if (error) console.error('Failed to send subscription notification:', error);
-            });
-            
-            res.status(201).json({ message: "Successfully subscribed!" });
+
+        if (subscriber) {
+            // Email exists - check if it's deactivated
+            if (subscriber.is_active === 0 || subscriber.unsubscribed_at !== null) {
+                // Reactivate the subscription
+                db.run(
+                    "UPDATE subscribers SET is_active = 1, unsubscribed_at = NULL, name = ?, subscribed_at = CURRENT_TIMESTAMP WHERE email = ?",
+                    [name || subscriber.name, email],
+                    function(updateErr) {
+                        if (updateErr) {
+                            console.error("Database error during reactivation:", updateErr.message);
+                            return res.status(500).json({ error: "Failed to reactivate subscription." });
+                        }
+
+                        // Send welcome back email
+                        sendWelcomeEmail(email, name || subscriber.name);
+
+                        // Notify admin
+                        const mailOptions = {
+                            from: process.env.ADMIN_EMAIL,
+                            to: process.env.ADMIN_EMAIL,
+                            subject: '🔄 Newsletter Re-subscription',
+                            html: `
+                                <h3>Subscriber Reactivated!</h3>
+                                <p><strong>Name:</strong> ${name || subscriber.name || 'Not provided'}</p>
+                                <p><strong>Email:</strong> ${email}</p>
+                                <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+                                <p><em>This subscriber had previously unsubscribed and has now reactivated their subscription.</em></p>
+                            `
+                        };
+                        
+                        transporter.sendMail(mailOptions, (error) => {
+                            if (error) console.error('Failed to send reactivation notification:', error);
+                        });
+
+                        return res.status(200).json({ message: "Welcome back! Your subscription has been reactivated." });
+                    }
+                );
+            } else {
+                // Already active
+                return res.status(200).json({ message: "You are already subscribed." });
+            }
         } else {
-            // changes == 0 means it was ignored, so it's a duplicate
-            res.status(200).json({ message: "You are already subscribed." });
+            // Email doesn't exist - create new subscription
+            db.run(
+                "INSERT INTO subscribers (name, email) VALUES (?, ?)",
+                [name, email],
+                function(insertErr) {
+                    if (insertErr) {
+                        console.error("Database error during insertion:", insertErr.message);
+                        return res.status(500).json({ error: "Failed to subscribe due to a server error." });
+                    }
+
+                    // Send welcome email to new subscriber
+                    sendWelcomeEmail(email, name);
+
+                    // Send email notification to admin about new subscription
+                    const mailOptions = {
+                        from: process.env.ADMIN_EMAIL,
+                        to: process.env.ADMIN_EMAIL,
+                        subject: '🎉 New Newsletter Subscription',
+                        html: `
+                            <h3>New Subscriber!</h3>
+                            <p><strong>Name:</strong> ${name || 'Not provided'}</p>
+                            <p><strong>Email:</strong> ${email}</p>
+                            <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
+                        `
+                    };
+                    
+                    transporter.sendMail(mailOptions, (error) => {
+                        if (error) console.error('Failed to send subscription notification:', error);
+                    });
+                    
+                    return res.status(201).json({ message: "Successfully subscribed!" });
+                }
+            );
         }
     });
 });
