@@ -20,11 +20,13 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
+const SENDER_EMAIL = process.env.ADMIN_EMAIL || 'yadani.adnane20@gmail.com';
+
 // Email Transporter
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.ADMIN_EMAIL || 'yadani.adnane20@gmail.com', // Fallback or Env
+        user: SENDER_EMAIL, // Fallback or Env
         pass: process.env.EMAIL_PASS // App Password
     }
 });
@@ -156,8 +158,8 @@ app.post('/api/subscribe', async (req, res) => {
 
                         // Notify admin
                         const mailOptions = {
-                            from: process.env.ADMIN_EMAIL,
-                            to: process.env.ADMIN_EMAIL,
+                            from: SENDER_EMAIL,
+                            to: SENDER_EMAIL,
                             subject: '🔄 Newsletter Re-subscription',
                             html: `
                                 <h3>Subscriber Reactivated!</h3>
@@ -195,8 +197,8 @@ app.post('/api/subscribe', async (req, res) => {
 
                     // Send email notification to admin about new subscription
                     const mailOptions = {
-                        from: process.env.ADMIN_EMAIL,
-                        to: process.env.ADMIN_EMAIL,
+                        from: SENDER_EMAIL,
+                        to: SENDER_EMAIL,
                         subject: '🎉 New Newsletter Subscription',
                         html: `
                             <h3>New Subscriber!</h3>
@@ -239,8 +241,8 @@ app.delete('/api/subscribe', (req, res) => {
         if (this.changes > 0) {
             // Send email notification to admin about unsubscription
             const mailOptions = {
-                from: process.env.ADMIN_EMAIL,
-                to: process.env.ADMIN_EMAIL,
+                from: SENDER_EMAIL,
+                to: SENDER_EMAIL,
                 subject: '👋 Newsletter Unsubscription',
                 html: `
                     <h3>Someone Unsubscribed</h3>
@@ -532,7 +534,7 @@ const sendSubscriberNotification = async (type, item) => {
                 `;
 
                  const mailOptions = {
-                    from: `"Adnane's Portfolio" <${process.env.ADMIN_EMAIL}>`,
+                    from: `"Adnane's Portfolio" <${SENDER_EMAIL}>`,
                     to: sub.email,
                     subject: subject,
                     html: finalHtml
@@ -653,10 +655,10 @@ const sendWelcomeEmail = async (email, name) => {
                 </div>
             </body>
             </html>
-        `;
+                `;
 
         const mailOptions = {
-            from: `"Adnane's Portfolio" <${process.env.ADMIN_EMAIL}>`,
+            from: `"Adnane's Portfolio" <${SENDER_EMAIL}>`,
             to: email,
             subject: '🎉 Bienvenue dans ma communauté !',
             html: htmlContent
@@ -771,7 +773,7 @@ const sendGoodbyeEmail = async (email, name) => {
         `;
 
         const mailOptions = {
-            from: `"Adnane's Portfolio" <${process.env.ADMIN_EMAIL}>`,
+            from: `"Adnane's Portfolio" <${SENDER_EMAIL}>`,
             to: email,
             subject: '👋 Merci et à bientôt !',
             html: htmlContent
