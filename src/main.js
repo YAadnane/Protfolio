@@ -3960,11 +3960,12 @@ window.handleSubscribe = async function(e) {
         
         const data = await res.json();
 
-        if (res.status === 201) {
-            // Created (New)
-            const msg = translations && translations[currentLang] && translations[currentLang]["subscribe.success"] 
+        if (res.status === 201 || res.status === 200) {
+            // Created (New) or Reactivated (200)
+            const msg = data.message || (translations && translations[currentLang] && translations[currentLang]["subscribe.success"] 
                 ? translations[currentLang]["subscribe.success"] 
-                : "Welcome to the community! 🚀";
+                : "Welcome to the community! 🚀");
+            
             showToast(msg, 'success');
             
             // Close modal
@@ -3973,11 +3974,11 @@ window.handleSubscribe = async function(e) {
             localStorage.setItem('portfolio_subscribed', 'true');
             // Reset form
             document.getElementById('subscribe-form').reset();
-        } else if (res.status === 200) {
-            // OK (Already exists)
-            const msg = translations && translations[currentLang] && translations[currentLang]["subscribe.exists"] 
+        } else if (res.status === 409) {
+            // Already exists
+            const msg = data.error || (translations && translations[currentLang] && translations[currentLang]["subscribe.exists"] 
                 ? translations[currentLang]["subscribe.exists"] 
-                : "You are already subscribed.";
+                : "You are already subscribed.");
             showToast(msg, 'info'); // Info style for duplicate
             
              // Close modal

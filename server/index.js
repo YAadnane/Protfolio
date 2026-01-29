@@ -143,7 +143,7 @@ app.post('/api/subscribe', async (req, res) => {
             if (subscriber.is_active === 0 || subscriber.unsubscribed_at !== null) {
                 // Reactivate the subscription
                 db.run(
-                    "UPDATE subscribers SET is_active = 1, unsubscribed_at = NULL, name = ?, subscribed_at = CURRENT_TIMESTAMP WHERE email = ?",
+                    "UPDATE subscribers SET is_active = 1, unsubscribed_at = NULL, name = ?, date = CURRENT_TIMESTAMP WHERE email = ?",
                     [name || subscriber.name, email],
                     function(updateErr) {
                         if (updateErr) {
@@ -177,7 +177,7 @@ app.post('/api/subscribe', async (req, res) => {
                 );
             } else {
                 // Already active
-                return res.status(200).json({ message: "You are already subscribed." });
+                return res.status(409).json({ error: "You are already subscribed." });
             }
         } else {
             // Email doesn't exist - create new subscription
@@ -254,6 +254,9 @@ app.delete('/api/subscribe', (req, res) => {
                 if (error) console.error('Failed to send unsubscription notification:', error);
             });
             
+            // Send goodbye email
+            sendGoodbyeEmail(email, null); // We don't have the name here, but the function handles it
+
             res.json({ message: "Unsubscribed successfully." });
         } else {
             res.status(404).json({ error: "Email not found." });
