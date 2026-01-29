@@ -194,6 +194,14 @@ erDiagram
         float pos_x
         string lang
     }
+    SUBSCRIBERS {
+        int id PK
+        string email
+        string name
+        boolean is_active
+        datetime created_at
+        datetime unsubscribed_at
+    }
 
     PROJECTS }|--|{ SKILLS : "conceptual tag match"
 ```
@@ -258,8 +266,11 @@ sequenceDiagram
 ├── src/                
 │   ├── admin_core.js   # Dashboard Logic (Glassmorphism UI)
 │   ├── main.js         # Public Portfolio Logic (Animations)
+│   ├── translations.js # Static Translations (EN/FR)
 │   └── styles/         # CSS Modules
-└── index.html          # Entry Point
+├── index.html          # Entry Point
+├── subscribe.html      # Re-subscription Page
+└── unsubscribe.html    # Unsubscribe Confirmation Page
 ```
 
 ---
