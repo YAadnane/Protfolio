@@ -2497,9 +2497,18 @@ app.get('/api/admin/database/table/:name', authenticateToken, (req, res) => {
             return res.status(400).json({ error: 'Invalid table name' });
         }
 
-        db.all(`SELECT * FROM ${tableName} ORDER BY id DESC LIMIT 100`, [], (err, rows) => {
+
+        // Check if table has an 'id' column
+        db.all(`PRAGMA table_info(${tableName})`, [], (err, columns) => {
             if (err) return res.status(500).json({ error: err.message });
-            res.json(rows);
+            
+            const hasId = columns.some(col => col.name === 'id');
+            const orderBy = hasId ? 'ORDER BY id DESC' : '';
+            
+            db.all(`SELECT * FROM ${tableName} ${orderBy} LIMIT 100`, [], (err, rows) => {
+                if (err) return res.status(500).json({ error: err.message });
+                res.json(rows);
+            });
         });
     });
 });

@@ -1603,21 +1603,52 @@ function initMaintenanceToggle() {
 
     btn.addEventListener('click', () => {
         const newState = !isMaintenanceMode;
-        if (!confirm(`Are you sure you want to turn ${newState ? 'ON' : 'OFF'} Maintenance Mode?\n\nWhen ON, visitors will see a popup.`)) return;
+        
+        // Custom Modal Logic
+        const modal = document.getElementById('custom-modal-overlay');
+        const msg = document.getElementById('modal-message');
+        const confirmBtn = document.getElementById('modal-confirm-btn');
+        const cancelBtn = document.getElementById('modal-cancel-btn');
 
-        const token = localStorage.getItem('admin_token');
-        console.log("🔐 Token for Maintenance Toggle:", token ? token.substring(0, 10) + '...' : 'NULL');
+        if (modal && msg && confirmBtn && cancelBtn) {
+            msg.innerText = `Are you sure you want to turn ${newState ? 'ON' : 'OFF'} Maintenance Mode?\n\nWhen ON, visitors will see a popup.`;
+            modal.style.display = 'flex';
 
-        fetch('/api/settings/maintenance', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` 
-            },
-            body: JSON.stringify({ enabled: newState })
-        })
-        .then(res => res.json())
-        .then(data => {
+            const cleanup = () => {
+                modal.style.display = 'none';
+                confirmBtn.onclick = null;
+                cancelBtn.onclick = null;
+            };
+
+            cancelBtn.onclick = cleanup;
+
+            confirmBtn.onclick = () => {
+                cleanup();
+                executeMaintenanceToggle(newState);
+            };
+        } else {
+            // Fallback if modal missing
+            if (confirm(`Turn ${newState ? 'ON' : 'OFF'} Maintenance Mode?`)) {
+                executeMaintenanceToggle(newState);
+            }
+        }
+    });
+}
+
+function executeMaintenanceToggle(newState) {
+    const token = localStorage.getItem('admin_token');
+    console.log("🔐 Token for Maintenance Toggle:", token ? token.substring(0, 10) + '...' : 'NULL');
+
+    fetch('/api/settings/maintenance', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ enabled: newState })
+    })
+    .then(res => res.json())
+    .then(data => {
             if (data.success) {
                 isMaintenanceMode = data.enabled;
                 updateMaintenanceBtnAPI(btn);
