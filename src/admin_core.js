@@ -1650,16 +1650,13 @@ function executeMaintenanceToggle(newState) {
     .then(res => res.json())
     .then(data => {
             if (data.success) {
-                isMaintenanceMode = data.enabled;
-                updateMaintenanceBtnAPI(btn);
-                showToast(`Maintenance Mode ${isMaintenanceMode ? 'ENABLED' : 'DISABLED'}`, 'success');
-            }
-        })
         .catch(err => showToast('Failed to update maintenance mode', 'error'));
-    });
 }
 
 function updateMaintenanceBtnAPI(btn) {
+    if (!btn) btn = document.getElementById('admin-maintenance-switch');
+    if (!btn) return;
+
     if (isMaintenanceMode) {
         btn.style.color = '#ff4757';
         btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
