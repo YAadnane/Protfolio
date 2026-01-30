@@ -1528,26 +1528,59 @@ function setupModal() {
 // Theme Logic
 // Theme Logic
 // Theme Logic
+// Theme Logic
 function initThemeAdmin() {
+    console.log("%c🎨 Theme Init Started", "color: cyan; font-weight: bold; font-size: 14px;");
+    
+    // 1. Check Button Existence
     const themeBtn = document.getElementById('admin-theme-switch');
+    if (!themeBtn) {
+        console.error("❌ Theme button NOT found with ID 'admin-theme-switch'");
+        return;
+    }
+    console.log("✅ Theme button found:", themeBtn);
+
+    // 2. Initial State Load
     const savedTheme = localStorage.getItem('theme') || 'dark';
+    console.log("📂 Saved theme:", savedTheme);
     
     // Apply saved theme
     if (savedTheme === 'light') {
+        console.log("☀️ Applying initial LIGHT mode");
         document.body.classList.add('light-mode');
         document.documentElement.classList.add('light-mode');
-        if(themeBtn) themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+        themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+    } else {
+        console.log("🌙 Keeping initial DARK mode");
     }
 
-    if (themeBtn) {
-        themeBtn.addEventListener('click', () => {
-             document.body.classList.toggle('light-mode');
-             document.documentElement.classList.toggle('light-mode');
-             const isLight = document.body.classList.contains('light-mode');
-             localStorage.setItem('theme', isLight ? 'light' : 'dark');
-             themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-        });
-    }
+    // 3. Attach Event Listener
+    // Remove old listener if any (by cloning) - failsafe
+    const newBtn = themeBtn.cloneNode(true);
+    themeBtn.parentNode.replaceChild(newBtn, themeBtn);
+    
+    newBtn.addEventListener('click', (e) => {
+        e.preventDefault(); // Stop any default behavior
+        console.log("🖱️ Theme button CLICKED");
+        
+        // Toggle Logic
+        document.body.classList.toggle('light-mode');
+        document.documentElement.classList.toggle('light-mode');
+        
+        // Check State
+        const isLight = document.body.classList.contains('light-mode');
+        console.log("💡 New State Is Light:", isLight);
+        
+        // Save & UI Update
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        newBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+        
+        // Debug Visual Confirmation
+        console.log("📄 <html class>:", document.documentElement.className);
+        console.log("📄 <body class>:", document.body.className);
+    });
+    
+    console.log("✅ Event Listener Attached to new button");
 }
 
 
