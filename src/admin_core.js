@@ -1605,7 +1605,7 @@ function initMaintenanceToggle() {
         const newState = !isMaintenanceMode;
         if (!confirm(`Are you sure you want to turn ${newState ? 'ON' : 'OFF'} Maintenance Mode?\n\nWhen ON, visitors will see a popup.`)) return;
 
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('admin_token');
         console.log("🔐 Token for Maintenance Toggle:", token ? token.substring(0, 10) + '...' : 'NULL');
 
         fetch('/api/settings/maintenance', {
