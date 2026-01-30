@@ -33,8 +33,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     initMobileMenu();
     initContactForm();
     initChatbot(); // Initialize Chatbot
+    initChatbot(); // Initialize Chatbot
     initReviewModal();
+    checkMaintenanceMode();
 });
+
+// Maintenance Mode Check
+function checkMaintenanceMode() {
+    fetch('/api/settings/maintenance')
+        .then(res => res.json())
+        .then(data => {
+            if (data.enabled) {
+                const overlay = document.getElementById('maintenance-overlay');
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                    document.body.style.overflow = 'hidden'; // Lock scroll
+                }
+            }
+        })
+        .catch(err => console.error('Maintenance Check Error:', err));
+}
 
 function initContactForm() {
     const form = document.querySelector('.contact-form');
