@@ -109,6 +109,9 @@ export const translations = {
         "project.description": "Description",
         "project.view_code": "View Code",
         "project.view_project": "View Project <i class='fa-solid fa-arrow-right'></i>",
+        // Maintenance
+        "maintenance.title": "Site Under Maintenance",
+        "maintenance.message": "We are currently improving the experience. Please check back later. <i class='fa-solid fa-ghost fa-bounce'></i>",
         // Article Modal
         "article.loading": "Loading article...",
         "article.no_content": "No content available.",
@@ -274,6 +277,9 @@ export const translations = {
         "unsubscribe.error": "Email introuvable ou erreur.",
         "error.server": "Erreur serveur. Veuillez réessayer.",
         "error.generic": "Une erreur est survenue.",
-        "footer.subscribe": "S'abonner à la Newsletter"
+        "footer.subscribe": "S'abonner à la Newsletter",
+        // Maintenance
+        "maintenance.title": "Site en Maintenance",
+        "maintenance.message": "Nous améliorons actuellement l'expérience. Veuillez revenir plus tard. <i class='fa-solid fa-ghost fa-bounce'></i>"
     }
 };
