@@ -1148,6 +1148,32 @@
                 <h1>Dashboard</h1>
             </div>
             <div style="display: flex; gap: 1rem; align-items: center;">
+                <script>
+                    // Global Toast Function
+                    window.showToast = function (message, type = 'success') {
+                        const toast = document.createElement('div');
+                        toast.className = `toast toast-${type}`;
+                        toast.style.position = 'fixed';
+                        toast.style.bottom = '20px';
+                        toast.style.right = '20px';
+                        toast.style.padding = '1rem 2rem';
+                        toast.style.borderRadius = '8px';
+                        toast.style.color = '#fff';
+                        toast.style.zIndex = '10000';
+                        toast.style.background = type === 'success' ? '#2ed573' : '#ff4757';
+                        toast.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+                        toast.style.animation = 'slideIn 0.3s ease-out forwards';
+
+                        toast.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+
+                        document.body.appendChild(toast);
+
+                        setTimeout(() => {
+                            toast.style.animation = 'slideOut 0.3s ease-in forwards';
+                            setTimeout(() => toast.remove(), 300);
+                        }, 3000);
+                    }
+                </script>
                 <div class="lang-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fa-solid fa-globe" style="color: #888;"></i>
                     <select id="admin-lang-select" class="admin-select">
