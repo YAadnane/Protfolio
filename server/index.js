@@ -2999,27 +2999,59 @@ app.get('/api/admin/system', authenticateToken, async (req, res) => {
 // =========================================
 // GLOBAL SETTINGS API
 // =========================================
-app.get('/api/settings/maintenance', async (req, res) => {
-    try {
-        db.get("SELECT value FROM settings WHERE key = 'maintenance_mode'", (err, row) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ enabled: row ? row.value === 'true' : false });
+// Helper to ensure settings table exists
+const ensureSettingsTable = () => {
+    return new Promise((resolve, reject) => {
+        db.run("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)", (err) => {
+            if (err) return reject(err);
+            db.run("INSERT OR IGNORE INTO settings (key, value) VALUES ('maintenance_mode', 'false')", (err) => {
+                if (err) return reject(err);
+                resolve();
+            });
         });
-    } catch (err) {
-        res.status(500).json({ error: 'Database error' });
-    }
+    });
+};
+
+app.get('/api/settings/maintenance', async (req, res) => {
+    const fetchSettings = () => {
+        db.get("SELECT value FROM settings WHERE key = 'maintenance_mode'", (err, row) => {
+            if (err) {
+                // If table missing, try to create it and retry
+                if (err.message && err.message.includes('no such table')) {
+                    console.log('Settings table missing, creating...');
+                    ensureSettingsTable()
+                        .then(() => fetchSettings()) // Retry
+                        .catch(createErr => res.status(500).json({ error: 'Failed to create table: ' + createErr.message }));
+                } else {
+                    res.status(500).json({ error: err.message });
+                }
+            } else {
+                res.json({ enabled: row ? row.value === 'true' : false });
+            }
+        });
+    };
+    fetchSettings();
 });
 
 app.post('/api/settings/maintenance', authenticateToken, async (req, res) => {
     const { enabled } = req.body;
-    try {
+    const updateSettings = () => {
         db.run("INSERT OR REPLACE INTO settings (key, value) VALUES ('maintenance_mode', ?)", [enabled ? 'true' : 'false'], (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true, enabled });
+            if (err) {
+                 if (err.message && err.message.includes('no such table')) {
+                    console.log('Settings table missing during POST, creating...');
+                     ensureSettingsTable()
+                        .then(() => updateSettings()) // Retry
+                        .catch(createErr => res.status(500).json({ error: 'Failed to create table: ' + createErr.message }));
+                 } else {
+                     return res.status(500).json({ error: err.message });
+                 }
+            } else {
+                res.json({ success: true, enabled });
+            }
         });
-    } catch (err) {
-        res.status(500).json({ error: 'Database error' });
-    }
+    };
+    updateSettings();
 });
 
 // =========================================
