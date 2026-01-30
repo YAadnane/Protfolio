@@ -597,7 +597,101 @@
         }
     </style>
     <style id="light-mode-styles">
-        /* --- ISOLATED LIGHT MODE OVERRIDES --- */
+        /* --- SAFE LIGHT MODE OVERRIDES (Colors Only) --- */
+
+        /* Global Background */
+        body.light-mode,
+        html.light-mode {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%) !important;
+        }
+
+        /* Sidebar (Background only, no layout) */
+        body.light-mode .sidebar,
+        html.light-mode .sidebar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-right: 1px solid rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* Sidebar Buttons */
+        body.light-mode .sidebar-btn,
+        body.light-mode .tab-btn,
+        html.light-mode .sidebar-btn,
+        html.light-mode .tab-btn {
+            color: #1a1a1a !important;
+        }
+
+        body.light-mode .sidebar-btn.active,
+        body.light-mode .tab-btn.active,
+        html.light-mode .sidebar-btn.active,
+        html.light-mode .tab-btn.active {
+            color: var(--accent-color) !important;
+            background: rgba(0, 0, 0, 0.05) !important;
+        }
+
+        body.light-mode .sidebar-btn:hover,
+        body.light-mode .tab-btn:hover,
+        html.light-mode .sidebar-btn:hover,
+        html.light-mode .tab-btn:hover {
+            background: rgba(0, 0, 0, 0.03) !important;
+        }
+
+        /* Admin Header */
+        body.light-mode .admin-header,
+        body.light-mode .header,
+        html.light-mode .admin-header,
+        html.light-mode .header {
+            background: transparent !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+        }
+
+        body.light-mode .admin-header h1,
+        body.light-mode .admin-header button,
+        body.light-mode .admin-header select,
+        body.light-mode .header h1,
+        body.light-mode .header button,
+        body.light-mode .header select,
+        html.light-mode .admin-header h1,
+        html.light-mode .admin-header button,
+        html.light-mode .admin-header select,
+        html.light-mode .header h1,
+        html.light-mode .header button,
+        html.light-mode .header select {
+            color: #1a1a1a !important;
+        }
+
+        /* Content Area */
+        body.light-mode .content,
+        body.light-mode .admin-layout,
+        html.light-mode .content,
+        html.light-mode .admin-layout {
+            background: transparent !important;
+        }
+
+        /* Admin Grid & Cards */
+        body.light-mode .admin-grid,
+        html.light-mode .admin-grid {
+            background: transparent !important;
+        }
+
+        body.light-mode .admin-card,
+        html.light-mode .admin-card {
+            background-color: rgba(255, 255, 255, 0.85) !important;
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            color: #1a1a1a !important;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        body.light-mode .admin-card h3,
+        body.light-mode .admin-card p,
+        body.light-mode .admin-card h2,
+        html.light-mode .admin-card h3,
+        html.light-mode .admin-card p,
+        html.light-mode .admin-card h2 {
+            color: #1a1a1a !important;
+            text-shadow: none !important;
+        }
+
+        /* Keep existing margin/padding logic, only touch colors */
 
         /* 1. Database Viewer */
         body.light-mode .db-sidebar,

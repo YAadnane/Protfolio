@@ -1527,106 +1527,28 @@ function setupModal() {
 
 // Theme Logic
 // Theme Logic
+// Theme Logic
 function initThemeAdmin() {
     const themeBtn = document.getElementById('admin-theme-switch');
     const savedTheme = localStorage.getItem('theme') || 'dark';
     
+    // Apply saved theme
     if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
+        document.documentElement.classList.add('light-mode');
         if(themeBtn) themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
-        applyThemeStyles();
     }
 
     if (themeBtn) {
         themeBtn.addEventListener('click', () => {
              document.body.classList.toggle('light-mode');
+             document.documentElement.classList.toggle('light-mode');
              const isLight = document.body.classList.contains('light-mode');
              localStorage.setItem('theme', isLight ? 'light' : 'dark');
              themeBtn.innerHTML = isLight ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
-             applyThemeStyles();
         });
     }
 }
-
-// Force apply styles if CSS fails
-window.applyThemeStyles = () => {
-    // console.log('Applying Theme Styles... Light Mode:', document.body.classList.contains('light-mode'));
-    const isLight = document.body.classList.contains('light-mode');
-    
-    // Project Cards
-    const cards = document.querySelectorAll('.admin-card');
-    // console.log('Found cards:', cards.length);
-
-    cards.forEach(card => {
-        if (isLight) {
-            // Nuke existing inline styles to ensure clean slate, then apply overrides
-            // We use !important in JS by manipulating cssText
-            card.style.cssText = `
-                background-color: rgba(255, 255, 255, 0.9) !important;
-                border: 1px solid rgba(0, 0, 0, 0.1) !important;
-                color: #1a1a1a !important;
-                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05) !important;
-                backdrop-filter: blur(10px) !important;
-                opacity: ${card.style.opacity || 1}; /* Preserve opacity if set */
-                grid-column: ${card.style.gridColumn || 'auto'}; /* Preserve grid */
-            `;
-            
-            card.querySelectorAll('h3, p').forEach(el => {
-                el.style.color = (el.tagName === 'H3' ? '#1a1a1a' : '#555');
-                el.style.textShadow = 'none';
-            });
-            
-             card.querySelectorAll('.tag').forEach(el => {
-                el.style.backgroundColor = 'rgba(0,0,0,0.05)';
-                el.style.color = '#333';
-            });
-
-        } else {
-            // Revert to stylesheet
-            card.style.cssText = '';
-            // Restore functional styles if needed (opacity/grid) - complicating factor.
-            // Simplified: Just clear background/color/border
-            card.style.backgroundColor = '';
-            card.style.borderColor = ''; 
-            card.style.color = '';
-            card.style.boxShadow = '';
-            // We might lose opacity setting if we nuked cssText above? 
-            // Actually, in the 'else' block, we assume 'dark' is default CSS.
-            // But we need to be careful not to break opacity logic for hidden items.
-            // Better to NOT nuke cssText in dark mode, just remove specific overrides.
-        }
-    });
-
-    // Database Viewer (if active)
-    const dbSidebar = document.querySelector('.db-sidebar');
-    const dbContent = document.querySelector('.db-content');
-    if (dbSidebar && dbContent) {
-        if (isLight) {
-            dbSidebar.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
-            dbContent.style.backgroundColor = 'rgba(255, 255, 255, 0.85)';
-            dbSidebar.style.borderColor = 'rgba(0,0,0,0.1)';
-            dbContent.style.borderColor = 'rgba(0,0,0,0.1)';
-            document.querySelectorAll('.db-table-btn').forEach(btn => btn.style.color = '#1a1a1a');
-             document.querySelectorAll('.db-header, .db-table thead th').forEach(el => {
-                 el.style.backgroundColor = 'rgba(255,255,255,0.9)';
-                 el.style.color = '#000';
-            });
-             document.querySelectorAll('.db-table tbody td').forEach(el => el.style.color = '#333');
-        } else {
-             // Reset
-            dbSidebar.style.backgroundColor = '';
-            dbContent.style.backgroundColor = '';
-            dbSidebar.style.borderColor = '';
-            dbContent.style.borderColor = '';
-            document.querySelectorAll('.db-table-btn').forEach(btn => btn.style.color = '');
-             document.querySelectorAll('.db-header, .db-table thead th').forEach(el => {
-                 el.style.backgroundColor = '';
-                 el.style.color = '';
-            });
-             document.querySelectorAll('.db-table tbody td').forEach(el => el.style.color = '');
-        }
-    }
-};
 
 
 
