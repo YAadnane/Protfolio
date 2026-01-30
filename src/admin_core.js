@@ -409,7 +409,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadContent(currentTab);
     setupModal();
     initCursor();
+    initCursor();
     initThemeAdmin();
+    initMaintenanceToggle();
     updateUnreadCount();
 });
 
@@ -1581,6 +1583,58 @@ function initThemeAdmin() {
     });
     
     console.log("✅ Event Listener Attached to new button");
+}
+
+let isMaintenanceMode = false;
+
+// Initialize Maintenance Toggle
+function initMaintenanceToggle() {
+    const btn = document.getElementById('admin-maintenance-switch');
+    if (!btn) return;
+
+    // Check Status
+    fetch('/api/settings/maintenance')
+        .then(res => res.json())
+        .then(data => {
+            isMaintenanceMode = data.enabled;
+            updateMaintenanceBtnAPI(btn);
+        })
+        .catch(err => console.error('Maintenance Status Error:', err));
+
+    btn.addEventListener('click', () => {
+        const newState = !isMaintenanceMode;
+        if (!confirm(`Are you sure you want to turn ${newState ? 'ON' : 'OFF'} Maintenance Mode?\n\nWhen ON, visitors will see a popup.`)) return;
+
+        fetch('/api/settings/maintenance', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` 
+            },
+            body: JSON.stringify({ enabled: newState })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                isMaintenanceMode = data.enabled;
+                updateMaintenanceBtnAPI(btn);
+                showToast(`Maintenance Mode ${isMaintenanceMode ? 'ENABLED' : 'DISABLED'}`, 'success');
+            }
+        })
+        .catch(err => showToast('Failed to update maintenance mode', 'error'));
+    });
+}
+
+function updateMaintenanceBtnAPI(btn) {
+    if (isMaintenanceMode) {
+        btn.style.color = '#ff4757';
+        btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+        btn.title = "Maintenance Mode: ON";
+    } else {
+        btn.style.color = 'var(--text-muted)';
+        btn.innerHTML = '<i class="fa-solid fa-screwdriver-wrench"></i>';
+        btn.title = "Maintenance Mode: OFF";
+    }
 }
 
 

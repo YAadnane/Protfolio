@@ -2997,6 +2997,32 @@ app.get('/api/admin/system', authenticateToken, async (req, res) => {
 });
 
 // =========================================
+// GLOBAL SETTINGS API
+// =========================================
+app.get('/api/settings/maintenance', async (req, res) => {
+    try {
+        db.get("SELECT value FROM settings WHERE key = 'maintenance_mode'", (err, row) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ enabled: row ? row.value === 'true' : false });
+        });
+    } catch (err) {
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
+app.post('/api/settings/maintenance', authenticateToken, async (req, res) => {
+    const { enabled } = req.body;
+    try {
+        db.run("INSERT OR REPLACE INTO settings (key, value) VALUES ('maintenance_mode', ?)", [enabled ? 'true' : 'false'], (err) => {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true, enabled });
+        });
+    } catch (err) {
+        res.status(500).json({ error: 'Database error' });
+    }
+});
+
+// =========================================
 // SERVE FRONTEND (MUST BE LAST)
 // =========================================
 const distPath = path.join(__dirname, '../dist');
