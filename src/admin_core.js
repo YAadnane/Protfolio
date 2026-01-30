@@ -1649,8 +1649,13 @@ function executeMaintenanceToggle(newState) {
     })
     .then(res => res.json())
     .then(data => {
-            if (data.success) {
-        .catch(err => showToast('Failed to update maintenance mode', 'error'));
+        if (data.success) {
+            isMaintenanceMode = data.enabled;
+            updateMaintenanceBtnAPI();
+            showToast(`Maintenance Mode ${isMaintenanceMode ? 'ENABLED' : 'DISABLED'}`, 'success');
+        }
+    })
+    .catch(err => showToast('Failed to update maintenance mode', 'error'));
 }
 
 function updateMaintenanceBtnAPI(btn) {
