@@ -2505,7 +2505,7 @@ async function loadReviews() {
                         }
 
                         // TRUNCATION LOGIC
-                        const MAX_LENGTH = 100;
+                        const MAX_LENGTH = 20;
                         const isLong = r.message.length > MAX_LENGTH;
                         const displayMessage = isLong ? r.message.substring(0, MAX_LENGTH) + '...' : r.message;
                         const t = translations[currentLang] || translations['en'];
