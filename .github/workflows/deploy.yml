@@ -20,9 +20,10 @@ jobs:
           export NVM_DIR="$HOME/.nvm"
           [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
           
-          cd ~/Protfolio
+          
+          cd /mnt/ancien_disque/home/ubuntu/Protfolio
           git pull origin main
           npm install
+          npm rebuild sqlite3
           npm run build
-          node fix_db.js
-          pm2 restart all
+          pm2 restart portfolio-server
