@@ -1765,61 +1765,33 @@ function initChatbot() {
 
     if (!toggleBtn || !chatWindow) return;
 
-    // Initialize with Welcome Message
-    if (messages.children.length === 0) {
-         const welcomeText = translations[currentLang]?.["chatbot.welcome"] || "Hello!";
-         // Use setTimeout to ensure appendMessage is defined (hoisting works but just to be safe in module strict mode if function was expression)
-         // Actually, since I removed the function definition earlier (step 5227), I hope I didn't verify it was removed.
-         // Wait! In step 5227 I removed the duplicate definition at the BOTTOM.
-         // But did I ADD the definition at the TOP?
-         // NO! I cancelled the `replace_file_content` in step 5223 and 5225 failed because "appendMessage moved to top of scope" was not found (target mismatch).
-         // Step 5225 TRIED to remove the bottom one. Did it succeed?
-         // Step 5227 succeeded?
-         // NO, Step 5225 output said: "The following changes were made...".
-         // Step 5223 failed.
-         // So I have NOT yet added the top definition, but I might have removed the bottom one in Step 5225.
-         // If I removed the bottom one and didn't add the top one, `appendMessage` is UNDEFINED.
-         // THIS WOULD BREAK THE CODE.
-         
-         // I must check if `appendMessage` exists.
-         // I need to ADD `appendMessage` definition inside `initChatbot`!
-    }
-    
+    // Helper to append messages
     function appendMessage(html, sender, id = null, i18nKey = null) {
         const div = document.createElement('div');
         div.className = `message ${sender}`;
         div.innerHTML = html;
         if (id) div.id = id;
-        if (i18nKey) div.setAttribute('data-i18n', i18nKey); // Add translation key
+        if (i18nKey) div.setAttribute('data-i18n', i18nKey);
         messages.appendChild(div);
         messages.scrollTop = messages.scrollHeight;
     }
 
-    // Call welcome after definition
+    // Initialize with Welcome Message if empty
     if (messages.children.length === 0) {
-         const welcomeText = translations[currentLang]?.["chatbot.welcome"] || "Hello!";
-         appendMessage(welcomeText, 'bot', null, 'chatbot.welcome'); // Pass key
+         const welcomeKey = "chatbot.welcome";
+         const welcomeText = translations[currentLang]?.[welcomeKey] || "Hello! Ask me anything about Adnane.";
+         appendMessage(welcomeText, 'bot', null, welcomeKey);
     }
-
-    // Initialize with Welcome Message
-    const welcomeText = translations[currentLang]["chatbot.welcome"] || "Hello! Ask me anything.";
-    if (messages.children.length === 0) { // Only if empty
-         // Ensure appendMessage is defined before calling it, or move this call down?
-         // appendMessage is defined below. Function hoisting works for function declarations.
-         // BUT appendMessage is defined inside initChatbot. It IS hoisted within the scope.
-         // Let's add it after function definition or invoke it later.
-         // Actually, safer to define appendMessage first OR put this logic after definition.
-    }
-    
-    // Better: define appendMessage first in the scope or put this logic at the end of initChatbot function (but before user interaction).
-    // Let's restructure initChatbot slightly.
-    
-    // ...
 
     toggleBtn.addEventListener('click', () => {
         chatWindow.classList.toggle('active');
-        if (chatWindow.classList.contains('active')) input.focus();
+        if (chatWindow.classList.contains('active')) {
+            input.focus();
+            // Scroll to bottom when opening
+            messages.scrollTop = messages.scrollHeight;
+        }
     });
+
 
     closeBtn.addEventListener('click', () => {
         chatWindow.classList.remove('active');
@@ -4091,7 +4063,8 @@ window.handleUnsubscribe = async (e) => {
     }
 };
 
-// Initialize Subscription Popup
+// Initialize Subscription Popup & Chatbot
 window.addEventListener('load', () => {
     initSubscriptionPopup();
+    initChatbot();
 });
