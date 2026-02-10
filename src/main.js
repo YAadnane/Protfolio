@@ -2504,6 +2504,13 @@ async function loadReviews() {
                             href = `mailto:${href}`;
                         }
 
+                        // TRUNCATION LOGIC
+                        const MAX_LENGTH = 100;
+                        const isLong = r.message.length > MAX_LENGTH;
+                        const displayMessage = isLong ? r.message.substring(0, MAX_LENGTH) + '...' : r.message;
+                        const t = translations[currentLang] || translations['en'];
+                        const viewMoreText = t["review.view_more"] || "View More"; // Need to add trans key
+
                         return `
                         <div class="testimonial-card">
                             <div class="testimonial-header">
@@ -2530,11 +2537,16 @@ async function loadReviews() {
                                     ${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}
                                 </div>
                             </div>
-                            <p class="testimonial-text">"${r.message}"</p>
+                            <p class="testimonial-text">
+                                "${displayMessage}"
+                                ${isLong ? `<button class="read-more-review" onclick="openReviewDetails('${r.id}')">${viewMoreText}</button>` : ''}
+                            </p>
                         </div>
                     `}).join("")}
                 </div>
             `).join("");
+
+            window.reviewsData = reviews; // Store for modal access
 
             // Render Pagination
             pagination.innerHTML = slides.map((_, idx) => `
@@ -2736,6 +2748,60 @@ function showNotification(title, message, type = 'success') {
             }
         };
     }
+}
+
+// =========================================
+// REVIEW DETAILS MODAL LOGIC
+// =========================================
+window.openReviewDetails = function(id) {
+    const review = window.reviewsData.find(r => r.id == id);
+    if (!review) return;
+
+    const modal = document.getElementById('review-details-modal');
+    const header = document.getElementById('review-details-header');
+    const text = document.getElementById('review-details-text');
+
+    // Reconstruct Avatar
+    const safeAvatarPlatforms = ['github', 'twitter', 'x', 'gitlab', 'dribbble', 'behance', 'email'];
+    const safePlatformStr = (review.social_platform || '').toLowerCase();
+    const isSafePlatform = safeAvatarPlatforms.includes(safePlatformStr);
+    
+    let avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(review.name)}&background=random&color=fff`;
+    let onerrorAttr = '';
+
+    if (review.social_link && isSafePlatform) {
+        avatarUrl = `https://unavatar.io/${encodeURIComponent(review.social_link)}?fallback=false`;
+        onerrorAttr = `onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(review.name)}&background=random&color=fff'"`;
+    }
+
+    header.innerHTML = `
+        <img src="${avatarUrl}" ${onerrorAttr} alt="${review.name}">
+        <div class="review-details-info">
+            <h3>${review.name}</h3>
+            <span>${review.role || ''}</span>
+            <div class="review-details-rating">
+                ${'★'.repeat(review.rating)}${'☆'.repeat(5-review.rating)}
+            </div>
+        </div>
+    `;
+
+    text.innerHTML = review.message.replace(/\n/g, '<br>'); // Preserve line breaks
+
+    modal.style.display = 'flex';
+};
+
+window.closeReviewDetailsModal = function() {
+    const modal = document.getElementById('review-details-modal');
+    if (modal) modal.style.display = 'none';
+};
+
+// Close on outside click
+window.addEventListener('click', (e) => {
+    const modal = document.getElementById('review-details-modal');
+    if (e.target === modal) {
+        modal.style.display = 'none';
+    }
+});
 }
 
 
