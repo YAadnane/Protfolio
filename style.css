@@ -6273,91 +6273,166 @@ body.light-mode .bento-item p {
 #project-notion-content p {
     max-width: 100% !important;
 }
+
 /* =========================================
    REVIEW DETAILS MODAL
    ========================================= */
 .read-more-review {
-  background: none;
-  border: none;
-  color: var(--accent-color); /* Green */
-  cursor: pointer;
-  font-size: 0.9rem;
-  font-weight: 600;
-  padding: 0;
-  margin-left: 5px;
-  text-decoration: underline;
-  transition: color 0.3s ease;
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0;
+    margin-left: 5px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
 }
 
 .read-more-review:hover {
-  color: var(--text-color);
+    color: var(--text-color);
+    text-decoration: underline;
 }
 
 .review-details-content {
-  max-width: 600px;
-  width: 90%;
-  padding: 2.5rem;
-  background: var(--card-bg);
-  border: 1px solid var(--accent-color);
-  box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+    max-width: 700px;
+    width: 90%;
+    padding: 0;
+    background: var(--card-bg);
+    border: 2px solid var(--accent-color);
+    box-shadow: 0 0 40px rgba(0, 255, 157, 0.3);
+    position: relative;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+.review-details-content .close-modal {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    font-size: 2rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.3);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    line-height: 1;
+}
+
+.review-details-content .close-modal:hover {
+    background: var(--accent-color);
+    color: var(--bg-color);
+    transform: rotate(90deg);
 }
 
 .review-details-header {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: linear-gradient(135deg, rgba(0, 255, 157, 0.1) 0%, rgba(0, 0, 0, 0.2) 100%);
+    padding: 2rem 2.5rem;
+    border-bottom: 1px solid rgba(0, 255, 157, 0.2);
 }
 
 .review-details-header img {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid var(--accent-color);
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--accent-color);
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.4);
+    flex-shrink: 0;
+}
+
+.review-details-info {
+    flex: 1;
 }
 
 .review-details-info h3 {
-  font-size: 1.5rem;
-  margin-bottom: 0.2rem;
-  color: var(--text-color);
+    font-size: 1.8rem;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
+    font-weight: 700;
 }
 
 .review-details-info span {
-  font-size: 0.95rem;
-  color: var(--text-muted);
-  display: block;
-  margin-bottom: 0.5rem;
+    font-size: 1rem;
+    color: var(--text-muted);
+    display: block;
+    margin-bottom: 0.8rem;
+    font-style: italic;
 }
 
 .review-details-rating {
-  color: #ffc107; /* Gold stars */
-  font-size: 1rem;
+    color: #ffc107;
+    font-size: 1.3rem;
+    letter-spacing: 3px;
 }
 
 .review-details-body {
-  position: relative;
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: var(--card-bg);
 }
 
 .review-details-body p {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  color: var(--text-color);
-  text-align: justify;
-  margin: 0.5rem 0;
-  white-space: pre-wrap; /* Preserve line breaks */
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: var(--text-color);
+    text-align: justify;
+    margin: 0;
+    white-space: pre-wrap;
+    padding: 0 1rem;
 }
 
 .quote-icon-large {
-  font-size: 2rem;
-  color: var(--accent-color);
-  opacity: 0.3;
+    font-size: 2.5rem;
+    color: var(--accent-color);
+    opacity: 0.2;
+    align-self: flex-start;
+}
+
+.quote-icon-large:last-child {
+    align-self: flex-end;
+    margin-top: -1rem;
+}
+
+@media (max-width: 768px) {
+    .review-details-content {
+        width: 95%;
+        max-width: 100%;
+    }
+
+    .review-details-header {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem 1.5rem;
+    }
+
+    .review-details-header img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .review-details-info h3 {
+        font-size: 1.5rem;
+    }
+
+    .review-details-body {
+        padding: 2rem 1.5rem;
+    }
+
+    .review-details-body p {
+        font-size: 1.05rem;
+    }
 }
