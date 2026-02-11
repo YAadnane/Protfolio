@@ -26,4 +26,5 @@ jobs:
           npm install
           npm rebuild sqlite3
           npm run build
+          node fix_db_schema.cjs || echo "Migration already applied or not needed"
           pm2 restart all || pm2 start server/index.js --name "portfolio-server"
