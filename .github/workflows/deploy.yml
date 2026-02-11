@@ -26,4 +26,4 @@ jobs:
           npm install
           npm rebuild sqlite3
           npm run build
-          pm2 restart portfolio-server
+          pm2 restart all || pm2 start server/index.js --name "portfolio-server"
