@@ -56,7 +56,17 @@ app.use(cors());
 // app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(uploadDir)); // Serve uploaded files statically
+app.use('/uploads', express.static(uploadDir)); // Temporary Debug Endpoint
+app.get('/api/debug-info', (req, res) => {
+    res.json({
+        message: 'Server is running',
+        cwd: process.cwd(),
+        version: 'v3.1 - Debugging Deployment',
+        timestamp: new Date().toISOString()
+    });
+});
+
+// Serve uploaded files statically
 
 // =========================================
 // SECURITY: INPUT SANITIZATION
