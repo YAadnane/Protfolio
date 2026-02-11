@@ -1,4 +1,4 @@
-console.log('%c Admin Core Loaded v3.0 (Global Fix)', 'background:#2ed573; color:#000; padding:4px; border-radius:4px;');
+console.log('%c Admin Core Loaded v3.1 (Notion Update)', 'background:#2ed573; color:#000; padding:4px; border-radius:4px;');
 // import { gsap } from "https://cdn.skypack.dev/gsap";
 
 const API_URL = '/api';
