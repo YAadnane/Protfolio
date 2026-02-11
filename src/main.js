@@ -166,7 +166,8 @@ async function loadAllContent() {
         loadExperience(),
         loadSkills(),
         loadStats(),
-        loadArticles()
+        loadArticles(),
+        loadReviews() // Reload reviews to update "View More" translation
     ]);
     // Re-trigger animations if needed, though they might be attached to elements
     ScrollTrigger.refresh();
