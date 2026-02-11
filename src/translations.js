@@ -34,6 +34,7 @@ export const translations = {
         "articles.read": "Read More <i class='fa-solid fa-arrow-right'></i>",
         "articles.readMore": "Read Article <i class='fa-solid fa-arrow-right'></i>",
         "articles.filter": "All Topics",
+        "general.discoverMore": "Discover More <i class='fa-solid fa-arrow-right'></i>",
         "certs.title": "<i class='fa-solid fa-certificate'></i> Certifications",
         "skills.title": "Tech Stack",
         "skills.ai": "Data & AI",
