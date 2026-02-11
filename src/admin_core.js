@@ -50,6 +50,21 @@ if (!token) {
     window.location.href = '/login.html';
 }
 
+// --- THEME HELPER (Moved to top to avoid hoisting issues) ---
+function applyThemeStyles() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        document.documentElement.classList.add('light-mode');
+    } else {
+        document.body.classList.remove('light-mode');
+        document.documentElement.classList.remove('light-mode');
+    }
+}
+
+// Initialize theme on load
+document.addEventListener('DOMContentLoaded', applyThemeStyles);
+
 // Logout function
 window.logout = function() {
     localStorage.removeItem('admin_token');
@@ -2127,17 +2142,3 @@ document.addEventListener('DOMContentLoaded', () => {
         langSelect.value = currentAdminLang;
     }
 });
-// --- THEME HELPER ---
-function applyThemeStyles() {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    if (savedTheme === 'light') {
-        document.body.classList.add('light-mode');
-        document.documentElement.classList.add('light-mode');
-    } else {
-        document.body.classList.remove('light-mode');
-        document.documentElement.classList.remove('light-mode');
-    }
-}
-
-// Initialize theme on load
-document.addEventListener('DOMContentLoaded', applyThemeStyles);
