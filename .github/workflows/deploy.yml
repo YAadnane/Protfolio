@@ -25,6 +25,7 @@ jobs:
           git pull origin main
           npm install
           npm rebuild sqlite3
+          rm -rf dist/
           npm run build
           node fix_db_schema.cjs || echo "Migration already applied or not needed"
           pm2 restart all || pm2 start server/index.js --name "portfolio-server"
