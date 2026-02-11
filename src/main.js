@@ -1565,11 +1565,17 @@ async function loadEducation() {
                 </div>
                 ${e.description ? `<p class="desc">${e.description}</p>` : ''}
                 
-                ${e.brochure ? `
+                ${(e.brochure || e.notion_link) ? `
                     <div class="timeline-actions">
+                        ${e.brochure ? `
                         <a href="${API_URL.replace('/api', '')}${e.brochure}" target="_blank" class="btn-timeline">
                             <i class="fa-solid fa-file-pdf"></i> ${t.brochure}
-                        </a>
+                        </a>` : ''}
+                        
+                        ${e.notion_link ? `
+                        <button class="btn-timeline" onclick="openArticleModal('${e.notion_link}', '${e.id}', '${e.degree}', '${e.year || ''}')">
+                            <i class="fa-solid fa-circle-info"></i> ${translations[currentLang]?.["articles.readMore"] || "View Details"}
+                        </button>` : ''}
                     </div>
                 ` : ''}
             `;
@@ -1648,6 +1654,11 @@ async function loadExperience() {
                         <a href="${e.linkedin}" target="_blank" class="btn-timeline">
                             <i class="fa-brands fa-linkedin"></i> ${t.linkedin}
                         </a>
+                    ` : ''}
+                    ${e.notion_link ? `
+                        <button class="btn-timeline" onclick="openArticleModal('${e.notion_link}', '${e.id}', '${e.role}', '${e.year || ''}')">
+                            <i class="fa-solid fa-circle-info"></i> ${translations[currentLang]?.["articles.readMore"] || "View Details"}
+                        </button>
                     ` : ''}
                 </div>
             `;

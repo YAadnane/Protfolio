@@ -18,8 +18,8 @@ function initCursor() {
         cursorDot.style.top = `${posY}px`;
 
         gsap.to(cursorOutline, {
-            x: posX,
-            y: posY,
+            left: posX,
+            top: posY,
             duration: 0.15,
             ease: "power2.out"
         });
@@ -307,6 +307,7 @@ const fields = {
         { name: 'brochureFile', label: 'Upload Brochure (PDF)', type: 'file', accept: '.pdf' },
 
         { name: 'description', label: 'Description', type: 'textarea' },
+        { name: 'notion_link', label: 'Notion Page URL', type: 'text' },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
     ],
     experience: [
@@ -322,6 +323,7 @@ const fields = {
         { name: 'linkedin', label: 'LinkedIn URL', type: 'text' },
 
         { name: 'description', label: 'Description', type: 'textarea' },
+        { name: 'notion_link', label: 'Notion Page URL', type: 'text' },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
     ],
     articles: [
@@ -2125,3 +2127,17 @@ document.addEventListener('DOMContentLoaded', () => {
         langSelect.value = currentAdminLang;
     }
 });
+// --- THEME HELPER ---
+function applyThemeStyles() {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        document.documentElement.classList.add('light-mode');
+    } else {
+        document.body.classList.remove('light-mode');
+        document.documentElement.classList.remove('light-mode');
+    }
+}
+
+// Initialize theme on load
+document.addEventListener('DOMContentLoaded', applyThemeStyles);
