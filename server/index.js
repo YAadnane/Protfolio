@@ -1351,7 +1351,7 @@ app.get('/api/education', (req, res) => {
 });
 
 app.post('/api/education', authenticateToken, upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'brochureFile', maxCount: 1 }]), (req, res) => {
-    const { degree, institution, start_date, end_date, description, is_hidden, lang, logo, brochure } = req.body;
+    const { degree, institution, start_date, end_date, description, is_hidden, lang, logo, brochure, notion_link } = req.body;
     let logoPath = logo || '';
     if (req.files && req.files['logoFile']) {
         logoPath = `/uploads/${req.files['logoFile'][0].filename}`;
@@ -1361,8 +1361,8 @@ app.post('/api/education', authenticateToken, upload.fields([{ name: 'logoFile',
         brochurePath = `/uploads/${req.files['brochureFile'][0].filename}`;
     }
 
-    db.run(`INSERT INTO education (degree, institution, start_date, end_date, description, is_hidden, lang, logo, brochure) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [degree, institution, start_date, end_date, description, is_hidden || 0, lang || 'en', logoPath, brochurePath],
+    db.run(`INSERT INTO education (degree, institution, start_date, end_date, description, is_hidden, lang, logo, brochure, notion_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [degree, institution, start_date, end_date, description, is_hidden || 0, lang || 'en', logoPath, brochurePath, notion_link],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
 
@@ -1385,7 +1385,7 @@ app.post('/api/education', authenticateToken, upload.fields([{ name: 'logoFile',
 });
 
 app.put('/api/education/:id', authenticateToken, upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'brochureFile', maxCount: 1 }]), (req, res) => {
-    const { degree, institution, start_date, end_date, description, is_hidden, logo, brochure } = req.body;
+    const { degree, institution, start_date, end_date, description, is_hidden, logo, brochure, notion_link } = req.body;
     let logoPath = logo;
     if (req.files && req.files['logoFile']) {
         logoPath = `/uploads/${req.files['logoFile'][0].filename}`;
@@ -1395,8 +1395,8 @@ app.put('/api/education/:id', authenticateToken, upload.fields([{ name: 'logoFil
         brochurePath = `/uploads/${req.files['brochureFile'][0].filename}`;
     }
 
-    db.run(`UPDATE education SET degree = ?, institution = ?, start_date = ?, end_date = ?, description = ?, is_hidden = ?, logo = ?, brochure = ? WHERE id = ?`,
-        [degree, institution, start_date, end_date, description, is_hidden, logoPath, brochurePath, req.params.id],
+    db.run(`UPDATE education SET degree = ?, institution = ?, start_date = ?, end_date = ?, description = ?, is_hidden = ?, logo = ?, brochure = ?, notion_link = ? WHERE id = ?`,
+        [degree, institution, start_date, end_date, description, is_hidden, logoPath, brochurePath, notion_link, req.params.id],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });
