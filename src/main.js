@@ -2508,8 +2508,10 @@ async function loadReviews() {
                         const MAX_LENGTH = 20;
                         const isLong = r.message.length > MAX_LENGTH;
                         const displayMessage = isLong ? r.message.substring(0, MAX_LENGTH) + '...' : r.message;
-                        const t = translations[currentLang] || translations['en'];
-                        const viewMoreText = t["review.view_more"] || "View More"; // Need to add trans key
+                        const lang = localStorage.getItem('lang') || 'fr';
+                        const t = translations[lang] || translations['fr'];
+                        const viewMoreText = t["review.view_more"] || "Voir plus";
+
 
                         return `
                         <div class="testimonial-card">
