@@ -1657,7 +1657,7 @@ async function loadExperience() {
                     ` : ''}
                     ${e.notion_link ? `
                         <button class="btn-timeline" onclick="openArticleModal('${e.notion_link}', '${e.id}', '${e.role}', '${e.year || ''}')">
-                            <i class="fa-solid fa-circle-info"></i> ${translations[currentLang]?.["articles.readMore"] || "View Details"}
+                            <i class="fa-solid fa-circle-info"></i> ${translations[currentLang]?.["general.discoverMore"] || "Discover More"}
                         </button>
                     ` : ''}
                 </div>
