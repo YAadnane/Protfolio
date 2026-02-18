@@ -3534,7 +3534,12 @@ app.get(/(.*)/, (req, res) => {
 // Global Error Handler
 app.use((err, req, res, next) => {
     console.error('Unhandled Error:', err);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.status(500).json({ 
+        error: 'Internal Server Error',
+        message: err.message,
+        stack: err.stack, // FORCE SHOW STACK FOR DEBUGGING
+        path: req.path
+    });
 });
 
 app.listen(PORT, () => {
