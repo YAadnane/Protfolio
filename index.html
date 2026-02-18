@@ -701,25 +701,55 @@
 
 
   <!-- Article Modal -->
+  <!-- Article Modal -->
   <div id="detail-modal" class="modal-overlay"
     style="display: none; align-items: center; justify-content: center; z-index: 10002;">
     <div class="modal-content"
-      style="max-width: 500px; text-align: center; padding: 2rem; border-radius: 15px; position: relative;">
-      <button class="close-modal" onclick="closeDetailModal()"
-        style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+      style="max-width: 600px; width: 90%; background: var(--card-bg); border-radius: 15px; overflow: hidden; display: flex; flex-direction: column; max-height: 85vh;">
 
-      <h3 id="detail-modal-title" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Title</h3>
-      <p id="detail-modal-subtitle" style="color: var(--accent-color); margin-bottom: 1.5rem; font-weight: 500;">
-        Subtitle</p>
+      <!-- Header -->
+      <div
+        style="padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <h3 id="detail-modal-title" style="margin-bottom: 0.2rem; font-size: 1.4rem;">Title</h3>
+          <p id="detail-modal-subtitle" style="color: var(--accent-color); font-weight: 500; font-size: 0.9rem;">
+            Subtitle</p>
+          <span id="detail-modal-date"
+            style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 5px;">Date</span>
+        </div>
+        <button class="close-modal" onclick="closeDetailModal()"
+          style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); padding: 0;">&times;</button>
+      </div>
 
-      <div id="detail-modal-desc"
-        style="color: var(--text-main); margin-bottom: 2rem; line-height: 1.6; text-align: left;"></div>
+      <!-- Scrollable Body -->
+      <div style="padding: 2rem; overflow-y: auto; flex: 1;">
+        <div id="detail-modal-desc" style="color: var(--text-main); line-height: 1.6; margin-bottom: 2rem;"></div>
 
-      <a id="detail-modal-link" href="#" target="_blank" class="btn-primary"
-        style="display: inline-flex; align-items: center; gap: 0.5rem;">
-        <i class="fa-solid fa-arrow-up-right-from-square"></i> <span data-i18n="article.open_notion">Open in
-          Notion</span>
-      </a>
+        <!-- Analytics & Actions -->
+        <div
+          style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05);">
+
+          <div id="detail-analytics" style="display: flex; gap: 1rem; font-size: 0.9rem; color: var(--text-muted);">
+            <span class="no-pointer" style="display: flex; align-items: center; gap: 0.3rem;">
+              <i class="fa-solid fa-eye"></i> <span id="detail-views-count">0</span>
+            </span>
+            <span id="detail-likes" class="interaction-like" onclick="window.toggleLikeInDetailModal(event)"
+              style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer; transition: all 0.3s ease;">
+              <i class="fa-regular fa-heart"></i> <span id="detail-likes-count" class="like-count">0</span>
+            </span>
+            <span id="detail-comments" onclick="window.openFeedbackFromDetailModal(event)"
+              style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer; transition: all 0.3s ease;">
+              <i class="fa-solid fa-comment"></i> <span id="detail-comments-count">0</span>
+            </span>
+          </div>
+
+          <a id="detail-modal-link" href="#" target="_blank" class="btn-primary"
+            style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; padding: 0.6rem 1.2rem;">
+            <i class="fa-solid fa-arrow-up-right-from-square"></i> <span data-i18n="article.open_notion">Open in
+              Notion</span>
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 

@@ -4002,29 +4002,108 @@ window.openSubscribeModal = function() {
 // =========================================
 // DETAIL MODAL (Education/Experience)
 // =========================================
-window.openDetailModal = function(title, subtitle, notionLink) {
+// =========================================
+// DETAIL MODAL (Education/Experience)
+// =========================================
+// =========================================
+// DETAIL MODAL (Education/Experience)
+// =========================================
+window.openDetailModal = function(type, id) {
     const modal = document.getElementById('detail-modal');
+    if (!modal) return;
+
+    // Lookup Data
+    let item = null;
+    if (type === 'education' && window.educationData) {
+        item = window.educationData.find(x => x.id == id);
+    } else if (type === 'experience' && window.experienceData) {
+        item = window.experienceData.find(x => x.id == id);
+    }
+
+    if (!item) {
+        console.error('Item not found for detail modal', type, id);
+        return;
+    }
+
+    // Elements
     const titleEl = document.getElementById('detail-modal-title');
     const subtitleEl = document.getElementById('detail-modal-subtitle');
+    const dateEl = document.getElementById('detail-modal-date');
+    const descEl = document.getElementById('detail-modal-desc');
     const linkEl = document.getElementById('detail-modal-link');
     
-    if (modal) {
-        if (titleEl) titleEl.textContent = title;
-        if (subtitleEl) subtitleEl.textContent = subtitle;
-        if (linkEl) {
-            linkEl.href = notionLink;
-            // Hide button if no link
-            linkEl.style.display = notionLink ? 'inline-flex' : 'none';
-        }
-        
-        modal.style.display = 'flex';
-        // Animation
-        modal.style.opacity = '0';
-        requestAnimationFrame(() => {
-            modal.style.transition = 'opacity 0.3s ease';
-            modal.style.opacity = '1';
-        });
+    // Stats Elements
+    const viewsEl = document.getElementById('detail-views-count');
+    const likesEl = document.getElementById('detail-likes-count');
+    const commentsEl = document.getElementById('detail-comments-count');
+    const likeBtn = document.getElementById('detail-likes');
+    const commentBtn = document.getElementById('detail-comments');
+
+    // Data Mapping
+    const title = item.degree || item.role || item.title;
+    const subtitle = item.institution || item.company || item.subtitle;
+    
+    // Date Logic
+    const t = uiTranslations[currentLang] || uiTranslations['en'];
+    let date = item.year || '';
+    if (item.start_date && item.start_date !== 'NULL') {
+        date = `${item.start_date}${item.end_date ? ' - ' + item.end_date : ' - ' + t.present}`;
     }
+
+    const desc = item.description || '';
+    const link = item.notion_link || item.link;
+
+    // Populate Content
+    if (titleEl) titleEl.textContent = title;
+    if (subtitleEl) subtitleEl.textContent = subtitle;
+    if (dateEl) dateEl.textContent = date;
+    if (descEl) descEl.innerHTML = desc; 
+    
+    if (linkEl) {
+        linkEl.href = link;
+        linkEl.style.display = link ? 'inline-flex' : 'none';
+    }
+
+    // Populate Stats
+    if (viewsEl) viewsEl.textContent = item.views_count || item.clicks || 0;
+    if (likesEl) likesEl.textContent = item.likes_count || 0;
+    if (commentsEl) commentsEl.textContent = item.comments_count || 0;
+
+    // Store ID and Type for interactions
+    if (likeBtn) {
+        likeBtn.dataset.id = item.id;
+        likeBtn.dataset.type = type;
+        // Check if liked locally (simple check)
+        // Ideally we check a 'liked' property on the item if the API returns it
+        const iconInfo = window.getLikeIcon(type, item.id); // Helper if exists, else default
+        // For now, default reset, real status requires API check or local storage map
+        likeBtn.querySelector('i').className = 'fa-regular fa-heart'; 
+        
+        // Update class name for real-time updates
+        likeBtn.querySelector('.like-count').className = `like-count like-${type}-count-${item.id}`;
+    }
+    if (commentBtn) {
+        commentBtn.dataset.id = item.id;
+        commentBtn.dataset.type = type;
+        // Update class name for real-time updates
+        commentBtn.querySelector('span').className = `comment-${type}-count-${item.id}`;
+    }
+    
+    // Update view counter class
+    if (viewsEl) {
+        viewsEl.className = `view-${type}-count-${item.id}`;
+    }
+
+    // Show Modal
+    modal.style.display = 'flex';
+    modal.style.opacity = '0';
+    requestAnimationFrame(() => {
+        modal.style.transition = 'opacity 0.3s ease';
+        modal.style.opacity = '1';
+    });
+
+    // Track View
+    window.trackEvent(type, item.id, null);
 };
 
 window.closeDetailModal = function() {
@@ -4036,6 +4115,25 @@ window.closeDetailModal = function() {
         }, 300);
     }
 };
+
+window.toggleLikeInDetailModal = function(e) {
+    e.stopPropagation();
+    const btn = e.currentTarget;
+    const id = btn.dataset.id;
+    const type = btn.dataset.type;
+    if (!id || !type) return;
+    window.toggleLike(type, id, btn);
+};
+
+window.openFeedbackFromDetailModal = function(e) {
+    e.stopPropagation();
+    const btn = e.currentTarget;
+    const id = btn.dataset.id;
+    const type = btn.dataset.type;
+    if (!id || !type) return;
+    window.openFeedbackModal(type, id);
+};
+
 // Close on click outside
 window.addEventListener('click', (e) => {
     const modal = document.getElementById('detail-modal');
