@@ -3999,6 +3999,49 @@ window.openSubscribeModal = function() {
     }
 };
 
+// =========================================
+// DETAIL MODAL (Education/Experience)
+// =========================================
+window.openDetailModal = function(title, subtitle, notionLink) {
+    const modal = document.getElementById('detail-modal');
+    const titleEl = document.getElementById('detail-modal-title');
+    const subtitleEl = document.getElementById('detail-modal-subtitle');
+    const linkEl = document.getElementById('detail-modal-link');
+    
+    if (modal) {
+        if (titleEl) titleEl.textContent = title;
+        if (subtitleEl) subtitleEl.textContent = subtitle;
+        if (linkEl) {
+            linkEl.href = notionLink;
+            // Hide button if no link
+            linkEl.style.display = notionLink ? 'inline-flex' : 'none';
+        }
+        
+        modal.style.display = 'flex';
+        // Animation
+        modal.style.opacity = '0';
+        requestAnimationFrame(() => {
+            modal.style.transition = 'opacity 0.3s ease';
+            modal.style.opacity = '1';
+        });
+    }
+};
+
+window.closeDetailModal = function() {
+    const modal = document.getElementById('detail-modal');
+    if (modal) {
+        modal.style.opacity = '0';
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    }
+};
+// Close on click outside
+window.addEventListener('click', (e) => {
+    const modal = document.getElementById('detail-modal');
+    if (e.target === modal) window.closeDetailModal();
+});
+
 window.closeSubscribeModal = function() {
     const modal = document.getElementById('subscribe-modal');
     if (modal) {

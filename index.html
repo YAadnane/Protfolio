@@ -701,6 +701,29 @@
 
 
   <!-- Article Modal -->
+  <div id="detail-modal" class="modal-overlay"
+    style="display: none; align-items: center; justify-content: center; z-index: 10002;">
+    <div class="modal-content"
+      style="max-width: 500px; text-align: center; padding: 2rem; border-radius: 15px; position: relative;">
+      <button class="close-modal" onclick="closeDetailModal()"
+        style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+
+      <h3 id="detail-modal-title" style="margin-bottom: 0.5rem; font-size: 1.5rem;">Title</h3>
+      <p id="detail-modal-subtitle" style="color: var(--accent-color); margin-bottom: 1.5rem; font-weight: 500;">
+        Subtitle</p>
+
+      <div id="detail-modal-desc"
+        style="color: var(--text-main); margin-bottom: 2rem; line-height: 1.6; text-align: left;"></div>
+
+      <a id="detail-modal-link" href="#" target="_blank" class="btn-primary"
+        style="display: inline-flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-arrow-up-right-from-square"></i> <span data-i18n="article.open_notion">Open in
+          Notion</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Article Modal -->
   <div id="article-modal" class="modal-overlay"
     style="display: none; align-items: center; justify-content: center; z-index: 10002;">
     <div class="article-modal-content"
