@@ -2,6 +2,7 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { translations } from "./translations.js";
 import "../style.css"; // Ensure global styles are bundled
+import "./styles/notion.css"; // Import notion styles
 import "../details-modal.css"; // Import modal styles
 
 gsap.registerPlugin(ScrollTrigger);
@@ -3480,7 +3481,7 @@ window.toggleLike = async (type, id, element) => {
             localStorage.setItem(`liked_${type}_${id}`, 'true');
 
             // Update ALL instances
-            const selector = type === 'project' ? `.like-project-btn-${id}` : `.like-article-btn-${id}`;
+            const selector = `.like-${type}-btn-${id}`;
             const icons = document.querySelectorAll(`${selector} i`); 
             const btns = document.querySelectorAll(selector);
 
@@ -3503,7 +3504,7 @@ window.toggleLike = async (type, id, element) => {
             // Remove from local storage
             localStorage.removeItem(`liked_${type}_${id}`);
 
-            const selector = type === 'project' ? `.like-project-btn-${id}` : `.like-article-btn-${id}`;
+            const selector = `.like-${type}-btn-${id}`;
             const icons = document.querySelectorAll(`${selector} i`);
             const btns = document.querySelectorAll(selector);
 

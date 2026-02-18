@@ -3149,6 +3149,18 @@ app.get('/sitemap.xml', (req, res) => {
 // =========================================
 
 // Track Visit
+app.post('/api/track', (req, res) => {
+    // Alias to event tracking or handle simple view
+    const { type, id } = req.body;
+    db.run('INSERT INTO analytics_events (event_type, target_id, metadata) VALUES (?, ?, ?)', 
+        [type, id || 0, 'view'], 
+        (err) => {
+            if (err) console.error('Track error:', err);
+            res.sendStatus(200);
+        }
+    );
+});
+
 app.post('/api/track/visit', (req, res) => {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     const ua = req.headers['user-agent'] || '';
