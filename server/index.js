@@ -2203,21 +2203,7 @@ app.get('/api/:type/:id/content', async (req, res) => {
     }
 });
         
-        res.json({
-            id: article.id,
-            title: article.title,
-            date: article.date,
-            image: article.image,
-            tags: article.tags,
-            summary: article.summary,
-            content: html
-        });
-        
-    } catch (err) {
-        console.error("Notion fetch error:", err);
-        res.status(500).json({ error: err.message || "Failed to fetch article content" });
-    }
-});
+
 
 // Helper function to convert Notion blocks to HTML
 function blocksToHtml(blocks) {
