@@ -3476,6 +3476,9 @@ window.toggleLike = async (type, id, element) => {
         const data = await res.json();
         
         if (data.liked) {
+            // Save to local storage
+            localStorage.setItem(`liked_${type}_${id}`, 'true');
+
             // Update ALL instances
             const selector = type === 'project' ? `.like-project-btn-${id}` : `.like-article-btn-${id}`;
             const icons = document.querySelectorAll(`${selector} i`); 
@@ -3488,12 +3491,18 @@ window.toggleLike = async (type, id, element) => {
                     ic.classList.add('fa-solid');
                 });
             } else {
-                // Fallback for non-class-based elements
-                icon.classList.remove('fa-regular');
-                icon.classList.add('fa-solid');
+                // Fallback for non-class-based elements (like in modal)
+                if (icon) {
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                    icon.style.color = '#ff4757';
+                }
                 element.classList.add('active');
             }
         } else {
+            // Remove from local storage
+            localStorage.removeItem(`liked_${type}_${id}`);
+
             const selector = type === 'project' ? `.like-project-btn-${id}` : `.like-article-btn-${id}`;
             const icons = document.querySelectorAll(`${selector} i`);
             const btns = document.querySelectorAll(selector);
@@ -4075,11 +4084,18 @@ window.openDetailModal = function(type, id) {
     if (likeBtn) {
         likeBtn.dataset.id = item.id;
         likeBtn.dataset.type = type;
-        // Check if liked locally (simple check)
-        // Ideally we check a 'liked' property on the item if the API returns it
-        const iconInfo = window.getLikeIcon(type, item.id); // Helper if exists, else default
-        // For now, default reset, real status requires API check or local storage map
-        likeBtn.querySelector('i').className = 'fa-regular fa-heart'; 
+        
+        // Check local storage for liked state
+        const isLiked = localStorage.getItem(`liked_${type}_${item.id}`) === 'true';
+        const icon = likeBtn.querySelector('i');
+        
+        if (isLiked) {
+            icon.className = 'fa-solid fa-heart';
+            icon.style.color = '#ff4757';
+        } else {
+            icon.className = 'fa-regular fa-heart';
+            icon.style.color = '';
+        }
         
         // Update class name for real-time updates
         likeBtn.querySelector('.like-count').className = `like-count like-${type}-count-${item.id}`;
