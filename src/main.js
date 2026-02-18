@@ -1573,7 +1573,7 @@ async function loadEducation() {
                         </a>` : ''}
                         
                         ${e.notion_link ? `
-                        <button class="btn-timeline" onclick="openArticleModal('${e.notion_link}', '${e.id}', '${e.degree}', '${e.year || ''}')">
+                        <button class="btn-timeline" onclick="openDetailModal('education', '${e.id}')">
                             <i class="fa-solid fa-circle-info"></i> ${translations[currentLang]?.["general.discoverMore"] || "Discover More"}
                         </button>` : ''}
                     </div>
@@ -1656,7 +1656,7 @@ async function loadExperience() {
                         </a>
                     ` : ''}
                     ${e.notion_link ? `
-                        <button class="btn-timeline" onclick="openArticleModal('${e.notion_link}', '${e.id}', '${e.role}', '${e.year || ''}')">
+                        <button class="btn-timeline" onclick="openDetailModal('experience', '${e.id}')">
                             <i class="fa-solid fa-circle-info"></i> ${translations[currentLang]?.["general.discoverMore"] || "Discover More"}
                         </button>
                     ` : ''}
