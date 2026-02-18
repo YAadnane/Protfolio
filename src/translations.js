@@ -178,6 +178,7 @@ export const translations = {
         "articles.read": "Lire la suite <i class='fa-solid fa-arrow-right'></i>",
         "articles.readMore": "Lire l'article <i class='fa-solid fa-arrow-right'></i>",
         "articles.filter": "Tous les sujets",
+        "general.discoverMore": "Découvrir plus <i class='fa-solid fa-arrow-right'></i>",
         "skills.title": "Stack Technique",
         "skills.ai": "Data & IA",
         "skills.bigdata": "Big Data & Outils",
