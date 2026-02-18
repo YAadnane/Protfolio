@@ -2337,58 +2337,6 @@ app.post('/api/interact/comment', (req, res) => {
 });
 
 // --- ANALYTICS TRACKING ---
-app.post('/api/track', (req, res) => {
-    const { type, id, metadata } = req.body;
-    db.run(`INSERT INTO analytics_events (event_type, target_id, metadata) VALUES (?, ?, ?)`,
-        [type, id, metadata ? JSON.stringify(metadata) : null],
-        (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            
-            // Return updated count
-            db.get(`SELECT COUNT(*) as count FROM analytics_events WHERE event_type = ? AND target_id = ?`, 
-                [type, id], 
-                (err, row) => {
-                    if (err) return res.status(500).json({ error: err.message });
-                    res.json({ message: "Event tracked", count: row.count });
-                }
-            );
-        }
-    );
-});
-
-app.post('/api/track/visit', (req, res) => {
-    // Get IP
-    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '0.0.0.0';
-    // Hash IP for privacy
-    const ipHash = crypto.createHash('sha256').update(ip).digest('hex');
-    const ua = req.headers['user-agent'] || '';
-    
-    // Parse Device
-    const isMobile = /mobile|android|iphone|ipad|phone/i.test(ua);
-    const device = isMobile ? 'mobile' : 'desktop';
-
-    // Get Lang from body (default to en)
-    const lang = req.body.lang || 'en';
-
-    // Log to visits table for Unique Visitor tracking
-    db.run(`INSERT INTO visits (ip_hash, user_agent, lang, device) VALUES (?, ?, ?, ?)`, [ipHash, ua, lang, device], (err) => {
-        if (err) console.error("Visit log error:", err.message);
-    });
-
-    // Also Log generic event for consistency if needed, but 'visits' table is primary for traffic now.
-    // We can keep the event log if we want 'site_visit' in the events stream, or just rely on visits table.
-    // Let's keep strict backwards compat for any other query using analytics_events
-    db.run(`INSERT INTO analytics_events (event_type, target_id) VALUES (?, ?)`,
-        ['site_visit', 0],
-        (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Visit tracked" });
-        }
-    );
-});
-
-
-// --- DYNAMIC STATS ---
 // --- SUBSCRIPTION API ---
 app.post('/api/subscribe', (req, res) => {
     const { name, email } = req.body;
