@@ -3098,16 +3098,22 @@ app.get('/sitemap.xml', (req, res) => {
 
 // Track Visit
 app.post('/api/track', (req, res) => {
-    // Alias to event tracking or handle simple view
     const { type, id } = req.body;
     db.run('INSERT INTO analytics_events (event_type, target_id, metadata) VALUES (?, ?, ?)', 
         [type, id || 0, 'view'], 
-        (err) => {
-            if (err) console.error('Track error:', err);
-            res.sendStatus(200);
+        function(err) {
+            if (err) { console.error('Track error:', err); return res.status(500).json({ error: err.message }); }
+            // Return updated count so frontend can update UI
+            db.get('SELECT COUNT(*) as count FROM analytics_events WHERE event_type = ? AND target_id = ?',
+                [type, id || 0],
+                (err2, row) => {
+                    res.json({ success: true, views_count: row ? row.count : 0 });
+                }
+            );
         }
     );
 });
+
 
 app.post('/api/track/visit', (req, res) => {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;

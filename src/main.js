@@ -3785,19 +3785,29 @@ window.onclick = function(event) {
 // ANALYTICS TRACKING HELPER
 // =========================================
 window.trackEvent = async (type, id, element) => {
-    // Determine Entity Type
-    const entityType = type.includes('article') ? 'article' : 'project';
+    // Determine Entity Type from the type string directly
+    let entityType;
+    if (type.includes('article')) entityType = 'article';
+    else if (type === 'education') entityType = 'education';
+    else if (type === 'experience') entityType = 'experience';
+    else entityType = 'project';
     
-    // OPTIMISTIC UPDATE
+    // OPTIMISTIC UPDATE: show +1 immediately
     try {
         let currentVal = 0;
         if (entityType === 'project') {
              const p = allProjectsData.find(x => x.id == id);
              if(p) currentVal = p.clicks || 0;
-        } else {
+        } else if (entityType === 'article') {
              if(window.articlesMap && window.articlesMap[id]) {
                  currentVal = window.articlesMap[id].clicks || 0;
              }
+        } else if (entityType === 'education' && window.educationData) {
+            const item = window.educationData.find(x => x.id == id);
+            if (item) currentVal = item.views_count || 0;
+        } else if (entityType === 'experience' && window.experienceData) {
+            const item = window.experienceData.find(x => x.id == id);
+            if (item) currentVal = item.views_count || 0;
         }
         
         // Immediately show +1
@@ -3812,7 +3822,6 @@ window.trackEvent = async (type, id, element) => {
             body: JSON.stringify({ type, id })
         });
         const data = await res.json();
-        console.log('Track response:', data);
 
         // Update view counters everywhere in real-time (Server Truth)
         if (data.success && data.views_count !== undefined) {
