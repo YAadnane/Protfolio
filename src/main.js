@@ -549,42 +549,7 @@ window.updateGlobalCounters = (id, type, value, entityType = 'project') => {
     }
 };
 
-        const animate = (els) => {
-            els.forEach(el => {
-                el.innerText = value;
-                el.style.color = '#00ff9d';
-                setTimeout(() => el.style.color = '', 500);
-            });
-        };
 
-        if (type === 'likes') {
-            animate(document.querySelectorAll(`.like-article-count-${id}`));
-            // Also update Modal counter if exists
-            const modalCount = document.getElementById('article-likes-count');
-            const modalLikes = document.getElementById('article-likes');
-            if (modalCount && modalLikes && modalLikes.dataset.articleId == id) {
-                modalCount.innerText = value;
-            }
-        } else if (type === 'comments') {
-            animate(document.querySelectorAll(`.comment-article-count-${id}`));
-            // Also update Modal counter if exists
-            const modalCount = document.getElementById('article-comments-count');
-            const modalComments = document.getElementById('article-comments');
-            if (modalCount && modalComments && modalComments.dataset.articleId == id) {
-                modalCount.innerText = value;
-            }
-        } else if (type === 'views') {
-            animate(document.querySelectorAll(`.view-article-count-${id}`));
-            // Also update Modal counter if exists
-            const modalCount = document.getElementById('article-views-count');
-            const modalViews = document.getElementById('article-views');
-            if (modalCount && modalViews && modalViews.dataset.articleId == id) {
-                modalCount.innerText = value;
-            }
-        }
-    }
-    console.log(`[SYNC] Updated ${entityType} ${id} ${type} to ${value}`);
-};
 
 // --- HELPER: Counter Animation ---
 function animateCounter(el, target, duration = 1500) {
