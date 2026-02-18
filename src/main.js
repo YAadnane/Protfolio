@@ -4068,7 +4068,39 @@ window.openDetailModal = function(type, id) {
     if (titleEl) titleEl.textContent = title;
     if (subtitleEl) subtitleEl.textContent = subtitle;
     if (dateEl) dateEl.textContent = date;
-    if (descEl) descEl.innerHTML = desc; 
+    
+    // Initial Description + Loading
+    if (descEl) {
+        descEl.innerHTML = desc; // Start with short desc
+        
+        // Fetch detailed content if available (and not just a raw link)
+        if (link && link.includes('notion.')) {
+            const loadingHtml = `<div style="text-align:center; padding: 20px; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading detailed content...</div>`;
+            const originalDesc = desc;
+            
+            // Append loading, or replace if empty
+            if (!desc) descEl.innerHTML = loadingHtml;
+            else descEl.insertAdjacentHTML('beforeend', loadingHtml);
+
+            fetch(`${API_URL}/${type}/${id}/content?lang=${currentLang}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.content) {
+                        descEl.innerHTML = data.content;
+                    } else if (data.error) {
+                        console.warn('Content fetch warning:', data.error);
+                        descEl.innerHTML = originalDesc + `<div style="margin-top:10px; font-size:0.8em; color:var(--text-muted);">(Details not available via API, please check the link below)</div>`;
+                    } else {
+                         // No content returned, keep original
+                         descEl.innerHTML = originalDesc;
+                    }
+                })
+                .catch(err => {
+                    console.error('Failed to load detail content', err);
+                    descEl.innerHTML = originalDesc;
+                });
+        }
+    }
     
     if (linkEl) {
         linkEl.href = link;

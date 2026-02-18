@@ -1559,13 +1559,23 @@ app.delete('/api/certifications/:id', authenticateToken, (req, res) => {
 // --- EDUCATION ---
 app.get('/api/education', (req, res) => {
     const lang = req.query.lang || 'en';
-    db.all("SELECT * FROM education WHERE lang = ? ORDER BY id DESC", [lang], (err, rows) => {
+    const query = `
+        SELECT e.*, 
+        (SELECT COUNT(*) FROM likes WHERE target_type = 'education' AND target_id = e.id) as likes_count,
+        (SELECT COUNT(*) FROM comments WHERE target_type = 'education' AND target_id = e.id) as comments_count,
+        (SELECT COUNT(*) FROM analytics WHERE type = 'education' AND entity_id = e.id) as views_count
+        FROM education e 
+        WHERE lang = ? 
+        ORDER BY id DESC
+    `;
+    db.all(query, [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
 });
 
 app.post('/api/education', authenticateToken, upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'brochureFile', maxCount: 1 }]), (req, res) => {
+    // ... existing post logic ...
     const { institution, degree, year, start_date, end_date, description, is_hidden, lang, logo, brochure, notion_link } = req.body;
     let logoPath = logo || '';
     if (req.files && req.files['logoFile']) {
@@ -1583,6 +1593,24 @@ app.post('/api/education', authenticateToken, upload.fields([{ name: 'logoFile',
             res.json({ id: this.lastID });
         }
     );
+});
+
+// --- EXPERIENCE ---
+app.get('/api/experience', (req, res) => {
+    const lang = req.query.lang || 'en';
+    const query = `
+        SELECT e.*, 
+        (SELECT COUNT(*) FROM likes WHERE target_type = 'experience' AND target_id = e.id) as likes_count,
+        (SELECT COUNT(*) FROM comments WHERE target_type = 'experience' AND target_id = e.id) as comments_count,
+        (SELECT COUNT(*) FROM analytics WHERE type = 'experience' AND entity_id = e.id) as views_count
+        FROM experience e 
+        WHERE lang = ? 
+        ORDER BY id DESC
+    `;
+    db.all(query, [lang], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
 });
 
 app.put('/api/education/:id', authenticateToken, upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'brochureFile', maxCount: 1 }]), (req, res) => {
@@ -2103,22 +2131,29 @@ app.delete('/api/shapes/:id', authenticateToken, (req, res) => {
     });
 });
 
-// Get Article Content from Notion
-app.get('/api/articles/:id/content', async (req, res) => {
-    const articleId = req.params.id;
+// Get Detailed Content from Notion (Generic)
+app.get('/api/:type/:id/content', async (req, res) => {
+    const { type, id } = req.params;
     const lang = req.query.lang || 'en';
     
+    // Validate type
+    const validTypes = ['articles', 'education', 'experience'];
+    if (!validTypes.includes(type)) {
+        return res.status(400).json({ error: "Invalid content type" });
+    }
+
     try {
-        // 1. Get article metadata from database
-        const article = await new Promise((resolve, reject) => {
-            db.get("SELECT * FROM articles WHERE id = ?", [articleId], (err, row) => {
+        // 1. Get item metadata from database
+        const tableName = type; // safely matches table names
+        const item = await new Promise((resolve, reject) => {
+            db.get(`SELECT * FROM ${tableName} WHERE id = ?`, [id], (err, row) => {
                 if (err) reject(err);
                 else resolve(row);
             });
         });
         
-        if (!article) {
-            return res.status(404).json({ error: "Article not found" });
+        if (!item) {
+            return res.status(404).json({ error: "Item not found" });
         }
         
         // 2. Get Notion API key from database
@@ -2134,9 +2169,12 @@ app.get('/api/articles/:id/content', async (req, res) => {
         }
         
         // 3. Extract Notion page ID from link
-        const notionLink = article.link;
+        // Check both 'link' (articles) and 'notion_link' (edu/exp) columns
+        const notionLink = item.notion_link || item.link;
+        
         if (!notionLink || !notionLink.includes('notion.')) {
-            return res.status(400).json({ error: "Invalid Notion link" });
+            // If no Notion link, return null content but success (client handles manual desc)
+            return res.json({ content: null });
         }
         
         // Extract page ID from various Notion URL formats
@@ -2157,6 +2195,13 @@ app.get('/api/articles/:id/content', async (req, res) => {
         
         // 5. Convert blocks to HTML
         const html = blocksToHtml(blocks.results);
+        res.json({ content: html });
+        
+    } catch (err) {
+        console.error(`Failed to fetch ${type} content:`, err);
+        res.status(500).json({ error: "Failed to fetch content from Notion" });
+    }
+});
         
         res.json({
             id: article.id,
