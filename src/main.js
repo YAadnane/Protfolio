@@ -518,6 +518,37 @@ window.updateGlobalCounters = (id, type, value, entityType = 'project') => {
             if (type === 'views') art.clicks = value;
         }
 
+        // DOM Updates for Articles
+        const className = type === 'views' ? 'view' : (type === 'likes' ? 'like' : 'comment');
+        const els = document.querySelectorAll(`.${className}-article-count-${id}`);
+        els.forEach(el => {
+            el.innerText = value;
+            el.style.color = '#00ff9d';
+            setTimeout(() => el.style.color = '', 500);
+        });
+
+    } else if (entityType === 'education' || entityType === 'experience') {
+        // Generic handler for Edu/Exp
+        const dataArray = entityType === 'education' ? window.educationData : window.experienceData;
+        if (dataArray) {
+            const item = dataArray.find(x => x.id == id);
+            if (item) {
+                if (type === 'likes') item.likes_count = value;
+                if (type === 'comments') item.comments_count = value;
+                if (type === 'views') item.views_count = value;
+            }
+        }
+
+        const className = type === 'views' ? 'view' : (type === 'likes' ? 'like' : 'comment');
+        const els = document.querySelectorAll(`.${className}-${entityType}-count-${id}`);
+        els.forEach(el => {
+            el.innerText = value;
+            el.style.color = '#00ff9d';
+            setTimeout(() => el.style.color = '', 500);
+        });
+    }
+};
+
         const animate = (els) => {
             els.forEach(el => {
                 el.innerText = value;
@@ -3448,7 +3479,16 @@ function initHeroCubeInteraction() {
 function getOrCreateClientId() {
     let clientId = localStorage.getItem('portfolio_client_id');
     if (!clientId) {
-        clientId = crypto.randomUUID();
+        // Fallback for non-secure contexts (HTTP) where crypto.randomUUID is missing
+        if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+            clientId = crypto.randomUUID();
+        } else {
+            // Simple UUID v4 generator
+            clientId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
         localStorage.setItem('portfolio_client_id', clientId);
     }
     return clientId;
