@@ -4079,6 +4079,9 @@ window.openDetailModal = function(type, id) {
             const originalDesc = desc;
             
             // Append loading, or replace if empty
+            // Ensure wrapper has the class
+            descEl.classList.add('notion-content');
+            
             if (!desc) descEl.innerHTML = loadingHtml;
             else descEl.insertAdjacentHTML('beforeend', loadingHtml);
 
