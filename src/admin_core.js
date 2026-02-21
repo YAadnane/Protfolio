@@ -456,14 +456,11 @@ window.switchTab = (tab) => {
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
     
-    // Show/Hide "Add New" button based on tab
+    // Show/Hide "Add New" button — only on tabs that support creating new items
     const addBtn = document.querySelector('.btn-add');
     if (addBtn) {
-        if (tab === 'media' || tab === 'messages') {
-            addBtn.style.display = 'none';
-        } else {
-             addBtn.style.display = 'flex';
-        }
+        const tabsWithAdd = ['projects', 'certifications', 'education', 'experience', 'skills', 'articles', 'shapes'];
+        addBtn.style.display = tabsWithAdd.includes(tab) ? 'flex' : 'none';
     }
 
     if (tab === 'media') {

@@ -1131,11 +1131,43 @@
     <div class="cursor-outline" data-cursor-outline></div>
 
     <header class="header">
-        <div class="container header-container">
-            <a href="/" class="logo">AY<span class="dot">.</span> Admin</a>
-            <a href="/" class="btn-secondary">View Site</a>
-            <button class="btn-secondary" onclick="logout()"
-                style="margin-left: 10px; background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); cursor: pointer;">Logout</button>
+        <div class="container header-container"
+            style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+            <!-- Left: Logo + Sidebar Toggle -->
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <button id="sidebar-toggle" onclick="toggleSidebar()"
+                    style="background:none; border:none; color:var(--text-main); font-size:1.3rem; cursor:pointer;"><i
+                        class="fa-solid fa-bars"></i></button>
+                <a href="/" class="logo">AY<span class="dot">.</span> Admin</a>
+            </div>
+
+            <!-- Right: All controls -->
+            <div style="display: flex; gap: 0.8rem; align-items: center; flex-wrap: wrap;">
+                <div class="lang-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-globe" style="color: #888;"></i>
+                    <select id="admin-lang-select" class="admin-select">
+                        <option value="en">English (EN)</option>
+                        <option value="fr">Français (FR)</option>
+                    </select>
+                </div>
+                <button onclick="switchTab('profile')" title="Admin Profile"
+                    style="background:transparent; border:none; color:var(--text-muted); font-size:1.1rem; cursor:pointer;"><i
+                        class="fa-solid fa-user-shield"></i></button>
+                <button onclick="switchTab('database')" title="Database"
+                    style="background:transparent; border:none; color:var(--text-muted); font-size:1.1rem; cursor:pointer;"><i
+                        class="fa-solid fa-database"></i></button>
+                <button id="admin-maintenance-switch" type="button" title="Toggle Maintenance Mode"
+                    style="background:transparent; border:none; color:var(--text-muted); font-size:1.1rem; cursor:pointer;"><i
+                        class="fa-solid fa-screwdriver-wrench"></i></button>
+                <button id="admin-theme-switch" type="button" title="Toggle Theme"
+                    style="background:transparent; border:none; color:var(--text-muted); font-size:1.1rem; cursor:pointer;"><i
+                        class="fa-solid fa-moon"></i></button>
+                <button class="btn-add" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add New</button>
+                <a href="/" class="btn-secondary"
+                    style="text-decoration:none; padding:0.5rem 1rem; font-size:0.9rem;">View Site</a>
+                <button class="btn-secondary" onclick="logout()"
+                    style="background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); cursor: pointer; padding:0.5rem 1rem; font-size:0.9rem;">Logout</button>
+            </div>
         </div>
     </header>
 
@@ -1179,65 +1211,32 @@
             }
         </style>
 
-        <div class="admin-header">
-            <div style="display:flex; align-items:center;">
-                <button id="sidebar-toggle" onclick="toggleSidebar()"
-                    style="background:none; border:none; color:var(--text-main); font-size:1.5rem; cursor:pointer; margin-right:1rem;"><i
-                        class="fa-solid fa-bars"></i></button>
-                <h1>Dashboard</h1>
-            </div>
-            <div style="display: flex; gap: 1rem; align-items: center;">
-                <script>
-                    // Global Toast Function
-                    window.showToast = function (message, type = 'success') {
-                        const toast = document.createElement('div');
-                        toast.className = `toast toast-${type}`;
-                        toast.style.position = 'fixed';
-                        toast.style.bottom = '20px';
-                        toast.style.right = '20px';
-                        toast.style.padding = '1rem 2rem';
-                        toast.style.borderRadius = '8px';
-                        toast.style.color = '#fff';
-                        toast.style.zIndex = '10000';
-                        toast.style.background = type === 'success' ? '#2ed573' : '#ff4757';
-                        toast.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
-                        toast.style.animation = 'slideIn 0.3s ease-out forwards';
+        <script>
+            // Global Toast Function
+            window.showToast = function (message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                toast.style.position = 'fixed';
+                toast.style.bottom = '20px';
+                toast.style.right = '20px';
+                toast.style.padding = '1rem 2rem';
+                toast.style.borderRadius = '8px';
+                toast.style.color = '#fff';
+                toast.style.zIndex = '10000';
+                toast.style.background = type === 'success' ? '#2ed573' : '#ff4757';
+                toast.style.boxShadow = '0 5px 15px rgba(0,0,0,0.3)';
+                toast.style.animation = 'slideIn 0.3s ease-out forwards';
 
-                        toast.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+                toast.innerHTML = `<i class="fa-solid fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
 
-                        document.body.appendChild(toast);
+                document.body.appendChild(toast);
 
-                        setTimeout(() => {
-                            toast.style.animation = 'slideOut 0.3s ease-in forwards';
-                            setTimeout(() => toast.remove(), 300);
-                        }, 3000);
-                    }
-                </script>
-                <div class="lang-select-wrapper" style="display: flex; align-items: center; gap: 0.5rem;">
-                    <i class="fa-solid fa-globe" style="color: #888;"></i>
-                    <select id="admin-lang-select" class="admin-select">
-                        <option value="en">English (EN)</option>
-                        <option value="fr">Français (FR)</option>
-                    </select>
-                </div>
-                <button onclick="switchTab('profile')" title="Admin Profile"
-                    style="background:transparent; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;"><i
-                        class="fa-solid fa-user-shield"></i></button>
-
-                <button onclick="switchTab('database')" title="Database"
-                    style="background:transparent; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;"><i
-                        class="fa-solid fa-database"></i></button>
-
-                <button id="admin-maintenance-switch" type="button" title="Toggle Maintenance Mode"
-                    style="background:transparent; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer;"><i
-                        class="fa-solid fa-screwdriver-wrench"></i></button>
-
-                <button id="admin-theme-switch" type="button" title="Toggle Theme"
-                    style="background:transparent; border:none; color:var(--text-muted); font-size:1.2rem; cursor:pointer; margin-right:1rem;"><i
-                        class="fa-solid fa-moon"></i></button>
-                <button class="btn-add" onclick="openModal()"><i class="fa-solid fa-plus"></i> Add New</button>
-            </div>
-        </div>
+                setTimeout(() => {
+                    toast.style.animation = 'slideOut 0.3s ease-in forwards';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+        </script>
 
         <div class="admin-layout">
             <!-- Sidebar Navigation -->
