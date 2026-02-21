@@ -4934,15 +4934,13 @@ body.light-mode .bento-item.has-media .bento-tags span {
 
 #project-modal .project-modal-meta {
     display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
     align-items: center;
     color: var(--text-muted);
     font-size: 0.9rem;
-}
-
-#project-modal .project-modal-meta .meta-separator {
-    display: none;
 }
 
 #project-modal .project-modal-scroll {
