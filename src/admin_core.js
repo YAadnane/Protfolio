@@ -358,6 +358,7 @@ const fields = {
         { name: 'icon', label: 'Category Icon Class (FontAwesome)', type: 'text' },
         { name: 'name', label: 'Skill Name', type: 'text' },
         { name: 'level', label: 'Level (%)', type: 'number' },
+        { name: 'skill_level', label: 'Proficiency Level', type: 'select', options: ['beginner', 'intermediate', 'expert'] },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
     ],
     shapes: [

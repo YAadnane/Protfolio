@@ -1502,9 +1502,9 @@ app.get('/api/skills', (req, res) => {
 });
 
 app.post('/api/skills', authenticateToken, (req, res) => {
-    const { category, name, level, icon, is_hidden, lang } = req.body;
-    db.run(`INSERT INTO skills (category, name, level, icon, is_hidden, lang) VALUES (?, ?, ?, ?, ?, ?)`,
-        [category, name, level, icon, is_hidden || 0, lang || 'en'],
+    const { category, name, level, icon, is_hidden, lang, skill_level } = req.body;
+    db.run(`INSERT INTO skills (category, name, level, icon, is_hidden, lang, skill_level) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [category, name, level, icon, is_hidden || 0, lang || 'en', skill_level || 'beginner'],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
@@ -1513,9 +1513,9 @@ app.post('/api/skills', authenticateToken, (req, res) => {
 });
 
 app.put('/api/skills/:id', authenticateToken, (req, res) => {
-    const { category, name, level, icon, is_hidden } = req.body;
-    db.run(`UPDATE skills SET category = ?, name = ?, level = ?, icon = ?, is_hidden = ? WHERE id = ?`,
-        [category, name, level, icon, is_hidden, req.params.id],
+    const { category, name, level, icon, is_hidden, skill_level } = req.body;
+    db.run(`UPDATE skills SET category = ?, name = ?, level = ?, icon = ?, is_hidden = ?, skill_level = ? WHERE id = ?`,
+        [category, name, level, icon, is_hidden, skill_level || 'beginner', req.params.id],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });

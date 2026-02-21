@@ -1711,13 +1711,6 @@ async function loadSkills() {
     } catch (err) { console.error("Failed to load skills", err); }
 }
 
-function getSkillLevel(level) {
-    if (!level || level <= 0) return null;
-    if (level <= 33) return 'beginner';
-    if (level <= 66) return 'intermediate';
-    return 'expert';
-}
-
 function renderSkills(skills, filter) {
     const container = document.getElementById('skills-grid');
     container.innerHTML = '';
@@ -1743,19 +1736,18 @@ function renderSkills(skills, filter) {
 
         const hasLevels = items.some(s => s.level && s.level > 0);
 
-        // Filter items by proficiency level
+        // Filter items by skill_level from DB
         let filteredItems = items;
-        if (filter !== 'all' && hasLevels) {
-            filteredItems = items.filter(s => getSkillLevel(s.level) === filter);
+        if (filter !== 'all') {
+            filteredItems = items.filter(s => (s.skill_level || 'beginner') === filter);
             if (filteredItems.length === 0) continue; // skip empty categories
         }
-        if (filter !== 'all' && !hasLevels) continue; // hide tag-only categories when filtering
 
         let contentHtml = '';
         if (hasLevels) {
             contentHtml = `<div class="skill-bars">
                 ${filteredItems.map(s => `
-                    <div class="skill-bar-item" data-level="${getSkillLevel(s.level) || ''}">
+                    <div class="skill-bar-item" data-level="${s.skill_level || 'beginner'}">
                         <div class="skill-info"><span>${s.name}</span><span>${s.level}%</span></div>
                         <div class="progress-bar"><div class="progress" style="width: ${s.level}%"></div></div>
                     </div>

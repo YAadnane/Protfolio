@@ -121,7 +121,10 @@ db.serialize(() => {
         level INTEGER,
         icon TEXT,
         is_hidden INTEGER DEFAULT 0
-    )`, () => addColumnIfNotExists('skills', 'is_hidden', 'INTEGER DEFAULT 0'));
+    )`, () => {
+        addColumnIfNotExists('skills', 'is_hidden', 'INTEGER DEFAULT 0');
+        addColumnIfNotExists('skills', 'skill_level', "TEXT DEFAULT 'beginner'");
+    });
 
     // Messages Table
     db.run(`CREATE TABLE IF NOT EXISTS messages (
