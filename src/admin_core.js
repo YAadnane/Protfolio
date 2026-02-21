@@ -1,5 +1,5 @@
 console.log('%c Admin Core Loaded v3.1 (Notion Update)', 'background:#2ed573; color:#000; padding:4px; border-radius:4px;');
-// import { gsap } from "https://cdn.skypack.dev/gsap";
+
 
 const API_URL = '/api';
 
@@ -195,7 +195,6 @@ async function loadMedia() {
         });
         const files = await res.json();
 
-        grid.innerHTML = '';
         grid.innerHTML = '';
         if (!Array.isArray(files) || files.length === 0) {
             grid.innerHTML = '<p>No media files found (or API error).</p>';
@@ -1545,10 +1544,7 @@ function setupModal() {
 }
 
 
-// Theme Logic
-// Theme Logic
-// Theme Logic
-// Theme Logic
+// --- THEME LOGIC ---
 function initThemeAdmin() {
     console.log("%c🎨 Theme Init Started", "color: cyan; font-weight: bold; font-size: 14px;");
     
@@ -1693,10 +1689,7 @@ function updateMaintenanceBtnAPI(btn) {
 
 
 
-// Messages Actions
-// Approve Review
-// Messages Actions
-// Approve Review
+// --- MESSAGES & REVIEW ACTIONS ---
 window.approveReview = async (id) => {
     if (!await showConfirm('Approve Review?', 'Approve this review for publication?', 'Approve', '#2ed573')) return;
     try {
@@ -1763,7 +1756,6 @@ window.deleteMessage = async (id) => {
     } catch (err) { console.error(err); }
 };
 
-// --- DATABASE VIEWER ---
 // --- DATABASE VIEWER ---
 async function renderDatabaseView() {
     const grid = document.getElementById('content-grid');

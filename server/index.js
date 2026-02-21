@@ -13,6 +13,7 @@ import crypto from 'crypto';
 import { Client } from '@notionhq/client';
 import nodemailer from 'nodemailer';
 import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 dotenv.config();
 
@@ -64,9 +65,10 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-const upload = multer({ storage, fileFilter });
+const upload = multer({ storage, fileFilter, limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB max
 
 app.use(cors());
+app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false })); // Security headers
 // app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -118,14 +120,14 @@ app.use(sanitizeMiddleware);
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
-const SECRET_KEY = process.env.SECRET_KEY || 'default_dev_secret';
+const SECRET_KEY = process.env.SECRET_KEY || crypto.randomBytes(32).toString('hex');
+if (!process.env.SECRET_KEY) console.warn('⚠️  No SECRET_KEY in env — using random key (tokens won\'t survive restarts)');
+
 const ADMIN_USER = {
-    // FORCE DEFAULT for User Access (admin / admin)
     email: 'admin', 
     passwordHash: '$2b$10$AvzbJGVzQRk7zEP1YZiM2effU.2865ZE3vfBKsVx1miNLvDrhu.qgG'
-    // email: process.env.ADMIN_EMAIL || 'admin@example.com',
-    // passwordHash: process.env.ADMIN_PASSWORD_HASH || '...'
 };
+if (!process.env.SECRET_KEY) console.warn('⚠️  Using hardcoded admin fallback — set up a DB user for production');
 
 
 
@@ -300,7 +302,7 @@ app.delete('/api/subscribe', (req, res) => {
 // Login Endpoint
 app.post('/api/login', loginLimiter, (req, res) => {
     const { email, password } = req.body;
-    console.log('Login attempt:', email); 
+    // Login attempt logged without sensitive data
 
     db.get("SELECT * FROM users WHERE username = ?", [email], (err, user) => {
         if (err) return res.status(500).json({ error: "Database error" });
@@ -322,11 +324,11 @@ app.post('/api/login', loginLimiter, (req, res) => {
 
         bcrypt.compare(password, user.password_hash, (err, result) => {
             if (result) {
-                console.log('Password match!'); 
+
                 const token = jwt.sign({ email: user.username, id: user.id }, SECRET_KEY, { expiresIn: '24h' });
                 res.json({ token: token });
             } else {
-                console.log('Password mismatch'); 
+
                 res.status(401).json({ error: "Invalid credentials" });
             }
         });
@@ -940,7 +942,7 @@ const sendGoodbyeEmail = async (email, name) => {
 };
 
 // Forgot Password Endpoint
-app.post('/api/forgot-password', (req, res) => {
+app.post('/api/forgot-password', loginLimiter, (req, res) => {
     const { email } = req.body;
     
     if (!email) return res.status(400).json({ error: "Username/Email is required." });
@@ -949,13 +951,12 @@ app.post('/api/forgot-password', (req, res) => {
         if (err) return res.status(500).json({ error: "Database error" });
         
         if (!user) {
-            // Security: Don't reveal if user exists, but here we can be a bit more explicit if asked
-            // Logic: User asked to "verify if valid".
-            return res.status(404).json({ error: "User not found." });
+            // Security: Don't reveal if user exists
+            return res.json({ message: "If this account exists, a reset email has been sent." });
         }
 
         // Generate new password
-        const newPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+        const newPassword = crypto.randomBytes(12).toString('base64url');
         const hash = await bcrypt.hash(newPassword, 10);
 
         db.run("UPDATE users SET password_hash = ? WHERE id = ?", [hash, user.id], (err) => {
@@ -2455,8 +2456,16 @@ app.get('/api/admin/database/table/:name', authenticateToken, (req, res) => {
 });
 
 
+const PROTECTED_TABLES = ['users', 'general_info'];
+
 app.delete('/api/admin/database/table/:name', authenticateToken, (req, res) => {
     const tableName = req.params.name;
+
+    // Protect critical tables from being cleared
+    if (PROTECTED_TABLES.includes(tableName)) {
+        return res.status(403).json({ error: 'This table is protected and cannot be cleared' });
+    }
+
     // Security Whitelist
     db.all("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'", [], (err, tables) => {
         if (err) return res.status(500).json({ error: err.message });
