@@ -426,7 +426,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadContent(currentTab);
     setupModal();
     initCursor();
-    initCursor();
     initThemeAdmin();
     initMaintenanceToggle();
     updateUnreadCount();
@@ -2115,12 +2114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initThemeAdmin();
     }
 
-    // Initialize Modal Listeners (CRITICAL for Popups)
-    if (typeof setupModal === 'function') {
-        setupModal();
-    } else {
-        console.error('setupModal function not found!');
-    }
+    // setupModal() already called in the first DOMContentLoaded listener
 
     // Initialize Content
     if (typeof loadContent === 'function') {
