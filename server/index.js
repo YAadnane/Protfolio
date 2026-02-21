@@ -64,7 +64,7 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-const upload = multer({ storage, fileFilter, limits: { fileSize: 50 * 1024 * 1024 } });
+const upload = multer({ storage, fileFilter });
 
 app.use(cors());
 // app.use(bodyParser.json());
