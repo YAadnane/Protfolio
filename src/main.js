@@ -1705,56 +1705,87 @@ async function loadSkills() {
     try {
         const res = await fetch(`${API_URL}/skills?lang=${currentLang}`);
         const skills = (await res.json()).filter(s => !s.is_hidden);
-        const container = document.getElementById('skills-grid');
-        container.innerHTML = '';
-
-        const categories = {};
-        skills.forEach(s => {
-            if (!categories[s.category]) categories[s.category] = [];
-            categories[s.category].push(s);
-        });
-
-        for (const [cat, items] of Object.entries(categories)) {
-            const catDiv = document.createElement('div');
-            catDiv.className = 'skill-category';
-            
-            let icon = 'fa-code';
-            // Check if any item in this category has an icon defined
-            const iconItem = items.find(i => i.icon);
-            if (iconItem && iconItem.icon) {
-                icon = iconItem.icon;
-            } else {
-                // Fallback logic
-                if (cat.includes('Data')) icon = 'fa-brain';
-                if (cat.includes('Big Data')) icon = 'fa-server';
-            }
-
-            // Check if any skill in this category has a level > 0
-            const hasLevels = items.some(s => s.level && s.level > 0);
-
-            let contentHtml = '';
-            if (hasLevels) {
-                contentHtml = `<div class="skill-bars">
-                    ${items.map(s => `
-                        <div class="skill-bar-item">
-                            <div class="skill-info"><span>${s.name}</span><span>${s.level}%</span></div>
-                            <div class="progress-bar"><div class="progress" style="width: ${s.level}%"></div></div>
-                        </div>
-                    `).join('')}
-                </div>`;
-            } else {
-                contentHtml = `<div class="skill-tags-cloud">
-                    ${items.map(s => `<span class="tech-tag">${s.name}</span>`).join('')}
-                </div>`;
-            }
-
-            catDiv.innerHTML = `
-                <h3><i class="fa-solid ${icon}"></i> ${cat}</h3>
-                ${contentHtml}
-            `;
-            container.appendChild(catDiv);
-        }
+        window._allSkills = skills; // store for filtering
+        renderSkills(skills, 'all');
+        initSkillsFilter();
     } catch (err) { console.error("Failed to load skills", err); }
+}
+
+function getSkillLevel(level) {
+    if (!level || level <= 0) return null;
+    if (level <= 33) return 'beginner';
+    if (level <= 66) return 'intermediate';
+    return 'expert';
+}
+
+function renderSkills(skills, filter) {
+    const container = document.getElementById('skills-grid');
+    container.innerHTML = '';
+
+    const categories = {};
+    skills.forEach(s => {
+        if (!categories[s.category]) categories[s.category] = [];
+        categories[s.category].push(s);
+    });
+
+    for (const [cat, items] of Object.entries(categories)) {
+        const catDiv = document.createElement('div');
+        catDiv.className = 'skill-category';
+        
+        let icon = 'fa-code';
+        const iconItem = items.find(i => i.icon);
+        if (iconItem && iconItem.icon) {
+            icon = iconItem.icon;
+        } else {
+            if (cat.includes('Data')) icon = 'fa-brain';
+            if (cat.includes('Big Data')) icon = 'fa-server';
+        }
+
+        const hasLevels = items.some(s => s.level && s.level > 0);
+
+        // Filter items by proficiency level
+        let filteredItems = items;
+        if (filter !== 'all' && hasLevels) {
+            filteredItems = items.filter(s => getSkillLevel(s.level) === filter);
+            if (filteredItems.length === 0) continue; // skip empty categories
+        }
+        if (filter !== 'all' && !hasLevels) continue; // hide tag-only categories when filtering
+
+        let contentHtml = '';
+        if (hasLevels) {
+            contentHtml = `<div class="skill-bars">
+                ${filteredItems.map(s => `
+                    <div class="skill-bar-item" data-level="${getSkillLevel(s.level) || ''}">
+                        <div class="skill-info"><span>${s.name}</span><span>${s.level}%</span></div>
+                        <div class="progress-bar"><div class="progress" style="width: ${s.level}%"></div></div>
+                    </div>
+                `).join('')}
+            </div>`;
+        } else {
+            contentHtml = `<div class="skill-tags-cloud">
+                ${filteredItems.map(s => `<span class="tech-tag">${s.name}</span>`).join('')}
+            </div>`;
+        }
+
+        catDiv.innerHTML = `
+            <h3><i class="fa-solid ${icon}"></i> ${cat}</h3>
+            ${contentHtml}
+        `;
+        container.appendChild(catDiv);
+    }
+    initSkillAnimations();
+}
+
+function initSkillsFilter() {
+    const bar = document.getElementById('skills-filter-bar');
+    if (!bar) return;
+    bar.addEventListener('click', (e) => {
+        const btn = e.target.closest('.skills-filter-btn');
+        if (!btn) return;
+        bar.querySelectorAll('.skills-filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderSkills(window._allSkills || [], btn.dataset.level);
+    });
 }
 
 // =========================================
