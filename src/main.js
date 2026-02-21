@@ -4057,6 +4057,12 @@ window.openDetailModal = function(type, id) {
     const dateEl = document.getElementById('detail-modal-date');
     const descEl = document.getElementById('detail-modal-desc');
     const linkEl = document.getElementById('detail-modal-link');
+    const logoImg = document.getElementById('detail-modal-logo');
+    const logoIcon = document.getElementById('detail-modal-logo-icon');
+    const websiteEl = document.getElementById('detail-modal-website');
+    const linkedinEl = document.getElementById('detail-modal-linkedin');
+    const brochureEl = document.getElementById('detail-modal-brochure');
+    const linksBar = document.getElementById('detail-modal-links');
     
     // Stats Elements
     const viewsEl = document.getElementById('detail-views-count');
@@ -4082,20 +4088,75 @@ window.openDetailModal = function(type, id) {
     // Populate Content
     if (titleEl) titleEl.textContent = title;
     if (subtitleEl) subtitleEl.textContent = subtitle;
-    if (dateEl) dateEl.textContent = date;
+    if (dateEl) {
+        dateEl.innerHTML = `<i class="fa-regular fa-calendar"></i> ${date}`;
+    }
     
+    // Logo
+    if (item.logo && item.logo.trim()) {
+        if (logoImg) { logoImg.src = item.logo; logoImg.style.display = 'block'; }
+        if (logoIcon) logoIcon.style.display = 'none';
+    } else {
+        if (logoImg) logoImg.style.display = 'none';
+        if (logoIcon) {
+            logoIcon.style.display = 'block';
+            logoIcon.className = type === 'education' 
+                ? 'fa-solid fa-graduation-cap' 
+                : 'fa-solid fa-building';
+        }
+    }
+
+    // Links Bar — show/hide individual links and the bar itself
+    let hasAnyLink = false;
+
+    if (websiteEl) {
+        if (item.website && item.website.trim()) {
+            websiteEl.href = item.website;
+            websiteEl.style.display = 'inline-flex';
+            hasAnyLink = true;
+        } else {
+            websiteEl.style.display = 'none';
+        }
+    }
+    if (linkedinEl) {
+        if (item.linkedin && item.linkedin.trim()) {
+            linkedinEl.href = item.linkedin;
+            linkedinEl.style.display = 'inline-flex';
+            hasAnyLink = true;
+        } else {
+            linkedinEl.style.display = 'none';
+        }
+    }
+    if (brochureEl) {
+        if (item.brochure && item.brochure.trim()) {
+            brochureEl.href = item.brochure;
+            brochureEl.style.display = 'inline-flex';
+            hasAnyLink = true;
+        } else {
+            brochureEl.style.display = 'none';
+        }
+    }
+    if (linkEl) {
+        if (link && link.trim()) {
+            linkEl.href = link;
+            linkEl.style.display = 'inline-flex';
+            hasAnyLink = true;
+        } else {
+            linkEl.style.display = 'none';
+        }
+    }
+    if (linksBar) {
+        linksBar.style.display = hasAnyLink ? 'block' : 'none';
+    }
+
     // Initial Description + Loading
     if (descEl) {
-        descEl.innerHTML = desc; // Start with short desc
+        descEl.innerHTML = desc;
+        descEl.classList.add('notion-content');
         
-        // Fetch detailed content if available (and not just a raw link)
         if (link && link.includes('notion.')) {
             const loadingHtml = `<div style="text-align:center; padding: 20px; color: var(--text-muted);"><i class="fa-solid fa-spinner fa-spin"></i> Loading detailed content...</div>`;
             const originalDesc = desc;
-            
-            // Append loading, or replace if empty
-            // Ensure wrapper has the class
-            descEl.classList.add('notion-content');
             
             if (!desc) descEl.innerHTML = loadingHtml;
             else descEl.insertAdjacentHTML('beforeend', loadingHtml);
@@ -4106,11 +4167,9 @@ window.openDetailModal = function(type, id) {
                     if (data.content) {
                         descEl.innerHTML = data.content;
                     } else if (data.error) {
-                        console.warn('Content fetch warning:', data.error);
-                        descEl.innerHTML = originalDesc + `<div style="margin-top:10px; font-size:0.8em; color:var(--text-muted);">(Details not available via API, please check the link below)</div>`;
+                        descEl.innerHTML = originalDesc + `<div style="margin-top:10px; font-size:0.8em; color:var(--text-muted);">(Details not available via API)</div>`;
                     } else {
-                         // No content returned, keep original
-                         descEl.innerHTML = originalDesc;
+                        descEl.innerHTML = originalDesc;
                     }
                 })
                 .catch(err => {
@@ -4118,11 +4177,6 @@ window.openDetailModal = function(type, id) {
                     descEl.innerHTML = originalDesc;
                 });
         }
-    }
-    
-    if (linkEl) {
-        linkEl.href = link;
-        linkEl.style.display = link ? 'inline-flex' : 'none';
     }
 
     // Populate Stats
@@ -4135,7 +4189,6 @@ window.openDetailModal = function(type, id) {
         likeBtn.dataset.id = item.id;
         likeBtn.dataset.type = type;
         
-        // Check local storage for liked state
         const isLiked = localStorage.getItem(`liked_${type}_${item.id}`) === 'true';
         const icon = likeBtn.querySelector('i');
         
@@ -4147,13 +4200,11 @@ window.openDetailModal = function(type, id) {
             icon.style.color = '';
         }
         
-        // Update class name for real-time updates
         likeBtn.querySelector('.like-count').className = `like-count like-${type}-count-${item.id}`;
     }
     if (commentBtn) {
         commentBtn.dataset.id = item.id;
         commentBtn.dataset.type = type;
-        // Update class name for real-time updates
         commentBtn.querySelector('span').className = `comment-${type}-count-${item.id}`;
     }
     
@@ -4162,7 +4213,7 @@ window.openDetailModal = function(type, id) {
         viewsEl.className = `view-${type}-count-${item.id}`;
     }
 
-    // Show Modal
+    // Show Modal with animation
     modal.style.display = 'flex';
     modal.style.opacity = '0';
     requestAnimationFrame(() => {
