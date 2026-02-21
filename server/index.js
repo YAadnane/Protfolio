@@ -12,6 +12,7 @@ import { exec } from 'child_process';
 import crypto from 'crypto';
 import { Client } from '@notionhq/client';
 import nodemailer from 'nodemailer';
+import rateLimit from 'express-rate-limit';
 
 dotenv.config();
 
@@ -39,32 +40,44 @@ if (!fs.existsSync(uploadDir)) {
 }
 
 // Multer Configuration
+const allowedMimeTypes = [
+    'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml',
+    'application/pdf',
+    'video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'
+];
+
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
         cb(null, uploadDir)
     },
     filename: function (req, file, cb) {
-        // Sanitize filename: remove special chars, spaces to underscores
         const sanitized = file.originalname.replace(/[^a-zA-Z0-9.]/g, '_');
         cb(null, Date.now() + '-' + sanitized);
     }
 });
 
-const upload = multer({ storage: storage });
+const fileFilter = (req, file, cb) => {
+    if (allowedMimeTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error(`File type ${file.mimetype} is not allowed`), false);
+    }
+};
+
+const upload = multer({ storage, fileFilter, limits: { fileSize: 50 * 1024 * 1024 } });
 
 app.use(cors());
 // app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(uploadDir)); // Temporary Debug Endpoint
-app.get('/api/debug-info', (req, res) => {
-    res.json({
-        message: 'Server is running',
-        cwd: process.cwd(),
-        version: 'v3.1 - Debugging Deployment',
-        timestamp: new Date().toISOString()
-    });
-});
+app.use('/uploads', express.static(uploadDir));
+
+// =========================================
+// SECURITY: RATE LIMITING
+// =========================================
+const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many login attempts, try again in 15 minutes' } });
+const apiLimiter = rateLimit({ windowMs: 1 * 60 * 1000, max: 60, message: { error: 'Too many requests, slow down' } });
+const trackLimiter = rateLimit({ windowMs: 1 * 60 * 1000, max: 120, message: { error: 'Too many tracking requests' } });
 
 // Serve uploaded files statically
 
@@ -285,9 +298,7 @@ app.delete('/api/subscribe', (req, res) => {
 });
 
 // Login Endpoint
-
-// Login Endpoint
-app.post('/api/login', (req, res) => {
+app.post('/api/login', loginLimiter, (req, res) => {
     const { email, password } = req.body;
     console.log('Login attempt:', email); 
 
@@ -1025,7 +1036,7 @@ app.put('/api/profile', authenticateToken, async (req, res) => {
 
 
 // --- CONTACT FORM ---
-app.post('/api/contact', async (req, res) => {
+app.post('/api/contact', apiLimiter, async (req, res) => {
     const { name, email, message } = req.body;
 
     if (!name || !email || !message) {
@@ -1512,141 +1523,6 @@ app.put('/api/skills/:id', authenticateToken, (req, res) => {
     );
 });
 
-// --- CERTIFICATIONS ---
-app.get('/api/certifications', (req, res) => {
-    const lang = req.query.lang || 'en';
-    db.all("SELECT * FROM certifications WHERE lang = ? ORDER BY id DESC", [lang], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-app.post('/api/certifications', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { name, issuer, year, domain, pdf, is_hidden, lang, status, description, credential_url, credential_id, level, skills, image } = req.body;
-    let imagePath = image || null;
-    if (req.file) {
-        imagePath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`INSERT INTO certifications (
-        name, issuer, year, domain, pdf, is_hidden, lang, status, description, image, credential_url, credential_id, level, skills
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [name, issuer, year, domain, pdf, is_hidden || 0, lang || 'en', status || 'obtained', description, imagePath, credential_url, credential_id, level, skills],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID });
-        }
-    );
-});
-
-app.put('/api/certifications/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { name, issuer, year, domain, pdf, is_hidden, status, description, credential_url, credential_id, level, skills, image } = req.body;
-    let imagePath = image; 
-    if (req.file) {
-        imagePath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`UPDATE certifications SET 
-        name = ?, issuer = ?, year = ?, domain = ?, pdf = ?, is_hidden = ?, status = ?, description = ?, image = ?, credential_url = ?, credential_id = ?, level = ?, skills = ?
-        WHERE id = ?`,
-        [name, issuer, year, domain, pdf, is_hidden, status, description, imagePath, credential_url, credential_id, level, skills, req.params.id],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Updated successfully" });
-        }
-    );
-});
-
-app.delete('/api/certifications/:id', authenticateToken, (req, res) => {
-    db.run("DELETE FROM certifications WHERE id = ?", req.params.id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Deleted successfully" });
-    });
-});
-
-// --- EDUCATION ---
-app.get('/api/education', (req, res) => {
-    const lang = req.query.lang || 'en';
-    const query = `
-        SELECT e.*, 
-        (SELECT COUNT(*) FROM likes WHERE target_type = 'education' AND target_id = e.id) as likes_count,
-        (SELECT COUNT(*) FROM comments WHERE target_type = 'education' AND target_id = e.id) as comments_count,
-        (SELECT COUNT(*) FROM analytics WHERE type = 'education' AND entity_id = e.id) as views_count
-        FROM education e 
-        WHERE lang = ? 
-        ORDER BY id DESC
-    `;
-    db.all(query, [lang], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-app.post('/api/education', authenticateToken, upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'brochureFile', maxCount: 1 }]), (req, res) => {
-    // ... existing post logic ...
-    const { institution, degree, year, start_date, end_date, description, is_hidden, lang, logo, brochure, notion_link } = req.body;
-    let logoPath = logo || '';
-    if (req.files && req.files['logoFile']) {
-        logoPath = `/uploads/${req.files['logoFile'][0].filename}`;
-    }
-    let brochurePath = brochure || '';
-    if (req.files && req.files['brochureFile']) {
-        brochurePath = `/uploads/${req.files['brochureFile'][0].filename}`;
-    }
-
-    db.run(`INSERT INTO education (institution, degree, year, start_date, end_date, description, is_hidden, lang, logo, brochure, notion_link) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [institution, degree, year, start_date, end_date, description, is_hidden || 0, lang || 'en', logoPath, brochurePath, notion_link],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID });
-        }
-    );
-});
-
-// --- EXPERIENCE ---
-app.get('/api/experience', (req, res) => {
-    const lang = req.query.lang || 'en';
-    const query = `
-        SELECT e.*, 
-        (SELECT COUNT(*) FROM likes WHERE target_type = 'experience' AND target_id = e.id) as likes_count,
-        (SELECT COUNT(*) FROM comments WHERE target_type = 'experience' AND target_id = e.id) as comments_count,
-        (SELECT COUNT(*) FROM analytics WHERE type = 'experience' AND entity_id = e.id) as views_count
-        FROM experience e 
-        WHERE lang = ? 
-        ORDER BY id DESC
-    `;
-    db.all(query, [lang], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-app.put('/api/education/:id', authenticateToken, upload.fields([{ name: 'logoFile', maxCount: 1 }, { name: 'brochureFile', maxCount: 1 }]), (req, res) => {
-    const { institution, degree, year, start_date, end_date, description, is_hidden, logo, brochure, notion_link } = req.body;
-    let logoPath = logo;
-    if (req.files && req.files['logoFile']) {
-        logoPath = `/uploads/${req.files['logoFile'][0].filename}`;
-    }
-    let brochurePath = brochure;
-    if (req.files && req.files['brochureFile']) {
-        brochurePath = `/uploads/${req.files['brochureFile'][0].filename}`;
-    }
-
-    db.run(`UPDATE education SET institution = ?, degree = ?, year = ?, start_date = ?, end_date = ?, description = ?, is_hidden = ?, logo = ?, brochure = ?, notion_link = ? WHERE id = ?`,
-        [institution, degree, year, start_date, end_date, description, is_hidden, logoPath, brochurePath, notion_link, req.params.id],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Updated successfully" });
-        }
-    );
-});
-
-app.delete('/api/education/:id', authenticateToken, (req, res) => {
-    db.run("DELETE FROM education WHERE id = ?", req.params.id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Deleted successfully" });
-    });
-});
 
 // --- SHAPES ---
 app.get('/api/shapes', (req, res) => {
@@ -1842,300 +1718,6 @@ app.delete('/api/articles/:id', authenticateToken, (req, res) => {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Deleted successfully" });
         });
-    });
-});
-
-// --- CERTIFICATIONS ---
-app.get('/api/certifications', (req, res) => {
-    const lang = req.query.lang || 'en';
-    const query = `
-        SELECT * FROM certifications WHERE lang = ? ORDER BY date DESC
-    `;
-    db.all(query, [lang], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-app.post('/api/certifications', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { name, issuer, year, date, description, credential_url, lang, image } = req.body;
-    let imagePath = image || null;
-    if (req.file) {
-        imagePath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`INSERT INTO certifications (name, issuer, year, date, description, credential_url, image, lang) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [name, issuer, year, date, description, credential_url, imagePath, lang || 'en'],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            
-            const newItem = { 
-                id: this.lastID, 
-                name, 
-                issuer, 
-                year, 
-                description, 
-                credential_url, 
-                image: imagePath 
-            };
-            if (req.body.notifySubscribers === 'true' || req.body.notifySubscribers === true) {
-                sendSubscriberNotification('certification', newItem);
-            }
-
-            res.json({ id: this.lastID });
-        }
-    );
-});
-
-app.put('/api/certifications/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { name, issuer, year, date, description, credential_url, lang, image } = req.body;
-    let imagePath = image || null;
-    if (req.file) {
-        imagePath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`UPDATE certifications SET name = ?, issuer = ?, year = ?, date = ?, description = ?, credential_url = ?, image = ?, lang = ? WHERE id = ?`,
-        [name, issuer, year, date, description, credential_url, imagePath, lang, req.params.id],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Updated successfully" });
-        }
-    );
-});
-
-app.delete('/api/certifications/:id', authenticateToken, (req, res) => {
-    const id = req.params.id;
-    db.run("DELETE FROM certifications WHERE id = ?", id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Deleted successfully" });
-    });
-});
-
-// --- EDUCATION ---
-app.get('/api/education', (req, res) => {
-    const lang = req.query.lang || 'en';
-    const query = `SELECT * FROM education WHERE lang = ? ORDER BY end_date DESC`;
-    db.all(query, [lang], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-app.post('/api/education', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { institution, degree, start_date, end_date, description, lang, image } = req.body;
-    let imagePath = image || null;
-    if (req.file) {
-        imagePath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`INSERT INTO education (institution, degree, start_date, end_date, description, image, lang) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [institution, degree, start_date, end_date, description, imagePath, lang || 'en'],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            
-            const newItem = { 
-                id: this.lastID, 
-                institution, 
-                degree, 
-                start_date, 
-                end_date, 
-                description, 
-                image: imagePath 
-            };
-            if (req.body.notifySubscribers === 'true' || req.body.notifySubscribers === true) {
-                sendSubscriberNotification('education', newItem);
-            }
-
-            res.json({ id: this.lastID });
-        }
-    );
-});
-
-app.put('/api/education/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { institution, degree, start_date, end_date, description, lang, image } = req.body;
-    let imagePath = image || null;
-    if (req.file) {
-        imagePath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`UPDATE education SET institution = ?, degree = ?, start_date = ?, end_date = ?, description = ?, image = ?, lang = ? WHERE id = ?`,
-        [institution, degree, start_date, end_date, description, imagePath, lang, req.params.id],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Updated successfully" });
-        }
-    );
-});
-
-app.delete('/api/education/:id', authenticateToken, (req, res) => {
-    const id = req.params.id;
-    db.run("DELETE FROM education WHERE id = ?", id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Deleted successfully" });
-    });
-});
-
-// --- EXPERIENCE ---
-app.get('/api/experience', (req, res) => {
-    const lang = req.query.lang || 'en';
-    const query = `SELECT * FROM experience WHERE lang = ? ORDER BY end_date DESC`;
-    db.all(query, [lang], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-app.post('/api/experience', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { company, role, start_date, end_date, description, lang, image } = req.body;
-    let imagePath = image || null;
-    if (req.file) {
-        imagePath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`INSERT INTO experience (company, role, start_date, end_date, description, image, lang) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [company, role, start_date, end_date, description, imagePath, lang || 'en'],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            
-            const newItem = { 
-                id: this.lastID, 
-                company, 
-                role, 
-                start_date, 
-                end_date, 
-                description, 
-                image: imagePath 
-            };
-            if (req.body.notifySubscribers === 'true' || req.body.notifySubscribers === true) {
-                sendSubscriberNotification('experience', newItem);
-            }
-
-            res.json({ id: this.lastID });
-        }
-    );
-});
-
-app.put('/api/experience/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { company, role, start_date, end_date, description, lang, image } = req.body;
-    let imagePath = image || null;
-    if (req.file) {
-        imagePath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`UPDATE experience SET company = ?, role = ?, start_date = ?, end_date = ?, description = ?, image = ?, lang = ? WHERE id = ?`,
-        [company, role, start_date, end_date, description, imagePath, lang, req.params.id],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Updated successfully" });
-        }
-    );
-});
-
-app.delete('/api/experience/:id', authenticateToken, (req, res) => {
-    const id = req.params.id;
-    db.run("DELETE FROM experience WHERE id = ?", id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Deleted successfully" });
-    });
-});
-
-// --- SKILLS ---
-app.get('/api/skills', (req, res) => {
-    const lang = req.query.lang || 'en';
-    const query = `SELECT * FROM skills WHERE lang = ? ORDER BY category, id`;
-    db.all(query, [lang], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-app.post('/api/skills', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { name, category, proficiency, icon, lang } = req.body;
-    let iconPath = icon || null;
-    if (req.file) {
-        iconPath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`INSERT INTO skills (name, category, proficiency, icon, lang) VALUES (?, ?, ?, ?, ?)`,
-        [name, category, proficiency, iconPath, lang || 'en'],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID });
-        }
-    );
-});
-
-app.put('/api/skills/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { name, category, proficiency, icon, lang } = req.body;
-    let iconPath = icon || null;
-    if (req.file) {
-        iconPath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`UPDATE skills SET name = ?, category = ?, proficiency = ?, icon = ?, lang = ? WHERE id = ?`,
-        [name, category, proficiency, iconPath, lang, req.params.id],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Updated successfully" });
-        }
-    );
-});
-
-app.delete('/api/skills/:id', authenticateToken, (req, res) => {
-    const id = req.params.id;
-    db.run("DELETE FROM skills WHERE id = ?", id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Deleted successfully" });
-    });
-});
-
-// --- SHAPES ---
-app.get('/api/shapes', (req, res) => {
-    const lang = req.query.lang || 'en';
-    const query = `SELECT * FROM shapes WHERE lang = ? ORDER BY id DESC`;
-    db.all(query, [lang], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-app.post('/api/shapes', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { name, type, position_x, position_y, size, color, animation_speed, blur_amount, file_path, lang } = req.body;
-    let safeFilePath = file_path || null;
-    if (req.file) {
-        safeFilePath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`INSERT INTO shapes (name, type, position_x, position_y, size, color, animation_speed, blur_amount, file_path, lang) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [name, type, position_x, position_y, size, color, animation_speed, blur_amount, safeFilePath, lang || 'en'],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ id: this.lastID });
-        }
-    );
-});
-
-app.put('/api/shapes/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
-    const { name, type, position_x, position_y, size, color, animation_speed, blur_amount, file_path, lang } = req.body;
-    let safeFilePath = file_path || null;
-    if (req.file) {
-        safeFilePath = `/uploads/${req.file.filename}`;
-    }
-
-    db.run(`UPDATE shapes SET name = ?, type = ?, position_x = ?, position_y = ?, size = ?, color = ?, animation_speed = ?, blur_amount = ?, file_path = ?, lang = ? WHERE id = ?`,
-        [name, type, position_x, position_y, size, color, animation_speed, blur_amount, safeFilePath, lang, req.params.id],
-        function(err) {
-            if (err) return res.status(500).json({ error: err.message });
-            res.json({ message: "Updated successfully" });
-        }
-    );
-});
-
-app.delete('/api/shapes/:id', authenticateToken, (req, res) => {
-    const id = req.params.id;
-    db.run("DELETE FROM shapes WHERE id = ?", id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Deleted successfully" });
     });
 });
 
@@ -2483,7 +2065,7 @@ app.get('/api/stats', (req, res) => {
 // --- CHATBOT ---
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-app.post('/api/chat', async (req, res) => {
+app.post('/api/chat', apiLimiter, async (req, res) => {
     const { message, lang } = req.body;
     const targetLang = lang || 'en';
 
@@ -2672,93 +2254,6 @@ app.get('/api/admin/chatbot-history', authenticateToken, (req, res) => {
     });
 });
 
-app.delete('/api/skills/:id', authenticateToken, (req, res) => {
-    db.run("DELETE FROM skills WHERE id = ?", req.params.id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Deleted successfully" });
-    });
-});
-
-
-
-// --- SHAPES ---
-app.get('/api/shapes', (req, res) => {
-    const lang = req.query.lang || 'en';
-    db.all("SELECT * FROM shapes WHERE lang = ?", [lang], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows);
-    });
-});
-
-app.post('/api/shapes', authenticateToken, (req, res) => {
-    const { type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, lang, is_mobile_visible } = req.body;
-    
-    const insertShape = () => {
-        db.run(`INSERT INTO shapes (type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, lang, is_mobile_visible) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [type || 'cube', face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden || 0, lang || 'en', is_mobile_visible || 0],
-            function(err) {
-                if (err) return res.status(500).json({ error: err.message });
-                res.json({ id: this.lastID });
-            }
-        );
-    };
-
-    if (is_mobile_visible) {
-        // Reset others first
-        db.run("UPDATE shapes SET is_mobile_visible = 0 WHERE lang = ?", [lang || 'en'], (err) => {
-            if (err) return res.status(500).json({ error: err.message });
-            insertShape();
-        });
-    } else {
-        insertShape();
-    }
-});
-
-app.put('/api/shapes/:id', authenticateToken, (req, res) => {
-    console.log('PUT /api/shapes payload:', req.body); // Debug log
-    const { type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, is_mobile_visible, lang } = req.body; 
-    
-    // Improve robustness: Fetch existing shape first to get correct language
-    db.get("SELECT * FROM shapes WHERE id = ?", [req.params.id], (err, existingShape) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!existingShape) return res.status(404).json({ error: "Shape not found" });
-
-        // Use provided lang or fallback to existing (never default to 'en' blindly)
-        const targetLang = lang || existingShape.lang || 'en';
-        
-        // Fix boolean/string type issue strictly
-        const isMobileBool = (is_mobile_visible === '1' || is_mobile_visible === 1 || is_mobile_visible === true);
-
-        const updateShape = () => {
-            db.run(`UPDATE shapes SET type = ?, face_front = ?, face_back = ?, face_right = ?, face_left = ?, face_top = ?, face_bottom = ?, size = ?, pos_x = ?, pos_y = ?, icon = ?, is_hidden = ?, is_mobile_visible = ?, lang = ? WHERE id = ?`,
-                [type, face_front, face_back, face_right, face_left, face_top, face_bottom, size, pos_x, pos_y, icon, is_hidden, isMobileBool ? 1 : 0, targetLang, req.params.id],
-                function(err) {
-                    if (err) return res.status(500).json({ error: err.message });
-                    console.log('Update successful, changes:', this.changes);
-                    res.json({ message: "Updated successfully" });
-                }
-            );
-        };
-
-        if (isMobileBool) {
-            console.log('Resetting mobile visible for lang:', targetLang);
-            db.run("UPDATE shapes SET is_mobile_visible = 0 WHERE lang = ?", [targetLang], (err) => {
-                if (err) return res.status(500).json({ error: err.message });
-                updateShape();
-            });
-        } else {
-            updateShape();
-        }
-    });
-});
-
-app.delete('/api/shapes/:id', authenticateToken, (req, res) => {
-    db.run("DELETE FROM shapes WHERE id = ?", req.params.id, function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Deleted successfully" });
-    });
-});
 
 
 
@@ -3105,7 +2600,7 @@ app.get('/sitemap.xml', (req, res) => {
 // =========================================
 
 // Track Visit
-app.post('/api/track', (req, res) => {
+app.post('/api/track', trackLimiter, (req, res) => {
     const { type, id } = req.body;
     db.run('INSERT INTO analytics_events (event_type, target_id, metadata) VALUES (?, ?, ?)', 
         [type, id || 0, 'view'], 
@@ -3123,7 +2618,7 @@ app.post('/api/track', (req, res) => {
 });
 
 
-app.post('/api/track/visit', (req, res) => {
+app.post('/api/track/visit', trackLimiter, (req, res) => {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     const ua = req.headers['user-agent'] || '';
     // Create a daily hash to count unique daily visitors per IP without storing raw IP
@@ -3143,7 +2638,7 @@ app.post('/api/track/visit', (req, res) => {
 });
 
 // Track Event (Click)
-app.post('/api/track/event', (req, res) => {
+app.post('/api/track/event', trackLimiter, (req, res) => {
     const { type, id, meta } = req.body;
     db.run('INSERT INTO analytics_events (event_type, target_id, metadata) VALUES (?, ?, ?)', 
         [type, id || 0, meta || ''], 
@@ -3152,46 +2647,6 @@ app.post('/api/track/event', (req, res) => {
             res.sendStatus(200);
         }
     );
-});
-
-// --- SUBSCRIBER MANAGEMENT ---
-app.post('/api/subscribe', (req, res) => {
-    const { email, name } = req.body;
-    if (!email) return res.status(400).json({ error: "Email is required" });
-
-    // Check if exists
-    db.get("SELECT * FROM subscribers WHERE email = ?", [email], (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
-        
-        if (row) {
-             if (row.is_active === 1) {
-                 return res.json({ message: "Already subscribed", status: 'exists' });
-             } else {
-                 // Reactivate and clear unsubscribed_at
-                 db.run("UPDATE subscribers SET is_active = 1, unsubscribed_at = NULL, name = ? WHERE email = ?", [name || row.name, email], (err) => {
-                     if (err) return res.status(500).json({ error: err.message });
-                     return res.json({ message: "Welcome back!", status: 'reactivated' });
-                 });
-             }
-        } else {
-             // New Subscriber
-             db.run("INSERT INTO subscribers (email, name, is_active) VALUES (?, ?, 1)", [email, name || ''], function(err) {
-                 if (err) return res.status(500).json({ error: err.message });
-                 res.json({ message: "Subscribed successfully", id: this.lastID, status: 'new' });
-             });
-        }
-    });
-});
-
-app.post('/api/unsubscribe', (req, res) => {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: "Email is required" });
-
-    db.run("UPDATE subscribers SET is_active = 0, unsubscribed_at = CURRENT_TIMESTAMP WHERE email = ?", [email], function(err) {
-        if (err) return res.status(500).json({ error: err.message });
-        if (this.changes === 0) return res.status(404).json({ error: "Subscriber not found" });
-        res.json({ message: "Unsubscribed successfully" });
-    });
 });
 
 app.get('/api/admin/subscribers', authenticateToken, (req, res) => {
@@ -3548,12 +3003,13 @@ app.get(/(.*)/, (req, res) => {
 // Global Error Handler
 app.use((err, req, res, next) => {
     console.error('Unhandled Error:', err);
-    res.status(500).json({ 
-        error: 'Internal Server Error',
-        message: err.message,
-        stack: err.stack, // FORCE SHOW STACK FOR DEBUGGING
-        path: req.path
-    });
+    const response = { error: 'Internal Server Error' };
+    if (process.env.NODE_ENV === 'development') {
+        response.message = err.message;
+        response.stack = err.stack;
+        response.path = req.path;
+    }
+    res.status(500).json(response);
 });
 
 app.listen(PORT, () => {
