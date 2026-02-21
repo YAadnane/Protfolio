@@ -3176,34 +3176,47 @@ function openProjectModal(project) {
         }
     }
 
-    // GitHub Link & Interactions
+    // Populate Header Counters
+    const likes = project.likes_count || 0;
+    const comments = project.comments_count || 0;
+    const clicks = project.clicks || 0;
+    
+    const hdrViews = document.getElementById('project-modal-views');
+    const hdrLikes = document.getElementById('project-modal-likes-count');
+    const hdrComments = document.getElementById('project-modal-comments-count');
+    const hdrLikeBtn = document.getElementById('project-modal-likes-btn');
+    const hdrCommentBtn = document.getElementById('project-modal-comments-btn');
+    
+    if (hdrViews) {
+        hdrViews.textContent = clicks;
+        hdrViews.className = `view-project-count-${project.id}`;
+    }
+    if (hdrLikes) {
+        hdrLikes.textContent = likes;
+        hdrLikes.className = `like-count like-project-count-${project.id}`;
+    }
+    if (hdrComments) {
+        hdrComments.textContent = comments;
+        hdrComments.className = `comment-project-count-${project.id}`;
+    }
+    if (hdrLikeBtn) {
+        hdrLikeBtn.onclick = () => window.toggleLike('project', project.id, hdrLikeBtn);
+        hdrLikeBtn.className = `interaction-like like-project-btn-${project.id}`;
+        hdrLikeBtn.style.cssText = 'display: flex; align-items: center; gap: 0.2rem; cursor: pointer;';
+    }
+    if (hdrCommentBtn) {
+        hdrCommentBtn.onclick = () => window.openFeedbackModal('project', project.id);
+    }
+
+    // GitHub Link (compact footer)
     const footer = modal.querySelector('.project-modal-footer');
     if (footer) {
-        footer.style.display = 'flex';
-        footer.style.flexDirection = 'column';
-        footer.style.gap = '1rem';
-        footer.style.alignItems = 'stretch';
-        
-        const likes = project.likes_count || 0;
-        const comments = project.comments_count || 0;
-        const clicks = project.clicks || 0;
-
-        footer.innerHTML = `
-            <div class="interaction-bar" style="margin: 0; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; width: 100%;">
-                 <div class="interaction-item no-pointer" title="Views" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid var(--accent-color); color: var(--accent-color);">
-                    <i class="fa-solid fa-eye"></i> <span class="view-project-count-${project.id}">${clicks}</span>
-                 </div>
-                 <div class="interaction-item interaction-like like-project-btn-${project.id}" onclick="window.toggleLike('project', ${project.id}, this)" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid var(--accent-color); color: var(--accent-color); cursor: pointer; transition: all 0.3s ease;">
-                    <i class="fa-regular fa-heart"></i> <span class="like-count like-project-count-${project.id}">${likes}</span>
-                 </div>
-                 <div class="interaction-item" onclick="window.openFeedbackModal('project', ${project.id})" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 8px; border: 1px solid var(--accent-color); color: var(--accent-color); cursor: pointer; transition: all 0.3s ease;">
-                    <i class="fa-regular fa-comment"></i> <span class="comment-project-count-${project.id}">${comments}</span>
-                 </div>
-            </div>
-            <a id="project-modal-link" href="${project.link || '#'}" target="_blank" class="btn-github-modal" style="${!project.link ? 'display:none' : 'display:flex; justify-content: center; width: 100%; box-sizing: border-box;'}">
-              <i class="fa-brands fa-github"></i> <span data-i18n="project.view_code">View Code</span>
-            </a>
-        `;
+        const ghLink = document.getElementById('project-modal-link');
+        if (ghLink) {
+            ghLink.href = project.link || '#';
+            ghLink.style.display = project.link ? 'flex' : 'none';
+        }
+        footer.style.display = project.link ? 'flex' : 'none';
     }
 
 

@@ -635,6 +635,23 @@
           <span id="project-modal-category"><i class="fa-solid fa-folder"></i> Category</span>
           <span class="meta-separator">•</span>
           <span id="project-modal-year"><i class="fa-regular fa-calendar"></i> 2024</span>
+          <span class="meta-separator">•</span>
+          <div id="project-modal-analytics"
+            style="display: inline-flex; gap: 0.7rem; font-size: 0.78rem; color: var(--text-muted);">
+            <span class="no-pointer" style="display: flex; align-items: center; gap: 0.2rem;" title="Views">
+              <i class="fa-solid fa-eye" style="font-size: 0.7rem;"></i> <span id="project-modal-views">0</span>
+            </span>
+            <span id="project-modal-likes-btn" class="interaction-like"
+              style="display: flex; align-items: center; gap: 0.2rem; cursor: pointer;" title="Like">
+              <i class="fa-regular fa-heart" style="font-size: 0.7rem;"></i> <span id="project-modal-likes-count"
+                class="like-count">0</span>
+            </span>
+            <span id="project-modal-comments-btn"
+              style="display: flex; align-items: center; gap: 0.2rem; cursor: pointer;" title="Comment">
+              <i class="fa-regular fa-comment" style="font-size: 0.7rem;"></i> <span
+                id="project-modal-comments-count">0</span>
+            </span>
+          </div>
         </div>
       </div>
 
@@ -691,8 +708,9 @@
         </div>
       </div>
 
-      <div class="project-modal-footer">
-        <a id="project-modal-link" href="#" target="_blank" class="btn-github-modal">
+      <div class="project-modal-footer" style="padding: 0.6rem 1.5rem;">
+        <a id="project-modal-link" href="#" target="_blank" class="btn-github-modal"
+          style="padding: 0.5rem 1.2rem; font-size: 0.85rem;">
           <i class="fa-brands fa-github"></i> <span data-i18n="project.view_code">View Code</span>
         </a>
       </div>
