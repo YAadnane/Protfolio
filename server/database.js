@@ -35,6 +35,7 @@ db.serialize(() => {
         is_hidden INTEGER DEFAULT 0
     )`, () => {
         addColumnIfNotExists('projects', 'is_hidden', 'INTEGER DEFAULT 0');
+        addColumnIfNotExists('projects', 'project_phase', "TEXT DEFAULT 'cooking'");
     });
 
     // Certifications Table

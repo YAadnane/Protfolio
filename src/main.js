@@ -919,6 +919,7 @@ window.nextProjectPage = () => {
 function initializeProjectFilters() {
     const categorySelect = document.getElementById('filter-project-category');
     const tagSelect = document.getElementById('filter-project-tag');
+    const phaseSelect = document.getElementById('filter-project-phase');
     
     if (!categorySelect || !tagSelect || allProjectsData.length === 0) return;
     
@@ -950,14 +951,17 @@ function initializeProjectFilters() {
     
     categorySelect.onchange = applyProjectFilters;
     tagSelect.onchange = applyProjectFilters;
+    if (phaseSelect) phaseSelect.onchange = applyProjectFilters;
 }
 
 function applyProjectFilters() {
     const categorySelect = document.getElementById('filter-project-category');
     const tagSelect = document.getElementById('filter-project-tag');
+    const phaseSelect = document.getElementById('filter-project-phase');
     
     const selectedCategory = categorySelect?.value || '';
     const selectedTag = tagSelect?.value || '';
+    const selectedPhase = phaseSelect?.value || '';
     
     let filtered = [...originalProjectsData];
     
@@ -970,6 +974,10 @@ function applyProjectFilters() {
             const projectTags = p.tags.split(',').map(t => t.trim());
             return projectTags.includes(selectedTag);
         });
+    }
+    
+    if (selectedPhase) {
+        filtered = filtered.filter(p => (p.project_phase || 'cooking') === selectedPhase);
     }
     
     allProjectsData = filtered;

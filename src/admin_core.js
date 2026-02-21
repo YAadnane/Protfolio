@@ -278,6 +278,7 @@ const fields = {
         { name: 'link', label: 'Link', type: 'text' },
         { name: 'github_link', label: 'GitHub Link', type: 'text' },
         { name: 'notion_url', label: 'Notion Page URL', type: 'text' },
+        { name: 'project_phase', label: 'Project Phase', type: 'select', options: ['cooking', 'conception', 'realisation', 'deployment'] },
         { name: 'is_hidden', label: 'Hide from Public', type: 'checkbox' }
     ],
     certifications: [

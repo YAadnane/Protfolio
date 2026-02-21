@@ -1098,14 +1098,14 @@ app.get('/api/projects', (req, res) => {
 
 app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, res) => {
     console.log('POST /api/projects hit');
-    const { title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks, notion_url } = req.body;
+    const { title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks, notion_url, project_phase } = req.body;
     let imagePath = image;
     if (req.file) {
         imagePath = `/uploads/${req.file.filename}`;
     }
 
-    db.run(`INSERT INTO projects (title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks, notion_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [title, description, tags, category, imagePath, link, is_hidden || 0, lang || 'en', role, year, subject, tasks, notion_url],
+    db.run(`INSERT INTO projects (title, description, tags, category, image, link, is_hidden, lang, role, year, subject, tasks, notion_url, project_phase) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [title, description, tags, category, imagePath, link, is_hidden || 0, lang || 'en', role, year, subject, tasks, notion_url, project_phase || 'cooking'],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             
@@ -1129,15 +1129,15 @@ app.post('/api/projects', authenticateToken, upload.single('imageFile'), (req, r
 
 app.put('/api/projects/:id', authenticateToken, upload.single('imageFile'), (req, res) => {
     console.log(`PUT /api/projects/${req.params.id} hit`);
-    const { title, description, tags, category, image, link, is_hidden, role, year, subject, tasks, notion_url } = req.body;
+    const { title, description, tags, category, image, link, is_hidden, role, year, subject, tasks, notion_url, project_phase } = req.body;
     
     let imagePath = image;
     if (req.file) {
         imagePath = `/uploads/${req.file.filename}`;
     }
 
-    db.run(`UPDATE projects SET title = ?, description = ?, tags = ?, image = ?, link = ?, category = ?, is_hidden = ?, role = ?, year = ?, subject = ?, tasks = ?, notion_url = ? WHERE id = ?`,
-        [title, description, tags, imagePath, link, category, is_hidden, role, year, subject, tasks, notion_url, req.params.id],
+    db.run(`UPDATE projects SET title = ?, description = ?, tags = ?, image = ?, link = ?, category = ?, is_hidden = ?, role = ?, year = ?, subject = ?, tasks = ?, notion_url = ?, project_phase = ? WHERE id = ?`,
+        [title, description, tags, imagePath, link, category, is_hidden, role, year, subject, tasks, notion_url, project_phase || 'cooking', req.params.id],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });
