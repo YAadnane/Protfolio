@@ -455,6 +455,11 @@ window.switchTab = (tab) => {
     currentTab = tab;
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
+
+    // Close sidebar on mobile after selecting a tab
+    if (window.innerWidth <= 768 && typeof window.closeSidebarMobile === 'function') {
+        window.closeSidebarMobile();
+    }
     
     // Show/Hide "Add New" button — only on tabs that support creating new items
     const addBtn = document.querySelector('.btn-add');
@@ -1978,9 +1983,22 @@ window.deleteComment = async (commentId, type, parentId) => {
 
 
 window.toggleSidebar = () => {
-    document.body.classList.toggle('sidebar-collapsed');
-    const isCollapsed = document.body.classList.contains('sidebar-collapsed');
-    localStorage.setItem('sidebar_collapsed', isCollapsed);
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+        document.body.classList.toggle('sidebar-open');
+        const backdrop = document.getElementById('sidebar-backdrop');
+        if (backdrop) backdrop.classList.toggle('active', document.body.classList.contains('sidebar-open'));
+    } else {
+        document.body.classList.toggle('sidebar-collapsed');
+        const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+        localStorage.setItem('sidebar_collapsed', isCollapsed);
+    }
+};
+
+window.closeSidebarMobile = () => {
+    document.body.classList.remove('sidebar-open');
+    const backdrop = document.getElementById('sidebar-backdrop');
+    if (backdrop) backdrop.classList.remove('active');
 };
 
 // Init Sidebar State
