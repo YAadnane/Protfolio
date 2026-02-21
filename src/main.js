@@ -440,7 +440,23 @@ async function loadGeneralInfo() {
                 cvLink.href = '#';
                 cvLink.onclick = (e) => {
                     e.preventDefault();
-                    alert("CV not uploaded yet.");
+                    // Custom toast instead of native alert
+                    const toast = document.createElement('div');
+                    toast.textContent = '📄 CV not uploaded yet.';
+                    toast.style.cssText = `
+                        position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
+                        background: rgba(20,20,20,0.95); color: #fff; padding: 0.8rem 1.5rem;
+                        border-radius: 12px; font-size: 0.9rem; font-weight: 500;
+                        border: 1px solid var(--accent-color); box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+                        backdrop-filter: blur(10px); z-index: 99999;
+                        opacity: 0; transition: all 0.3s ease;
+                    `;
+                    document.body.appendChild(toast);
+                    requestAnimationFrame(() => { toast.style.opacity = '1'; toast.style.transform = 'translateX(-50%) translateY(0)'; });
+                    setTimeout(() => {
+                        toast.style.opacity = '0'; toast.style.transform = 'translateX(-50%) translateY(20px)';
+                        setTimeout(() => toast.remove(), 300);
+                    }, 3000);
                 };
             }
         }
