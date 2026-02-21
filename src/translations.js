@@ -140,7 +140,8 @@ export const translations = {
         "unsubscribe.error": "Email not found or error.",
         "error.server": "Server error. Please try again later.",
         "error.generic": "Something went wrong.",
-        "footer.subscribe": "Subscribe to Newsletter"
+        "footer.subscribe": "Subscribe to Newsletter",
+        "cv.not_uploaded": "📄 CV not uploaded yet."
     },
     fr: {
         "nav.about": "À propos",
@@ -284,6 +285,7 @@ export const translations = {
         "footer.subscribe": "S'abonner à la Newsletter",
         // Maintenance
         "maintenance.title": "Site en Maintenance",
-        "maintenance.message": "Nous améliorons actuellement l'expérience. Veuillez revenir plus tard. <i class='fa-solid fa-ghost fa-bounce'></i>"
+        "maintenance.message": "Nous améliorons actuellement l'expérience. Veuillez revenir plus tard. <i class='fa-solid fa-ghost fa-bounce'></i>",
+        "cv.not_uploaded": "📄 Le CV n'est pas encore disponible."
     }
 };

@@ -284,13 +284,13 @@ h4 {
 
 .nav-list {
     display: flex;
-    gap: 1.5rem;
+    gap: 1.2rem;
 }
 
 .nav-link {
     font-size: 0.85rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.5px;
     position: relative;
     color: var(--text-muted);
     transition: var(--transition-fast);

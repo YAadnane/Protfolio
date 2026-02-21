@@ -442,7 +442,7 @@ async function loadGeneralInfo() {
                     e.preventDefault();
                     // Custom toast instead of native alert
                     const toast = document.createElement('div');
-                    toast.textContent = '📄 CV not uploaded yet.';
+                    toast.textContent = translations[currentLang]?.["cv.not_uploaded"] || '📄 CV not uploaded yet.';
                     toast.style.cssText = `
                         position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(20px);
                         background: rgba(20,20,20,0.95); color: #fff; padding: 0.8rem 1.5rem;
