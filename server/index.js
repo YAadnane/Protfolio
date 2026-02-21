@@ -1344,7 +1344,11 @@ app.delete('/api/certifications/:id', authenticateToken, (req, res) => {
 // --- EDUCATION ---
 app.get('/api/education', (req, res) => {
     const lang = req.query.lang || 'en';
-    db.all("SELECT * FROM education WHERE lang = ? ORDER BY id DESC", [lang], (err, rows) => {
+    db.all(`SELECT e.*,
+        (SELECT COUNT(*) FROM likes WHERE target_type = 'education' AND target_id = e.id) as likes_count,
+        (SELECT COUNT(*) FROM comments WHERE target_type = 'education' AND target_id = e.id) as comments_count,
+        (SELECT COUNT(*) FROM analytics_events WHERE event_type = 'education' AND target_id = e.id) as views_count
+        FROM education e WHERE e.lang = ? ORDER BY e.id DESC`, [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
@@ -1414,7 +1418,11 @@ app.delete('/api/education/:id', authenticateToken, (req, res) => {
 // --- EXPERIENCE ---
 app.get('/api/experience', (req, res) => {
     const lang = req.query.lang || 'en';
-    db.all("SELECT * FROM experience WHERE lang = ? ORDER BY id DESC", [lang], (err, rows) => {
+    db.all(`SELECT e.*,
+        (SELECT COUNT(*) FROM likes WHERE target_type = 'experience' AND target_id = e.id) as likes_count,
+        (SELECT COUNT(*) FROM comments WHERE target_type = 'experience' AND target_id = e.id) as comments_count,
+        (SELECT COUNT(*) FROM analytics_events WHERE event_type = 'experience' AND target_id = e.id) as views_count
+        FROM experience e WHERE e.lang = ? ORDER BY e.id DESC`, [lang], (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(rows);
     });
