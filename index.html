@@ -832,18 +832,22 @@
             <span id="article-modal-updated" style="font-size: 0.8rem; color: var(--text-muted); display: none;">
               <i class="fa-solid fa-clock"></i> Updated: <span id="article-updated-date"></span>
             </span>
-            <div id="article-analytics" style="display: flex; gap: 1rem; font-size: 0.85rem; color: var(--text-muted);">
+            <div id="article-analytics"
+              style="display: flex; gap: 0.9rem; font-size: 0.85rem; color: var(--accent-color); font-weight: 600;">
               <span id="article-views" class="no-pointer" style="display: flex; align-items: center; gap: 0.3rem;">
-                <i class="fa-solid fa-eye"></i> <span id="article-views-count">0</span>
+                <i class="fa-solid fa-eye" style="font-size: 0.8rem; opacity: 0.8;"></i> <span
+                  id="article-views-count">0</span>
               </span>
               <span id="article-likes" class="interaction-like" data-article-id=""
                 onclick="window.toggleLikeInModal(event)"
                 style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer; transition: all 0.3s ease;">
-                <i class="fa-regular fa-heart"></i> <span id="article-likes-count" class="like-count">0</span>
+                <i class="fa-regular fa-heart" style="font-size: 0.8rem; opacity: 0.8;"></i> <span
+                  id="article-likes-count" class="like-count">0</span>
               </span>
               <span id="article-comments" onclick="window.openFeedbackFromModal(event)"
                 style="display: flex; align-items: center; gap: 0.3rem; cursor: pointer; transition: all 0.3s ease;">
-                <i class="fa-solid fa-comment"></i> <span id="article-comments-count">0</span>
+                <i class="fa-regular fa-comment" style="font-size: 0.8rem; opacity: 0.8;"></i> <span
+                  id="article-comments-count">0</span>
               </span>
             </div>
           </div>
