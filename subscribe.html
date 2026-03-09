@@ -7,6 +7,7 @@
     <title>Resubscribe - Adnane's Portfolio</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <style>
         :root {
             --bg-color: #050505;
@@ -320,14 +321,34 @@
         if (email) {
             document.getElementById('user-email').innerText = email;
         } else {
-            // No email provided - Update UI immediately to invalid state
-            const t = i18n[currentLang]; // Use current lang
+            // No email provided - Show email input form
+            const t = i18n[currentLang];
             document.getElementById('card-confirm').innerHTML = `
-                <div class="icon-box" style="background: rgba(255, 165, 2, 0.1); color: #ffa502;"><i class="fa-solid fa-link-slash"></i></div>
-                <h1>${t ? t.invalid_title : 'Invalid Link'}</h1>
-                <p>${t ? t.invalid_msg : 'No email address found.'}</p>
-                <a href="/" class="btn-home">${t ? t.invalid_btn : 'Go to Homepage'}</a>
+                <div class="icon-box"><i class="fa-solid fa-envelope-open-text"></i></div>
+                <h1>${t ? t.title : 'Welcome Back!'}</h1>
+                <p>${t ? (currentLang === 'fr' ? 'Entrez votre adresse email pour réactiver votre abonnement.' : 'Enter your email address to reactivate your subscription.') : 'Enter your email to resubscribe.'}</p>
+                <input type="email" id="email-input" placeholder="${currentLang === 'fr' ? 'Votre adresse email' : 'Your email address'}" 
+                    style="width: 100%; padding: 0.8rem; border-radius: 0.5rem; border: 1px solid var(--input-border); background: var(--control-bg); color: var(--text-main); font-size: 1rem; margin-bottom: 1rem; box-sizing: border-box;">
+                <button class="btn-confirm" onclick="submitEmailForm()">
+                    <i class="fa-solid fa-paper-plane"></i> ${t ? (currentLang === 'fr' ? 'Réactiver' : 'Reactivate') : 'Reactivate'}
+                </button>
+                <div style="margin-top: 20px;">
+                    <a href="/" style="color: #666; font-size: 0.9rem; text-decoration: none;">${t ? t.cancel : 'Cancel'}</a>
+                </div>
              `;
+        }
+
+        // Form submission when email was entered manually
+        window.submitEmailForm = async function() {
+            const inputEl = document.getElementById('email-input');
+            if (!inputEl) return;
+            const enteredEmail = inputEl.value.trim();
+            if (!enteredEmail) {
+                inputEl.style.borderColor = '#ff4757';
+                return;
+            }
+            // Redirect to same page with email param
+            window.location.href = `/subscribe.html?email=${encodeURIComponent(enteredEmail)}`;
         }
 
         async function confirmResubscribe() {

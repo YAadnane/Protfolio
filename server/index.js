@@ -1543,7 +1543,7 @@ app.post('/api/shapes', authenticateToken, (req, res) => {
         face_front, face_back, face_right, face_left, face_top, face_bottom, 
         icon, is_mobile_visible, lang, is_hidden
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [type, size, pos_x, pos_y, speed_x, speed_y, face_front, face_back, face_right, face_left, face_top, face_bottom, icon, is_mobile_visible ? 1 : 0, lang || 'en', is_hidden || 0],
+        [type, size, pos_x, pos_y, speed_x, speed_y, face_front, face_back, face_right, face_left, face_top, face_bottom, icon, parseInt(is_mobile_visible) ? 1 : 0, lang || 'en', parseInt(is_hidden) ? 1 : 0],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ id: this.lastID });
@@ -1558,7 +1558,7 @@ app.put('/api/shapes/:id', authenticateToken, (req, res) => {
         face_front = ?, face_back = ?, face_right = ?, face_left = ?, face_top = ?, face_bottom = ?, 
         icon = ?, is_mobile_visible = ?, is_hidden = ?
         WHERE id = ?`,
-        [type, size, pos_x, pos_y, speed_x, speed_y, face_front, face_back, face_right, face_left, face_top, face_bottom, icon, is_mobile_visible ? 1 : 0, is_hidden, req.params.id],
+        [type, size, pos_x, pos_y, speed_x, speed_y, face_front, face_back, face_right, face_left, face_top, face_bottom, icon, parseInt(is_mobile_visible) ? 1 : 0, parseInt(is_hidden) ? 1 : 0, req.params.id],
         function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ message: "Updated successfully" });
