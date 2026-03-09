@@ -350,6 +350,12 @@ db.serialize(() => {
                         db.run("ALTER TABLE shapes ADD COLUMN is_hidden INTEGER DEFAULT 0");
                         console.log("Added 'is_hidden' column to shapes table.");
                     }
+
+                    const hasMobileVisible = rows.some(r => r.name === 'is_mobile_visible');
+                    if (!hasMobileVisible) {
+                        db.run("ALTER TABLE shapes ADD COLUMN is_mobile_visible INTEGER DEFAULT 0");
+                        console.log("Added 'is_mobile_visible' column to shapes table.");
+                    }
                 }
             });
 
