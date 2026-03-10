@@ -654,10 +654,10 @@ async function loadShapes() {
                 innerHTML = `
                     <div class="data-pyramid">
                         ${iconHTML}
-                        <div class="pyramid-face front">${translateShape(shape.face_front || '')}</div>
-                        <div class="pyramid-face back">${translateShape(shape.face_back || '')}</div>
-                        <div class="pyramid-face right">${translateShape(shape.face_right || '')}</div>
-                        <div class="pyramid-face left">${translateShape(shape.face_left || '')}</div>
+                        <div class="pyramid-face front">${shape.face_front || ''}</div>
+                        <div class="pyramid-face back">${shape.face_back || ''}</div>
+                        <div class="pyramid-face right">${shape.face_right || ''}</div>
+                        <div class="pyramid-face left">${shape.face_left || ''}</div>
                     </div>
                 `;
             } else if (shape.type === 'sphere') {
