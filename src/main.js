@@ -699,6 +699,12 @@ async function loadShapes() {
             }
         }
 
+        // Re-attach drag interaction after shapes are rendered
+        if (container) delete container.dataset.interactionAttached;
+        const freshMobile = document.querySelector('.mobile-shape-container');
+        if (freshMobile) delete freshMobile.dataset.interactionAttached;
+        initHeroCubeInteraction();
+
     } catch (err) { console.error("Failed to load shapes", err); }
 }
 
