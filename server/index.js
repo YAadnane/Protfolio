@@ -67,7 +67,11 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({ storage, fileFilter });
 
-app.use(cors());
+app.use(cors({
+    origin: process.env.CORS_ORIGIN || '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false })); // Security headers
 // app.use(bodyParser.json());
 app.use(express.json());
@@ -80,6 +84,8 @@ app.use('/uploads', express.static(uploadDir));
 const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many login attempts, try again in 15 minutes' } });
 const apiLimiter = rateLimit({ windowMs: 1 * 60 * 1000, max: 60, message: { error: 'Too many requests, slow down' } });
 const trackLimiter = rateLimit({ windowMs: 1 * 60 * 1000, max: 120, message: { error: 'Too many tracking requests' } });
+const subscribeLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: { error: 'Too many subscription attempts, try again later' } });
+const contactLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 5, message: { error: 'Too many messages, please wait before sending another' } });
 
 // Serve uploaded files statically
 
@@ -146,7 +152,7 @@ const authenticateToken = (req, res, next) => {
 };
 
 // Subscribe Endpoint
-app.post('/api/subscribe', async (req, res) => {
+app.post('/api/subscribe', subscribeLimiter, async (req, res) => {
     const { name, email } = req.body;
 
     if (!email) {
@@ -261,7 +267,7 @@ app.get('/subscribe.html', (req, res) => {
 });
 
 // Unsubscribe Endpoint
-app.delete('/api/subscribe', (req, res) => {
+app.delete('/api/subscribe', subscribeLimiter, (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: "Email required." });
 
@@ -1037,7 +1043,7 @@ app.put('/api/profile', authenticateToken, async (req, res) => {
 
 
 // --- CONTACT FORM ---
-app.post('/api/contact', apiLimiter, async (req, res) => {
+app.post('/api/contact', contactLimiter, async (req, res) => {
     const { name, email, message } = req.body;
 
     if (!name || !email || !message) {
@@ -2226,6 +2232,12 @@ app.post('/api/translate', authenticateToken, async (req, res) => {
         return res.status(400).json({ error: "Missing required fields: tab, sourceLang, targetLang, textFields" });
     }
 
+    // SECURITY: Whitelist allowed table names to prevent SQL injection
+    const ALLOWED_TABLES = ['projects', 'certifications', 'education', 'experience', 'articles', 'skills', 'shapes', 'general'];
+    if (!ALLOWED_TABLES.includes(tab)) {
+        return res.status(400).json({ error: "Invalid tab name." });
+    }
+
     try {
         // 1. Get Gemini API key
         const configRow = await new Promise((resolve, reject) => {
@@ -2467,7 +2479,7 @@ app.get('/api/reviews', (req, res) => {
     });
 });
 
-app.post('/api/reviews', sanitizeMiddleware, (req, res) => {
+app.post('/api/reviews', subscribeLimiter, sanitizeMiddleware, (req, res) => {
     const { name, role, message, rating, social_link, social_platform } = req.body;
     if (!name || !message || !rating) {
         return res.status(400).json({ error: "Name, message and rating are required." });
