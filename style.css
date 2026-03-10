@@ -2081,13 +2081,14 @@ textarea:focus {
 
 /* Override Pyramid Face for Wireframe Look */
 .pyramid-face {
-    background: none !important;
+    background-color: transparent !important;
     border: none !important;
     filter: none !important;
     clip-path: none !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cpolygon points='100,2 2,198 198,198' fill='rgba(0, 255, 157, 0.1)' stroke='%2300ff9d' stroke-width='1'/%3E%3C/svg%3E") !important;
     background-repeat: no-repeat !important;
     background-position: center !important;
+    background-size: contain !important;
 }
 
 
