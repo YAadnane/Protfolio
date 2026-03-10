@@ -2218,6 +2218,181 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
     });
 });
 
+// --- AUTO-TRANSLATION ---
+app.post('/api/translate', authenticateToken, async (req, res) => {
+    const { tab, id, sourceLang, targetLang, textFields } = req.body;
+
+    if (!tab || !sourceLang || !targetLang || !textFields) {
+        return res.status(400).json({ error: "Missing required fields: tab, sourceLang, targetLang, textFields" });
+    }
+
+    try {
+        // 1. Get Gemini API key
+        const configRow = await new Promise((resolve, reject) => {
+            db.get("SELECT gemini_api_key, gemini_model FROM general_info WHERE gemini_api_key IS NOT NULL AND gemini_api_key != '' LIMIT 1", (err, row) => {
+                if (err) reject(err);
+                else resolve(row);
+            });
+        });
+
+        if (!configRow || !configRow.gemini_api_key) {
+            return res.status(500).json({ error: "Gemini API Key not configured. Set it in General Settings." });
+        }
+
+        const apiKey = configRow.gemini_api_key;
+        const modelName = configRow.gemini_model || "gemini-1.5-flash";
+
+        // 2. Call Gemini to translate
+        const langNames = { en: 'English', fr: 'French' };
+        const prompt = `Translate the following JSON values from ${langNames[sourceLang] || sourceLang} to ${langNames[targetLang] || targetLang}. 
+Keep the exact same JSON keys. Only translate the string values. 
+Do NOT translate proper nouns, brand names, technology names, or programming language names.
+Return ONLY valid JSON, no markdown, no explanation.
+
+${JSON.stringify(textFields, null, 2)}`;
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        const responseText = result.response.text().trim();
+
+        // Parse the JSON response (strip markdown code blocks if present)
+        let translatedFields;
+        try {
+            const cleanJson = responseText.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+            translatedFields = JSON.parse(cleanJson);
+        } catch (parseErr) {
+            console.error("Gemini response parse error:", parseErr, "Response:", responseText);
+            return res.status(500).json({ error: "Translation API returned invalid JSON." });
+        }
+
+        // 3. Get the source item from DB to copy non-text fields (media, etc.)
+        let sourceItem = null;
+        if (id && tab !== 'general') {
+            sourceItem = await new Promise((resolve, reject) => {
+                db.get(`SELECT * FROM ${tab} WHERE id = ?`, [id], (err, row) => {
+                    if (err) reject(err);
+                    else resolve(row);
+                });
+            });
+        } else if (tab === 'general') {
+            sourceItem = await new Promise((resolve, reject) => {
+                db.get(`SELECT * FROM general_info WHERE lang = ?`, [sourceLang], (err, row) => {
+                    if (err) reject(err);
+                    else resolve(row);
+                });
+            });
+        }
+
+        if (!sourceItem) {
+            return res.status(404).json({ error: "Source item not found." });
+        }
+
+        // 4. Build target data: start with source item, override with translations
+        const targetData = { ...sourceItem };
+        delete targetData.id; // Don't copy the ID
+        targetData.lang = targetLang;
+
+        // Apply translations
+        for (const [key, value] of Object.entries(translatedFields)) {
+            targetData[key] = value;
+        }
+
+        // 5. Check if target language entry already exists
+        let existingTarget = null;
+        if (tab === 'general') {
+            existingTarget = await new Promise((resolve, reject) => {
+                db.get(`SELECT id FROM general_info WHERE lang = ?`, [targetLang], (err, row) => {
+                    if (err) reject(err);
+                    else resolve(row);
+                });
+            });
+        } else {
+            // For content tabs, we match by a unique identifier + target lang
+            // Different tabs have different "identity" fields
+            const identityMap = {
+                projects: 'title',
+                certifications: 'name',
+                education: 'degree',
+                experience: 'role',
+                articles: 'title',
+                skills: 'name',
+                shapes: 'id' // shapes use same ID logic
+            };
+            // Try to find existing entry in target lang by checking source's non-translated unique fields
+            // Best approach: look for items in target lang that share certain attributes
+            // For simplicity, we'll just create new entries and let the user manage duplicates
+        }
+
+        // 6. Insert or Update
+        if (tab === 'general' && existingTarget) {
+            // Update existing general_info for target lang
+            const updateFields = Object.keys(targetData)
+                .filter(k => !['id', 'gemini_api_key', 'gemini_model', 'notion_api_key'].includes(k))
+                .filter(k => Object.keys(translatedFields).includes(k) || k === 'lang');
+            
+            const setClauses = updateFields.map(k => `${k} = ?`).join(', ');
+            const values = updateFields.map(k => targetData[k]);
+            values.push(targetLang);
+
+            await new Promise((resolve, reject) => {
+                db.run(`UPDATE general_info SET ${setClauses} WHERE lang = ?`, values, function(err) {
+                    if (err) reject(err);
+                    else resolve(this);
+                });
+            });
+
+            res.json({ message: "Translation saved (updated existing).", translated: translatedFields });
+        } else if (tab !== 'general') {
+            // Get column names from the source table
+            const columns = await new Promise((resolve, reject) => {
+                db.all(`PRAGMA table_info(${tab})`, (err, rows) => {
+                    if (err) reject(err);
+                    else resolve(rows.map(r => r.name).filter(n => n !== 'id'));
+                });
+            });
+
+            const insertCols = columns.filter(c => targetData[c] !== undefined);
+            const placeholders = insertCols.map(() => '?').join(', ');
+            const values = insertCols.map(c => targetData[c]);
+
+            await new Promise((resolve, reject) => {
+                db.run(`INSERT INTO ${tab} (${insertCols.join(', ')}) VALUES (${placeholders})`, values, function(err) {
+                    if (err) reject(err);
+                    else resolve(this);
+                });
+            });
+
+            res.json({ message: "Translation saved (new entry created).", translated: translatedFields });
+        } else {
+            // General tab with no existing target - insert new
+            const columns = await new Promise((resolve, reject) => {
+                db.all(`PRAGMA table_info(general_info)`, (err, rows) => {
+                    if (err) reject(err);
+                    else resolve(rows.map(r => r.name).filter(n => n !== 'id'));
+                });
+            });
+
+            const insertCols = columns.filter(c => targetData[c] !== undefined);
+            const placeholders = insertCols.map(() => '?').join(', ');
+            const values = insertCols.map(c => targetData[c]);
+
+            await new Promise((resolve, reject) => {
+                db.run(`INSERT INTO general_info (${insertCols.join(', ')}) VALUES (${placeholders})`, values, function(err) {
+                    if (err) reject(err);
+                    else resolve(this);
+                });
+            });
+
+            res.json({ message: "Translation saved (new entry).", translated: translatedFields });
+        }
+
+    } catch (error) {
+        console.error("Translation Error:", error);
+        res.status(500).json({ error: "Translation failed: " + (error.message || "Unknown error") });
+    }
+});
+
 // GET Chatbot History (Admin Only)
 app.get('/api/admin/chatbot-history', authenticateToken, (req, res) => {
     const limit = req.query.limit || 50;

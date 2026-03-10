@@ -417,6 +417,18 @@ const fields = {
     ]
 };
 
+// Translatable text fields per tab (fields that should be sent to Gemini for translation)
+const TRANSLATABLE_FIELDS = {
+    projects: ['title', 'description', 'tags', 'category', 'role', 'subject', 'tasks'],
+    certifications: ['name', 'issuer', 'domain', 'description', 'skills'],
+    education: ['degree', 'institution', 'description'],
+    experience: ['role', 'company', 'description'],
+    articles: ['title', 'summary', 'tags'],
+    skills: ['category', 'name'],
+    shapes: ['face_front', 'face_back', 'face_right', 'face_left', 'face_top', 'face_bottom'],
+    general: ['hero_subtitle', 'hero_title', 'hero_description', 'hero_description_2', 'hero_description_3', 'about_lead', 'about_bio', 'location']
+};
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     const langSelect = document.getElementById('admin-lang-select');
@@ -1436,6 +1448,30 @@ window.openModal = (isEdit = false) => {
     });
     
     modal.classList.add('open');
+
+    // Add translate checkbox for tabs that support lang
+    const translatableTabs = Object.keys(TRANSLATABLE_FIELDS);
+    if (translatableTabs.includes(currentTab)) {
+        const translateDiv = document.createElement('div');
+        translateDiv.className = 'form-group';
+        translateDiv.style.display = 'flex';
+        translateDiv.style.alignItems = 'center';
+        translateDiv.style.gap = '10px';
+        translateDiv.style.marginTop = '15px';
+        translateDiv.style.padding = '12px';
+        translateDiv.style.borderRadius = '8px';
+        translateDiv.style.background = 'rgba(0, 255, 157, 0.05)';
+        translateDiv.style.border = '1px solid rgba(0, 255, 157, 0.2)';
+        const targetLang = currentAdminLang === 'en' ? 'FR' : 'EN';
+        translateDiv.innerHTML = `
+            <input type="checkbox" id="auto-translate" name="auto_translate" style="width: auto; accent-color: var(--accent-color);">
+            <label for="auto-translate" style="margin-bottom: 0; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-language" style="color: var(--accent-color); font-size: 1.2rem;"></i>
+                Traduire automatiquement vers <strong>${targetLang}</strong>
+            </label>
+        `;
+        formFields.appendChild(translateDiv);
+    }
 };
 
 window.closeModal = () => {
@@ -1528,7 +1564,57 @@ function setupModal() {
             });
             
             if (res.ok) {
+                const savedData = await res.json().catch(() => ({}));
+                const savedId = savedData.id || editingId;
                 showNotification('Saved successfully!', 'success');
+                
+                // --- AUTO-TRANSLATION ---
+                const translateCheckbox = document.getElementById('auto-translate');
+                if (translateCheckbox && translateCheckbox.checked && TRANSLATABLE_FIELDS[currentTab]) {
+                    const sourceLang = currentAdminLang;
+                    const targetLang = sourceLang === 'en' ? 'fr' : 'en';
+                    
+                    // Collect translatable text field values from the form
+                    const textFields = {};
+                    TRANSLATABLE_FIELDS[currentTab].forEach(fieldName => {
+                        const input = e.target.querySelector(`[name="${fieldName}"]`);
+                        if (input) {
+                            const val = input.value || input.innerText || '';
+                            if (val.trim()) textFields[fieldName] = val.trim();
+                        }
+                    });
+
+                    if (Object.keys(textFields).length > 0) {
+                        showNotification(`Translating to ${targetLang.toUpperCase()}...`, 'info');
+                        try {
+                            const translateRes = await fetch(`${API_URL}/translate`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Authorization': `Bearer ${token}`
+                                },
+                                body: JSON.stringify({
+                                    tab: currentTab,
+                                    id: savedId,
+                                    sourceLang,
+                                    targetLang,
+                                    textFields
+                                })
+                            });
+                            if (translateRes.ok) {
+                                showNotification(`Translation to ${targetLang.toUpperCase()} saved!`, 'success');
+                            } else {
+                                const errData = await translateRes.json().catch(() => ({}));
+                                showNotification('Translation failed: ' + (errData.error || 'Unknown error'), 'error');
+                            }
+                        } catch (translateErr) {
+                            console.error('Translation error:', translateErr);
+                            showNotification('Translation request failed.', 'error');
+                        }
+                    }
+                }
+                // --------------------------
+                
                 closeModal();
                 loadContent(currentTab);
             } else {
