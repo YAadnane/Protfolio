@@ -285,14 +285,35 @@
         if (email) {
             document.getElementById('user-email').innerText = email;
         } else {
-            // No email provided - Update UI immediately to invalid state
-            const t = i18n[currentLang]; // Use current lang (init hasn't run yet but default is set)
+            // No email provided - Show email input form
+            const t = i18n[currentLang];
             document.getElementById('card-confirm').innerHTML = `
-                <div class="icon-box" style="background: rgba(255, 165, 2, 0.1); color: #ffa502;"><i class="fa-solid fa-link-slash"></i></div>
-                <h1>${t ? t.invalid_title : 'Invalid Link'}</h1>
-                <p>${t ? t.invalid_msg : 'No email address found.'}</p>
-                <a href="/" class="btn-home">${t ? t.return_home : 'Return Home'}</a>
+                <div class="icon-box"><i class="fa-solid fa-envelope-open-text"></i></div>
+                <h1>${t ? t.title : 'Unsubscribe'}</h1>
+                <p>${currentLang === 'fr' ? 'Entrez votre adresse email pour vous désabonner.' : 'Enter your email address to unsubscribe.'}</p>
+                <input type="email" id="email-input" placeholder="${currentLang === 'fr' ? 'Votre adresse email' : 'Your email address'}" 
+                    style="width: 100%; padding: 0.8rem; border-radius: 0.5rem; border: 1px solid var(--input-border); background: var(--control-bg); color: var(--text-main); font-size: 1rem; margin-bottom: 1rem; box-sizing: border-box;">
+                <button class="btn-confirm" onclick="submitUnsubEmail()">
+                    <i class="fa-solid fa-user-xmark"></i> ${currentLang === 'fr' ? 'Se désabonner' : 'Unsubscribe'}
+                </button>
+                <div style="margin-top: 20px;">
+                    <a href="/" style="color: #666; font-size: 0.9rem; text-decoration: none;">${t ? t.cancel : 'Cancel'}</a>
+                </div>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--input-border);">
+                    <a href="/subscribe.html" style="color: var(--text-muted); font-size: 0.8rem; text-decoration: none;">${currentLang === 'fr' ? 'S\'abonner ?' : 'Subscribe?'}</a>
+                </div>
              `;
+        }
+
+        window.submitUnsubEmail = function() {
+            const inputEl = document.getElementById('email-input');
+            if (!inputEl) return;
+            const enteredEmail = inputEl.value.trim();
+            if (!enteredEmail) {
+                inputEl.style.borderColor = '#ff4757';
+                return;
+            }
+            window.location.href = `/unsubscribe.html?email=${encodeURIComponent(enteredEmail)}`;
         }
 
         async function confirmUnsubscribe() {
