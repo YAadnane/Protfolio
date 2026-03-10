@@ -639,9 +639,9 @@ async function loadShapes() {
              // Standard Desktop/Visual Shapes (always float in background)
              const wrapper = document.createElement('div');
             wrapper.className = 'cube-wrapper'; // Reuse wrapper for positioning
-            wrapper.style.left = `${shape.pos_x}%`;
-            wrapper.style.top = `${shape.pos_y}%`;
-            wrapper.style.transform = `translate(-50%, -50%) scale(${shape.size})`;
+            wrapper.style.left = `${shape.pos_x || 50}%`;
+            wrapper.style.top = `${shape.pos_y || 50}%`;
+            wrapper.style.transform = `translate(-50%, -50%) scale(${shape.size || 1})`;
             
             let iconHTML = '';
             if (shape.icon) {
