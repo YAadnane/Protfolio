@@ -3086,8 +3086,13 @@ function renderMobileShape(shape) {
         base.className = 'pyramid-base';
         obj.appendChild(base);
     } else if (shape.type === 'sphere') {
-         // Simple sphere representation
-         obj.innerHTML = `<span class="sphere-text">${texts.front || ''}</span>`;
+         // Sphere with rings for 3D wireframe effect
+         obj.innerHTML = `
+             <div class="sphere-ring"></div>
+             <div class="sphere-ring"></div>
+             <div class="sphere-ring"></div>
+             <span class="sphere-text">${texts.front || ''}</span>
+         `;
     }
 
     // Icon
@@ -3395,7 +3400,7 @@ window.closeVideoModal = closeVideoModal;
 // =========================================
 function attachCubeInteraction(container) {
     if (!container) return;
-    const cube = container.querySelector('.data-cube') || container.querySelector('.cube') || container.querySelector('.sphere') || container.querySelector('.pyramid');
+    const cube = container.querySelector('.data-cube') || container.querySelector('.cube') || container.querySelector('.data-sphere') || container.querySelector('.sphere') || container.querySelector('.data-pyramid') || container.querySelector('.pyramid');
     if (!cube) return;
 
     // Check if already attached (prevent duplicates)

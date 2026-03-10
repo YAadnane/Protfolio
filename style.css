@@ -3123,6 +3123,32 @@ textarea:focus {
     font-weight: bold;
     font-size: 0.9rem;
     text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.mobile-shape-container .sphere .sphere-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 255, 157, 0.3);
+}
+
+.mobile-shape-container .sphere .sphere-ring:nth-child(1) {
+    transform: rotateY(0deg);
+}
+
+.mobile-shape-container .sphere .sphere-ring:nth-child(2) {
+    transform: rotateY(60deg);
+}
+
+.mobile-shape-container .sphere .sphere-ring:nth-child(3) {
+    transform: rotateY(120deg);
 }
 
 /* Certification Filter Buttons */
