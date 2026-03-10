@@ -3106,6 +3106,25 @@ textarea:focus {
 }
 
 
+/* Mobile Sphere Styles */
+.mobile-shape-container .sphere {
+    border-radius: 50%;
+    border: 1px solid rgba(0, 255, 157, 0.3);
+    background: radial-gradient(circle at 30% 30%, rgba(0, 255, 157, 0.1), transparent);
+    box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-shape-container .sphere .sphere-text {
+    color: var(--accent-color);
+    font-family: var(--font-mono);
+    font-weight: bold;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
 /* Certification Filter Buttons */
 .filter-btn {
     background: var(--control-bg);
