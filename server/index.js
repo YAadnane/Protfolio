@@ -2115,7 +2115,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                  db.get("SELECT * FROM general_info WHERE lang = ?", [targetLang], (err, r) => err ? reject(err) : resolve(r));
             });
             const projects = await getAsync(`
-                SELECT p.title, p.description, p.tags, p.category, p.role, p.year, p.subject, p.tasks,
+                SELECT p.title, p.description, p.tags, p.category, p.role, p.year, p.subject, p.tasks, p.notion_url,
                 (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = p.id AND e.event_type = 'click_project') as visits,
                 (SELECT COUNT(*) FROM likes l WHERE l.target_id = p.id AND l.target_type = 'project') as likes,
                 (SELECT COUNT(*) FROM comments c WHERE c.target_id = p.id AND c.target_type = 'project' AND c.is_approved = 1) as comments_count,
@@ -2125,8 +2125,8 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
             `, [targetLang]);
             
             const skills = await getAsync("SELECT name, category, level FROM skills WHERE is_hidden = 0 AND lang = ?", [targetLang]);
-            const experience = await getAsync("SELECT role, company, year, description FROM experience WHERE is_hidden = 0 AND lang = ?", [targetLang]);
-            const education = await getAsync("SELECT degree, institution, year, description FROM education WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+            const experience = await getAsync("SELECT role, company, year, description, notion_link FROM experience WHERE is_hidden = 0 AND lang = ?", [targetLang]);
+            const education = await getAsync("SELECT degree, institution, year, description, notion_link FROM education WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             const certs = await getAsync("SELECT name, issuer, year, domain, status, description, skills, credential_id, credential_url, level FROM certifications WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             
             const articles = await getAsync(`
@@ -2139,6 +2139,56 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                 WHERE a.is_hidden = 0 AND a.lang = ?
             `, [targetLang]);
             const reviews = await getAsync("SELECT name, role, message, rating, social_platform FROM reviews WHERE is_approved = 1");
+
+            // Fetch Notion content for items that have notion URLs
+            let notionContext = '';
+            if (process.env.NOTION_API_KEY) {
+                const notionClient = new Client({ auth: process.env.NOTION_API_KEY });
+                const extractPageId = (url) => {
+                    if (!url) return null;
+                    const match = url.match(/([a-f0-9]{32}|[a-f0-9-]{36})(?:\?|$)/i);
+                    return match ? match[1].replace(/-/g, '') : null;
+                };
+
+                const fetchNotionText = async (pageId) => {
+                    try {
+                        const response = await notionClient.blocks.children.list({ block_id: pageId });
+                        return response.results
+                            .filter(b => b.type === 'paragraph' || b.type === 'heading_1' || b.type === 'heading_2' || b.type === 'heading_3' || b.type === 'bulleted_list_item' || b.type === 'numbered_list_item')
+                            .map(b => {
+                                const richText = b[b.type]?.rich_text;
+                                return richText ? richText.map(t => t.plain_text).join('') : '';
+                            })
+                            .filter(t => t.length > 0)
+                            .join('\n')
+                            .substring(0, 2000); // Limit to 2000 chars per page
+                    } catch (e) {
+                        console.error('Notion fetch failed for page:', pageId, e.message);
+                        return '';
+                    }
+                };
+
+                // Fetch Notion content for relevant items
+                const allItems = [
+                    ...projects.map(p => ({ title: p.title, url: p.notion_url, type: 'project' })),
+                    ...education.map(e => ({ title: e.degree, url: e.notion_link, type: 'education' })),
+                    ...experience.map(e => ({ title: e.role, url: e.notion_link, type: 'experience' })),
+                ];
+
+                const notionParts = [];
+                for (const item of allItems) {
+                    const pageId = extractPageId(item.url);
+                    if (pageId) {
+                        const text = await fetchNotionText(pageId);
+                        if (text) {
+                            notionParts.push(`[${item.type}: ${item.title}] ${text}`);
+                        }
+                    }
+                }
+                if (notionParts.length > 0) {
+                    notionContext = '\n\nDetailed Notion Page Content:\n' + notionParts.join('\n\n');
+                }
+            }
 
             // Fetch Analytics/Dashboard Stats
             const totalVisitors = await new Promise((resolve, reject) => {
@@ -2182,7 +2232,8 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                 Certifications: ${JSON.stringify(certs)}
                 Articles/Blog: ${JSON.stringify(articles)}
                 Reviews/Testimonials: ${JSON.stringify(reviews)}
-                Contact: Email: ${general.email}, LinkedIn: ${general.linkedin_link}
+                Contact: Email: ${general.email || 'Not provided'}, Phone: ${general.phone || 'Not provided'}, Location: ${general.location || 'Not provided'}, LinkedIn: ${general.linkedin_link || 'Not provided'}, GitHub: ${general.github_link || 'Not provided'}
+                ${notionContext}
 
                 Portfolio Analytics & Statistics:
                 - Total Visitors: ${totalVisitors}
