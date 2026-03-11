@@ -2148,9 +2148,18 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                 const notionClient = new Client({ auth: process.env.NOTION_API_KEY });
                 const extractPageId = (url) => {
                     if (!url) return null;
-                    // Support various Notion URL formats
-                    const match = url.match(/([a-f0-9]{32})/i) || url.match(/([a-f0-9-]{36})/i);
-                    return match ? match[1].replace(/-/g, '') : null;
+                    // Same logic as frontend (main.js line 2245-2251):
+                    // 1. Try 32 hex chars at end of URL
+                    const match32 = url.match(/([a-f0-9]{32})(?:[?#]|$)/i);
+                    if (match32) return match32[1];
+                    // 2. Try UUID format with dashes
+                    const matchUUID = url.match(/([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})/i);
+                    if (matchUUID) return matchUUID[1].replace(/-/g, '');
+                    // 3. Try last segment after last dash (common Notion URL format)
+                    const lastSegment = url.split('/').pop().split('?')[0];
+                    const match32end = lastSegment.match(/([a-f0-9]{32})$/i);
+                    if (match32end) return match32end[1];
+                    return null;
                 };
 
                 const fetchNotionText = async (pageId) => {
