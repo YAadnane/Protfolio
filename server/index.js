@@ -2115,7 +2115,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                  db.get("SELECT * FROM general_info WHERE lang = ?", [targetLang], (err, r) => err ? reject(err) : resolve(r));
             });
             const projects = await getAsync(`
-                SELECT p.title, p.description, p.tags, p.category, p.role, p.year, p.subject, p.tasks, p.notion_url,
+                SELECT p.title, p.description, p.tags, p.category, p.role, p.year, p.subject, p.tasks, p.notion_url, p.link, p.github_link,
                 (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = p.id AND e.event_type = 'click_project') as visits,
                 (SELECT COUNT(*) FROM likes l WHERE l.target_id = p.id AND l.target_type = 'project') as likes,
                 (SELECT COUNT(*) FROM comments c WHERE c.target_id = p.id AND c.target_type = 'project' AND c.is_approved = 1) as comments_count,
@@ -2130,7 +2130,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
             const certs = await getAsync("SELECT name, issuer, year, domain, status, description, skills, credential_id, credential_url, level FROM certifications WHERE is_hidden = 0 AND lang = ?", [targetLang]);
             
             const articles = await getAsync(`
-                SELECT a.title, a.summary, a.tags, a.date,
+                SELECT a.title, a.summary, a.tags, a.date, a.link,
                 (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = a.id AND e.event_type = 'view_article') as views,
                 (SELECT COUNT(*) FROM likes l WHERE l.target_id = a.id AND l.target_type = 'article') as likes,
                 (SELECT COUNT(*) FROM comments c WHERE c.target_id = a.id AND c.target_type = 'article' AND c.is_approved = 1) as comments_count,
@@ -2173,6 +2173,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                     ...projects.map(p => ({ title: p.title, url: p.notion_url, type: 'project' })),
                     ...education.map(e => ({ title: e.degree, url: e.notion_link, type: 'education' })),
                     ...experience.map(e => ({ title: e.role, url: e.notion_link, type: 'experience' })),
+                    ...articles.filter(a => a.link && a.link.includes('notion')).map(a => ({ title: a.title, url: a.link, type: 'article' })),
                 ];
 
                 const notionParts = [];
@@ -2241,8 +2242,13 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                 - Top Projects (by popularity): ${JSON.stringify(topProjects)}
                 - Top Certifications (by interest): ${JSON.stringify(topCerts)}
 
-                If the question is not related to the portfolio or professional background, politely steer it back.
-                Answer in the language of the user question (default ${targetLang}).
+                IMPORTANT INSTRUCTIONS:
+                - When mentioning a project, article, or certification that has a link, ALWAYS include the URL as a markdown link: [title](url)
+                - When asked about details of a specific project, education, or experience, use the "Detailed Notion Page Content" section above to provide comprehensive answers and summaries.
+                - When asked for a summary or details about Notion content, extract and present the key information from the Notion data provided.
+                - Always provide contact information when asked (email, phone, location, LinkedIn, GitHub).
+                - If the question is not related to the portfolio or professional background, politely steer it back.
+                - Answer in the language of the user question (default ${targetLang}).
             `;
 
             // 4. Call Gemini

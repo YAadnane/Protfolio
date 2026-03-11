@@ -1920,10 +1920,19 @@ function initChatbot() {
             if (data.error) {
                 appendMessage('Error: ' + data.error, 'bot');
             } else {
-                // Parse markdown-like bolding if needed, or just plain text
-                // Gemini returns markdown. Simple formatting replacement:
+                // Gemini returns markdown. Format for HTML display:
                 let reply = data.reply
+                    // Markdown links [text](url) → clickable links
+                    .replace(/\[([^\]]+)\]\((https?:\/\/[^\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener" style="color: var(--accent-color); text-decoration: underline;">$1</a>')
+                    // Bold **text**
                     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                    // Italic *text* (but not already inside a tag)
+                    .replace(/(?<!\w)\*([^*]+)\*(?!\w)/g, '<em>$1</em>')
+                    // Bare URLs (not already in an <a> tag)
+                    .replace(/(?<!href="|>)(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color: var(--accent-color); text-decoration: underline;">$1</a>')
+                    // List items
+                    .replace(/^[-•]\s+(.+)$/gm, '&bull; $1')
+                    // Newlines
                     .replace(/\n/g, '<br>');
                 appendMessage(reply, 'bot');
             }
