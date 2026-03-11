@@ -2143,9 +2143,18 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
             // Fetch Notion content for items that have notion URLs
             let notionContext = '';
             try {
-              if (process.env.NOTION_API_KEY) {
-                console.log('[Chatbot] NOTION_API_KEY is set, fetching Notion content...');
-                const notionClient = new Client({ auth: process.env.NOTION_API_KEY });
+              // Read Notion API key from DB (same as project popups), fallback to env
+              const notionKeyRow = await new Promise((resolve, reject) => {
+                  db.get("SELECT notion_api_key FROM general_info WHERE notion_api_key IS NOT NULL AND notion_api_key != '' LIMIT 1", (err, row) => {
+                      if (err) reject(err);
+                      else resolve(row);
+                  });
+              });
+              const notionApiKey = notionKeyRow?.notion_api_key || process.env.NOTION_API_KEY;
+              
+              if (notionApiKey) {
+                console.log('[Chatbot] Notion API key found (from ' + (notionKeyRow?.notion_api_key ? 'DB' : 'env') + '), fetching content...');
+                const notionClient = new Client({ auth: notionApiKey });
                 const extractPageId = (url) => {
                     if (!url) return null;
                     // Same logic as frontend (main.js line 2245-2251):
