@@ -2115,7 +2115,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                  db.get("SELECT * FROM general_info WHERE lang = ?", [targetLang], (err, r) => err ? reject(err) : resolve(r));
             });
             const projects = await getAsync(`
-                SELECT p.title, p.description, p.tags, p.category, p.role, p.year, p.subject, p.tasks, p.notion_url, p.link, p.github_link,
+                SELECT p.title, p.description, p.tags, p.category, p.role, p.year, p.subject, p.tasks, p.notion_url, p.link,
                 (SELECT COUNT(*) FROM analytics_events e WHERE e.target_id = p.id AND e.event_type = 'click_project') as visits,
                 (SELECT COUNT(*) FROM likes l WHERE l.target_id = p.id AND l.target_type = 'project') as likes,
                 (SELECT COUNT(*) FROM comments c WHERE c.target_id = p.id AND c.target_type = 'project' AND c.is_approved = 1) as comments_count,
