@@ -2144,10 +2144,12 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
             let notionContext = '';
             try {
               if (process.env.NOTION_API_KEY) {
+                console.log('[Chatbot] NOTION_API_KEY is set, fetching Notion content...');
                 const notionClient = new Client({ auth: process.env.NOTION_API_KEY });
                 const extractPageId = (url) => {
                     if (!url) return null;
-                    const match = url.match(/([a-f0-9]{32}|[a-f0-9-]{36})(?:\?|$)/i);
+                    // Support various Notion URL formats
+                    const match = url.match(/([a-f0-9]{32})/i) || url.match(/([a-f0-9-]{36})/i);
                     return match ? match[1].replace(/-/g, '') : null;
                 };
 
@@ -2164,7 +2166,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                             .join('\n')
                             .substring(0, 2000);
                     } catch (e) {
-                        console.error('Notion fetch failed for page:', pageId, e.message);
+                        console.error('[Chatbot] Notion fetch failed for page:', pageId, e.message);
                         return '';
                     }
                 };
@@ -2176,22 +2178,34 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                     ...articles.filter(a => a.link && a.link.includes('notion')).map(a => ({ title: a.title, url: a.link, type: 'article' })),
                 ];
 
+                const itemsWithUrls = allItems.filter(i => i.url);
+                console.log(`[Chatbot] Found ${itemsWithUrls.length} items with Notion URLs out of ${allItems.length} total`);
+
                 const notionParts = [];
-                for (const item of allItems) {
+                for (const item of itemsWithUrls) {
                     const pageId = extractPageId(item.url);
+                    console.log(`[Chatbot] ${item.type}: "${item.title}" → pageId: ${pageId || 'NONE'} (url: ${item.url})`);
                     if (pageId) {
                         const text = await fetchNotionText(pageId);
                         if (text) {
+                            console.log(`[Chatbot] ✅ Got ${text.length} chars from Notion for "${item.title}"`);
                             notionParts.push(`[${item.type}: ${item.title}] ${text}`);
+                        } else {
+                            console.log(`[Chatbot] ❌ No content from Notion for "${item.title}"`);
                         }
                     }
                 }
                 if (notionParts.length > 0) {
                     notionContext = '\n\nDetailed Notion Page Content:\n' + notionParts.join('\n\n');
+                    console.log(`[Chatbot] ✅ Notion context: ${notionContext.length} chars total`);
+                } else {
+                    console.log('[Chatbot] ⚠️ No Notion content was retrieved');
                 }
+              } else {
+                console.log('[Chatbot] ⚠️ NOTION_API_KEY not set, skipping Notion content');
               }
             } catch (notionErr) {
-                console.error('Notion integration error (chatbot continues without Notion):', notionErr.message);
+                console.error('[Chatbot] Notion integration error (continues without Notion):', notionErr.message);
             }
 
             // Fetch Analytics/Dashboard Stats
@@ -2249,6 +2263,7 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                 - When mentioning a project, article, or certification that has a link, ALWAYS include the URL as a markdown link: [title](url)
                 - When asked about details of a specific project, education, or experience, use the "Detailed Notion Page Content" section above to provide comprehensive answers and summaries.
                 - When asked for a summary or details about Notion content, extract and present the key information from the Notion data provided.
+                - NEVER invent or fabricate Notion page content. If no "Detailed Notion Page Content" section exists above, or if the specific item has no Notion data, clearly tell the user: "I don't have access to the detailed Notion content for this item at the moment."
                 - Always provide contact information when asked (email, phone, location, LinkedIn, GitHub).
                 - If the question is not related to the portfolio or professional background, politely steer it back.
                 - Answer in the language of the user question (default ${targetLang}).
