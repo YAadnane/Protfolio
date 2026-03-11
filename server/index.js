@@ -2181,10 +2181,10 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                 };
 
                 const allItems = [
-                    ...projects.map(p => ({ title: p.title, url: p.notion_url, type: 'project' })),
+                    ...projects.map(p => ({ title: p.title, url: p.notion_url || p.link, type: 'project' })),
                     ...education.map(e => ({ title: e.degree, url: e.notion_link, type: 'education' })),
                     ...experience.map(e => ({ title: e.role, url: e.notion_link, type: 'experience' })),
-                    ...articles.filter(a => a.link && a.link.includes('notion')).map(a => ({ title: a.title, url: a.link, type: 'article' })),
+                    ...articles.map(a => ({ title: a.title, url: a.link, type: 'article' })),
                 ];
 
                 const itemsWithUrls = allItems.filter(i => i.url);
