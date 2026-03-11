@@ -2142,7 +2142,8 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
 
             // Fetch Notion content for items that have notion URLs
             let notionContext = '';
-            if (process.env.NOTION_API_KEY) {
+            try {
+              if (process.env.NOTION_API_KEY) {
                 const notionClient = new Client({ auth: process.env.NOTION_API_KEY });
                 const extractPageId = (url) => {
                     if (!url) return null;
@@ -2161,14 +2162,13 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                             })
                             .filter(t => t.length > 0)
                             .join('\n')
-                            .substring(0, 2000); // Limit to 2000 chars per page
+                            .substring(0, 2000);
                     } catch (e) {
                         console.error('Notion fetch failed for page:', pageId, e.message);
                         return '';
                     }
                 };
 
-                // Fetch Notion content for relevant items
                 const allItems = [
                     ...projects.map(p => ({ title: p.title, url: p.notion_url, type: 'project' })),
                     ...education.map(e => ({ title: e.degree, url: e.notion_link, type: 'education' })),
@@ -2189,6 +2189,9 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
                 if (notionParts.length > 0) {
                     notionContext = '\n\nDetailed Notion Page Content:\n' + notionParts.join('\n\n');
                 }
+              }
+            } catch (notionErr) {
+                console.error('Notion integration error (chatbot continues without Notion):', notionErr.message);
             }
 
             // Fetch Analytics/Dashboard Stats
@@ -2274,9 +2277,9 @@ app.post('/api/chat', apiLimiter, async (req, res) => {
             res.json({ reply: responseText });
 
         } catch (error) {
-            console.error("Gemini Error:", error);
+            console.error("Gemini/Chat Error:", error.message || error);
             // More detailed client error if possible, but keep secure
-            res.status(500).json({ error: "Failed to generate response. Check API Key or Model selection." });
+            res.status(500).json({ error: "Failed to generate response. Check API Key or Model selection. (" + (error.message || 'Unknown') + ")" });
         }
     });
 });
