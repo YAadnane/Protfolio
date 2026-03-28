@@ -874,26 +874,29 @@ function renderOverview(data) {
         </div>
     `;
 
-    // 5.5 Referrers & Peak Hours & Subscriber Growth
-    const referrersHtml = `
-        <div style="grid-column:1/-1; display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-top:1rem;">
+    // 5.5 Analytics Charts Row
+    const chartsRowHtml = `
+        <h3 style="grid-column:1/-1; margin-top:2rem;">Detailed Analytics</h3>
+        <div style="grid-column:1/-1; display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:1.5rem;">
             <div class="admin-card" style="padding:1.5rem;">
-                <h4 style="margin-bottom:1rem;"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--accent-color);"></i> Top Referrers</h4>
-                ${(data.top_referrers && data.top_referrers.length > 0) ? 
-                    data.top_referrers.map((r, i) => `
-                        <div style="display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-                            <span>${i+1}. ${r.referrer || 'Direct'}</span>
-                            <span style="color:var(--accent-color); font-weight:600;">${r.count}</span>
-                        </div>
-                    `).join('') : '<div style="color:var(--text-muted); text-align:center; padding:1rem;">No referrer data yet</div>'}
+                <h4 style="margin-bottom:1rem;"><i class="fa-solid fa-mobile-screen" style="color:var(--accent-color);"></i> Device Distribution</h4>
+                <div style="height:220px; display:flex; align-items:center; justify-content:center;"><canvas id="deviceChart"></canvas></div>
+            </div>
+            <div class="admin-card" style="padding:1.5rem;">
+                <h4 style="margin-bottom:1rem;"><i class="fa-solid fa-globe" style="color:var(--accent-color);"></i> Traffic Sources</h4>
+                <div style="height:220px;"><canvas id="trafficSourcesChart"></canvas></div>
             </div>
             <div class="admin-card" style="padding:1.5rem;">
                 <h4 style="margin-bottom:1rem;"><i class="fa-solid fa-clock" style="color:var(--accent-color);"></i> Peak Hours</h4>
-                <div style="height:200px;"><canvas id="peakHoursChart"></canvas></div>
+                <div style="height:220px;"><canvas id="peakHoursChart"></canvas></div>
             </div>
             <div class="admin-card" style="padding:1.5rem;">
                 <h4 style="margin-bottom:1rem;"><i class="fa-solid fa-chart-line" style="color:var(--accent-color);"></i> Subscriber Growth</h4>
-                <div style="height:200px;"><canvas id="subscriberGrowthChart"></canvas></div>
+                <div style="height:220px;"><canvas id="subscriberGrowthChart"></canvas></div>
+            </div>
+            <div class="admin-card" style="padding:1.5rem;">
+                <h4 style="margin-bottom:1rem;"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--accent-color);"></i> Top Referrers</h4>
+                <div id="referrers-list"></div>
             </div>
         </div>
     `;
@@ -913,7 +916,7 @@ function renderOverview(data) {
         </div>
     ` : '';
 
-    grid.innerHTML = contentHtml + interactionHtml + audienceHtml + analyticsHtml + graphHtml + referrersHtml + topContentHtml + sectionsHtml + chatbotHistoryHtml;
+    grid.innerHTML = contentHtml + interactionHtml + audienceHtml + analyticsHtml + graphHtml + chartsRowHtml + topContentHtml + sectionsHtml + chatbotHistoryHtml;
 
     // Load chatbot history
     loadChatbotHistory();
@@ -1004,6 +1007,63 @@ function renderOverview(data) {
                     },
                     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a4b0be' } }, x: { grid: { display: false }, ticks: { color: '#a4b0be', font: { size: 10 } } } } }
                 });
+            }
+        }
+
+        // Device Distribution Chart (Doughnut)
+        if (data.device_distribution && data.device_distribution.length > 0) {
+            const devCtx = document.getElementById('deviceChart');
+            if (devCtx) {
+                const existingChart = Chart.getChart(devCtx);
+                if (existingChart) existingChart.destroy();
+                const labels = data.device_distribution.map(d => d.device || 'Unknown');
+                const counts = data.device_distribution.map(d => d.count);
+                const colors = ['#2ed573', '#54a0ff', '#ff6b81', '#ffa502', '#a29bfe'];
+                new Chart(devCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{ data: counts, backgroundColor: colors.slice(0, labels.length), borderColor: 'rgba(0,0,0,0.3)', borderWidth: 2 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#a4b0be', padding: 15, font: { size: 13 } } } } }
+                });
+            }
+        }
+
+        // Traffic Sources Chart (Horizontal Bar)
+        if (data.traffic_sources && data.traffic_sources.length > 0) {
+            const tsCtx = document.getElementById('trafficSourcesChart');
+            if (tsCtx) {
+                const existingChart = Chart.getChart(tsCtx);
+                if (existingChart) existingChart.destroy();
+                const srcLabels = data.traffic_sources.map(d => d.source);
+                const srcCounts = data.traffic_sources.map(d => d.count);
+                const barColors = srcLabels.map((_, i) => [
+                    'rgba(46, 213, 115, 0.7)', 'rgba(84, 160, 255, 0.7)', 'rgba(255, 107, 129, 0.7)',
+                    'rgba(255, 165, 2, 0.7)', 'rgba(162, 155, 254, 0.7)', 'rgba(255, 71, 87, 0.7)',
+                    'rgba(30, 144, 255, 0.7)', 'rgba(116, 185, 255, 0.7)', 'rgba(253, 203, 110, 0.7)',
+                    'rgba(0, 206, 209, 0.7)'
+                ][i % 10]);
+                new Chart(tsCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: srcLabels,
+                        datasets: [{ label: 'Visits', data: srcCounts, backgroundColor: barColors, borderWidth: 0 }]
+                    },
+                    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a4b0be' } }, y: { grid: { display: false }, ticks: { color: '#a4b0be', font: { size: 11 } } } } }
+                });
+            }
+        }
+
+        // Referrers List (Populate via JS to avoid nested template literal issues)
+        const refList = document.getElementById('referrers-list');
+        if (refList) {
+            if (data.top_referrers && data.top_referrers.length > 0) {
+                refList.innerHTML = data.top_referrers.map((r, i) => 
+                    '<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid rgba(255,255,255,0.05);"><span>' + (i+1) + '. ' + (r.referrer || 'Direct') + '</span><span style="color:var(--accent-color);font-weight:600;">' + r.count + '</span></div>'
+                ).join('');
+            } else {
+                refList.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:1rem;">No referrer data yet</div>';
             }
         }
 

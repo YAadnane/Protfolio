@@ -3121,13 +3121,21 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
         new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM chatbot_conversations WHERE DATE(date) = DATE('now')`, [], (e, r) => resolve({k:'chatbot_today', v:r?.c||0}))),
 
         // Top Referrers
-        new Promise(resolve => db.all(`SELECT referrer, COUNT(*) as count FROM visits WHERE referrer IS NOT NULL AND referrer != '' GROUP BY referrer ORDER BY count DESC LIMIT 5`, [], (e, r) => resolve({k:'top_referrers', v:r||[]}))),
+        new Promise(resolve => db.all(`SELECT referrer, COUNT(*) as count FROM visits WHERE referrer IS NOT NULL AND referrer != '' GROUP BY referrer ORDER BY count DESC LIMIT 10`, [], (e, r) => resolve({k:'top_referrers', v:r||[]}))),
         
         // Peak Hours (grouped by hour)
         new Promise(resolve => db.all(`SELECT CAST(strftime('%H', date) AS INTEGER) as hour, COUNT(*) as count FROM visits GROUP BY hour ORDER BY hour`, [], (e, r) => resolve({k:'peak_hours', v:r||[]}))),
 
-        // Subscriber Growth (by month)
-        new Promise(resolve => db.all(`SELECT strftime('%Y-%m', subscribed_at) as month, COUNT(*) as count FROM subscribers WHERE subscribed_at IS NOT NULL GROUP BY month ORDER BY month ASC`, [], (e, r) => resolve({k:'subscriber_growth', v:r||[]}))),
+        // Subscriber Growth (by month) — use date as fallback if subscribed_at is NULL
+        new Promise(resolve => db.all(`SELECT strftime('%Y-%m', COALESCE(subscribed_at, date)) as month, COUNT(*) as count FROM subscribers WHERE COALESCE(subscribed_at, date) IS NOT NULL GROUP BY month ORDER BY month ASC`, [], (e, r) => resolve({k:'subscriber_growth', v:r||[]}))),
+
+        // Device Distribution (mobile vs desktop)
+        new Promise(resolve => db.all(`SELECT device, COUNT(*) as count FROM visits GROUP BY device ORDER BY count DESC`, [], (e, r) => resolve({k:'device_distribution', v:r||[]}))),
+
+        // Traffic Sources (referrer breakdown for chart)
+        new Promise(resolve => {
+            db.all(`SELECT CASE WHEN referrer IS NULL OR referrer = '' THEN 'Direct' ELSE referrer END as source, COUNT(*) as count FROM visits GROUP BY source ORDER BY count DESC LIMIT 10`, [], (e, r) => resolve({k:'traffic_sources', v:r||[]}));
+        }),
 
         // Social Clicks
         new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events WHERE event_type = 'click_social'`, [], (e, r) => resolve({k:'social_clicks', v:r?.c||0}))),
