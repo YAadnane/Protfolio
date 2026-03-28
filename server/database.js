@@ -159,12 +159,14 @@ db.serialize(() => {
         user_agent TEXT,
         lang TEXT DEFAULT 'en',
         device TEXT DEFAULT 'desktop',
+        referrer TEXT DEFAULT '',
         date DATETIME DEFAULT CURRENT_TIMESTAMP
     )`, (err) => {
         if (!err) {
             addColumnIfNotExists('visits', 'date', 'DATETIME DEFAULT CURRENT_TIMESTAMP');
             addColumnIfNotExists('visits', 'lang', "TEXT DEFAULT 'en'");
             addColumnIfNotExists('visits', 'device', "TEXT DEFAULT 'desktop'");
+            addColumnIfNotExists('visits', 'referrer', "TEXT DEFAULT ''");
         }
     });
 

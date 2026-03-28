@@ -433,6 +433,7 @@ async function loadGeneralInfo() {
                 cvLink.href = data.cv_file;
                 cvLink.setAttribute('download', '');
                 cvLink.style.display = 'inline-flex';
+                cvLink.addEventListener('click', () => trackEvent('download_cv', 0, ''), { once: true });
             }
         } else {
             if (cvLink) {
@@ -3915,10 +3916,13 @@ window.trackEvent = async (type, id, element) => {
 window.addEventListener('load', () => {
     // Wait slightly to ensure currentLang is initialized if needed, though it's sync.
     const lang = localStorage.getItem('lang') || (navigator.language.startsWith('en') ? 'en' : 'fr');
+    const referrer = document.referrer || '';
+    let referrerDomain = '';
+    try { if (referrer) referrerDomain = new URL(referrer).hostname; } catch(e) {}
     fetch('/api/track/visit', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lang: lang })
+        body: JSON.stringify({ lang, referrer: referrerDomain })
     }).catch(err => console.error('Visit tracking failed', err));
 });
 

@@ -673,13 +673,18 @@ function renderOverview(data) {
         ${card('fa-solid fa-briefcase', data.projects, 'Projects', 'stat-projects')}
         ${card('fa-solid fa-certificate', data.certifications, 'Certifications', 'stat-certifications')}
         ${card('fa-solid fa-newspaper', data.articles, 'Articles', 'stat-articles')}
+        ${card('fa-solid fa-code', data.skills || 0, 'Skills', 'stat-skills')}
+        ${card('fa-solid fa-graduation-cap', data.education || 0, 'Education', 'stat-education')}
+        ${card('fa-solid fa-building', data.experience || 0, 'Experience', 'stat-experience')}
     `;
 
     // 2. Interaction Stats
+    const approvalRate = data.reviews_total > 0 ? Math.round((data.reviews_approved || 0) / data.reviews_total * 100) : 0;
     const interactionHtml = `
         <h2 style="grid-column:1/-1; margin:2rem 0 1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Interactions</h2>
         ${card('fa-solid fa-envelope', data.messages_total, `Total Messages<br><small style="color:var(--accent-color);">${data.messages_unread} unread</small>`, 'stat-messages')}
         ${card('fa-solid fa-star', data.reviews_total, `Reviews<br><small style="color:var(--accent-color);">${data.reviews_pending} pending</small>`, 'stat-reviews')}
+        ${card('fa-solid fa-check-circle', approvalRate + '%', `Approval Rate<br><small style="color:var(--accent-color);">${data.reviews_approved || 0} approved</small>`, 'stat-approval-rate')}
     `;
 
     // 2.5 Audience Stats (Subscribers)
@@ -731,10 +736,17 @@ function renderOverview(data) {
         
         
         ${card('fa-solid fa-users', data.total_visitors, `Total Visitors<br><small style="color:var(--accent-color);">Unique IPs</small>`, 'stat-visitors')}
-        ${card('fa-solid fa-user-clock', data.visitors_7d, `Visitors (7d)<br><small style="color:var(--accent-color);">Last 7 Days (Recent)</small>`, 'stat-visitors-7d')}
+        ${card('fa-solid fa-user-clock', data.visitors_7d, `Visitors (7d)<br><small style="color:var(--accent-color);">Last 7 Days</small>`, 'stat-visitors-7d')}
+        ${card('fa-solid fa-user-check', data.visitors_today || 0, `Today<br><small style="color:var(--accent-color);">Live Count</small>`, 'stat-visitors-today')}
         ${card('fa-solid fa-hand-pointer', data.total_clicks, `Total Clicks<br><small style="color:var(--accent-color);">Projects/Certs/Articles</small>`, 'stat-clicks')}
         ${card('fa-regular fa-heart', data.total_likes, `Total Likes<br><small style="color:var(--accent-color);">Projects/Articles</small>`, 'stat-likes')}
         ${card('fa-regular fa-comment', data.total_comments, `Total Comments<br><small style="color:var(--accent-color);">Projects/Articles</small>`, 'stat-comments')}
+        ${card('fa-solid fa-user-plus', data.visitors_new || 0, `New Visitors<br><small style="color:var(--accent-color);">First time</small>`, 'stat-new')}
+        ${card('fa-solid fa-rotate', data.visitors_returning || 0, `Returning<br><small style="color:var(--accent-color);">Came back</small>`, 'stat-returning')}
+        ${card('fa-solid fa-percent', data.total_visitors > 0 ? ((data.messages_for_rate || 0) / data.total_visitors * 100).toFixed(1) + '%' : '0%', `Conversion Rate<br><small style="color:var(--accent-color);">Messages / Visitors</small>`, 'stat-conversion')}
+        ${card('fa-solid fa-file-arrow-down', data.cv_downloads || 0, `CV Downloads<br><small style="color:var(--accent-color);">Resume</small>`, 'stat-cv-downloads')}
+        ${card('fa-solid fa-robot', data.chatbot_total || 0, `Chatbot Questions<br><small style="color:var(--accent-color);">${data.chatbot_today || 0} today</small>`, 'stat-chatbot')}
+        ${card('fa-solid fa-share-nodes', data.social_clicks || 0, `Social Clicks<br><small style="color:var(--accent-color);">LinkedIn/GitHub/etc</small>`, 'stat-social')}
     `;
     
     // --- POLLING LOGIC ---
@@ -775,16 +787,24 @@ function renderOverview(data) {
             update('stat-projects', newData.projects);
             update('stat-certifications', newData.certifications);
             update('stat-articles', newData.articles);
+            update('stat-skills', newData.skills || 0);
+            update('stat-education', newData.education || 0);
+            update('stat-experience', newData.experience || 0);
             update('stat-messages', newData.messages_total);
             update('stat-reviews', newData.reviews_total);
             update('stat-subscribers-active', newData.subscribers_active);
             update('stat-subscribers-unsubscribed', newData.subscribers_unsubscribed);
             update('stat-visitors', newData.total_visitors);
             update('stat-visitors-7d', newData.visitors_7d);
+            update('stat-visitors-today', newData.visitors_today || 0);
             update('stat-clicks', newData.total_clicks);
             update('stat-likes', newData.total_likes);
             update('stat-comments', newData.total_comments);
-            update('stat-clicks', newData.total_clicks);
+            update('stat-new', newData.visitors_new || 0);
+            update('stat-returning', newData.visitors_returning || 0);
+            update('stat-cv-downloads', newData.cv_downloads || 0);
+            update('stat-chatbot', newData.chatbot_total || 0);
+            update('stat-social', newData.social_clicks || 0);
             
             // Also update charts if needed, but charts might re-animate. 
             // For now, text updates are the critical "live" requirement.
@@ -854,7 +874,46 @@ function renderOverview(data) {
         </div>
     `;
 
-    grid.innerHTML = contentHtml + interactionHtml + audienceHtml + analyticsHtml + graphHtml + topContentHtml + chatbotHistoryHtml;
+    // 5.5 Referrers & Peak Hours & Subscriber Growth
+    const referrersHtml = `
+        <div style="grid-column:1/-1; display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-top:1rem;">
+            <div class="admin-card" style="padding:1.5rem;">
+                <h4 style="margin-bottom:1rem;"><i class="fa-solid fa-arrow-right-to-bracket" style="color:var(--accent-color);"></i> Top Referrers</h4>
+                ${(data.top_referrers && data.top_referrers.length > 0) ? 
+                    data.top_referrers.map((r, i) => `
+                        <div style="display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                            <span>${i+1}. ${r.referrer || 'Direct'}</span>
+                            <span style="color:var(--accent-color); font-weight:600;">${r.count}</span>
+                        </div>
+                    `).join('') : '<div style="color:var(--text-muted); text-align:center; padding:1rem;">No referrer data yet</div>'}
+            </div>
+            <div class="admin-card" style="padding:1.5rem;">
+                <h4 style="margin-bottom:1rem;"><i class="fa-solid fa-clock" style="color:var(--accent-color);"></i> Peak Hours</h4>
+                <div style="height:200px;"><canvas id="peakHoursChart"></canvas></div>
+            </div>
+            <div class="admin-card" style="padding:1.5rem;">
+                <h4 style="margin-bottom:1rem;"><i class="fa-solid fa-chart-line" style="color:var(--accent-color);"></i> Subscriber Growth</h4>
+                <div style="height:200px;"><canvas id="subscriberGrowthChart"></canvas></div>
+            </div>
+        </div>
+    `;
+
+    // 5.6 Popular Sections
+    const sectionsHtml = (data.popular_sections && data.popular_sections.length > 0) ? `
+        <div style="grid-column:1/-1; margin-top:1rem;">
+            <div class="admin-card" style="padding:1.5rem;">
+                <h4 style="margin-bottom:1rem;"><i class="fa-solid fa-layer-group" style="color:var(--accent-color);"></i> Popular Sections</h4>
+                ${data.popular_sections.map((s, i) => `
+                    <div style="display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                        <span>${i+1}. ${s.section || 'Unknown'}</span>
+                        <span style="color:var(--accent-color); font-weight:600;">${s.count} views</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    ` : '';
+
+    grid.innerHTML = contentHtml + interactionHtml + audienceHtml + analyticsHtml + graphHtml + referrersHtml + topContentHtml + sectionsHtml + chatbotHistoryHtml;
 
     // Load chatbot history
     loadChatbotHistory();
@@ -906,6 +965,43 @@ function renderOverview(data) {
 
     setTimeout(() => {
         updateStatsChart(); // Traffic with default/global filter
+
+        // Peak Hours Chart
+        if (data.peak_hours && data.peak_hours.length > 0) {
+            const phCtx = document.getElementById('peakHoursChart');
+            if (phCtx) {
+                const allHours = Array.from({length: 24}, (_, i) => i);
+                const hourData = allHours.map(h => {
+                    const found = data.peak_hours.find(p => p.hour === h);
+                    return found ? found.count : 0;
+                });
+                new Chart(phCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: allHours.map(h => h + 'h'),
+                        datasets: [{ label: 'Visits', data: hourData, backgroundColor: 'rgba(46, 213, 115, 0.5)', borderColor: '#2ed573', borderWidth: 1 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a4b0be' } }, x: { grid: { display: false }, ticks: { color: '#a4b0be', maxRotation: 0, font: { size: 10 } } } } }
+                });
+            }
+        }
+
+        // Subscriber Growth Chart
+        if (data.subscriber_growth && data.subscriber_growth.length > 0) {
+            const sgCtx = document.getElementById('subscriberGrowthChart');
+            if (sgCtx) {
+                let cumulative = 0;
+                const cumulativeData = data.subscriber_growth.map(d => { cumulative += d.count; return cumulative; });
+                new Chart(sgCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: data.subscriber_growth.map(d => d.month),
+                        datasets: [{ label: 'Subscribers', data: cumulativeData, borderColor: '#54a0ff', backgroundColor: 'rgba(84, 160, 255, 0.1)', borderWidth: 2, tension: 0.4, fill: true, pointRadius: 3 }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#a4b0be' } }, x: { grid: { display: false }, ticks: { color: '#a4b0be', font: { size: 10 } } } } }
+                });
+            }
+        }
 
 
     }, 100);
