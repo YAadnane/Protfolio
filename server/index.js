@@ -2980,8 +2980,17 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
         filterParams.push(device);
     }
 
-    // Filter for tables aliased as 'e' (analytics_events)
-    let eventFilterSql = filterSql.replace(/\bdate\b/g, 'e.date');
+    // Filter for analytics_events (aliased as 'e') — only date filters (no lang/device in this table)
+    let eventFilterSql = "";
+    let eventFilterParams = [];
+    if (year) {
+        eventFilterSql += " AND strftime('%Y', e.date) = ?";
+        eventFilterParams.push(year);
+    }
+    if (month) {
+        eventFilterSql += " AND strftime('%m', e.date) = ?";
+        eventFilterParams.push(month.toString().padStart(2, '0'));
+    }
     
     // CONTENT FILTER (Only Lang applies to inventory, usually)
     let contentFilterSql = "";
@@ -2989,6 +2998,18 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
     if (lang) {
         contentFilterSql += " WHERE lang = ?";
         contentFilterParams.push(lang);
+    }
+
+    // DATE-ONLY FILTER (for tables without lang/device like messages, chatbot)
+    let dateFilterSql = "";
+    let dateFilterParams = [];
+    if (year) {
+        dateFilterSql += " AND strftime('%Y', date) = ?";
+        dateFilterParams.push(year);
+    }
+    if (month) {
+        dateFilterSql += " AND strftime('%m', date) = ?";
+        dateFilterParams.push(month.toString().padStart(2, '0'));
     }
 
     // 2. Base Counts
@@ -3089,56 +3110,56 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM subscribers WHERE is_active=1', (e, r) => resolve({k:'subscribers_active', v:r?.c||0}))),
         new Promise(resolve => db.get('SELECT COUNT(*) as c FROM subscribers WHERE is_active=0', (e, r) => resolve({k:'subscribers_unsubscribed', v:r?.c||0}))),
         
-        // Interaction Totals (Filtered)
-        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM likes WHERE 1=1 ${filterSql}`, filterParams, (e, r) => resolve({k:'total_likes', v:r?.c||0}))),
-        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM comments WHERE 1=1 ${filterSql}`, filterParams, (e, r) => resolve({k:'total_comments', v:r?.c||0}))),
+        // Interaction Totals (Date-filtered only — likes/comments don't have lang/device)
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM likes WHERE 1=1 ${dateFilterSql}`, dateFilterParams, (e, r) => resolve({k:'total_likes', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM comments WHERE 1=1 ${dateFilterSql}`, dateFilterParams, (e, r) => resolve({k:'total_comments', v:r?.c||0}))),
         
         // Visitors (Filtered)
         new Promise(resolve => db.get(`SELECT COUNT(DISTINCT ip_hash) as c FROM visits WHERE 1=1 ${filterSql}`, filterParams, (e, r) => resolve({k:'total_visitors', v:r?.c||0}))),
         new Promise(resolve => db.get(`SELECT COUNT(DISTINCT ip_hash) as c FROM visits WHERE date >= date('now', '-7 days') ${filterSql}`, filterParams, (e, r) => resolve({k:'visitors_7d', v:r?.c||0}))),
-        new Promise(resolve => db.get(`SELECT COUNT(DISTINCT ip_hash) as c FROM visits WHERE DATE(date) = DATE('now')`, [], (e, r) => resolve({k:'visitors_today', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(DISTINCT ip_hash) as c FROM visits WHERE DATE(date) = DATE('now') ${filterSql}`, filterParams, (e, r) => resolve({k:'visitors_today', v:r?.c||0}))),
         
-        // New vs Returning (based on ip_hash appearing more than once)
-        new Promise(resolve => db.get(`SELECT COUNT(DISTINCT ip_hash) as c FROM visits WHERE ip_hash IN (SELECT ip_hash FROM visits GROUP BY ip_hash HAVING COUNT(*) = 1)`, [], (e, r) => resolve({k:'visitors_new', v:r?.c||0}))),
-        new Promise(resolve => db.get(`SELECT COUNT(DISTINCT ip_hash) as c FROM visits WHERE ip_hash IN (SELECT ip_hash FROM visits GROUP BY ip_hash HAVING COUNT(*) > 1)`, [], (e, r) => resolve({k:'visitors_returning', v:r?.c||0}))),
+        // New vs Returning (Filtered)
+        new Promise(resolve => db.get(`SELECT COUNT(DISTINCT ip_hash) as c FROM visits WHERE 1=1 ${filterSql} AND ip_hash IN (SELECT ip_hash FROM visits WHERE 1=1 ${filterSql} GROUP BY ip_hash HAVING COUNT(*) = 1)`, [...filterParams, ...filterParams], (e, r) => resolve({k:'visitors_new', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(DISTINCT ip_hash) as c FROM visits WHERE 1=1 ${filterSql} AND ip_hash IN (SELECT ip_hash FROM visits WHERE 1=1 ${filterSql} GROUP BY ip_hash HAVING COUNT(*) > 1)`, [...filterParams, ...filterParams], (e, r) => resolve({k:'visitors_returning', v:r?.c||0}))),
         
         // Total Clicks (Filtered)
-        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE 1=1 ${eventFilterSql}`, filterParams, (e, r) => resolve({k:'total_clicks', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE 1=1 ${eventFilterSql}`, eventFilterParams, (e, r) => resolve({k:'total_clicks', v:r?.c||0}))),
 
         // Category Clicks (Filtered)
-        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE e.event_type = 'click_project' ${eventFilterSql}`, filterParams, (e, r) => resolve({k:'clicks_projects', v:r?.c||0}))),
-        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE e.event_type = 'click_certif' ${eventFilterSql}`, filterParams, (e, r) => resolve({k:'clicks_certifs', v:r?.c||0}))),
-        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE e.event_type = 'view_article' ${eventFilterSql}`, filterParams, (e, r) => resolve({k:'clicks_articles', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE e.event_type = 'click_project' ${eventFilterSql}`, eventFilterParams, (e, r) => resolve({k:'clicks_projects', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE e.event_type = 'click_certif' ${eventFilterSql}`, eventFilterParams, (e, r) => resolve({k:'clicks_certifs', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE e.event_type = 'view_article' ${eventFilterSql}`, eventFilterParams, (e, r) => resolve({k:'clicks_articles', v:r?.c||0}))),
         
-        // CV Downloads
-        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events WHERE event_type = 'download_cv'`, [], (e, r) => resolve({k:'cv_downloads', v:r?.c||0}))),
+        // CV Downloads (Filtered)
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE e.event_type = 'download_cv' ${eventFilterSql}`, eventFilterParams, (e, r) => resolve({k:'cv_downloads', v:r?.c||0}))),
         
-        // Conversion Rate helper
-        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM messages', (e, r) => resolve({k:'messages_for_rate', v:r?.c||0}))),
+        // Conversion Rate helper (Date-filtered only)
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM messages WHERE 1=1 ${dateFilterSql}`, dateFilterParams, (e, r) => resolve({k:'messages_for_rate', v:r?.c||0}))),
 
-        // Chatbot Stats
-        new Promise(resolve => db.get('SELECT COUNT(*) as c FROM chatbot_conversations', (e, r) => resolve({k:'chatbot_total', v:r?.c||0}))),
+        // Chatbot Stats (Date-filtered only)
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM chatbot_conversations WHERE 1=1 ${dateFilterSql}`, dateFilterParams, (e, r) => resolve({k:'chatbot_total', v:r?.c||0}))),
         new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM chatbot_conversations WHERE DATE(date) = DATE('now')`, [], (e, r) => resolve({k:'chatbot_today', v:r?.c||0}))),
 
-        // Top Referrers
-        new Promise(resolve => db.all(`SELECT referrer, COUNT(*) as count FROM visits WHERE referrer IS NOT NULL AND referrer != '' GROUP BY referrer ORDER BY count DESC LIMIT 10`, [], (e, r) => resolve({k:'top_referrers', v:r||[]}))),
+        // Top Referrers (Filtered)
+        new Promise(resolve => db.all(`SELECT referrer, COUNT(*) as count FROM visits WHERE referrer IS NOT NULL AND referrer != '' ${filterSql} GROUP BY referrer ORDER BY count DESC LIMIT 10`, filterParams, (e, r) => resolve({k:'top_referrers', v:r||[]}))),
         
-        // Peak Hours (grouped by hour)
-        new Promise(resolve => db.all(`SELECT CAST(strftime('%H', date) AS INTEGER) as hour, COUNT(*) as count FROM visits GROUP BY hour ORDER BY hour`, [], (e, r) => resolve({k:'peak_hours', v:r||[]}))),
+        // Peak Hours (Filtered)
+        new Promise(resolve => db.all(`SELECT CAST(strftime('%H', date) AS INTEGER) as hour, COUNT(*) as count FROM visits WHERE 1=1 ${filterSql} GROUP BY hour ORDER BY hour`, filterParams, (e, r) => resolve({k:'peak_hours', v:r||[]}))),
 
-        // Subscriber Growth (by month) — use date as fallback if subscribed_at is NULL
+        // Subscriber Growth (by month)
         new Promise(resolve => db.all(`SELECT strftime('%Y-%m', COALESCE(subscribed_at, date)) as month, COUNT(*) as count FROM subscribers WHERE COALESCE(subscribed_at, date) IS NOT NULL GROUP BY month ORDER BY month ASC`, [], (e, r) => resolve({k:'subscriber_growth', v:r||[]}))),
 
-        // Device Distribution (mobile vs desktop)
-        new Promise(resolve => db.all(`SELECT device, COUNT(*) as count FROM visits GROUP BY device ORDER BY count DESC`, [], (e, r) => resolve({k:'device_distribution', v:r||[]}))),
+        // Device Distribution (Filtered by year/month)
+        new Promise(resolve => db.all(`SELECT device, COUNT(*) as count FROM visits WHERE 1=1 ${filterSql} GROUP BY device ORDER BY count DESC`, filterParams, (e, r) => resolve({k:'device_distribution', v:r||[]}))),
 
-        // Traffic Sources (referrer breakdown for chart)
+        // Traffic Sources (Filtered)
         new Promise(resolve => {
-            db.all(`SELECT CASE WHEN referrer IS NULL OR referrer = '' THEN 'Direct' ELSE referrer END as source, COUNT(*) as count FROM visits GROUP BY source ORDER BY count DESC LIMIT 10`, [], (e, r) => resolve({k:'traffic_sources', v:r||[]}));
+            db.all(`SELECT CASE WHEN referrer IS NULL OR referrer = '' THEN 'Direct' ELSE referrer END as source, COUNT(*) as count FROM visits WHERE 1=1 ${filterSql} GROUP BY source ORDER BY count DESC LIMIT 10`, filterParams, (e, r) => resolve({k:'traffic_sources', v:r||[]}));
         }),
 
-        // Social Clicks
-        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events WHERE event_type = 'click_social'`, [], (e, r) => resolve({k:'social_clicks', v:r?.c||0}))),
+        // Social Clicks (Filtered)
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events e WHERE e.event_type = 'click_social' ${eventFilterSql}`, eventFilterParams, (e, r) => resolve({k:'social_clicks', v:r?.c||0}))),
 
         // Section Views
         new Promise(resolve => db.all(`SELECT metadata as section, COUNT(*) as count FROM analytics_events WHERE event_type = 'view_section' GROUP BY metadata ORDER BY count DESC`, [], (e, r) => resolve({k:'popular_sections', v:r||[]}))),
