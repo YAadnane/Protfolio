@@ -970,6 +970,8 @@ function renderOverview(data) {
         if (data.peak_hours && data.peak_hours.length > 0) {
             const phCtx = document.getElementById('peakHoursChart');
             if (phCtx) {
+                const existingChart = Chart.getChart(phCtx);
+                if (existingChart) existingChart.destroy();
                 const allHours = Array.from({length: 24}, (_, i) => i);
                 const hourData = allHours.map(h => {
                     const found = data.peak_hours.find(p => p.hour === h);
@@ -990,6 +992,8 @@ function renderOverview(data) {
         if (data.subscriber_growth && data.subscriber_growth.length > 0) {
             const sgCtx = document.getElementById('subscriberGrowthChart');
             if (sgCtx) {
+                const existingChart = Chart.getChart(sgCtx);
+                if (existingChart) existingChart.destroy();
                 let cumulative = 0;
                 const cumulativeData = data.subscriber_growth.map(d => { cumulative += d.count; return cumulative; });
                 new Chart(sgCtx.getContext('2d'), {

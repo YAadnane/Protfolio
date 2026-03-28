@@ -481,11 +481,17 @@ async function loadGeneralInfo() {
         }
         if (data.linkedin_link) {
             const linkedin = document.getElementById('contact-linkedin');
-            if (linkedin) linkedin.href = data.linkedin_link;
+            if (linkedin) {
+                linkedin.href = data.linkedin_link;
+                linkedin.addEventListener('click', () => trackEvent('click_social', 0, 'linkedin'));
+            }
         }
         if (data.github_link) {
             const github = document.getElementById('contact-github');
-            if (github) github.href = data.github_link;
+            if (github) {
+                github.href = data.github_link;
+                github.addEventListener('click', () => trackEvent('click_social', 0, 'github'));
+            }
         }
 
     } catch (err) { console.error("Failed to load general info", err); }
