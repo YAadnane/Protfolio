@@ -509,7 +509,6 @@ db.serialize(() => {
         year INTEGER,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
-    });
 
     // Seed French Education if missing
     db.get("SELECT count(*) as count FROM education WHERE lang='fr'", (err, row) => {

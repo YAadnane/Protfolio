@@ -21,6 +21,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+app.set('trust proxy', 1); // Enable proxy trust for rate limiting behind Nginx
 
 const SENDER_EMAIL = process.env.ADMIN_EMAIL || 'yadani.adnane20@gmail.com';
 
