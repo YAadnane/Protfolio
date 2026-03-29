@@ -15,7 +15,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script>
         window.onerror = function (msg, url, line, col, error) {
-            alert("Script Error: " + msg + "\nLine: " + line);
+            console.error("Script Error: " + msg + " Line: " + line, error);
             console.error(error);
         };
         window.onunhandledrejection = function (event) {
@@ -1158,13 +1158,9 @@
             display: none;
         }
 
-        body.sidebar-collapsed .sidebar-btn i {
-            font-size: 1.2rem;
-            margin: 0;
-        }
-
-        body.sidebar-collapsed .logo {
-            /* Optional: Adjust logo if needed, but it's in header */
+        .chart-actions button:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.1);
         }
     </style>
 
@@ -1311,7 +1307,7 @@
                 <button class="sidebar-btn tab-btn" onclick="switchTab('messages')"><i class="fa-solid fa-envelope"></i>
                     <span>Messages</span> <span id="msg-badge" class="badge"></span></button>
                 <button class="sidebar-btn tab-btn" onclick="switchTab('reviews')"><i class="fa-solid fa-star"></i>
-                    <span>Reviews</span></button>
+                    <span>Reviews</span> <span id="review-badge" class="badge"></span></button>
                 <button class="sidebar-btn tab-btn" onclick="switchTab('media')"><i class="fa-solid fa-images"></i>
                     <span>Media</span></button>
                 <button class="sidebar-btn tab-btn" onclick="switchTab('system')"><i class="fa-solid fa-server"></i>

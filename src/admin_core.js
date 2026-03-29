@@ -446,20 +446,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function updateUnreadCount() {
     try {
-        const res = await fetch(`${API_URL}/messages`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const messages = await res.json();
-        const unread = messages.filter(m => !m.is_read || m.is_read == 0).length;
-        const badge = document.getElementById('msg-badge');
-        
-        if (unread > 0) {
-            badge.innerText = unread;
-            badge.style.display = 'inline-block';
-        } else {
-            badge.style.display = 'none';
+        const [msgRes, revRes] = await Promise.all([
+            fetch(`${API_URL}/messages`, { headers: { 'Authorization': `Bearer ${token}` } }),
+            fetch(`${API_URL}/reviews`, { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        if (msgRes.ok) {
+            const messages = await msgRes.json();
+            const unread = messages.filter(m => !m.is_read || m.is_read == 0).length;
+            const badge = document.getElementById('msg-badge');
+            if (badge) {
+                if (unread > 0) {
+                    badge.innerText = unread;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
         }
-    } catch (err) { console.error('Error fetching messages count:', err); }
+
+        if (revRes.ok) {
+            const reviews = await revRes.json();
+            const unapproved = reviews.filter(r => !r.is_approved || r.is_approved == 0).length;
+            const revBadge = document.getElementById('review-badge');
+            if (revBadge) {
+                if (unapproved > 0) {
+                    revBadge.innerText = unapproved;
+                    revBadge.style.display = 'inline-block';
+                } else {
+                    revBadge.style.display = 'none';
+                }
+            }
+        }
+    } catch (err) { console.error('Error fetching unread counts:', err); }
 }
 
 // Tab Switching
@@ -636,6 +655,59 @@ window.createList = createList;
 // Overview Render
 window.overviewFilters = { year: new Date().getFullYear(), month: '' };
 
+// Export Overview as CSV
+window.exportOverviewCSV = async function() {
+    try {
+        const q = window.overviewFilters;
+        const params = new URLSearchParams();
+        if (q.year) params.append('year', q.year);
+        if (q.month) params.append('month', q.month);
+        if (q.lang) params.append('lang', q.lang);
+        if (q.device) params.append('device', q.device);
+        const res = await fetch(`${API_URL}/admin/stats?${params.toString()}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const d = await res.json();
+        const rows = [
+            ['Metric', 'Value'],
+            ['Total Visitors', d.total_visitors],
+            ['Visitors (7d)', d.visitors_7d],
+            ['Visitors Today', d.visitors_today || 0],
+            ['New Visitors', d.visitors_new || 0],
+            ['Returning Visitors', d.visitors_returning || 0],
+            ['Total Clicks', d.total_clicks],
+            ['Total Likes', d.total_likes],
+            ['Total Comments', d.total_comments],
+            ['Messages Total', d.messages_total],
+            ['Messages Unread', d.messages_unread],
+            ['Reviews Total', d.reviews_total],
+            ['Reviews Approved', d.reviews_approved || 0],
+            ['Active Subscribers', d.subscribers_active || 0],
+            ['CV Downloads', d.cv_downloads || 0],
+            ['Chatbot Questions', d.chatbot_total || 0],
+            ['Social Clicks', d.social_clicks || 0],
+            ['Projects', d.projects],
+            ['Certifications', d.certifications],
+            ['Articles', d.articles],
+            ['Skills', d.skills || 0],
+            ['Education', d.education || 0],
+            ['Experience', d.experience || 0]
+        ];
+        const csv = rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'dashboard_stats_' + new Date().toISOString().split('T')[0] + '.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        showNotification('CSV exported successfully', 'success');
+    } catch(e) {
+        console.error('Export error:', e);
+        showNotification('Export failed', 'error');
+    }
+};
+
 function renderOverview(data) {
     const grid = document.getElementById('content-grid');
     grid.innerHTML = '';
@@ -656,13 +728,26 @@ function renderOverview(data) {
         loadContent('overview', true); // Trigger refresh with new filters
     };
 
-    // Helper for Stat Card
-    const card = (icon, value, label, id = '') => `
+    // Trend Badge Helper
+    const trendBadge = (current, previous) => {
+        if (previous === undefined || previous === null || current === undefined) return '';
+        const diff = current - previous;
+        if (diff === 0 && previous === 0) return '';
+        const pct = previous > 0 ? Math.round((diff / previous) * 100) : (current > 0 ? 100 : 0);
+        if (pct === 0) return '<span style="color:#a4b0be;font-size:0.75rem;margin-top:0.2rem;">→ 0%</span>';
+        const color = pct > 0 ? '#2ed573' : '#ff4757';
+        const arrow = pct > 0 ? '↑' : '↓';
+        return '<span style="color:' + color + ';font-size:0.75rem;font-weight:600;margin-top:0.2rem;">' + arrow + ' ' + Math.abs(pct) + '%</span>';
+    };
+
+    // Helper for Stat Card (with optional trend)
+    const card = (icon, value, label, id = '', trend = '') => `
         <div class="admin-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.5rem; text-align:center; min-height:120px;">
             <i class="${icon}" style="font-size:2.5rem; color:var(--accent-color); margin-bottom:1rem;"></i>
             <div style="display:flex; flex-direction:column; align-items:center;">
-                <div style="font-size:2rem; font-weight:600; margin-bottom:0.3rem;" ${id ? `id="${id}"` : ''}>${value}</div>
+                <div style="font-size:2rem; font-weight:600; margin-bottom:0.3rem;" ${id ? 'id="' + id + '"' : ''}>${value}</div>
                 <div style="color:var(--text-muted); font-size:0.9rem;">${label}</div>
+                ${trend}
             </div>
         </div>
     `;
@@ -690,7 +775,7 @@ function renderOverview(data) {
     // 2.5 Audience Stats (Subscribers)
     const audienceHtml = `
         <h2 style="grid-column:1/-1; margin:2rem 0 1rem; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:0.5rem;">Audience</h2>
-        ${card('fa-solid fa-users-viewfinder', data.subscribers_active !== undefined ? data.subscribers_active : 0, 'Active Subscribers', 'stat-subscribers-active')}
+        ${card('fa-solid fa-users-viewfinder', data.subscribers_active !== undefined ? data.subscribers_active : 0, 'Active Subscribers', 'stat-subscribers-active', trendBadge(data.trend_subs_current, data.trend_subs_previous))}
         ${card('fa-solid fa-user-xmark', data.subscribers_unsubscribed !== undefined ? data.subscribers_unsubscribed : 0, 'Unsubscribed', 'stat-subscribers-unsubscribed')}
         <div class="admin-card" style="display:flex; flex-direction:column; align-items:center; justify-content:center; padding:1.5rem; text-align:center; min-height:120px; cursor:pointer; background:rgba(255, 255, 255, 0.03); transition: background 0.2s;" onclick="openSubscribersModal()" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='rgba(255,255,255,0.03)'">
             <i class="fa-solid fa-list-ul" style="font-size:2rem; color:var(--text-muted); margin-bottom:0.5rem;"></i>
@@ -731,21 +816,22 @@ function renderOverview(data) {
                 
                 
                 <button class="btn-primary" style="padding:0.4rem 1rem;" onclick="applyOverviewFilter()">Filter</button>
+                <button class="btn-secondary" style="padding:0.4rem 1rem; margin-left:0.5rem;" onclick="exportOverviewCSV()" title="Export CSV"><i class="fa-solid fa-file-csv"></i> Export</button>
             </div>
         </div>
         
         
-        ${card('fa-solid fa-users', data.total_visitors, `Total Visitors<br><small style="color:var(--accent-color);">Unique IPs</small>`, 'stat-visitors')}
+        ${card('fa-solid fa-users', data.total_visitors, `Total Visitors<br><small style="color:var(--accent-color);">Unique IPs</small>`, 'stat-visitors', trendBadge(data.trend_visitors_current, data.trend_visitors_previous))}
         ${card('fa-solid fa-user-clock', data.visitors_7d, `Visitors (7d)<br><small style="color:var(--accent-color);">Last 7 Days</small>`, 'stat-visitors-7d')}
         ${card('fa-solid fa-user-check', data.visitors_today || 0, `Today<br><small style="color:var(--accent-color);">Live Count</small>`, 'stat-visitors-today')}
-        ${card('fa-solid fa-hand-pointer', data.total_clicks, `Total Clicks<br><small style="color:var(--accent-color);">Projects/Certs/Articles</small>`, 'stat-clicks')}
+        ${card('fa-solid fa-hand-pointer', data.total_clicks, `Total Clicks<br><small style="color:var(--accent-color);">Projects/Certs/Articles</small>`, 'stat-clicks', trendBadge(data.trend_clicks_current, data.trend_clicks_previous))}
         ${card('fa-regular fa-heart', data.total_likes, `Total Likes<br><small style="color:var(--accent-color);">Projects/Articles</small>`, 'stat-likes')}
         ${card('fa-regular fa-comment', data.total_comments, `Total Comments<br><small style="color:var(--accent-color);">Projects/Articles</small>`, 'stat-comments')}
         ${card('fa-solid fa-user-plus', data.visitors_new || 0, `New Visitors<br><small style="color:var(--accent-color);">First time</small>`, 'stat-new')}
         ${card('fa-solid fa-rotate', data.visitors_returning || 0, `Returning<br><small style="color:var(--accent-color);">Came back</small>`, 'stat-returning')}
         ${card('fa-solid fa-percent', data.total_visitors > 0 ? ((data.messages_for_rate || 0) / data.total_visitors * 100).toFixed(1) + '%' : '0%', `Conversion Rate<br><small style="color:var(--accent-color);">Messages / Visitors</small>`, 'stat-conversion')}
         ${card('fa-solid fa-file-arrow-down', data.cv_downloads || 0, `CV Downloads<br><small style="color:var(--accent-color);">Resume</small>`, 'stat-cv-downloads')}
-        ${card('fa-solid fa-robot', data.chatbot_total || 0, `Chatbot Questions<br><small style="color:var(--accent-color);">${data.chatbot_today || 0} today</small>`, 'stat-chatbot')}
+        ${card('fa-solid fa-robot', data.chatbot_total || 0, `Chatbot Questions<br><small style="color:var(--accent-color);">${data.chatbot_today || 0} today</small>`, 'stat-chatbot', trendBadge(data.trend_chatbot_current, data.trend_chatbot_previous))}
         ${card('fa-solid fa-share-nodes', data.social_clicks || 0, `Social Clicks<br><small style="color:var(--accent-color);">LinkedIn/GitHub/etc</small>`, 'stat-social')}
     `;
     

@@ -5,7 +5,7 @@
 <head>
   <script>
     window.onerror = function (msg, url, line, col, error) {
-      alert("Error: " + msg + "\nLine: " + line);
+      console.error("Error: " + msg + " Line: " + line, error);
     };
     window.onunhandledrejection = function (e) {
       console.error("Promise Error: " + e.reason);
@@ -17,7 +17,7 @@
   <meta name="cache-control" content="no-cache, no-store, must-revalidate">
   <meta name="pragma" content="no-cache">
   <meta name="expires" content="0">
-  <meta name="build-version" content="2025-02-18-Fix-Popups-Unique-ID-<?php echo time(); ?>">
+  <meta name="build-version" content="2025-02-18-v3.2">
   <title>Adnane Yadani | Data Scientist & AI Engineer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

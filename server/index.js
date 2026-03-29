@@ -3179,7 +3179,19 @@ app.get('/api/admin/stats', authenticateToken, (req, res) => {
         }),
 
         // TOP ITEMS (Sorted)
-        topProjectsProm, topCertifsProm, topArticlesProm
+        topProjectsProm, topCertifsProm, topArticlesProm,
+
+        // TREND COMPARISONS (Current 30d vs Previous 30d)
+        new Promise(resolve => db.get(`SELECT COUNT(DISTINCT ip_hash) as c FROM visits WHERE date >= date('now', '-30 days')`, [], (e, r) => resolve({k:'trend_visitors_current', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(DISTINCT ip_hash) as c FROM visits WHERE date >= date('now', '-60 days') AND date < date('now', '-30 days')`, [], (e, r) => resolve({k:'trend_visitors_previous', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events WHERE date >= date('now', '-30 days')`, [], (e, r) => resolve({k:'trend_clicks_current', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM analytics_events WHERE date >= date('now', '-60 days') AND date < date('now', '-30 days')`, [], (e, r) => resolve({k:'trend_clicks_previous', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM messages WHERE date >= date('now', '-30 days')`, [], (e, r) => resolve({k:'trend_messages_current', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM messages WHERE date >= date('now', '-60 days') AND date < date('now', '-30 days')`, [], (e, r) => resolve({k:'trend_messages_previous', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM chatbot_conversations WHERE date >= date('now', '-30 days')`, [], (e, r) => resolve({k:'trend_chatbot_current', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM chatbot_conversations WHERE date >= date('now', '-60 days') AND date < date('now', '-30 days')`, [], (e, r) => resolve({k:'trend_chatbot_previous', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM subscribers WHERE COALESCE(subscribed_at, date) >= date('now', '-30 days')`, [], (e, r) => resolve({k:'trend_subs_current', v:r?.c||0}))),
+        new Promise(resolve => db.get(`SELECT COUNT(*) as c FROM subscribers WHERE COALESCE(subscribed_at, date) >= date('now', '-60 days') AND COALESCE(subscribed_at, date) < date('now', '-30 days')`, [], (e, r) => resolve({k:'trend_subs_previous', v:r?.c||0})))
     ];
 
     Promise.all(queries).then(results => {

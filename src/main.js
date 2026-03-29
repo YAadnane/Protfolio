@@ -3932,6 +3932,26 @@ window.addEventListener('load', () => {
     }).catch(err => console.error('Visit tracking failed', err));
 });
 
+// Track Section Views (IntersectionObserver)
+(() => {
+    const sections = ['about', 'skills', 'work', 'articles', 'education', 'testimonials', 'contact'];
+    const tracked = new Set();
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !tracked.has(entry.target.id)) {
+                tracked.add(entry.target.id);
+                trackEvent('view_section', 0, entry.target.id);
+            }
+        });
+    }, { threshold: 0.3 });
+    window.addEventListener('load', () => {
+        sections.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) observer.observe(el);
+        });
+    });
+})();
+
 // =========================================
 // ARTICLE MODAL (Notion Content)
 // =========================================
