@@ -1304,6 +1304,10 @@
                     <span>Shapes</span></button>
                 <button class="sidebar-btn tab-btn" onclick="switchTab('general')"><i class="fa-solid fa-sliders"></i>
                     <span>General</span></button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('goals')"><i class="fa-solid fa-bullseye"></i>
+                    <span>Goals</span></button>
+                <button class="sidebar-btn tab-btn" onclick="switchTab('newsletters')"><i class="fa-solid fa-paper-plane"></i>
+                    <span>Newsletter</span></button>
                 <button class="sidebar-btn tab-btn" onclick="switchTab('messages')"><i class="fa-solid fa-envelope"></i>
                     <span>Messages</span> <span id="msg-badge" class="badge"></span></button>
                 <button class="sidebar-btn tab-btn" onclick="switchTab('reviews')"><i class="fa-solid fa-star"></i>
@@ -1317,9 +1321,17 @@
             <!-- Main Content Area -->
             <main class="admin-content">
                 <!-- Search Bar -->
-                <div id="admin-search-container" class="search-container">
+                <div id="admin-search-container" class="search-container" style="position: relative;">
                     <i class="fa-solid fa-search search-icon"></i>
-                    <input type="text" id="admin-search-input" class="search-input" placeholder="Search items...">
+                    <input type="text" id="admin-global-search-input" class="search-input" placeholder="Global Search (Projects, Certs, Articles, Messages)...">
+                    <div id="global-search-results" style="display:none; position:absolute; top:100%; left:0; right:0; background:var(--card-bg); border:1px solid var(--border-color); border-radius:8px; z-index:99; max-height:300px; overflow-y:auto; box-shadow:0 10px 30px rgba(0,0,0,0.5); padding:0.5rem; margin-top:0.5rem;">
+                    </div>
+                </div>
+
+                <!-- Existing local search for specific tabs -->
+                <div id="admin-local-search-container" class="search-container" style="margin-top: 1rem; display: none;">
+                    <i class="fa-solid fa-filter search-icon"></i>
+                    <input type="text" id="admin-search-input" class="search-input" placeholder="Filter current list...">
                 </div>
 
                 <div id="content-grid" class="admin-grid">

@@ -513,11 +513,55 @@ let currentTabData = [];
 
 // Initialize Search Listener
 document.addEventListener('DOMContentLoaded', () => {
-    // ... existing init code ...
+    // Local filter search
     const searchInput = document.getElementById('admin-search-input');
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             filterAndRender(e.target.value);
+        });
+    }
+
+    // Global Search API
+    const globalSearchInput = document.getElementById('admin-global-search-input');
+    const globalSearchResults = document.getElementById('global-search-results');
+    if (globalSearchInput && globalSearchResults) {
+        let debounceTimer;
+        globalSearchInput.addEventListener('input', (e) => {
+            clearTimeout(debounceTimer);
+            const q = e.target.value.trim();
+            if (!q) {
+                globalSearchResults.style.display = 'none';
+                return;
+            }
+            debounceTimer = setTimeout(async () => {
+                try {
+                    const res = await fetch(`${API_URL}/admin/search?q=${encodeURIComponent(q)}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const results = await res.json();
+                    if (results.length === 0) {
+                        globalSearchResults.innerHTML = '<div style="padding:1rem; color:var(--text-muted); text-align:center;">No results found</div>';
+                    } else {
+                        globalSearchResults.innerHTML = results.map(r => `
+                            <div style="padding:0.75rem; border-bottom:1px solid rgba(255,255,255,0.05); cursor:pointer; display:flex; flex-direction:column;" onclick="window.switchTab('${r.type.toLowerCase() === 'certification' ? 'certifications' : r.type.toLowerCase() + 's'}')">
+                                <span style="font-size:0.75rem; color:var(--accent-color); text-transform:uppercase; margin-bottom:0.25rem;">${r.type}</span>
+                                <span style="color:var(--text-main); font-size:0.9rem;">${r.name}</span>
+                            </div>
+                        `).join('');
+                    }
+                    globalSearchResults.style.display = 'block';
+                } catch(err) {
+                    globalSearchResults.innerHTML = '<div style="padding:1rem; color:#ff4757;">Error searching</div>';
+                    globalSearchResults.style.display = 'block';
+                }
+            }, 300);
+        });
+
+        // Close on click outside
+        document.addEventListener('click', (e) => {
+            if (!globalSearchInput.contains(e.target) && !globalSearchResults.contains(e.target)) {
+                globalSearchResults.style.display = 'none';
+            }
         });
     }
 });
@@ -532,16 +576,16 @@ async function loadContent(type, isRefresh = false) {
     }
     
     // Reset Search
-    const searchContainer = document.getElementById('admin-search-container');
+    const localSearchContainer = document.getElementById('admin-local-search-container');
     const searchInput = document.getElementById('admin-search-input');
     if(searchInput) searchInput.value = '';
 
-    // Show/Hide Search Bar
-    if (searchContainer) {
+    // Show/Hide Local Search Bar
+    if (localSearchContainer) {
         if (SEARCHABLE_TABS.includes(type)) {
-            searchContainer.style.display = 'block';
+            localSearchContainer.style.display = 'block';
         } else {
-            searchContainer.style.display = 'none';
+            localSearchContainer.style.display = 'none';
         }
     }
 
@@ -552,6 +596,10 @@ async function loadContent(type, isRefresh = false) {
         endpoint = `${API_URL}/admin/system`;
     } else if (type === 'overview') {
         endpoint = `${API_URL}/admin/stats`;
+    } else if (type === 'goals') {
+        endpoint = `${API_URL}/admin/goals`;
+    } else if (type === 'newsletters') {
+        endpoint = `${API_URL}/newsletters`;
     } else {
         endpoint = `${API_URL}/${type}`;
     }
@@ -593,6 +641,16 @@ async function loadContent(type, isRefresh = false) {
 
         if (type === 'messages') {
             renderMessages(data);
+            return;
+        }
+
+        if (type === 'goals') {
+            renderGoals(data);
+            return;
+        }
+
+        if (type === 'newsletters') {
+            renderNewsletters(data);
             return;
         }
 
@@ -1002,7 +1060,25 @@ function renderOverview(data) {
         </div>
     ` : '';
 
-    grid.innerHTML = contentHtml + interactionHtml + audienceHtml + analyticsHtml + graphHtml + chartsRowHtml + topContentHtml + sectionsHtml + chatbotHistoryHtml;
+    // Activity Heatmap
+    const heatmapHtml = `
+        <h3 style="grid-column:1/-1; margin-top:2rem;">Activity Calendar</h3>
+        <div class="admin-card" style="grid-column:1/-1; padding:1.5rem; overflow-x:auto;">
+            <div id="activity-heatmap" style="display:flex; flex-wrap:wrap; gap:3px; max-height:100px; flex-direction:column; align-content:flex-start;">
+                <div style="color:var(--text-muted); font-size:0.8rem; text-align:center; width:100%;">Loading heatmap...</div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; align-items:center; gap:0.5rem; margin-top:1rem; font-size:0.75rem; color:var(--text-muted);">
+                <span>Less</span>
+                <div style="width:12px; height:12px; background:rgba(255,255,255,0.05); border-radius:2px;"></div>
+                <div style="width:12px; height:12px; background:#2ed5734d; border-radius:2px;"></div>
+                <div style="width:12px; height:12px; background:#2ed57399; border-radius:2px;"></div>
+                <div style="width:12px; height:12px; background:#2ed573; border-radius:2px;"></div>
+                <span>More</span>
+            </div>
+        </div>
+    `;
+
+    grid.innerHTML = contentHtml + interactionHtml + audienceHtml + analyticsHtml + graphHtml + heatmapHtml + chartsRowHtml + topContentHtml + sectionsHtml + chatbotHistoryHtml;
 
     // Load chatbot history
     loadChatbotHistory();
@@ -1052,8 +1128,47 @@ function renderOverview(data) {
         } catch(e) { console.error(e); }
     };
 
-    setTimeout(() => {
+    setTimeout(async () => {
         updateStatsChart(); // Traffic with default/global filter
+
+        // Fetch & Render Activity Heatmap
+        try {
+            const heatmapRes = await fetch(`${API_URL}/admin/activity`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (heatmapRes.ok) {
+                const activityData = await heatmapRes.json();
+                const container = document.getElementById('activity-heatmap');
+                if (container) {
+                    // Create last 365 days
+                    const days = [];
+                    const today = new Date();
+                    for (let i = 365; i >= 0; i--) {
+                        const d = new Date(today);
+                        d.setDate(d.getDate() - i);
+                        days.push(d.toISOString().split('T')[0]);
+                    }
+                    
+                    const activityMap = {};
+                    activityData.forEach(item => {
+                        activityMap[item.day] = item.count;
+                    });
+
+                    let heatmapBlocks = '';
+                    days.forEach(day => {
+                        const count = activityMap[day] || 0;
+                        let bg = 'rgba(255,255,255,0.05)';
+                        if (count > 0 && count <= 5) bg = '#2ed5734d';
+                        else if (count > 5 && count <= 15) bg = '#2ed57399';
+                        else if (count > 15) bg = '#2ed573';
+
+                        heatmapBlocks += `<div title="${day}: ${count} visits" style="width:12px; height:12px; background:${bg}; border-radius:2px; cursor:pointer;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'"></div>`;
+                    });
+
+                    container.innerHTML = heatmapBlocks;
+                }
+            }
+        } catch(e) { console.error("Error loading heatmap:", e); }
 
         // Peak Hours Chart
         if (data.peak_hours && data.peak_hours.length > 0) {
@@ -2226,6 +2341,157 @@ async function loadTableData(tableName, btnElement) {
     } catch (err) {
         container.innerHTML = `<div style="padding:2rem; color:#ff4757;">Error loading table: ${err.message}</div>`;
     }
+}
+
+// --- GOALS DASHBOARD ---
+async function renderGoals(data) {
+    const grid = document.getElementById('content-grid');
+    
+    let html = `
+        <div style="grid-column: 1 / -1; display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+            <h2 style="margin:0;"><i class="fa-solid fa-bullseye" style="color:var(--accent-color);"></i> Monthly Goals</h2>
+            <button onclick="window.createGoalPrompt()" class="btn-primary" style="padding:0.5rem 1rem; border-radius:8px; border:none; background:var(--accent-color); color:#000; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-plus"></i> New Goal</button>
+        </div>
+    `;
+
+    if (!data || data.length === 0) {
+        html += `<div style="grid-column: 1 / -1; padding:2rem; text-align:center; color:var(--text-muted); background:var(--card-bg); border-radius:15px; border:1px solid var(--border-color);">
+            <i class="fa-regular fa-flag" style="font-size:3rem; margin-bottom:1rem; opacity:0.5;"></i>
+            <p>No goals set yet. Start by creating your first milestone!</p>
+        </div>`;
+    } else {
+        html += data.map(g => {
+            const percent = g.target_value > 0 ? Math.min(100, Math.round((g.current_value / g.target_value) * 100)) : 0;
+            const isComplete = percent >= 100;
+            const color = isComplete ? '#2ed573' : 'var(--accent-color)';
+            return `
+                <div class="stat-card" style="display:flex; flex-direction:column; gap:1rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div>
+                            <h3 style="margin:0 0 0.5rem 0; font-size:1.1rem;">${g.title}</h3>
+                            <span style="font-size:0.8rem; color:var(--text-muted); background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:4px;">${g.month}/${g.year}</span>
+                        </div>
+                        <i class="fa-solid ${isComplete ? 'fa-circle-check' : 'fa-spinner'} " style="color:${color}; font-size:1.2rem;"></i>
+                    </div>
+                    
+                    <div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem; font-size:0.9rem;">
+                            <span style="color:var(--text-muted);">Progress</span>
+                            <span style="font-weight:bold; color:${color};">${g.current_value} / ${g.target_value}</span>
+                        </div>
+                        <div style="width:100%; height:8px; background:rgba(255,255,255,0.05); border-radius:4px; overflow:hidden;">
+                            <div style="width:${percent}%; height:100%; background:${color}; border-radius:4px; transition:width 1s ease-out;"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    grid.innerHTML = html;
+
+    window.createGoalPrompt = async () => {
+        const title = prompt("Goal Title (e.g. Visitors, Messages):");
+        if (!title) return;
+        const target_value = parseInt(prompt("Target Value (number):"));
+        if (!target_value) return;
+
+        const d = new Date();
+        try {
+            const res = await fetch(`${API_URL}/admin/goals`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ title, metric_type: 'custom', target_value, month: d.getMonth()+1, year: d.getFullYear() })
+            });
+            if (res.ok) {
+                showNotification('Goal Created', 'success');
+                loadContent('goals');
+            }
+        } catch (err) { console.error(err); }
+    };
+}
+
+// --- NEWSLETTER DASHBOARD ---
+async function renderNewsletters(data) {
+    const grid = document.getElementById('content-grid');
+    
+    let html = `
+        <div style="grid-column: 1 / -1; display:flex; flex-direction:column; gap:1rem; background:var(--card-bg); padding:1.5rem; border-radius:15px; border:1px solid var(--border-color);">
+            <h2 style="margin:0;"><i class="fa-solid fa-paper-plane" style="color:var(--accent-color);"></i> Compose Newsletter</h2>
+            <input type="text" id="nl-subject" placeholder="Email Subject" style="padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.2); color:white; width:100%;">
+            <textarea id="nl-content" rows="6" placeholder="Write your HTML or Text content here..." style="padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.2); color:white; width:100%; font-family:monospace; resize:vertical;"></textarea>
+            <div style="display:flex; justify-content:flex-end; gap:1rem;">
+                <button onclick="window.saveDraftNewsletter()" class="btn-secondary" style="padding:0.6rem 1.2rem; border-radius:8px; border:1px solid var(--border-color); background:transparent; color:var(--text-main); cursor:pointer;">Save Draft</button>
+            </div>
+        </div>
+
+        <div style="grid-column: 1 / -1; margin-top:2rem;">
+            <h3><i class="fa-solid fa-clock-rotate-left"></i> Newsletter History</h3>
+            <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:1rem;">
+    `;
+
+    if (!data || data.length === 0) {
+        html += `<div style="color:var(--text-muted); padding:1rem;">No newsletters sent or drafted yet.</div>`;
+    } else {
+        html += data.map(nl => `
+            <div class="stat-card" style="display:flex; flex-direction:column; justify-content:space-between; gap:1rem; border-left:3px solid ${nl.status==='sent' ? '#2ed573' : 'var(--text-muted)'};">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                         <h4 style="margin:0; font-size:1rem;">${nl.subject}</h4>
+                         <span style="font-size:0.7rem; padding:2px 6px; border-radius:4px; background:rgba(255,255,255,0.1); text-transform:uppercase;">${nl.status}</span>
+                    </div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                        ${nl.content.substring(0, 50)}...
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.05); padding-top:0.5rem; margin-top:0.5rem;">
+                    <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-users"></i> ${nl.recipients_count} recipients</span>
+                    ${nl.status === 'draft' ? `<button onclick="window.sendNewsletter(${nl.id})" style="background:var(--accent-color); color:#000; border:none; padding:4px 10px; border-radius:4px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-paper-plane"></i> Send</button>` 
+                    : `<span style="font-size:0.8rem; color:var(--text-muted);">${new Date(nl.sent_at).toLocaleDateString()}</span>`}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    html += `</div></div>`;
+    grid.innerHTML = html;
+
+    window.saveDraftNewsletter = async () => {
+        const subject = document.getElementById('nl-subject').value;
+        const content = document.getElementById('nl-content').value;
+        if (!subject || !content) {
+            showNotification('Subject and content are required', 'error');
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/newsletters/draft`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ subject, content })
+            });
+            if (res.ok) {
+                showNotification('Draft saved successfully', 'success');
+                loadContent('newsletters');
+            }
+        } catch (err) { console.error(err); }
+    };
+
+    window.sendNewsletter = async (id) => {
+        if (!await showConfirm('Send Newsletter?', 'Are you sure? This will trigger your existing mailing system and send the email to ALL active subscribers.', 'Send Now', '#2ed573')) return;
+        
+        try {
+            const res = await fetch(`${API_URL}/newsletters/send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ id })
+            });
+            if (res.ok) {
+                showNotification('Newsletter Sent!', 'success');
+                loadContent('newsletters');
+            }
+        } catch (err) { console.error(err); }
+    };
 }
 
 // Global Exports

@@ -3356,6 +3356,92 @@ app.post('/api/settings/maintenance', authenticateToken, async (req, res) => {
 });
 
 // =========================================
+// ACTIVITY HEATMAP API
+// =========================================
+app.get('/api/admin/activity', authenticateToken, (req, res) => {
+    const query = `
+        SELECT DATE(date) as day, COUNT(*) as count 
+        FROM visits 
+        WHERE date >= date('now', '-365 days') 
+        GROUP BY DATE(date) 
+        ORDER BY date ASC
+    `;
+    db.all(query, [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+// =========================================
+// GOALS API
+// =========================================
+app.get('/api/admin/goals', authenticateToken, (req, res) => {
+    db.all("SELECT * FROM goals ORDER BY year DESC, month DESC", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.post('/api/admin/goals', authenticateToken, (req, res) => {
+    const { title, metric_type, target_value, month, year } = req.body;
+    db.run("INSERT INTO goals (title, metric_type, target_value, month, year) VALUES (?, ?, ?, ?, ?)",
+        [title, metric_type, target_value, month, year], function(err) {
+            if (err) return res.status(500).json({ error: err.message });
+            res.json({ success: true, id: this.lastID });
+    });
+});
+
+// =========================================
+// GLOBAL SEARCH API
+// =========================================
+app.get('/api/admin/search', authenticateToken, async (req, res) => {
+    const q = req.query.q || '';
+    if (!q) return res.json([]);
+    const likeQ = `%${q}%`;
+    
+    const searches = [
+        new Promise(resolve => db.all("SELECT id, title as name, 'Project' as type FROM projects WHERE title LIKE ?", [likeQ], (e, r) => resolve(r||[]))),
+        new Promise(resolve => db.all("SELECT id, name, 'Certification' as type FROM certifications WHERE name LIKE ?", [likeQ], (e, r) => resolve(r||[]))),
+        new Promise(resolve => db.all("SELECT id, title as name, 'Article' as type FROM articles WHERE title LIKE ?", [likeQ], (e, r) => resolve(r||[]))),
+        new Promise(resolve => db.all("SELECT id, name || ' - ' || message as name, 'Message' as type FROM messages WHERE name LIKE ? OR message LIKE ?", [likeQ, likeQ], (e, r) => resolve(r||[]))),
+    ];
+    
+    try {
+        const resA = await Promise.all(searches);
+        res.json(resA.flat());
+    } catch(err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// =========================================
+// NEWSLETTERS API
+// =========================================
+app.get('/api/newsletters', authenticateToken, (req, res) => {
+    db.all("SELECT * FROM newsletters ORDER BY id DESC", [], (err, rows) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json(rows);
+    });
+});
+
+app.post('/api/newsletters/draft', authenticateToken, (req, res) => {
+    const { subject, content } = req.body;
+    db.run("INSERT INTO newsletters (subject, content, status) VALUES (?, ?, 'draft')", [subject, content], function(err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, id: this.lastID });
+    });
+});
+
+app.post('/api/newsletters/send', authenticateToken, (req, res) => {
+    const { id } = req.body;
+    // Simulate integration with user's system by marking as sent
+    db.run("UPDATE newsletters SET status='sent', sent_at=CURRENT_TIMESTAMP, recipients_count=(SELECT COUNT(*) FROM subscribers WHERE is_active=1) WHERE id=?", [id], (err) => {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true });
+    });
+});
+
+// =========================================
 // SERVE FRONTEND (MUST BE LAST)
 // =========================================
 const distPath = path.join(__dirname, '../dist');

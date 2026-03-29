@@ -481,13 +481,34 @@ db.serialize(() => {
             if (!err) {
                  db.run("CREATE UNIQUE INDEX IF NOT EXISTS idx_subscribers_email ON subscribers(email)", (err) => {
                      if (err && err.code !== 'SQLITE_CONSTRAINT') {
-                         console.error("Index creation error:", err);
+                         console.error("Index creation error:", err.message);
                      }
                  });
-            } else {
-                console.error("Clean duplicates error:", err);
-            }
+             }
         });
+    });
+
+    // NEWSLETTERS Table
+    db.run(`CREATE TABLE IF NOT EXISTS newsletters (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        subject TEXT,
+        content TEXT,
+        sent_at DATETIME,
+        status TEXT DEFAULT 'draft',
+        recipients_count INTEGER DEFAULT 0
+    )`);
+
+    // GOALS Table
+    db.run(`CREATE TABLE IF NOT EXISTS goals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        metric_type TEXT,
+        target_value INTEGER,
+        current_value INTEGER DEFAULT 0,
+        month INTEGER,
+        year INTEGER,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
     });
 
     // Seed French Education if missing
