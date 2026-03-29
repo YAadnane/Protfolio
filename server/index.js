@@ -3435,10 +3435,48 @@ app.post('/api/newsletters/draft', authenticateToken, (req, res) => {
 
 app.post('/api/newsletters/send', authenticateToken, (req, res) => {
     const { id } = req.body;
-    // Simulate integration with user's system by marking as sent
-    db.run("UPDATE newsletters SET status='sent', sent_at=CURRENT_TIMESTAMP, recipients_count=(SELECT COUNT(*) FROM subscribers WHERE is_active=1) WHERE id=?", [id], (err) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ success: true });
+    
+    // Fetch Newsletter details
+    db.get("SELECT * FROM newsletters WHERE id=?", [id], (err, newsletter) => {
+        if (err || !newsletter) return res.status(500).json({ error: "Newsletter not found." });
+
+        // Fetch all active subscribers
+        db.all("SELECT email FROM subscribers WHERE is_active=1", async (err, subscribers) => {
+            if (err) return res.status(500).json({ error: err.message });
+            
+            const emails = subscribers.map(sub => sub.email).filter(e => e);
+            if (emails.length === 0) {
+                 return res.status(400).json({ error: "No active subscribers found." });
+            }
+
+            try {
+                // Send email using the existing transporter
+                const mailOptions = {
+                    from: `"AY Admin" <${SENDER_EMAIL}>`,
+                    to: emails, // Use BCC to hide recipients if you prefer, but standard is BCC for privacy. Let's use bcc.
+                    bcc: emails,
+                    subject: newsletter.subject,
+                    html: newsletter.content
+                };
+                
+                await transporter.sendMail({
+                     from: `"AY Portfolio" <${SENDER_EMAIL}>`,
+                     bcc: emails,
+                     subject: newsletter.subject,
+                     html: newsletter.content
+                });
+
+                // Update database
+                db.run("UPDATE newsletters SET status='sent', sent_at=CURRENT_TIMESTAMP, recipients_count=? WHERE id=?", [emails.length, id], (err) => {
+                    if (err) return res.status(500).json({ error: err.message });
+                    res.json({ success: true, sent_count: emails.length });
+                });
+
+            } catch (mailError) {
+                console.error("Email sending Error:", mailError);
+                return res.status(500).json({ error: "Failed to send emails." });
+            }
+        });
     });
 });
 

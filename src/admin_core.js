@@ -2434,20 +2434,20 @@ async function renderNewsletters(data) {
         html += `<div style="color:var(--text-muted); padding:1rem;">No newsletters sent or drafted yet.</div>`;
     } else {
         html += data.map(nl => `
-            <div class="stat-card" style="display:flex; flex-direction:column; justify-content:space-between; gap:1rem; border-left:3px solid ${nl.status==='sent' ? '#2ed573' : 'var(--text-muted)'};">
+            <div class="admin-card" style="display:flex; flex-direction:column; justify-content:space-between; gap:1rem; border-left:4px solid ${nl.status==='sent' ? '#2ed573' : 'var(--text-muted)'}; padding: 1.5rem; background: var(--card-bg); border-radius: 1rem; border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);">
                 <div>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                         <h4 style="margin:0; font-size:1rem;">${nl.subject}</h4>
-                         <span style="font-size:0.7rem; padding:2px 6px; border-radius:4px; background:rgba(255,255,255,0.1); text-transform:uppercase;">${nl.status}</span>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.8rem;">
+                         <h4 style="margin:0; font-size:1.1rem; color: #fff;">${nl.subject}</h4>
+                         <span style="font-size:0.7rem; font-weight: bold; padding:4px 8px; border-radius:6px; background: ${nl.status==='sent' ? 'rgba(46, 213, 115, 0.15)' : 'rgba(255,255,255,0.1)'}; color: ${nl.status==='sent' ? '#2ed573' : '#aaa'}; text-transform:uppercase;">${nl.status}</span>
                     </div>
-                    <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.5rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                        ${nl.content.substring(0, 50)}...
+                    <div style="font-size:0.9rem; color:var(--text-muted); margin-top:0.5rem; overflow:hidden; text-overflow:ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; min-height: 2.5rem;">
+                        ${nl.content.replace(/<[^>]*>?/gm, '').substring(0, 100)}...
                     </div>
                 </div>
-                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.05); padding-top:0.5rem; margin-top:0.5rem;">
-                    <span style="font-size:0.8rem; color:var(--text-muted);"><i class="fa-solid fa-users"></i> ${nl.recipients_count} recipients</span>
-                    ${nl.status === 'draft' ? `<button onclick="window.sendNewsletter(${nl.id})" style="background:var(--accent-color); color:#000; border:none; padding:4px 10px; border-radius:4px; font-weight:bold; cursor:pointer;"><i class="fa-solid fa-paper-plane"></i> Send</button>` 
-                    : `<span style="font-size:0.8rem; color:var(--text-muted);">${new Date(nl.sent_at).toLocaleDateString()}</span>`}
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.05); padding-top:1rem; margin-top:0.5rem;">
+                    <span style="font-size:0.85rem; color:var(--text-muted);"><i class="fa-solid fa-users" style="margin-right: 0.3rem;"></i> ${nl.recipients_count || 0} recipients</span>
+                    ${nl.status === 'draft' ? `<button onclick="window.sendNewsletter(${nl.id})" style="background:var(--accent-color); color:#000; border:none; padding:6px 14px; border-radius:6px; font-weight:bold; cursor:pointer; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'"><i class="fa-solid fa-paper-plane" style="margin-right:0.3rem;"></i> Send</button>` 
+                    : `<span style="font-size:0.85rem; color:var(--text-muted);"><i class="fa-solid fa-check" style="margin-right: 0.3rem; color: #2ed573;"></i> ${new Date(nl.sent_at).toLocaleDateString()}</span>`}
                 </div>
             </div>
         `).join('');
